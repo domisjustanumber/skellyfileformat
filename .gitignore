@@ -1,0 +1,17 @@
+# Local working notes (decision 0001)
+plans/
+
+# Claude Code: track only the skills. Local settings and worktrees stay out of git.
+.claude/*
+!.claude/skills/
+
+# Secrets and private data (decision 0001). Never commit them.
+.env*
+*.pem
+*.key
+.private-terms
+
+# Python
+__pycache__/
+.venv/
+.pytest_cache/

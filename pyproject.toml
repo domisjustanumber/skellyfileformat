@@ -1,0 +1,19 @@
+[project]
+name = "skellyfileformat"
+# No release yet. The first release follows the versioning rules of README.md.
+version = "0.0.0"
+description = "File format of skellycam and skellysync recordings: JPEG-in-MKV with timing sidecars, and FLAC audio"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = "==3.13.13"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "pre-commit==4.6.2"]
+
+[tool.uv]
+# The doc tools only; there is no package code until gate 2 (AGENTS.md section 4).
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tools/tests"]
