@@ -24,6 +24,7 @@ These entries are `accepted` or `evidence`.
 | [CA03](entries/CA03-flac-audio.md) | FLAC is the audio codec; skellycam writes `.audio.mka` with `.skau`, skellysync a FLAC track in each camera MKV | accepted |
 | [77Z3](entries/77Z3-finalisation-embed-verify-delete.md) | At finalisation, append each sidecar as an MKV attachment at the end of the file, verify, then delete the separate files | accepted |
 | [VJ14](entries/VJ14-shared-package-and-spec.md) | skellyfileformat is the one shared package for the format, with a descriptive spec; the spec fixes the names | accepted |
+| [5K7G](entries/5K7G-no-recorded-overlays.md) | No recorded overlays: no burned-in stamp, no overlay file or attachment; the player draws the frame label | accepted |
 
 ### Proposed
 
