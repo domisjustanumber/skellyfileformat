@@ -19,7 +19,7 @@ These entries are `accepted` or `evidence`.
 | # | Decision | Status |
 |---|----------|--------|
 | [0001](entries/0001-decision-log-agents-md-and-private-data.md) | Decision log and its rules; `AGENTS.md` files hold the instructions; `plans/` is local; no private data | accepted |
-| [69YS](entries/69YS-video-sidecar-record.md) | Video timing sidecar: a header plus one 64-byte record for each frame; no columnar section | accepted |
+| [FGK2](entries/FGK2-video-sidecar-record-size.md) | Video timing sidecar: a header plus one record for each frame; `record_size` (64 in 2.0) lets a minor add fields; CRC last | accepted |
 | [0YV1](entries/0YV1-fitted-time-in-sidecar.md) | The sidecar holds the fitted time of each frame; the player uses it, or the arrival time before finalisation | accepted |
 | [CA03](entries/CA03-flac-audio.md) | FLAC is the audio codec; skellycam writes `.audio.mka` with `.skau`, skellysync a FLAC track in each camera MKV | accepted |
 | [77Z3](entries/77Z3-finalisation-embed-verify-delete.md) | At finalisation, append each sidecar as an MKV attachment at the end of the file, verify, then delete the separate files | accepted |

@@ -1,6 +1,6 @@
 # 69YS — Video timing sidecar: one 64-byte record for each frame
 
-**Status:** accepted, 2026-11-12 (user; backfilled from the skellycam plan rev 3.8).
+**Status:** superseded by [FGK2](FGK2-video-sidecar-record-size.md), 2026-11-12 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 
