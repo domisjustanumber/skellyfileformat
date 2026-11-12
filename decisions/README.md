@@ -25,10 +25,9 @@ These entries are `accepted` or `evidence`.
 | [77Z3](entries/77Z3-finalisation-embed-verify-delete.md) | At finalisation, append each sidecar as an MKV attachment at the end of the file, verify, then delete the separate files | accepted |
 | [VJ14](entries/VJ14-shared-package-and-spec.md) | skellyfileformat is the one shared package for the format, with a descriptive spec; the spec fixes the names | accepted |
 | [5K7G](entries/5K7G-no-recorded-overlays.md) | No recorded overlays: no burned-in stamp, no overlay file or attachment; the player draws the frame label | accepted |
-| [83Y4](entries/83Y4-recording-manifest.md) | The recording info JSON lists each camera's MKV, sidecar, key and Segment UID | accepted |
 | [X7FT](entries/X7FT-read-old-write-new.md) | Old recordings stay readable; new skellycam and skellysync write only this format; no sidecar means legacy | accepted |
 | [M4DF](entries/M4DF-format-versioning.md) | Format version = major.minor of the skellycam release that last changed the format; u16 major/minor/prerelease in each header | accepted |
-| [CD4G](entries/CD4G-spec-first-and-repository-rules.md) | Spec first with two review gates; normative documents; IDs; golden files; licenses; commits to main until v2.0.0 | accepted |
+| [5PP8](entries/5PP8-whole-recording-scope.md) | The format describes a whole synchronised recording; headers authoritative; a derived recording manifest; spec first; repository rules | accepted |
 
 ### Proposed
 

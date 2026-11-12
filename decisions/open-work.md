@@ -13,20 +13,17 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-5K7G](entries/5K7G-no-recorded-overlays.md),
   [ADR-X7FT](entries/X7FT-read-old-write-new.md),
   [ADR-M4DF](entries/M4DF-format-versioning.md) and
-  [ADR-CD4G](entries/CD4G-spec-first-and-repository-rules.md).
+  [ADR-5PP8](entries/5PP8-whole-recording-scope.md).
 - **Spec v0 and its conformance list.** `spec/SPEC.md` and `spec/conformance.md` hold only headings.
   Write them, then stop for the review of the user (gate 1)
-  ([ADR-CD4G](entries/CD4G-spec-first-and-repository-rules.md)).
+  ([ADR-5PP8](entries/5PP8-whole-recording-scope.md)). The draft covers the recording as well as
+  each file: the header fields that hold the recording facts, and the fields of the recording
+  manifest.
 - **Provisional parts of spec v0.** Mark these parts provisional in `spec/SPEC.md`. Close each of
   them before v2.0.0: the fields that wait for the audio clock drift test and for the Linux and
   macOS audio timing test, and the skellysync camera sidecar header, which waits for the skellysync
   decisions D-Q, D-FPS, D-HDR and D-DRIFT
-  ([ADR-CD4G](entries/CD4G-spec-first-and-repository-rules.md)).
-- **Recording manifest: in the spec or in skellycam?** [ADR-83Y4](entries/83Y4-recording-manifest.md)
-  puts the files, the key and the Segment UID of each camera in skellycam's recording info JSON.
-  The key is the stable camera key: the serial number, else the port path (skellycam plan row 2.6).
-  The scope of spec v0 does not list the manifest. The user must decide if `spec/SPEC.md` defines
-  these fields, or if skellycam defines them.
+  ([ADR-5PP8](entries/5PP8-whole-recording-scope.md)).
 - **S10b: correct the audio start of old recordings?** The audio of old skellycam recordings is
   9–74 ms early. The user must decide if playback corrects it
   ([ADR-X7FT](entries/X7FT-read-old-write-new.md)). skellycam does the legacy playback, so the

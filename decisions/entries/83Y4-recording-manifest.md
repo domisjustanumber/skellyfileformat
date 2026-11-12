@@ -1,6 +1,6 @@
 # 83Y4 — Recording manifest in the recording info JSON
 
-**Status:** accepted, 2026-11-12 (user; backfilled from the skellycam plan rev 3.8).
+**Status:** superseded by [5PP8](5PP8-whole-recording-scope.md), 2026-11-12 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 
