@@ -1,6 +1,6 @@
 # 77Z3 — Finalisation: embed the sidecars, verify, then delete the separate files
 
-**Status:** accepted, 2026-11-12 (user; backfilled from the skellycam plan rev 3.8).
+**Status:** superseded by [3KH3](3KH3-finalisation-embed-fallback.md), 2026-11-12 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 
