@@ -1,6 +1,6 @@
 # 5PP8 — The format describes a whole synchronised recording
 
-**Status:** accepted, 2026-11-12 (user).
+**Status:** superseded by [25VV](25VV-whole-recording-scope-names.md), 2026-11-12 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 

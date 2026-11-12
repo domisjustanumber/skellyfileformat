@@ -15,7 +15,8 @@ The sections marked "normative" are rules. A change to them needs a decision ent
 ## Scope (normative)
 
 The format describes one recording (one take): a set of synchronised camera and audio files that
-share one clock ([ADR-5PP8](decisions/entries/5PP8-whole-recording-scope.md)). It covers these files:
+share one clock ([ADR-25VV](decisions/entries/25VV-whole-recording-scope-names.md)). It covers these
+files:
 
 - the camera video: an MKV file with one JPEG video track, in which every frame is a key frame;
 - the video timing sidecar (`.skvt`): an attachment in the camera MKV, or a separate file until the

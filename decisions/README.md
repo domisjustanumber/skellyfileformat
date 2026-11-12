@@ -27,7 +27,7 @@ These entries are `accepted` or `evidence`.
 | [5K7G](entries/5K7G-no-recorded-overlays.md) | No recorded overlays: no burned-in stamp, no overlay file or attachment; the player draws the frame label | accepted |
 | [X7FT](entries/X7FT-read-old-write-new.md) | Old recordings stay readable; new skellycam and skellysync write only this format; no sidecar means legacy | accepted |
 | [M4DF](entries/M4DF-format-versioning.md) | Format version = major.minor of the skellycam release that last changed the format; u16 major/minor/prerelease in each header | accepted |
-| [5PP8](entries/5PP8-whole-recording-scope.md) | The format describes a whole synchronised recording; headers authoritative; a derived recording manifest; spec first; repository rules | accepted |
+| [25VV](entries/25VV-whole-recording-scope-names.md) | The format describes a whole synchronised recording; headers authoritative; derived manifest; spec fixes only its own names; repo rules | accepted |
 | [CE4D](entries/CE4D-rotation-in-header-only.md) | Frames stored unrotated; `display_rotation` in the sidecar header only; no container rotation flag; readers apply it | accepted |
 | [WD1R](entries/WD1R-file-attachment-and-mime-names.md) | Names: `.skvt`/`.skat` (magics `SKVT`/`SKAT`), attachment names and MIME types; one live audio sidecar; manifest name | accepted |
 

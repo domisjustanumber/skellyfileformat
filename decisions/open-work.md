@@ -14,16 +14,16 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-5K7G](entries/5K7G-no-recorded-overlays.md),
   [ADR-X7FT](entries/X7FT-read-old-write-new.md),
   [ADR-M4DF](entries/M4DF-format-versioning.md),
-  [ADR-5PP8](entries/5PP8-whole-recording-scope.md) and
+  [ADR-25VV](entries/25VV-whole-recording-scope-names.md) and
   [ADR-CE4D](entries/CE4D-rotation-in-header-only.md).
 - **Gate 1 for spec v0.** `spec/SPEC.md` and `spec/conformance.md` hold the v0 draft. The user
-  reviews them (gate 1) ([ADR-5PP8](entries/5PP8-whole-recording-scope.md)). After gate 1, write
-  the runnable tests and the golden files of SPEC.md Appendix A, then stop for gate 2.
+  reviews them (gate 1) ([ADR-25VV](entries/25VV-whole-recording-scope-names.md)). After gate 1,
+  write the runnable tests and the golden files of SPEC.md Appendix A, then stop for gate 2.
 - **Provisional parts of spec v0.** Mark these parts provisional in `spec/SPEC.md`. Close each of
   them before v2.0.0: the fields that wait for the audio clock drift test and for the Linux and
   macOS audio timing test, and the skellysync camera sidecar header, which waits for the skellysync
   decisions D-Q, D-FPS, D-HDR and D-DRIFT
-  ([ADR-5PP8](entries/5PP8-whole-recording-scope.md)).
+  ([ADR-25VV](entries/25VV-whole-recording-scope-names.md)).
 - **Kill test with one live audio sidecar.** Before gate 2, rerun the external-kill test of the
   audio writer (`flac_skau/terminate_kill.py` in the skellycam research, 30 fast and 10 real-time
   kills) with one live audio sidecar instead of two
