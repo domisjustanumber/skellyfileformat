@@ -16,11 +16,9 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-M4DF](entries/M4DF-format-versioning.md),
   [ADR-5PP8](entries/5PP8-whole-recording-scope.md) and
   [ADR-CE4D](entries/CE4D-rotation-in-header-only.md).
-- **Spec v0 and its conformance list.** `spec/SPEC.md` and `spec/conformance.md` hold only headings.
-  Write them, then stop for the review of the user (gate 1)
-  ([ADR-5PP8](entries/5PP8-whole-recording-scope.md)). The draft covers the recording as well as
-  each file: the header fields that hold the recording facts, and the fields of the recording
-  manifest.
+- **Gate 1 for spec v0.** `spec/SPEC.md` and `spec/conformance.md` hold the v0 draft. The user
+  reviews them (gate 1) ([ADR-5PP8](entries/5PP8-whole-recording-scope.md)). After gate 1, write
+  the runnable tests and the golden files of SPEC.md Appendix A, then stop for gate 2.
 - **Provisional parts of spec v0.** Mark these parts provisional in `spec/SPEC.md`. Close each of
   them before v2.0.0: the fields that wait for the audio clock drift test and for the Linux and
   macOS audio timing test, and the skellysync camera sidecar header, which waits for the skellysync

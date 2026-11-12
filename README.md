@@ -14,14 +14,20 @@ The sections marked "normative" are rules. A change to them needs a decision ent
 
 ## Scope (normative)
 
-The format covers these files:
+The format describes one recording (one take): a set of synchronised camera and audio files that
+share one clock ([ADR-5PP8](decisions/entries/5PP8-whole-recording-scope.md)). It covers these files:
 
 - the camera video: an MKV file with one JPEG video track, in which every frame is a key frame;
-- the video timing sidecar: an attachment in the camera MKV, or a separate file until the MKV is
-  finalised or after a crash;
-- the skellycam audio: a `.audio.mka` file with one FLAC track, and its timing sidecar `.skau` as an
-  attachment;
-- the skellysync audio: a FLAC track in each camera MKV.
+- the video timing sidecar (`.skvt`): an attachment in the camera MKV, or a separate file until the
+  MKV is finalised or after a crash;
+- the skellycam audio: a native `.flac` file while the writer records, then a `.mka` file with one
+  FLAC track and its timing sidecar (`.skat`) as an attachment;
+- the skellysync audio: a FLAC track in each camera MKV;
+- the recording manifest: a derived JSON index of the files of one recording.
+
+It also covers the recording as a whole: which files make up one recording, the clock that they
+share, the facts about the recording in each sidecar header, how a writer finalises and recovers the
+files, and how a reader opens a recording, also when it is crashed or incomplete.
 
 The format does not cover recordings that older programs wrote, for example H.264 MP4 files and
 timestamp CSV files. The programs that read those recordings define how they read them. Section 13
@@ -42,8 +48,8 @@ of the spec tells how to find a file that is not in this format.
   - A change that an older reader cannot read needs a new skellycam major version.
   - An added field needs a new skellycam minor version, or a new major version.
   - A skellycam patch release does not change the format.
-- **Header fields.** Each sidecar header (the video timing sidecar and the `.skau`) holds three
-  unsigned 16-bit fields: `major`, `minor` and `prerelease`.
+- **Header fields.** Each sidecar header (the video timing sidecar `.skvt` and the audio timing
+  sidecar `.skat`) holds three unsigned 16-bit fields: `major`, `minor` and `prerelease`.
   - `prerelease` is 0 for a released format, and N for the Nth prerelease revision.
   - A reader must refuse a file with a `major` that it does not know.
   - A reader must read a file with a higher `minor` of a `major` that it knows, and skip the fields

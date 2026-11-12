@@ -9,7 +9,7 @@ Keep technical names, field names, values, formulas, code and YAML unchanged.
 ## 1. Purpose
 
 skellyfileformat defines the file format of skellycam and skellysync recordings: JPEG video in
-Matroska (MKV) with a timing sidecar, and FLAC audio with its timing sidecar (`.skau`). It holds the
+Matroska (MKV) with a timing sidecar, and FLAC audio with its timing sidecar (`.skat`). It holds the
 normative spec, the conformance test list and the golden files. After the spec and the tests are
 approved, it also holds a Python reader and writer and a JavaScript reader. skellycam, skellysync and
 freemocap use it. Other programs can implement the format from the spec alone.
