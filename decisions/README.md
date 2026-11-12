@@ -27,6 +27,7 @@ These entries are `accepted` or `evidence`.
 | [5K7G](entries/5K7G-no-recorded-overlays.md) | No recorded overlays: no burned-in stamp, no overlay file or attachment; the player draws the frame label | accepted |
 | [83Y4](entries/83Y4-recording-manifest.md) | The recording info JSON lists each camera's MKV, sidecar, key and Segment UID | accepted |
 | [X7FT](entries/X7FT-read-old-write-new.md) | Old recordings stay readable; new skellycam and skellysync write only this format; no sidecar means legacy | accepted |
+| [M4DF](entries/M4DF-format-versioning.md) | Format version = major.minor of the skellycam release that last changed the format; u16 major/minor/prerelease in each header | accepted |
 
 ### Proposed
 
