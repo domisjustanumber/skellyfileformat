@@ -12,8 +12,9 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-VJ14](entries/VJ14-shared-package-and-spec.md),
   [ADR-5K7G](entries/5K7G-no-recorded-overlays.md),
   [ADR-X7FT](entries/X7FT-read-old-write-new.md),
-  [ADR-M4DF](entries/M4DF-format-versioning.md) and
-  [ADR-5PP8](entries/5PP8-whole-recording-scope.md).
+  [ADR-M4DF](entries/M4DF-format-versioning.md),
+  [ADR-5PP8](entries/5PP8-whole-recording-scope.md) and
+  [ADR-CE4D](entries/CE4D-rotation-in-header-only.md).
 - **Spec v0 and its conformance list.** `spec/SPEC.md` and `spec/conformance.md` hold only headings.
   Write them, then stop for the review of the user (gate 1)
   ([ADR-5PP8](entries/5PP8-whole-recording-scope.md)). The draft covers the recording as well as

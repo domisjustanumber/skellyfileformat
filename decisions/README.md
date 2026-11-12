@@ -28,6 +28,7 @@ These entries are `accepted` or `evidence`.
 | [X7FT](entries/X7FT-read-old-write-new.md) | Old recordings stay readable; new skellycam and skellysync write only this format; no sidecar means legacy | accepted |
 | [M4DF](entries/M4DF-format-versioning.md) | Format version = major.minor of the skellycam release that last changed the format; u16 major/minor/prerelease in each header | accepted |
 | [5PP8](entries/5PP8-whole-recording-scope.md) | The format describes a whole synchronised recording; headers authoritative; a derived recording manifest; spec first; repository rules | accepted |
+| [CE4D](entries/CE4D-rotation-in-header-only.md) | Frames stored unrotated; `display_rotation` in the sidecar header only; no container rotation flag; readers apply it | accepted |
 
 ### Proposed
 
