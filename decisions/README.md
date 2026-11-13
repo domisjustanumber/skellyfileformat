@@ -32,6 +32,7 @@ These entries are `accepted` or `evidence`.
 | [MG7C](entries/MG7C-fit-segments-by-position.md) | Fit segments keyed by position (`pos_first`, `pos_last`), in position order with no gap; fitter named; breakpoints give `sequence` | accepted |
 | [PV6S](entries/PV6S-writing-crash-reading-and-repair.md) | Fixed-count chunks, no compression, data CRC, fsync ~1 s; crashed files read in place; user-approved repair cuts after the last good chunk | accepted |
 | [D9N1](entries/D9N1-opus-audio-settings-and-timing.md) | Opus in `foxglove.CompressedAudio`; OpusHead fields in channel metadata, `sample_rate` = decode rate, gain 0; 48 kHz 20 ms VBR; log_time = arrival | accepted |
+| [5G42](entries/5G42-gate1-names.md) | Gate 1 names: `freemocap.repair` record, audio `label`, `audio_latency_ns` in the audio channel metadata, RFC 8785 reader result | accepted |
 
 ### Proposed
 
