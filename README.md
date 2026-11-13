@@ -24,7 +24,7 @@ It covers these files:
   [ADR-752H](decisions/entries/752H-timing-fields.md));
 - the audio file of skellycam and skellysync: Opus packets in `foxglove.CompressedAudio` messages,
   with the Opus identification header fields in the channel metadata
-  ([ADR-HD8Z](decisions/entries/HD8Z-opus-audio.md)).
+  ([ADR-D9N1](decisions/entries/D9N1-opus-audio-settings-and-timing.md)).
 
 There is no recording manifest.
 

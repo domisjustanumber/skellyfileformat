@@ -3,29 +3,37 @@
 This file holds the open work of the [decision log](README.md). Read the items that apply to your
 task. Delete an item when its work is done. The PR that closes an item records the result.
 
-- **Gate 1 for spec draft v1.** `spec/SPEC.md` and `spec/conformance.md` hold draft v1, the MCAP
-  profile. The user reviews them (gate 1)
-  ([ADR-TDB5](entries/TDB5-whole-recording-no-manifest.md)). After gate 1, write the runnable tests
-  and the golden files of SPEC.md Appendix A, then stop for gate 2.
+- **Gate 1 for spec draft v1.** A sub-agent reviewed draft v1. The user decided four of its points
+  ([ADR-MG7C](entries/MG7C-fit-segments-by-position.md),
+  [ADR-PV6S](entries/PV6S-writing-crash-reading-and-repair.md),
+  [ADR-D9N1](entries/D9N1-opus-audio-settings-and-timing.md)) and confirmed the gate-1 names
+  ([ADR-5G42](entries/5G42-gate1-names.md)). The user decides each item of the proposed entries
+  [ADR-T24G](entries/T24G-spec-v1-review-fixes-crash-fit-audio.md),
+  [ADR-WG08](entries/WG08-reader-result-states-and-codes.md) and
+  [ADR-W4PF](entries/W4PF-shared-package-and-no-overlays.md). Then write spec draft v2 with the
+  decided items, and the user reviews it (gate 1). After gate 1, write the runnable tests and the
+  golden files of SPEC.md Appendix A, then stop for gate 2.
 - **Absorb the format entries into the spec.** After gate 1, when `spec/SPEC.md` or `README.md`
   states all rules of an entry, move the entry to Historical as absorbed:
   [ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md),
   [ADR-TDB5](entries/TDB5-whole-recording-no-manifest.md),
   [ADR-752H](entries/752H-timing-fields.md),
-  [ADR-FF01](entries/FF01-fit-and-breakpoints-in-metadata.md),
-  [ADR-HD8Z](entries/HD8Z-opus-audio.md),
-  [ADR-QDZ7](entries/QDZ7-opus-settings-and-timing.md),
-  [ADR-S4FG](entries/S4FG-writing-crash-and-repair.md),
+  [ADR-MG7C](entries/MG7C-fit-segments-by-position.md),
+  [ADR-D9N1](entries/D9N1-opus-audio-settings-and-timing.md),
+  [ADR-PV6S](entries/PV6S-writing-crash-reading-and-repair.md),
+  [ADR-5G42](entries/5G42-gate1-names.md),
   [ADR-WD9A](entries/WD9A-lichtblick-reference-viewer.md),
   [ADR-10JC](entries/10JC-lichtblick-audio-checks.md),
-  [ADR-VJ14](entries/VJ14-shared-package-and-spec.md),
-  [ADR-5K7G](entries/5K7G-no-recorded-overlays.md),
-  [ADR-X1G6](entries/X1G6-read-old-write-mcap.md),
+  [ADR-VJ14](entries/VJ14-shared-package-and-spec.md) and
+  [ADR-5K7G](entries/5K7G-no-recorded-overlays.md) (or, when it is accepted, the consolidation
+  [ADR-W4PF](entries/W4PF-shared-package-and-no-overlays.md)),
+  [ADR-X1G6](entries/X1G6-read-old-write-mcap.md) (only its items 2 and 3: items 1, 4, 5 and 6 are
+  skellycam rules),
   [ADR-7K3C](entries/7K3C-format-versioning-in-metadata.md) and
   [ADR-68Z6](entries/68Z6-rotation-in-metadata-only.md).
 - **Provisional parts of spec draft v1.** Close each of them before v2.0.0
   ([ADR-TDB5](entries/TDB5-whole-recording-no-manifest.md),
-  [ADR-S4FG](entries/S4FG-writing-crash-and-repair.md)):
+  [ADR-PV6S](entries/PV6S-writing-crash-reading-and-repair.md)):
   - SFF-213: the audio timestamps against the microphone clock wait for the audio clock drift test
     (A4 of the skellycam plan);
   - SFF-216 and the `audio_latency_ns` key: wait for the microphone latency test (A3);
