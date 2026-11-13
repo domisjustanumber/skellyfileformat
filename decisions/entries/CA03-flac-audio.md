@@ -1,6 +1,6 @@
 # CA03 — FLAC audio: a separate `.audio.mka` in skellycam, a track in each camera MKV in skellysync
 
-**Status:** accepted, 2026-11-12 (user; backfilled from the skellycam plan rev 3.8).
+**Status:** superseded by [HD8Z](HD8Z-opus-audio.md), 2026-11-13 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 

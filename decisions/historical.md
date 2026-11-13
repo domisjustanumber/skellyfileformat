@@ -17,3 +17,4 @@ the reason for a decision. The [index](README.md) has the Active and Proposed en
 | [FGK2](entries/FGK2-video-sidecar-record-size.md) | Video timing sidecar: a header plus one record for each frame; `record_size` (64 in 2.0) lets a minor add fields; CRC last | superseded by SFK5 |
 | [3KH3](entries/3KH3-finalisation-embed-fallback.md) | Embed each sidecar at the end of its file when the appender can, else keep it separate; verify, then delete; recover an interrupted embed | superseded by SFK5 |
 | [WD1R](entries/WD1R-file-attachment-and-mime-names.md) | Names: `.skvt`/`.skat` (magics `SKVT`/`SKAT`), attachment names and MIME types; one live audio sidecar; manifest name | superseded by SFK5 |
+| [CA03](entries/CA03-flac-audio.md) | FLAC is the audio codec; skellycam writes `.audio.mka` with `.skau`, skellysync a FLAC track in each camera MKV | superseded by HD8Z |

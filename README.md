@@ -21,9 +21,9 @@ files:
 - the camera video: an MCAP file in which each frame is one JPEG in a `foxglove.CompressedImage`
   message, with the timing of the frame in the MCAP fields and the facts in the file metadata
   ([ADR-SFK5](decisions/entries/SFK5-mcap-container.md));
-- the skellycam audio: a native `.flac` file while the writer records, then a `.mka` file with one
-  FLAC track and its timing sidecar (`.skat`) as an attachment;
-- the skellysync audio: a FLAC track in each camera MKV;
+- the audio of skellycam and skellysync: Opus packets in `foxglove.CompressedAudio` messages in
+  MCAP, with the Opus identification header fields in the channel metadata
+  ([ADR-HD8Z](decisions/entries/HD8Z-opus-audio.md));
 - the recording manifest: a derived JSON index of the files of one recording.
 
 It also covers the recording as a whole: which files make up one recording, the clock that they

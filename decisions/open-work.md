@@ -7,7 +7,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   an entry, move the entry to Historical as absorbed:
   [ADR-SFK5](entries/SFK5-mcap-container.md),
   [ADR-0YV1](entries/0YV1-fitted-time-in-sidecar.md),
-  [ADR-CA03](entries/CA03-flac-audio.md),
+  [ADR-HD8Z](entries/HD8Z-opus-audio.md),
   [ADR-VJ14](entries/VJ14-shared-package-and-spec.md),
   [ADR-5K7G](entries/5K7G-no-recorded-overlays.md),
   [ADR-X7FT](entries/X7FT-read-old-write-new.md),
@@ -34,7 +34,9 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - chunking (one chunk for each frame or not), chunk compression, and the data section CRC;
   - crashed files: a reader reads them in place, or a writer rewrites them with a recovery step;
   - the metadata record names, the keys and the channel topics;
-  - the Opus settings: bitrate, mono or stereo, packet length, application mode;
+  - the Opus settings: bitrate, mono or stereo, packet length, application mode
+    ([ADR-HD8Z](entries/HD8Z-opus-audio.md)), and whether the player gives the `OpusHead` to
+    WebCodecs as `description` (the WebCodecs registration then assumes an Ogg bitstream);
   - from the third review of spec v0: F2 (stale files), F3 (sign of the audio latency), F4 (a
     canonical reader-result JSON) and F6 (bounds of the nominal rate). F1 and F5 are withdrawn
     with the embed and the FLAC file.
