@@ -29,6 +29,7 @@ These entries are `accepted` or `evidence`.
 | [7K3C](entries/7K3C-format-versioning-in-metadata.md) | Format version = major.minor of the skellycam release that last changed the format; major/minor/prerelease in each file's metadata | accepted |
 | [41VF](entries/41VF-whole-recording-scope-mcap.md) | The format describes a whole synchronised recording of MCAP files; file metadata authoritative; derived manifest; spec fixes only its own names; repo rules | accepted |
 | [68Z6](entries/68Z6-rotation-in-metadata-only.md) | Frames stored unrotated; `display_rotation` in the camera file's metadata only; no other rotation; readers apply it | accepted |
+| [QDZ7](entries/QDZ7-opus-settings-and-timing.md) | Opus: device channels (max 2), 48 kHz, 20 ms, `audio`, VBR 128/256 kbit/s; timestamp = first decoded sample; reader drops pre-skip | accepted |
 
 ### Proposed
 
