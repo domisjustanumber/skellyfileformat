@@ -13,7 +13,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-X1G6](entries/X1G6-read-old-write-mcap.md),
   [ADR-7K3C](entries/7K3C-format-versioning-in-metadata.md),
   [ADR-41VF](entries/41VF-whole-recording-scope-mcap.md) and
-  [ADR-CE4D](entries/CE4D-rotation-in-header-only.md).
+  [ADR-68Z6](entries/68Z6-rotation-in-metadata-only.md).
 - **Rewrite the spec as an MCAP profile.** `spec/SPEC.md` and `spec/conformance.md` hold the v0
   draft of the MKV design, which [ADR-SFK5](entries/SFK5-mcap-container.md) withdraws. Keep the
   parts that do not depend on the container: the scope and the terms, the versioning, the clocks,

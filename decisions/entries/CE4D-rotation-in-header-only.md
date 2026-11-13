@@ -1,6 +1,6 @@
 # CE4D — Rotation: frames stored unrotated, rotation in the sidecar header only
 
-**Status:** accepted, 2026-11-12 (user).
+**Status:** superseded by [68Z6](68Z6-rotation-in-metadata-only.md), 2026-11-13 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 
