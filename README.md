@@ -20,7 +20,7 @@ files:
 
 - the camera video: an MKV file with one JPEG video track, in which every frame is a key frame;
 - the video timing sidecar (`.skvt`): an attachment in the camera MKV, or a separate file until the
-  MKV is finalised or after a crash;
+  MKV is finalised, after a crash, or as the final form when the attachment cannot be added;
 - the skellycam audio: a native `.flac` file while the writer records, then a `.mka` file with one
   FLAC track and its timing sidecar (`.skat`) as an attachment;
 - the skellysync audio: a FLAC track in each camera MKV;

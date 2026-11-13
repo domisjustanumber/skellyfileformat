@@ -24,10 +24,9 @@ task. Delete an item when its work is done. The PR that closes an item records t
   macOS audio timing test, and the skellysync camera sidecar header, which waits for the skellysync
   decisions D-Q, D-FPS, D-HDR and D-DRIFT
   ([ADR-25VV](entries/25VV-whole-recording-scope-names.md)).
-- **Kill test with one live audio sidecar.** Before gate 2, rerun the external-kill test of the
-  audio writer (`flac_skau/terminate_kill.py` in the skellycam research, 30 fast and 10 real-time
-  kills) with one live audio sidecar instead of two
-  ([ADR-WD1R](entries/WD1R-file-attachment-and-mime-names.md)). The result goes into SFT-453.
+- **Provisional: clock ids and audio latency.** SFF-165 waits for the Linux and macOS video timing
+  tests (T-S7 of the skellycam plan). SFF-251 waits for the microphone latency test (A3 of the
+  skellycam plan) ([ADR-25VV](entries/25VV-whole-recording-scope-names.md)).
 - **S10b: correct the audio start of old recordings?** The audio of old skellycam recordings is
   9–74 ms early. The user must decide if playback corrects it
   ([ADR-X7FT](entries/X7FT-read-old-write-new.md)). skellycam does the legacy playback, so the

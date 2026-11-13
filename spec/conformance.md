@@ -28,10 +28,10 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 Checks: SFF-001, SFF-002, SFF-003, SFF-006
 Input: G1, G6, G13 and their reference values (a JSON file of each field, made by the generator);
 writer output.
-Pass: each decoded field of the golden files is equal to its reference value. Each recomputed CRC-32
-is equal to the stored CRC. Each INT64_MIN time is reported as absent. The writer output, parsed with
-an independent table of offsets and types made from SPEC.md, gives the values that the writer was
-given.
+Pass: the CRC-32 of the ASCII bytes `123456789` is 0xCBF43926. Each decoded field of the golden files
+is equal to its reference value. Each recomputed CRC-32 is equal to the stored CRC. Each INT64_MIN
+time is reported as absent. The writer output, parsed with an independent table of offsets and types
+made from SPEC.md, gives the values that the writer was given.
 
 **SFT-002** Reader: 64-bit values in JavaScript
 Checks: SFF-005
@@ -53,8 +53,8 @@ Pass: each UID in the manifest matches `^[0-9a-f]{32}$` and is equal to the byte
 **SFT-050** Reader: unknown major
 Checks: SFF-050, SFF-051, SFF-552
 Input: G7 (unknown `major`, other bytes after offset 10 changed, `header_crc32` wrong).
-Pass: Python and JS report "unsupported version", not a CRC error. They give no records. They do not
-report "legacy".
+Pass: Python and JS report `unsupported_version`, not `bad_header_crc`. They give no records. They do
+not report `legacy`.
 
 **SFT-051** Reader: higher minor
 Checks: SFF-052
@@ -91,6 +91,12 @@ Checks: SFF-057
 Input: G1, and G1 with the `major` of its embedded sidecar changed to an unknown value (the media
 bytes are unchanged).
 Pass: G1 reads. The changed file is "unsupported version".
+
+**SFT-057** Reader: minor gate
+Checks: SFF-058
+Input: a generated version 2.0 file whose JSON block starts right after the fixed fields, read by a
+reader built with a test field "added in minor 1" at that offset.
+Pass: the reader does not read the test field from the 2.0 file.
 
 ### Video: the MKV profile (section 4)
 
@@ -142,10 +148,10 @@ Pass: the reader finds each payload at the correct offset.
 
 **SFT-107** Writer: no timing inside frames
 Checks: SFF-111
-Input: writer output from a fake MJPEG camera and from a fake raw camera.
-Pass: the MJPEG frames are byte-identical to the camera frames. The JPEG frames of the raw camera
-have only the APPn segments that the encoder writes when it has no timing input. The sidecar alone
-gives each time.
+Input: writer output from a fake MJPEG camera; a fake raw camera that sends the same pixels twice with
+different timestamps.
+Pass: the MJPEG frames are byte-identical to the camera frames. The two JPEG frames of the raw camera
+are byte-identical. The sidecar alone gives each time.
 
 **SFT-108** Reader: Segment UID of a live file
 Checks: SFF-112
@@ -159,17 +165,19 @@ Pass: each file has a 16-byte `SegmentUID` that is not all zero. The two values 
 
 ### Video timing sidecar (section 5)
 
-**SFT-150** Reader: common header layout
+**SFT-150** Reader and writer: common header layout
 Checks: SFF-150
-Input: G1, G13, and their reference values.
-Pass: each common header field is equal to its reference value, in Python and JS.
+Input: G1, G13 and their reference values; writer output.
+Pass: each common header field of the golden files is equal to its reference value, in Python and JS.
+The writer output, parsed with an independent offset table made from SPEC.md, gives the values that
+the writer was given.
 
 **SFT-151** Writer and reader: header CRC and check order
 Checks: SFF-151, SFF-152
-Input: writer output, live and finalised; G7 (wrong `header_crc32`; wrong magic).
-Pass: the writer output has a correct `header_crc32` in the live and the finalised sidecar. The
-reader refuses the file with the wrong CRC. It reports the file with the wrong magic as a wrong
-magic, not as a CRC error.
+Input: writer output, live and finalised; G7 (wrong `header_crc32`; wrong magic with a wrong
+`header_crc32`; `header_size` larger than the file).
+Pass: the writer output has a correct `header_crc32` in the live and the finalised sidecar. The reader
+refuses the files with the reasons `bad_header_crc`, `bad_magic` and `bad_header_size`.
 
 **SFT-152** Writer and reader: diagnostics JSON block
 Checks: SFF-153, SFF-154
@@ -180,9 +188,11 @@ with and without the JSON block.
 
 **SFT-153** Writer and reader: the `finalised` flag
 Checks: SFF-155, SFF-156
-Input: a writer killed after each write and rename of finalisation; G2 with `finalised` cleared.
-Pass: `finalised` appears only in the complete final sidecar of step 3. After it, the only change is
-`separate_final`. The reader treats the G2 file without `finalised` as live.
+Input: a writer killed after each write and rename of finalisation; G2 with `finalised` cleared and
+`header_crc32` recomputed.
+Pass: `finalised` appears only in the complete final sidecar of step 3. A later `separate_final`
+sidecar differs from it only in bit 1 of `header_flags` and in `header_crc32`. The reader treats the
+G2 file without `finalised` as live.
 
 **SFT-154** Writer and reader: body CRC
 Checks: SFF-157, SFF-158
@@ -222,11 +232,12 @@ Checks: SFF-165
 Pass: on Linux the writer writes `clock_id` 2, and on macOS 3. The video and audio times of one take
 agree within the bound that the Linux and macOS timing tests give.
 
-**SFT-161** Reader: records and their size
+**SFT-161** Reader and writer: records and their size
 Checks: SFF-166, SFF-168
-Input: G1 (64-byte records); G7 (larger records).
-Pass: each record field is equal to its reference value. The reader steps by `record_size` in both
-files.
+Input: G1 (64-byte records); G7 (larger records); writer output.
+Pass: each record field of the golden files is equal to its reference value. The reader steps by
+`record_size` in both files. The writer output, parsed with an independent offset table, gives the
+values that the writer was given.
 
 **SFT-162** Writer: record to frame pairing
 Checks: SFF-167, SFF-169
@@ -238,11 +249,10 @@ offset (100 %).
 
 **SFT-163** Writer: gap and repeat flags
 Checks: SFF-170
-Input: a fake camera with the frame numbers 5, 6, 6, 9, 10, then 2^32 − 1, 0; and an encoder failure
-on one frame with contiguous frame numbers.
+Input: a fake camera with the frame numbers 5, 6, 6, 9, 10, then 2^32 − 1, 0; and a fake camera with
+frame numbers 20, 21, 22 where the encoder fails on 21.
 Pass: `repeat` is set on the second 6 only. `gap` is set on 9 and on 2^32 − 1 only. The wrap to 0
-sets no flag. The first record has neither flag. The frame after the encoder failure has
-`encode_skip`, and it has `gap` only when its frame number is not contiguous.
+sets no flag. The first record has neither flag. The record of 22 has `encode_skip` and `gap`.
 
 **SFT-164** Writer: encode skip
 Checks: SFF-171
@@ -251,9 +261,11 @@ Pass: the record of the next written frame has `encode_skip`. No other record ha
 
 **SFT-165** Writer: fitted times
 Checks: SFF-172, SFF-175
-Input: a fake camera with a known lattice, jitter and one stall; a take with 1 frame.
-Pass: after finalisation, every record has `fit_valid` and a `fitted_ns` that is not absent, and the
-fitted times do not decrease across the stall. The 1-frame file has no record with `fit_valid`.
+Input: a fake camera on a known lattice (arrival = lattice time + 2 ms + jitter of 0 to 3 ms), with one
+stall of 500 ms; a take with 1 frame.
+Pass: after finalisation, every record has `fit_valid` and a `fitted_ns` that is not absent; outside
+the stall, fitted time minus lattice time is the same value within 1 ms for every frame; the fitted
+times do not decrease across the stall. The 1-frame file has no record with `fit_valid`.
 
 **SFT-166** Writer: final offset state
 Checks: SFF-173
@@ -268,8 +280,10 @@ is absent where that table says "absent".
 
 **SFT-168** Reader: player time
 Checks: SFF-176, SFF-178
-Input: G1 (fit valid); G6 (no fit); G3 (live); G1 with `legacy_ns` changed.
-Pass: the player time is `fitted_ns` for G1 and `arrival_ns` for G6 and G3. The G1 file with a
+Input: G1 (fit valid); G6 (no fit); G3 (live); G1 with `legacy_ns` changed (all CRCs and the embedded
+attachment recomputed); a finalised sidecar with one record without `fit_valid`; a live sidecar with
+`fit_valid` set.
+Pass: the player time is `fitted_ns` for G1 and `arrival_ns` for the others. The G1 file with a
 changed `legacy_ns` gives the same player times as G1.
 
 **SFT-169** Writer and reader: player time does not decrease
@@ -279,8 +293,14 @@ Pass: the player time does not decrease from one record to the next.
 
 **SFT-170** Reader: refused sidecars
 Checks: SFF-179
-Input: G7 (each refusal case of SFF-179); a camera MKV with an embedded `SKAT` sidecar.
-Pass: Python and JS refuse each input, with the same reason.
+Input: G7 (each refusal case of SFF-179); a camera MKV with an embedded `SKAT` sidecar stored under
+the attachment name `video_timing.skvt`.
+Pass: Python and JS refuse each input with the reason code of SFF-179 for its case.
+
+**SFT-171** Reader: larger audio records
+Checks: SFF-180
+Input: G7 (a `.skat` with a higher `minor` and 56-byte audio records).
+Pass: the reader reads the known fields, finds `type` at offset 40 and the CRC in the last 4 bytes.
 
 ### Audio: FLAC in `.mka` (section 6)
 
@@ -323,16 +343,20 @@ Input: writer output at 48 kHz and 44.1 kHz.
 Pass: the container timestamp of each FLAC frame is `first_sample` × 1000 / `sample_rate` ms, round
 half up.
 
-**SFT-206** Writer: `.mka` name
-Checks: SFF-207
-Pass: the `.mka` has the stem of its `.flac` file.
+**SFT-206** (withdrawn)
+
+**SFT-207** Reader: one audio file per take
+Checks: SFF-208
+Input: G16 (finalised) with the `.mka` renamed to a different stem.
+Pass: the reader pairs the `.mka` with the take by `take_uuid`.
 
 ### Audio timing sidecar (section 7)
 
-**SFT-250** Reader: audio header and track descriptor
+**SFT-250** Reader and writer: audio header and track descriptor
 Checks: SFF-250, SFF-252
-Input: G13 and its reference values.
-Pass: each audio header field is equal to its reference value. `table_record_size` is equal to
+Input: G13 and its reference values; writer output.
+Pass: each audio header field is equal to its reference value, and the writer output, parsed with an
+independent offset table, gives the values that the writer was given. `table_record_size` is equal to
 `record_size`. `total_samples` is the sum of `n_samples` of the packet table.
 
 **SFT-251** (provisional) Writer: audio latency
@@ -343,9 +367,10 @@ Pass: until test A3 is done, `audio_latency_ns` is INT64_MIN.
 Checks: SFF-253, SFF-259
 Input: G13 (mono and stereo).
 Pass: the reader builds the 42-byte description and decodes from packet 0 and from a packet in the
-middle (a cold start). The samples are equal to the reference decode, within one 16-bit step. The
-search gives the right packet for sample 0, for the first sample of a packet, for the sample before
-it and for `total_samples` − 1. Sample `total_samples` and sample −1 give an error.
+middle (a cold start). Decoded to 16-bit integers, the samples are equal to the reference decode;
+decoded to floats, they are within one 16-bit step. The search gives the right packet for sample 0,
+for the first sample of a packet, for the sample before it and for `total_samples` − 1. Sample
+`total_samples` and sample −1 give an error.
 
 **SFT-253** Writer: timing records
 Checks: SFF-254, SFF-255
@@ -361,7 +386,7 @@ sidecar has `table_offsets_final`. The live sidecar does not.
 
 **SFT-255** (provisional) Writer and reader: drift table and mapping
 Checks: SFF-260, SFF-261
-Input: G13 (a known drift with one step).
+Input: G13 (a known drift with one step, with `adc_ns` the time of sample `sample_index` + `frames`).
 Pass: the writer finds the segments of the generator. The reader maps each test time to a sample
 within ±1 sample of the reference.
 
@@ -370,9 +395,15 @@ Checks: SFF-262
 Pass: on Linux and macOS, `adc_ns` and `current_ns` have the meaning that the Linux and macOS audio
 timing test gives.
 
+**SFT-257** (provisional) Writer: drift table from host times
+Checks: SFF-263
+Input: a fake microphone that gives no ADC time, with a known drift.
+Pass: the writer writes a drift table with `host_fit` on each record, and its segments match the
+generator.
+
 ### Audio in the camera MKV (section 8)
 
-**SFT-300** Writer: skellysync audio
+**SFT-300** (provisional) Writer: skellysync audio
 Checks: SFF-300, SFF-301, SFF-302, SFF-303
 Input: a burst fixture (frame index in the pixels, irregular flashes, different left and right
 channels); a source whose video starts after its audio; a 44.1 kHz source.
@@ -380,28 +411,37 @@ Pass: 0 samples of audio-to-video error; channels and sample rate kept; 16 bits 
 does not continue after the last frame; the packet table follows the video records and matches a
 scan; each record has `offset_state` = 2.
 
+**SFT-301** Writer: skellysync audio timestamps
+Checks: SFF-304
+Input: G15 and writer output at 44.1 kHz.
+Pass: the container timestamp of each FLAC frame is `first_sample` × 1000 / `sample_rate` ms, round
+half up.
+
 ### Embedding and finalisation (section 9)
 
 **SFT-350** Writer: finalisation order
 Checks: SFF-350
 Input: a writer killed after each write, flush and rename of finalisation, for a camera file and for
-an audio file; a normal finalisation.
+an audio file; a normal finalisation; a finalisation where one frame CRC does not match in step 2.
 Pass: after a normal finalisation, each record has `offset_state` = 2, `segment_uid` is equal to the
 Segment UID of the file, the fitted times are present, `finalised` is set, and the separate sidecar,
 the `.flac` file and the live audio sidecar are deleted. Each kill leaves one of the states of the
-table in SPEC.md section 9.7.
+table in SPEC.md section 9.7. The CRC mismatch stops the finalisation, and a recovery follows.
 
 **SFT-351** Writer: manifest last
 Checks: SFF-351
 Input: a writer with a trace of file operations, for a take of 4 cameras and audio.
-Pass: the rename of the manifest comes after the last delete of finalisation step 6.
+Pass: the rename of the manifest comes after the last operation of step 7 of every file.
 
 **SFT-352** Writer: appender
 Checks: SFF-352, SFF-355
-Input: G10 (no tags; tags; Chapters in the header; 1 byte left).
-Pass: only the Segment size, the SeekHead and Void span and the bytes after the old end change. Each
-block has the same offset, size and CRC. The SHA-256 of the extracted `FileData` is equal to the
-SHA-256 of the sidecar. `FileUID` is not 0. ffprobe gives the same frame count.
+Input: G10 (no tags; tags; Chapters in the header; 1 byte left; a SeekHead with a CRC-32 element);
+G12; the appender with a trace of each write and flush.
+Pass: only the Segment size, the SeekHead span and the bytes after the old end change. Each block has
+the same offset, size and CRC. The SHA-256 of the extracted `FileData` is equal to the SHA-256 of the
+sidecar. `FileUID` is not 0. The CRC-32 element is correct for the new SeekHead. ffprobe (the pinned
+version) gives the same frame count. The trace shows: append, flush, Segment size, flush, SeekHead,
+flush.
 
 **SFT-353** Writer: appender refusals
 Checks: SFF-353
@@ -421,9 +461,10 @@ Pass: in each finalised file, the Attachments element is after the last Cluster.
 **SFT-356** Writer: verify and delete
 Checks: SFF-357, SFF-358
 Input: an embed with one changed `FileData` byte; an embed into a file whose last frame was changed
-after the scan; a normal embed; a normal embed of a file with 0 frames.
-Pass: the two changed embeds do not verify, and the separate sidecar stays. The two normal embeds
-verify, and the separate sidecar is deleted.
+after the scan; a normal embed; a normal embed of a file with 0 frames; an audio embed.
+Pass: the two changed embeds do not verify; the attachment is cut off, `separate_final` is set and the
+separate sidecar stays. The normal embeds verify (the audio one by its packet records), and the
+separate sidecar is deleted.
 
 **SFT-357** Reader: locator, Python and JS
 Checks: SFF-359, SFF-360
@@ -443,9 +484,9 @@ file by a scan, with no times. The file with the bad embedded sidecar uses the s
 
 **SFT-359** Writer and reader: interrupted embed
 Checks: SFF-362, SFF-363
-Input: G11.
-Pass: the reader uses the separate sidecar for both states. The recovery makes a file with one
-attachment that the locator finds, and each block is unchanged.
+Input: G11 (including the torn SeekHead span).
+Pass: the reader uses the separate sidecar for each state. The recovery makes a file with one
+attachment that the locator finds, a SeekHead span that parses, and each block unchanged.
 
 **SFT-360** Writer and reader: finalisation not complete
 Checks: SFF-364
@@ -454,10 +495,24 @@ Pass: the reader treats the file as live. The writer recovers it as section 11 g
 
 **SFT-361** Writer and reader: crash during finalisation
 Checks: SFF-365
-Input: each state of the table in SPEC.md section 9.7, made from G1, G2 and G13 by the kills of
-SFT-350.
-Pass: the reader does what the table gives for each state. The recovery ends with a finalised file
-that passes SFT-350.
+Input: each row of the table in SPEC.md section 9.7, made by a script from G1, G2 and G13.
+Pass: for each row, the reader reports the state of the table and uses the file that it gives. The
+recovery ends with a finalised file that passes SFT-350.
+
+**SFT-362** Writer: repeatable recovery
+Checks: SFF-366
+Input: a recovery killed after each of its writes and renames, from G3 and G14, then run again.
+Pass: each kill leaves a state of section 9.7 or section 11. Each second run ends with the same files
+as an uninterrupted recovery.
+
+**SFT-363** Writer and reader: open files during finalisation
+Checks: SFF-367, SFF-368
+Input: on Windows, a reader that opens a live camera file and its sidecar while the writer records and
+then finalises; a test process that holds `<stem>.skvt` open without delete sharing for 2 s during
+step 4.
+Pass: the reader keeps no sidecar open after it reads it. The writer retries the blocked rename and
+completes the finalisation after the test process closes the file. During the block, the files are
+in the state before the rename.
 
 ### Segment UID, live offsets and final offsets (section 10)
 
@@ -469,15 +524,18 @@ sidecar. After the recovery remux, it is the new Segment UID.
 
 **SFT-401** Writer: live offsets
 Checks: SFF-402, SFF-403
-Input: a live writer stopped at random times; a skellysync writer.
+Input: a live writer stopped at random times, with frames of about 0.5 KiB, about 2 KiB and more than
+40 KiB; a skellysync writer.
 Pass: the sidecar header is in the file before the first frame. Each live record points at a JPEG
 with the CRC `jpeg_crc32` (100 %), with `offset_state` 0, or 1 for the last record. The skellysync
 writer writes no record with `offset_state` 0 or 1.
 
 **SFT-402** Writer and reader: scan
 Checks: SFF-404, SFF-405
-Input: G1; G15; G3 (unknown-size Clusters).
-Pass: the scanned offsets are equal to the record offsets, and each CRC matches.
+Input: G1; G15 (video and FLAC blocks); G3 (partial last Cluster).
+Pass: the scanned offsets of the track of the sidecar are equal to the record offsets, and each CRC
+matches. The FLAC blocks of G15 are not in the video scan. The partial element at the end of G3 is
+ignored.
 
 ### Unfinalised and crashed files (section 11)
 
@@ -489,11 +547,11 @@ zero-filled bytes. The reader gives no frame that has no record.
 
 **SFT-451** Writer: video recovery
 Checks: SFF-452
-Input: G3.
-Pass: the records have the same `write_index`, `source_frame_number`, `arrival_ns`,
-`sample_time_ns`, `size`, `jpeg_crc32` and flags (except bits 4 and 5) as G4. Each offset is equal
-to a scan of the recovered file. `segment_uid` is equal to the Segment UID of the file. The file
-passes SFT-100.
+Input: G3; the G3 variant with a record in the middle whose block has another CRC.
+Pass: for G3, the records have the same `write_index`, `source_frame_number`, `arrival_ns`,
+`sample_time_ns`, `size`, `jpeg_crc32` and flags (except bits 4 and 5) as G4. For the variant, the
+recovered file ends before the record with the other CRC. Each offset is equal to a scan of the
+recovered file. `segment_uid` is equal to the Segment UID of the file. The file passes SFT-100.
 
 **SFT-452** Writer: video kill test
 Checks: SFF-452, SFF-454
@@ -506,8 +564,8 @@ subset of the frames in the file. After the recovery, the file passes SFT-100 an
 Checks: SFF-202, SFF-453, SFF-454
 Input: 30 kills of an unpaced audio writer and 10 kills of a writer paced at 48 kHz. Each kill is an
 external process kill (`TerminateProcess` on Windows, `SIGKILL` elsewhere) at a random time from a
-seeded generator, after the first FLAC frame and before the end of the source. Only kills with a
-non-zero exit code count.
+generator with seed 20261112: 0.05 to 1.5 s after the first FLAC frame (unpaced) or 0.3 to 6 s
+(paced). Only kills with a non-zero exit code count.
 Pass: each packet record matches the FLAC bytes. The recovery accepts a timing record with no packet
 record and a FLAC frame with no packet record. The recovered `.mka` decodes to an exact prefix of the
 source.
@@ -515,13 +573,18 @@ source.
 **SFT-454** Reader: crash before the first frame
 Checks: SFF-454
 Input: a camera file with a header and no frames, with a header-only sidecar.
-Pass: the reader reports "live, no frames" and gives no error.
+Pass: the reader reports `live` with no records and gives no error.
 
 **SFT-455** Writer: manifest after recovery
 Checks: SFF-455
 Input: G16 (crashed folder).
 Pass: after the recovery, the manifest exists and is equal to the reference manifest, except for the
 Segment UIDs that the remux changed.
+
+**SFT-456** Reader: audio crash states
+Checks: SFF-454
+Input: G14 (a timing record with no packet record; a FLAC frame with no packet record).
+Pass: the reader reports `live` and gives the samples of the frames with a packet record.
 
 ### Names (section 12)
 
@@ -543,17 +606,25 @@ Pass: the reader gives the same recording: the same labels, rotations, order and
 
 **SFT-503** Reader: temporary files
 Checks: SFF-503
-Input: G16 (leftover `.tmp` files).
-Pass: the reader gives the same recording as without the `.tmp` files.
+Input: G16 (leftover `.tmp` files that hold a different, valid sidecar and media file); the §9.7 row 2
+state.
+Pass: the reader gives the same recording as without the `.tmp` files. For the row 2 state, it reports
+`needs_recovery`.
+
+**SFT-504** Reader: candidate media files
+Checks: SFF-504
+Input: a folder with an MKV named `a.bin`, a `.flac` named `b.dat`, a text file named `c.mkv`, and a
+`.tmp` MKV.
+Pass: the candidates are `a.bin` and `b.dat`.
 
 ### Files not in this format (section 13)
 
 **SFT-550** Reader: classification
 Checks: SFF-550, SFF-551, SFF-552, SFF-553
-Input: G1; G3; G7 (unknown `major`); G17.
-Pass: G1 is "in format, finalised". G3 is "in format, live". G7 is "unsupported version". The MJPEG
-MKV of G17 is "not in this format" and can be indexed by a scan, with no times. The MP4 and the WAV
-of G17 are "not in this format".
+Input: G1; G3; G7 (unknown `major`); G17; a folder with only the G17 files.
+Pass: G1 is `finalised`. G3 is `live`. G7 is `unsupported_version`. Each G17 file is `not_in_format`,
+and the MJPEG MKV can be indexed by a scan, with no times. The folder with only G17 files is
+`legacy`.
 
 ### skellysync camera sidecar (section 14)
 
@@ -561,13 +632,15 @@ of G17 are "not in this format".
 Checks: SFF-600, SFF-601
 Input: a source with the frame index in its pixels.
 Pass: `source_frame_number` is the source frame index of each output frame. `sample_time_ns` is its
-source presentation time. No record has `fit_valid`. The JSON block holds the source description,
-and a reader reads the file without it.
+source presentation time minus the presentation time of the first source frame used. No record has
+`fit_valid`. The JSON block holds the source description, and a reader reads the file without it.
 
 **SFT-601** Writer: skellysync rotation
 Checks: SFF-602
-Input: a source with a display matrix of 90 degrees and corner markers.
-Pass: the stored frames are not rotated. `display_rotation` shows them upright (SFF-159).
+Input: a source with corner markers whose display matrix tells a player to turn the picture 90 degrees
+clockwise to show it upright (FFmpeg `display_rotation` −90, which is counter-clockwise positive).
+Pass: the stored frames are not rotated. `display_rotation` is 90. After a clockwise rotation of 90
+degrees, the top-left corner has the colour of the stored bottom-left corner.
 
 **SFT-602** (provisional) Writer: skellysync take start
 Checks: SFF-603
@@ -578,10 +651,12 @@ gives it.
 
 **SFT-650** Writer: take facts
 Checks: SFF-650, SFF-651, SFF-652
-Input: a take with 4 fake cameras and a fake microphone.
+Input: a take with 4 fake cameras and a fake microphone, on a test machine whose time zone is set to
+`America/Toronto` (Windows: Eastern Standard Time).
 Pass: the sidecars have equal `take_uuid`, take start times, `utc_offset_min`, `group_size` and
-`clock_id`. `take_start_host_ns` is before the first frame and the first sample of every file.
-`group_size` is 4. No file holds a time-zone name.
+`clock_id`. `take_uuid` is not all zero, and no take time is INT64_MIN. `take_start_host_ns` is before
+the first frame and the first sample of every file. `group_size` is 4. No file holds the strings
+`America/Toronto`, `Eastern Standard Time` or `EST`.
 
 **SFT-651** Writer: no private data
 Checks: SFF-653
@@ -643,8 +718,9 @@ Pass: each file and each take gets the expected state, and each expected warning
 
 **SFT-661** Reader: take facts that disagree
 Checks: SFF-667
-Input: G16 (files of one take that disagree on `clock_id`).
-Pass: the reader reports a warning and uses the values of the first camera file.
+Input: G16 (files of one take that disagree on `clock_id`), and variants that disagree on
+`take_start_host_ns`, `utc_offset_min` and `group_size`.
+Pass: for each, the reader reports a warning and uses the values of the first camera file.
 
 **SFT-662** Reader: two manifests
 Checks: SFF-668
