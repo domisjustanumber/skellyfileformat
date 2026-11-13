@@ -31,8 +31,8 @@ These entries are `accepted` or `evidence`.
 | [DK8S](entries/DK8S-mcap-profile-files-and-names.md) | One MCAP file per device; profile `freemocap`; protobuf; topics carry the label; `freemocap.*` metadata records; writer in Header `library` | accepted |
 | [TDB5](entries/TDB5-whole-recording-no-manifest.md) | Whole recording of per-device MCAP files; no manifest; takes grouped by `take_uuid`; canonical reader-result JSON; repo rules | accepted |
 | [S4FG](entries/S4FG-writing-crash-and-repair.md) | Fixed-count chunks (1 frame, 5 Opus packets), no compression, data CRC, fsync about 1 s; crashed files repaired only if the user agrees | accepted |
-| [FF01](entries/FF01-fit-and-breakpoints-in-metadata.md) | Fit segments, fitter and sequence breakpoints per camera in the `freemocap.timing` Metadata record, written before `finish()` | accepted |
 | [10JC](entries/10JC-lichtblick-audio-checks.md) | Lichtblick audio checks: mrkbac/lichtblick at 70f5900, built offline, Opus picked by hand at 48 kHz, 1x only; sync judged in skellycam | accepted |
+| [MG7C](entries/MG7C-fit-segments-by-position.md) | Fit segments keyed by position (`pos_first`, `pos_last`), in position order with no gap; fitter named; breakpoints give `sequence` | accepted |
 
 ### Proposed
 

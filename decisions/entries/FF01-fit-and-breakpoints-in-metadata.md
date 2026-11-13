@@ -1,6 +1,6 @@
 # FF01 — The fitted time as fit segments, and the sequence breakpoints, in a `freemocap.timing` Metadata record
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [MG7C](MG7C-fit-segments-by-position.md), 2026-11-13 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 
