@@ -1,6 +1,6 @@
 # QDZ7 — Opus encoder settings, packet timestamps and pre-skip handling
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [D9N1](D9N1-opus-audio-settings-and-timing.md), 2026-11-13 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 
