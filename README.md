@@ -37,7 +37,7 @@ of the spec tells how to find a file that is not in this format.
 ## Compatibility promise (normative)
 
 - A conforming reader must read every released format version.
-- A released format version is one with `prerelease` = 0 in its header
+- A released format version is one with `prerelease` = 0 in its metadata
   ([Versioning](#versioning-normative)).
 - A file with `prerelease` > 0 has no compatibility promise. A later reader can refuse it.
 - A writer writes only the latest format version.
@@ -49,13 +49,15 @@ of the spec tells how to find a file that is not in this format.
   - A change that an older reader cannot read needs a new skellycam major version.
   - An added field needs a new skellycam minor version, or a new major version.
   - A skellycam patch release does not change the format.
-- **Header fields.** Each sidecar header (the video timing sidecar `.skvt` and the audio timing
-  sidecar `.skat`) holds three unsigned 16-bit fields: `major`, `minor` and `prerelease`.
+- **Version fields.** The metadata of each file holds three values: `major`, `minor` and
+  `prerelease`. Each is an unsigned integer that fits in 16 bits, written as a decimal string
+  ([ADR-7K3C](decisions/entries/7K3C-format-versioning-in-metadata.md)).
   - `prerelease` is 0 for a released format, and N for the Nth prerelease revision.
   - A reader must refuse a file with a `major` that it does not know.
   - A reader must read a file with a higher `minor` of a `major` that it knows, and skip the fields
     that it does not know.
-- **Writer string.** Each sidecar also holds a writer string, for example `skellycam 2.1.0`. It is
+- **MCAP version.** The MCAP version of a file (its magic) is not the format version.
+- **Writer string.** Each file also holds a writer string, for example `skellycam 2.1.0`. It is
   for diagnostics only. A reader must not change its behaviour because of it. skellysync writes the
   format version that skellyfileformat gives, not its own version.
 - **Package version.** The skellyfileformat package uses semantic versioning. Its `major.minor` is

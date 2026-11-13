@@ -1,6 +1,6 @@
 # M4DF — Format version, header fields and package version
 
-**Status:** accepted, 2026-11-12 (user; backfilled from the skellycam plan rev 3.8).
+**Status:** superseded by [7K3C](7K3C-format-versioning-in-metadata.md), 2026-11-13 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 

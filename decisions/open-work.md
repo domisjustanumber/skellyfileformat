@@ -11,7 +11,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-VJ14](entries/VJ14-shared-package-and-spec.md),
   [ADR-5K7G](entries/5K7G-no-recorded-overlays.md),
   [ADR-X1G6](entries/X1G6-read-old-write-mcap.md),
-  [ADR-M4DF](entries/M4DF-format-versioning.md),
+  [ADR-7K3C](entries/7K3C-format-versioning-in-metadata.md),
   [ADR-25VV](entries/25VV-whole-recording-scope-names.md) and
   [ADR-CE4D](entries/CE4D-rotation-in-header-only.md).
 - **Rewrite the spec as an MCAP profile.** `spec/SPEC.md` and `spec/conformance.md` hold the v0
