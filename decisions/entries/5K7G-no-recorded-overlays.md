@@ -1,6 +1,6 @@
 # 5K7G — No recorded overlays
 
-**Status:** accepted, 2026-11-12 (user; backfilled from the skellycam plan rev 3.8).
+**Status:** superseded by [W4PF](W4PF-shared-package-and-no-overlays.md), 2026-11-13 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 

@@ -29,3 +29,5 @@ the reason for a decision. The [index](README.md) has the Active and Proposed en
 | [S4FG](entries/S4FG-writing-crash-and-repair.md) | Fixed-count chunks (1 frame, 5 Opus packets), no compression, data CRC, fsync about 1 s; crashed files repaired only if the user agrees | superseded by PV6S |
 | [HD8Z](entries/HD8Z-opus-audio.md) | Opus audio as raw packets in `foxglove.CompressedAudio`; OpusHead fields in channel metadata; pre-skip and 80 ms seek pre-roll | superseded by D9N1 |
 | [QDZ7](entries/QDZ7-opus-settings-and-timing.md) | Opus: device channels (max 2), 48 kHz, 20 ms, `audio`, VBR 128/256 kbit/s; timestamp = first decoded sample; reader drops pre-skip | superseded by D9N1 |
+| [VJ14](entries/VJ14-shared-package-and-spec.md) | skellyfileformat is the one shared package for the format, with a descriptive spec; the spec fixes the names | superseded by W4PF |
+| [5K7G](entries/5K7G-no-recorded-overlays.md) | No recorded overlays: no burned-in stamp, no overlay file or attachment; the player draws the frame label | superseded by W4PF |

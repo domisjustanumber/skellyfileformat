@@ -1,6 +1,6 @@
 # W4PF — One shared package with a descriptive spec; no recorded overlays (consolidation)
 
-**Status:** proposed, 2026-11-13 (spec v1 review; the agent proposes, the user decides).
+**Status:** accepted, 2026-11-13 (user; proposed from the spec v1 review).
 
 ## Decision
 
@@ -20,7 +20,7 @@
 7. The player draws the frame label from the fields of the frame in the file.
 8. Recorded overlay data from freemocap is later work. The spec will document it if it comes.
 
-When it is accepted, this consolidation entry supersedes
+This consolidation entry supersedes
 [ADR-VJ14](VJ14-shared-package-and-spec.md) and [ADR-5K7G](5K7G-no-recorded-overlays.md) in full.
 It changes no decision. Items 1 and 3 restate VJ14 items 1 and 4, without the MKV byte layouts.
 Item 2 restates VJ14 items 2 and 3 without the MKV parts that the move to MCAP removed (skellycam
