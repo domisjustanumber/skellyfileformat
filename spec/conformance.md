@@ -7,7 +7,24 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 
 ## How to read a test
 
-- A test starts on a new line with its ID in bold, for example `**SFT-001** Reader and writer: sidecar codec round trip, Python and JS
+- A test starts on a new line with its ID in bold, for example `**SFT-001**`, then its title.
+- The next line starts with `Checks:` and gives the SFF IDs of the requirements that the test
+  checks, for example `Checks: SFF-001, SFF-004`.
+- A `Pass:` line gives the pass criteria. A test can also name its inputs, for example a golden file.
+- A removed test keeps its line, with `(withdrawn)` after its ID.
+- Each requirement of [SPEC.md](SPEC.md) that is not withdrawn has one or more tests.
+  `tools/check_spec_traceability.py` checks the IDs and the links.
+- The tests use the ID blocks of the spec sections (SPEC.md section 2).
+- **Writer** tests run a writer and check its output. **Reader** tests run a reader on the inputs.
+  A test marked `(provisional)` waits for the same open item as the requirement that it checks.
+- "Python and JS" means that the Python reader and the JavaScript reader both run the test and give
+  the same result.
+
+## Tests
+
+### Conventions (section 2)
+
+**SFT-001** Reader and writer: sidecar codec round trip, Python and JS
 Checks: SFF-001, SFF-002, SFF-003, SFF-006
 Input: G1, G6, G13 and their reference values (a JSON file of each field, made by the generator);
 writer output.
@@ -15,14 +32,6 @@ Pass: each decoded field of the golden files is equal to its reference value. Ea
 is equal to the stored CRC. Each INT64_MIN time is reported as absent. The writer output, parsed with
 an independent table of offsets and types made from SPEC.md, gives the values that the writer was
 given.
-
-### Conventions (section 2)
-
-**SFT-001** Reader: sidecar codec round trip, Python and JS
-Checks: SFF-001, SFF-002, SFF-003, SFF-006
-Input: G1, G6, G13 and their reference values (a JSON file of each field, made by the generator).
-Pass: each decoded field is equal to its reference value. Each recomputed CRC-32 is equal to the
-stored CRC. Each INT64_MIN time is reported as absent.
 
 **SFT-002** Reader: 64-bit values in JavaScript
 Checks: SFF-005
