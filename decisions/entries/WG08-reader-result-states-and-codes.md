@@ -1,11 +1,11 @@
 # WG08 — The reader result: file and folder states, reason and warning codes, take counting and the JSON form
 
-**Status:** proposed, 2026-11-13 (spec v1 review; the agent proposes, the user decides each item).
+**Status:** accepted, 2026-11-13 (user; proposed from the spec v1 review).
 
 ## Decision
 
-Each item is separate. The user can accept or reject each one. The source of each item in the
-review is in brackets.
+The user accepted each item. The source of each item in the review is in brackets. These items
+add to [ADR-5G42](5G42-gate1-names.md). They change none of its rules.
 
 1. **In this format.** An MCAP file is in this format when its Header `profile` is `freemocap` and
    it has a `freemocap.format` record, with any `major`. A file with an unknown `major` has the
