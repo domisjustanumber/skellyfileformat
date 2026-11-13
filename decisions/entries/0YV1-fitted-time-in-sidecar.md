@@ -1,6 +1,6 @@
 # 0YV1 — The fitted time is in the sidecar, and the player uses it
 
-**Status:** accepted, 2026-11-12 (user; backfilled from the skellycam plan rev 3.8).
+**Status:** superseded by [FF01](FF01-fit-and-breakpoints-in-metadata.md), 2026-11-13 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 

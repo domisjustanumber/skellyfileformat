@@ -19,7 +19,6 @@ These entries are `accepted` or `evidence`.
 | # | Decision | Status |
 |---|----------|--------|
 | [0001](entries/0001-decision-log-agents-md-and-private-data.md) | Decision log and its rules; `AGENTS.md` files hold the instructions; `plans/` is local; no private data | accepted |
-| [0YV1](entries/0YV1-fitted-time-in-sidecar.md) | The sidecar holds the fitted time of each frame; the player uses it, or the arrival time before finalisation | accepted |
 | [VJ14](entries/VJ14-shared-package-and-spec.md) | skellyfileformat is the one shared package for the format, with a descriptive spec; the spec fixes the names | accepted |
 | [5K7G](entries/5K7G-no-recorded-overlays.md) | No recorded overlays: no burned-in stamp, no overlay file or attachment; the player draws the frame label | accepted |
 | [HD8Z](entries/HD8Z-opus-audio.md) | Opus audio as raw packets in `foxglove.CompressedAudio`; OpusHead fields in channel metadata; pre-skip and 80 ms seek pre-roll | accepted |
@@ -32,6 +31,7 @@ These entries are `accepted` or `evidence`.
 | [DK8S](entries/DK8S-mcap-profile-files-and-names.md) | One MCAP file per device; profile `freemocap`; protobuf; topics carry the label; `freemocap.*` metadata records; writer in Header `library` | accepted |
 | [TDB5](entries/TDB5-whole-recording-no-manifest.md) | Whole recording of per-device MCAP files; no manifest; takes grouped by `take_uuid`; canonical reader-result JSON; repo rules | accepted |
 | [S4FG](entries/S4FG-writing-crash-and-repair.md) | Fixed-count chunks (1 frame, 5 Opus packets), no compression, data CRC, fsync about 1 s; crashed files repaired only if the user agrees | accepted |
+| [FF01](entries/FF01-fit-and-breakpoints-in-metadata.md) | Fit segments, fitter and sequence breakpoints per camera in the `freemocap.timing` Metadata record, written before `finish()` | accepted |
 
 ### Proposed
 

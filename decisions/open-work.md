@@ -6,7 +6,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
 - **Absorb the format entries into the spec.** When `spec/SPEC.md` or `README.md` states all rules of
   an entry, move the entry to Historical as absorbed:
   [ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md),
-  [ADR-0YV1](entries/0YV1-fitted-time-in-sidecar.md),
+  [ADR-FF01](entries/FF01-fit-and-breakpoints-in-metadata.md),
   [ADR-HD8Z](entries/HD8Z-opus-audio.md),
   [ADR-VJ14](entries/VJ14-shared-package-and-spec.md),
   [ADR-5K7G](entries/5K7G-no-recorded-overlays.md),
@@ -29,7 +29,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - which MCAP field holds the arrival time and which holds the sample time, for video and for
     audio, and the metadata keys that name each clock;
   - the legacy time, the encoder-skip flag and the fitted time: a companion schema, a value that a
-    reader computes, or nothing. [ADR-0YV1](entries/0YV1-fitted-time-in-sidecar.md) says that the
+    reader computes, or nothing. [ADR-FF01](entries/FF01-fit-and-breakpoints-in-metadata.md) says that the
     fitted time is in the sidecar record. Supersede it with the answer;
   - chunking (one chunk for each frame or not), chunk compression, and the data section CRC;
   - crashed files: a reader reads them in place, or a writer rewrites them with a recovery step;
