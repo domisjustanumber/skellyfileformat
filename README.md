@@ -15,7 +15,7 @@ The sections marked "normative" are rules. A change to them needs a decision ent
 ## Scope (normative)
 
 The format describes one recording (one take): a set of synchronised camera and audio files that
-share one clock ([ADR-25VV](decisions/entries/25VV-whole-recording-scope-names.md)). It covers these
+share one clock ([ADR-41VF](decisions/entries/41VF-whole-recording-scope-mcap.md)). It covers these
 files:
 
 - the camera video: an MCAP file in which each frame is one JPEG in a `foxglove.CompressedImage`
@@ -27,8 +27,8 @@ files:
 - the recording manifest: a derived JSON index of the files of one recording.
 
 It also covers the recording as a whole: which files make up one recording, the clock that they
-share, the facts about the recording in each sidecar header, how a writer finalises and recovers the
-files, and how a reader opens a recording, also when it is crashed or incomplete.
+share, the facts about the recording in each file's metadata (authoritative), how a writer records
+the set, and how a reader opens a recording, also when it is crashed or incomplete.
 
 The format does not cover recordings that older programs wrote, for example H.264 MP4 files and
 timestamp CSV files. The programs that read those recordings define how they read them. Section 13

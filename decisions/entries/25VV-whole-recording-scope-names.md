@@ -1,6 +1,6 @@
 # 25VV — The format describes a whole synchronised recording; the spec fixes only its own names
 
-**Status:** accepted, 2026-11-12 (user).
+**Status:** superseded by [41VF](41VF-whole-recording-scope-mcap.md), 2026-11-13 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 
