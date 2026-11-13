@@ -1,6 +1,6 @@
 # 3KH3 — Finalisation: embed when the appender can, verify, delete; recover an interrupted embed
 
-**Status:** accepted, 2026-11-12 (user).
+**Status:** superseded by [SFK5](SFK5-mcap-container.md), 2026-11-13 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 

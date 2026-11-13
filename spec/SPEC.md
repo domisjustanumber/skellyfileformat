@@ -1,6 +1,9 @@
 # skellyfileformat specification
 
-Status: **draft v0, for review at gate 1** ([AGENTS.md section 4](../AGENTS.md#4-project-rules)).
+Status: **draft v0, withdrawn before gate 1.** It describes the MKV and sidecar design, which
+[ADR-SFK5](../decisions/entries/SFK5-mcap-container.md) replaces with an MCAP profile. The draft
+stays until the MCAP rewrite replaces it ([open-work.md](../decisions/open-work.md)). Do not
+implement it ([AGENTS.md section 4](../AGENTS.md#4-project-rules)).
 No format version is released yet. A requirement marked `(provisional)` names the open item that it
 waits for ([open-work.md](../decisions/open-work.md)).
 

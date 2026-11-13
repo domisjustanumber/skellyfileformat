@@ -1,10 +1,10 @@
 # skellyfileformat
 
-skellyfileformat defines the file format of skellycam and skellysync recordings: JPEG video in
-Matroska (MKV) with a timing sidecar, and FLAC audio with its timing sidecar. The
-[specification](spec/SPEC.md) gives the byte layouts, the field meanings, the clocks and the
-finalisation and recovery rules, so that other programs can implement the format from the spec
-alone.
+skellyfileformat defines the file format of skellycam and skellysync recordings: a profile of
+[MCAP](https://mcap.dev/spec) with JPEG video and timing in MCAP messages
+([ADR-SFK5](decisions/entries/SFK5-mcap-container.md)). The [specification](spec/SPEC.md) gives the
+channels, the schemas, the field meanings, the clocks and the recovery rules, so that other programs
+can implement the format from the spec alone.
 
 **Status: draft.** No format version is released yet. The spec and its conformance tests are written
 first and reviewed. Code comes after them ([AGENTS.md section 4](AGENTS.md#4-project-rules)).
@@ -18,9 +18,9 @@ The format describes one recording (one take): a set of synchronised camera and 
 share one clock ([ADR-25VV](decisions/entries/25VV-whole-recording-scope-names.md)). It covers these
 files:
 
-- the camera video: an MKV file with one JPEG video track, in which every frame is a key frame;
-- the video timing sidecar (`.skvt`): an attachment in the camera MKV, or a separate file until the
-  MKV is finalised, after a crash, or as the final form when the attachment cannot be added;
+- the camera video: an MCAP file in which each frame is one JPEG in a `foxglove.CompressedImage`
+  message, with the timing of the frame in the MCAP fields and the facts in the file metadata
+  ([ADR-SFK5](decisions/entries/SFK5-mcap-container.md));
 - the skellycam audio: a native `.flac` file while the writer records, then a `.mka` file with one
   FLAC track and its timing sidecar (`.skat`) as an attachment;
 - the skellysync audio: a FLAC track in each camera MKV;

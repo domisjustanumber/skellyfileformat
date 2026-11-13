@@ -1,6 +1,7 @@
 # skellyfileformat conformance tests
 
-Status: **draft v0, for review at gate 1**, together with [SPEC.md](SPEC.md). Gate 2 turns each test
+Status: **draft v0, withdrawn before gate 1**, together with [SPEC.md](SPEC.md)
+([ADR-SFK5](../decisions/entries/SFK5-mcap-container.md)). Gate 2 turns each test
 into a runnable test and makes the golden files (SPEC.md Appendix A).
 
 This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)).

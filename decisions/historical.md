@@ -14,3 +14,6 @@ the reason for a decision. The [index](README.md) has the Active and Proposed en
 | [69YS](entries/69YS-video-sidecar-record.md) | Video timing sidecar: a header plus one 64-byte record for each frame; no columnar section | superseded by FGK2 |
 | [77Z3](entries/77Z3-finalisation-embed-verify-delete.md) | At finalisation, append each sidecar as an MKV attachment at the end of the file, verify, then delete the separate files | superseded by 3KH3 |
 | [5PP8](entries/5PP8-whole-recording-scope.md) | The format describes a whole synchronised recording; headers authoritative; a derived recording manifest; spec first; repository rules | superseded by 25VV |
+| [FGK2](entries/FGK2-video-sidecar-record-size.md) | Video timing sidecar: a header plus one record for each frame; `record_size` (64 in 2.0) lets a minor add fields; CRC last | superseded by SFK5 |
+| [3KH3](entries/3KH3-finalisation-embed-fallback.md) | Embed each sidecar at the end of its file when the appender can, else keep it separate; verify, then delete; recover an interrupted embed | superseded by SFK5 |
+| [WD1R](entries/WD1R-file-attachment-and-mime-names.md) | Names: `.skvt`/`.skat` (magics `SKVT`/`SKAT`), attachment names and MIME types; one live audio sidecar; manifest name | superseded by SFK5 |

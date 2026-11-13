@@ -1,6 +1,6 @@
 # FGK2 — Video timing sidecar: one record for each frame, with a `record_size`
 
-**Status:** accepted, 2026-11-12 (user).
+**Status:** superseded by [SFK5](SFK5-mcap-container.md), 2026-11-13 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 
