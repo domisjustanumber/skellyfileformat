@@ -41,6 +41,7 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
+| [T24G](entries/T24G-spec-v1-review-fixes-crash-fit-audio.md) | Spec v1 review fixes, 15 items: records before first chunk, CRC checks, crash-read end, repair details, fit maths and cover, Opus and camera details | `spec` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).
