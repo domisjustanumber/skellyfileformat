@@ -1,6 +1,6 @@
 # 41VF — The format describes a whole synchronised recording of MCAP files; file metadata is authoritative
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [TDB5](TDB5-whole-recording-no-manifest.md), 2026-11-13 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

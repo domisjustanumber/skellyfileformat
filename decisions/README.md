@@ -26,11 +26,11 @@ These entries are `accepted` or `evidence`.
 | [WD9A](entries/WD9A-lichtblick-reference-viewer.md) | Lichtblick is the external test viewer, not Foxglove; VLC compatibility dropped; audio tests use a pinned Lichtblick build with an Audio panel | accepted |
 | [X1G6](entries/X1G6-read-old-write-mcap.md) | Old recordings stay readable; new skellycam and skellysync write only MCAP with JPEG and Opus; no file of this format means legacy | accepted |
 | [7K3C](entries/7K3C-format-versioning-in-metadata.md) | Format version = major.minor of the skellycam release that last changed the format; major/minor/prerelease in each file's metadata | accepted |
-| [41VF](entries/41VF-whole-recording-scope-mcap.md) | The format describes a whole synchronised recording of MCAP files; file metadata authoritative; derived manifest; spec fixes only its own names; repo rules | accepted |
 | [68Z6](entries/68Z6-rotation-in-metadata-only.md) | Frames stored unrotated; `display_rotation` in the camera file's metadata only; no other rotation; readers apply it | accepted |
 | [QDZ7](entries/QDZ7-opus-settings-and-timing.md) | Opus: device channels (max 2), 48 kHz, 20 ms, `audio`, VBR 128/256 kbit/s; timestamp = first decoded sample; reader drops pre-skip | accepted |
 | [752H](entries/752H-timing-fields.md) | Arrival in `log_time`, sample time in `timestamp`, `sequence` = frame or packet number; no legacy time; encoder skips as `foxglove.Log` | accepted |
 | [DK8S](entries/DK8S-mcap-profile-files-and-names.md) | One MCAP file per device; profile `freemocap`; protobuf; topics carry the label; `freemocap.*` metadata records; writer in Header `library` | accepted |
+| [TDB5](entries/TDB5-whole-recording-no-manifest.md) | Whole recording of per-device MCAP files; no manifest; takes grouped by `take_uuid`; canonical reader-result JSON; repo rules | accepted |
 
 ### Proposed
 

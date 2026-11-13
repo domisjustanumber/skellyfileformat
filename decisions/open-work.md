@@ -12,7 +12,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-5K7G](entries/5K7G-no-recorded-overlays.md),
   [ADR-X1G6](entries/X1G6-read-old-write-mcap.md),
   [ADR-7K3C](entries/7K3C-format-versioning-in-metadata.md),
-  [ADR-41VF](entries/41VF-whole-recording-scope-mcap.md) and
+  [ADR-TDB5](entries/TDB5-whole-recording-no-manifest.md) and
   [ADR-68Z6](entries/68Z6-rotation-in-metadata-only.md).
 - **Rewrite the spec as an MCAP profile.** `spec/SPEC.md` and `spec/conformance.md` hold the v0
   draft of the MKV design, which [ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md) withdraws. Keep the
@@ -20,7 +20,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   the times and the fitted time, the files that are not in this format, the recording as a whole,
   the rotation. Withdraw the IDs of the MKV profile, the sidecar layouts, embedding, offsets and the
   sidecar names. Then the user reviews the new draft (gate 1)
-  ([ADR-41VF](entries/41VF-whole-recording-scope-mcap.md)). After gate 1, write the runnable tests
+  ([ADR-TDB5](entries/TDB5-whole-recording-no-manifest.md)). After gate 1, write the runnable tests
   and the golden files, then stop for gate 2.
 - **MCAP profile choices.** The user decides these before the new draft
   ([ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md)):
@@ -48,10 +48,10 @@ task. Delete an item when its work is done. The PR that closes an item records t
   them before v2.0.0: the fields that wait for the audio clock drift test and for the Linux and
   macOS audio timing test, and the skellysync camera sidecar header, which waits for the skellysync
   decisions D-Q, D-FPS, D-HDR and D-DRIFT
-  ([ADR-41VF](entries/41VF-whole-recording-scope-mcap.md)).
+  ([ADR-TDB5](entries/TDB5-whole-recording-no-manifest.md)).
 - **Provisional: clock ids and audio latency.** SFF-165 waits for the Linux and macOS video timing
   tests (T-S7 of the skellycam plan). SFF-251 waits for the microphone latency test (A3 of the
-  skellycam plan) ([ADR-41VF](entries/41VF-whole-recording-scope-mcap.md)).
+  skellycam plan) ([ADR-TDB5](entries/TDB5-whole-recording-no-manifest.md)).
 - **S10b: correct the audio start of old recordings?** The audio of old skellycam recordings is
   9–74 ms early. The user must decide if playback corrects it
   ([ADR-X1G6](entries/X1G6-read-old-write-mcap.md)). skellycam does the legacy playback, so the
