@@ -33,11 +33,6 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - SFF-370: the fsync interval waits for a measurement of its cost;
   - SFF-305, SFF-306, SFF-308 and SFF-309: skellysync files wait for the skellysync decisions D-Q,
     D-FPS, D-HDR, D-DRIFT and D-AUDIO.
-- **Names that draft v1 adds, for gate 1.** Draft v1 names a `freemocap.repair` Metadata record
-  (SFF-376) and the `label` key of the audio channel. It puts `audio_latency_ns` in the audio channel
-  metadata, not in `freemocap.recording`. It serialises the reader result of SFF-678 with RFC 8785.
-  The user confirms these at gate 1
-  ([ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md)).
 - **Permalinks to the skellycam evidence.** The new entries cite skellycam `dom/research` files as
   plain paths. Change them to full-SHA permalinks after that branch is pushed
   ([ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md)).
