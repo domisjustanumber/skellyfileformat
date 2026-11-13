@@ -26,3 +26,4 @@ the reason for a decision. The [index](README.md) has the Active and Proposed en
 | [41VF](entries/41VF-whole-recording-scope-mcap.md) | The format describes a whole synchronised recording of MCAP files; file metadata authoritative; derived manifest; spec fixes only its own names; repo rules | superseded by TDB5 |
 | [0YV1](entries/0YV1-fitted-time-in-sidecar.md) | The sidecar holds the fitted time of each frame; the player uses it, or the arrival time before finalisation | superseded by FF01 |
 | [FF01](entries/FF01-fit-and-breakpoints-in-metadata.md) | Fit segments, fitter and sequence breakpoints per camera in the `freemocap.timing` Metadata record, written before `finish()` | superseded by MG7C |
+| [S4FG](entries/S4FG-writing-crash-and-repair.md) | Fixed-count chunks (1 frame, 5 Opus packets), no compression, data CRC, fsync about 1 s; crashed files repaired only if the user agrees | superseded by PV6S |

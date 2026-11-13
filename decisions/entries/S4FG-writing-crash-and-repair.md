@@ -1,6 +1,6 @@
 # S4FG — Writing rules: fixed-count chunks, no compression, data CRC, fsync; repair of a crashed file only after the user agrees
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [PV6S](PV6S-writing-crash-reading-and-repair.md), 2026-11-13 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 
