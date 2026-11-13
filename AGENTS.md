@@ -10,7 +10,7 @@ Keep technical names, field names, values, formulas, code and YAML unchanged.
 
 skellyfileformat defines the file format of skellycam and skellysync recordings: a profile of MCAP
 with JPEG video and Opus audio
-([ADR-SFK5](decisions/entries/SFK5-mcap-container.md), [ADR-HD8Z](decisions/entries/HD8Z-opus-audio.md)). It holds the
+([ADR-DK8S](decisions/entries/DK8S-mcap-profile-files-and-names.md), [ADR-HD8Z](decisions/entries/HD8Z-opus-audio.md)). It holds the
 normative spec, the conformance test list and the golden files. After the spec and the tests are
 approved, it also holds a Python reader and writer and a JavaScript reader. skellycam, skellysync and
 freemocap use it. Other programs can implement the format from the spec alone.

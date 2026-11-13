@@ -28,7 +28,7 @@
    A recovery cuts the file at the old end of the Segment, restores the Segment size and embeds again
    from the separate sidecar.
 8. The finalisation order for each file, the appender steps and the order of the manifest write are
-   in [SPEC.md section 9](../../spec/SPEC.md#9-embedding-and-finalisation).
+   in [SPEC.md section 9](https://github.com/domisjustanumber/skellyfileformat/blob/bd62b6074d5118a3356ab177f6ffd7700831e079/spec/SPEC.md#9-embedding-and-finalisation).
 
 This entry supersedes [ADR-77Z3](77Z3-finalisation-embed-verify-delete.md) in full. Items 1, 4 and
 5 restate its items 1, 3 and 4. Item 2 makes its item 1 depend on the appender. Item 3 defines the
@@ -66,3 +66,5 @@ check of its item 2. Items 6 and 7 are new.
   moves.
 - A remux moves every frame and changes the Segment UID. After a remux, rebuild the offsets by a
   scan of the final bytes.
+
+_Edited 2026-11-13 (commit to main): link repair._

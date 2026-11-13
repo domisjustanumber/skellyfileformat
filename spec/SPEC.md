@@ -1,1027 +1,863 @@
 # skellyfileformat specification
 
-Status: **draft v0, withdrawn before gate 1.** It describes the MKV and sidecar design, which
-[ADR-SFK5](../decisions/entries/SFK5-mcap-container.md) replaces with an MCAP profile. The draft
-stays until the MCAP rewrite replaces it ([open-work.md](../decisions/open-work.md)). Do not
-implement it ([AGENTS.md section 4](../AGENTS.md#4-project-rules)).
-No format version is released yet. A requirement marked `(provisional)` names the open item that it
-waits for ([open-work.md](../decisions/open-work.md)).
+Status: **draft v1 (MCAP profile), for review at gate 1** ([AGENTS.md section 4](../AGENTS.md#4-project-rules)).
+No format version is released yet. Draft v0 (the MKV and sidecar design) was withdrawn before gate 1
+([ADR-SFK5](../decisions/entries/SFK5-mcap-container.md)). Its IDs stay in this file, marked
+withdrawn. A requirement marked `(provisional)` names the open item that it waits for
+([open-work.md](../decisions/open-work.md)).
 
 This specification is normative. The license of the spec text is CC-BY-4.0 ([LICENSE](LICENSE)).
 
 ## 1. Scope and terms
 
-This spec describes one **recording** (one take): a set of synchronised camera video files and
-audio files that share one clock. It gives the byte layouts, the field meanings, the clocks, the
-finalisation and recovery rules, and how a reader opens a recording. Another program can implement
-the format from this spec alone.
+This spec describes one **recording** (one take): a set of synchronised MCAP files, one for each
+device, that share one clock. The format is a profile of MCAP
+([ADR-DK8S](../decisions/entries/DK8S-mcap-profile-files-and-names.md)). The spec gives the
+channels, the schemas, the meaning of each field and metadata key, the clocks, the rules for
+unfinished and repaired files, and how a reader opens a recording. Another program can implement
+the format from this spec and the MCAP specification alone.
 
 The spec does not describe these:
 
-- recordings that older programs wrote, for example H.264 MP4 files, timestamp CSV files and WAV
-  audio (section 13 tells how a reader recognises them);
-- skellycam's recording info JSON (`<rec>_info.json`), which is a skellycam file;
-- the names of media files and folders, except the names of section 12. The writer's own spec
-  defines them;
-- overlays. The format has no overlay file and no overlay attachment;
+- recordings that older programs wrote, for example H.264 MP4 files, MKV files, timestamp CSV files
+  and WAV audio (section 13 tells how a reader recognises a file that is not in this format);
+- skellycam's recording info JSON, which is a skellycam file;
+- the names of files and folders. The writer's own spec defines them;
+- overlays. The format has none;
 - the transport that a player uses to read the files;
-- Opus audio, lossless video and Bayer video.
+- raw, lossless or Bayer video, and chunk compression. A later version can add them.
 
 Terms:
 
 | Term | Meaning |
 |---|---|
-| recording, take | The files of one synchronised capture. All its sidecars hold the same `take_uuid`. |
-| camera file | An MKV file with one JPEG video track (section 4). A skellysync camera file also has one FLAC track (section 8). |
-| audio file | A skellycam `.mka` file with one FLAC track (section 6), or its live native `.flac` file before finalisation. |
-| media file | A camera file or an audio file. |
-| sidecar | A binary file that holds the timing and the byte index of one media file. The video timing sidecar has the magic `SKVT` (section 5). The audio timing sidecar has the magic `SKAT` (section 7). |
-| embedded sidecar | A sidecar stored as a Matroska attachment at the end of its media file (section 9). |
-| separate sidecar | A sidecar stored as its own file next to its media file. |
-| live | The state of a file while the writer records it, or after a crash before recovery. |
-| finalised | The state of a file after the finalisation steps of section 9. Its sidecar has the `finalised` header flag. |
-| recovered | A live file that a recovery (section 11) changed into a finalised file. |
-| temporary file | A file that a writer writes under a `.tmp` name, then renames to its final name (section 12). |
+| recording, take | The files of one synchronised capture. Their `freemocap.recording` metadata holds the same `take_uuid`. |
+| camera file | An MCAP file of this format with one image channel (section 5). |
+| audio file | An MCAP file of this format with one audio channel (section 6). |
+| device file | A camera file or an audio file. |
+| MCAP terms | Header, Footer, Schema, Channel, Message, Chunk, Message Index, Chunk Index, Metadata, Metadata Index, Statistics, Data End, Summary and Summary Offset have the meanings of the MCAP specification. |
+| finished file | A device file that the writer closed normally: it has a Data End record, a Summary and a Footer (section 9). |
+| unfinished file | A device file with no valid Footer at its end, for example after a crash (section 9). |
+| repaired file | An unfinished file that a repair changed into a finished file (section 9). |
 | writer | A program that writes files in this format. A writer with live capture is a **capture writer** (skellycam). A writer that writes from other files is a **conversion writer** (the skellycam converter, skellysync). |
 | reader | A program that reads files in this format. A player is a reader. |
-| host clock | The monotonic clock of the computer that recorded the take (section 5.3). |
-| arrival time | The time, on the clock of the sidecar, at which the writer received a frame. |
-| sample time | The time that the capture driver or the source gives for a frame, on the clock of the sidecar. |
-| fitted time | The writer's estimate, on the host clock, of the regular frame lattice of a camera (section 5.5). It is not corrected for latency: it is later than the capture time by the latency of the camera and the transport, which is not measured. |
-| player time | The time that a reader uses to place a frame (section 5.5). |
-| `write_index` | The position of a frame in its camera file: 0, 1, 2 and so on. It is the recording frame number. |
-| `source_frame_number` | The frame number that the camera or the source gives. A gap shows a dropped frame. |
-| nominal rate | The frame rate, as a rational number, that the writer uses for the container timestamps. It is the requested or configured rate. |
-| Segment UID | The 16-byte `SegmentUID` element in the Matroska `Info` element. |
-| live offset | A byte offset that the writer recorded while it wrote the media file. |
-| final offset | A byte offset into the final bytes of a finalised media file. |
-| recording manifest | A JSON file that indexes the files and the facts of one recording (section 15.3). It is derived. The headers win. |
+| host clock | The monotonic clock of the computer that recorded the take (section 7). |
+| arrival time | The host-clock time at which the writer received a frame or an audio block. |
+| sample time | The host-clock time that the capture driver or the source gives for a frame. |
+| fitted time | The writer's estimate, on the host clock, of the regular frame lattice of a camera (section 7). It is not corrected for latency. |
+| player time | The time that a reader uses to place a frame (section 7). |
+| position | The place of a frame in its camera file: 0, 1, 2 and so on, in file order. It is the recording frame number. |
+| sequence | The value of the MCAP Message `sequence` field. For a frame, the frame number that the camera or the source gives. For an audio packet, the packet index. |
+| nominal rate | The requested or configured frame rate of a camera, as a rational number. |
+| fit segment | A part of a camera file in which the fitted time is a straight line of the sequence (section 7). |
+| breakpoint | A frame whose sequence is not the sequence of the frame before it plus 1 (section 7). |
 
 ## 2. Conventions
 
 - The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY have the meanings of RFC 2119 and
   RFC 8174, when they are in capital letters.
-- A requirement starts on a new line with its ID in bold, for example `**SFF-001**`. The ID has
+- A requirement starts on a new line with its ID in bold, for example `**SFF-008**`. The ID has
   three digits. A requirement has one ID. An ID is not reused or renumbered.
 - Each section has a block of 50 IDs. Section 2 uses SFF-001 to SFF-049. Section N (N ≥ 3) uses the
   block that starts at (N − 2) × 50, for example section 5 uses SFF-150 to SFF-199. A new
   requirement gets the next free ID in the block of its section. The tests in
   [conformance.md](conformance.md) use the same blocks.
-- A removed requirement keeps its line, with `(withdrawn)` after its ID.
+- A removed requirement keeps its line, with `(withdrawn)` after its ID. The withdrawn lines of a
+  section come first in that section.
 - A provisional requirement has `(provisional)` after its ID and names the open item that it waits
   for. A provisional requirement must be closed before v2.0.0.
 - `(writer)` or `(reader)` after an ID tells which program the requirement applies to.
 - Each requirement has one or more tests in [conformance.md](conformance.md).
   `tools/check_spec_traceability.py` checks this.
-- A byte range "a to b" includes a and b.
-- "Round half up" means: for a non-negative rational a / b, the result is ⌊(2a + b) / (2b)⌋,
-  computed with integers.
+- ⌊a / b⌋ is integer division rounded down, for a ≥ 0 and b > 0.
 
-Binary conventions:
+**SFF-001** (withdrawn) Draft v0.
 
-**SFF-001** (writer, reader) Each multi-byte integer and float in a sidecar is little-endian. `u8`,
-`u16`, `u32` and `u64` are unsigned. `i16` and `i64` are two's complement. `f64` is IEEE 754
-binary64.
+**SFF-002** (withdrawn) Draft v0.
 
-**SFF-002** (writer, reader) CRC-32 is the CRC-32/ISO-HDLC (the zlib `crc32`: polynomial
-0x04C11DB7 reflected, initial value 0xFFFFFFFF, final XOR 0xFFFFFFFF). A sidecar stores it as a
-little-endian `u32`.
+**SFF-003** (withdrawn) Draft v0.
 
-**SFF-003** (writer, reader) Each time is a signed 64-bit integer in nanoseconds. The value
-INT64_MIN (−2^63) means "absent". A reader MUST NOT use an absent time as a number.
+**SFF-004** (withdrawn) Draft v0.
 
-**SFF-004** (writer) `header_size`, `record_size` and `table_record_size` are multiples of 8. The
-records start at offset `header_size`. Each table and the JSON block start at an offset from the
-start of the sidecar that is a multiple of 8.
+**SFF-005** (withdrawn) Draft v0.
 
-**SFF-005** (reader) A JavaScript reader reads each 64-bit integer as two unsigned 32-bit halves. It
-does not use `BigInt`. For a time, it subtracts a recording base (for example `take_start_host_ns`)
-before it makes a JavaScript number. A reader MUST NOT give an inexact value as exact: it reports an
-offset or a time difference with a magnitude of 2^53 or more as an error. INT64_MIN stays "absent".
-A JavaScript reader MAY give `take_start_utc_ns` with millisecond precision.
+**SFF-006** (withdrawn) Draft v0.
 
-**SFF-006** (writer, reader) A text field of fixed size holds UTF-8 bytes, padded with zero bytes to
-its size. The text has no zero byte. A writer that shortens a text to fit cuts it at a UTF-8
-character boundary.
+**SFF-007** (withdrawn) Draft v0.
 
-**SFF-007** (writer, reader) The text form of a 16-byte UID (Segment UID or `take_uuid`) is 32
-lowercase hexadecimal characters, with no dashes, in byte order.
+**SFF-008** (writer, reader) Each device file is an MCAP file as the MCAP specification defines it
+(https://mcap.dev/spec), with the magic `0x89 M C A P 0x30 \r \n` at its start and, when finished,
+at its end. A writer uses only the records, fields and rules of that specification.
+
+**SFF-009** (writer, reader) Each value in a Metadata record and in a Channel `metadata` map is a
+UTF-8 string. An integer value is written in decimal, with a `-` sign when it is negative, with no
+`+` sign, no leading zeros (except the value `0`) and no spaces. A reader refuses a file whose
+integer value has another form (reason `bad_metadata`).
+
+**SFF-010** (writer, reader) A value that holds a list or an object is UTF-8 JSON (RFC 8259). In it,
+each integer that can be outside the range −2^53 to 2^53 is a JSON string in the form of SFF-009.
+Other integers are JSON numbers.
+
+**SFF-011** (writer, reader) Each time is an integer number of nanoseconds on the host clock of the
+take (section 7). An MCAP `log_time` or `publish_time` holds it as `uint64`. A protobuf
+`google.protobuf.Timestamp` holds it as `seconds` × 10^9 + `nanos`, with `nanos` from 0 to
+999,999,999.
+
+**SFF-012** (reader) A JavaScript reader keeps each 64-bit integer exact (for example with
+`BigInt`). It makes a JavaScript number from a time only after it subtracts the take start
+(`take_start_host_ns`, section 15). It reports a difference with a magnitude of 2^53 or more as an
+error, not as an inexact number.
+
+**SFF-013** (writer, reader) The text form of a 16-byte UID (`take_uuid`) is 32 lowercase
+hexadecimal characters, with no dashes.
 
 ## 3. Versioning
 
-The rules of the README section [Versioning](../README.md#versioning-normative) apply. This section
-tells how they apply to the bytes.
+The rules of the README section [Versioning](../README.md#versioning-normative) apply
+([ADR-7K3C](../decisions/entries/7K3C-format-versioning-in-metadata.md)).
 
-**SFF-050** (writer, reader) Each sidecar holds `major`, `minor` and `prerelease` as `u16` at the
-offsets of section 5.1. These offsets do not change in any version.
+**SFF-050** (withdrawn) Draft v0.
 
-**SFF-051** (reader) A reader MUST refuse a sidecar with a `major` that it does not know. It reports
-"unsupported version". It does not report the file as legacy.
+**SFF-051** (withdrawn) Draft v0.
 
-**SFF-052** (reader) A reader MUST read a sidecar with a higher `minor` of a `major` that it knows.
-It reads the fields that it knows at their offsets. It skips the other bytes by `header_size`,
-`record_size` and `table_record_size`.
+**SFF-052** (withdrawn) Draft v0.
 
-**SFF-053** (writer) A writer writes only the latest format version. Before v2.0.0 is released, a
+**SFF-053** (withdrawn) Draft v0.
+
+**SFF-054** (withdrawn) Draft v0.
+
+**SFF-055** (withdrawn) Draft v0.
+
+**SFF-056** (withdrawn) Draft v0.
+
+**SFF-057** (withdrawn) Draft v0.
+
+**SFF-058** (withdrawn) Draft v0.
+
+**SFF-059** (writer) Each device file has one Metadata record with the name `freemocap.format`. It has
+the keys `major`, `minor` and `prerelease`. Each value is an integer from 0 to 65,535 (SFF-009).
+
+**SFF-060** (reader) A reader MUST refuse a file with a `major` that it does not know (state
+`unsupported_version`). It does not report the file as legacy.
+
+**SFF-061** (reader) A reader MUST read a file with a higher `minor` of a `major` that it knows. It
+ignores the Metadata records, metadata keys, channels, topics, schemas and Log names that it does
+not know.
+
+**SFF-062** (writer) A writer writes only the latest format version. Before v2.0.0 is released, a
 writer writes `major` = 2, `minor` = 0 and `prerelease` = N, where N is the prerelease revision. A
 released writer writes `prerelease` = 0.
 
-**SFF-054** (reader) A reader MAY refuse a sidecar with `prerelease` > 0.
+**SFF-063** (reader) A reader MAY refuse a file with `prerelease` > 0.
 
-**SFF-055** (writer, reader) Each sidecar holds a writer string, for example `skellycam 2.1.0`. A
-reader MUST NOT change its behaviour because of the writer string.
+**SFF-064** (writer, reader) The MCAP Header `library` holds the writer string, for example
+`skellycam 2.1.3`. A reader MUST NOT change its behaviour because of it.
 
-**SFF-056** (writer, reader) A writer writes 0 to each reserved field, to each padding byte and to
-each flag bit that this spec does not define. A reader ignores reserved fields, padding bytes and the
-flag bits that it does not know.
+**SFF-065** (reader) The MCAP version in the magic is not the format version. A reader does not use
+it as the format version.
 
-**SFF-057** (writer, reader) A media file (MKV or MKA) has no version of its own. Its version is the
-version of its sidecar.
+**SFF-066** (reader) A reader uses a key or a rule only when the `minor` of the file is equal to or
+higher than the minor version that added it. In version 2.0, every key and rule of this spec has
+minor 0.
 
-**SFF-058** (reader) A reader reads a field only when the `minor` of the file is equal to or higher
-than the minor version that added the field. In version 2.0, all fields of this spec have minor 0.
+## 4. The MCAP profile
 
-## 4. Video: the MKV profile
+**SFF-100** (withdrawn) Draft v0.
 
-A camera file is a Matroska file ([RFC 9559](https://www.rfc-editor.org/rfc/rfc9559)) with DocType
-`matroska`.
+**SFF-101** (withdrawn) Draft v0.
 
-**SFF-100** (writer) A camera file has exactly one video track, with CodecID `V_MJPEG`. A skellycam
-camera file has no other track. A skellysync camera file also has exactly one FLAC track
-(section 8).
+**SFF-102** (withdrawn) Draft v0.
 
-**SFF-101** (writer) Each video frame is one JPEG image in one `SimpleBlock`. Each block has the
-keyframe flag. No block is laced.
+**SFF-103** (withdrawn) Draft v0.
 
-**SFF-102** (writer) A capture writer stores the JPEG bytes that an MJPEG camera sent, unchanged.
-For a camera that sends raw frames, it encodes each frame to JPEG.
+**SFF-104** (withdrawn) Draft v0.
 
-**SFF-103** (writer) A writer stores each frame in the orientation of the sensor. It does not rotate
-the pixels. It does not write a container rotation element, for example `Projection` or
-`ProjectionPoseRoll`. The rotation is in the sidecar (`display_rotation`, section 5.2).
+**SFF-105** (withdrawn) Draft v0.
 
-**SFF-104** (writer) The TimestampScale of a media file is 1,000,000 (1 ms). The container timestamp
-of the frame with `write_index` k is k × `nominal_rate_den` × 1000 / `nominal_rate_num` ms, round
-half up. A writer MUST NOT store measured times in the container timestamps. A writer refuses a
-nominal rate above 1000 frames per second, so that the timestamps strictly increase.
+**SFF-106** (withdrawn) Draft v0.
 
-**SFF-105** (writer) After the container closes, and before the embed, the first child of the
-Segment of a media file is a SeekHead, followed by a Void element. The **SeekHead span** is the
-SeekHead element and that Void element together. In the span, 23 or more bytes are not used by the
-SeekHead, so that the SeekHead can take one more Seek entry (section 9.2). This applies to camera
-files and to `.mka` files.
+**SFF-107** (withdrawn) Draft v0.
 
-**SFF-106** (writer) Before finalisation, a media file has no Attachments element, and no Chapters
-element after the first Cluster.
+**SFF-108** (withdrawn) Draft v0.
 
-**SFF-107** (writer) The video track number is below 128.
+**SFF-109** (withdrawn) Draft v0.
 
-**SFF-108** (reader) A reader MUST NOT require a JFIF or APP0 segment, a DHT segment or a fixed
-marker order in a JPEG. It MUST accept bytes after the entropy-coded data. A frame is the bytes of
-its block payload.
+**SFF-110** (withdrawn) Draft v0.
 
-**SFF-109** (reader) A reader finds a block payload by parsing the block header: the track number as
-an EBML variable-size integer, then 2 bytes of timestamp, then 1 byte of flags. It MUST NOT assume a
-fixed header length.
+**SFF-111** (withdrawn) Draft v0.
 
-**SFF-110** (writer) A skellycam capture writer writes no overlay and no burned-in text into the
-frames.
+**SFF-112** (withdrawn) Draft v0.
 
-**SFF-111** (writer) A writer stores no timing data inside a JPEG or FLAC frame, for example in an
-APPn segment. The sidecar holds the timing.
+**SFF-113** (withdrawn) Draft v0.
 
-**SFF-112** (reader) A live media file can have no SeekHead and can have elements of unknown size. A
-reader of a live media file finds the `Info` element and its `SegmentUID` by a walk of the top-level
-elements from the start of the Segment data.
+**SFF-114** (writer) A take has one camera file for each camera and at most one audio file.
 
-**SFF-113** (writer) Each Matroska media file has a `SegmentUID` in its `Info` element: 16 random bytes, not
-all zero. The writer writes it when it creates the file.
+**SFF-115** (writer) The MCAP Header `profile` is `freemocap`.
 
-## 5. Video timing sidecar
+**SFF-116** (writer) Each Channel has `message_encoding` = `protobuf`. Each Schema has `encoding` =
+`protobuf`, the name of one of the messages of the table below, and as `data` a serialised
+`google.protobuf.FileDescriptorSet` that defines that message with these field numbers.
 
-A video timing sidecar has a header, then one record for each frame, in `write_index` order. A
-skellysync sidecar also has an audio packet table after the records (section 8).
+| Schema name | Fields used by this spec (name = field number: type) |
+|---|---|
+| `foxglove.CompressedImage` | `timestamp` = 1: `google.protobuf.Timestamp`; `data` = 2: bytes; `format` = 3: string; `frame_id` = 4: string |
+| `foxglove.CompressedAudio` | `timestamp` = 1: `google.protobuf.Timestamp`; `data` = 2: bytes; `format` = 3: string |
+| `foxglove.Log` | `timestamp` = 1: `google.protobuf.Timestamp`; `level` = 2: enum (`WARNING` = 3); `message` = 3: string; `name` = 4: string |
 
-### 5.1 Common header
+**SFF-117** (writer) A camera file has the channel `/cameras/<camera_label>/image` (schema
+`foxglove.CompressedImage`) and MAY have the channel `/cameras/<camera_label>/log` (schema
+`foxglove.Log`). An audio file has the channel `/microphones/<label>/audio` (schema
+`foxglove.CompressedAudio`). A writer writes no other channel.
 
-All sidecars (`SKVT` and `SKAT`) start with these 160 bytes.
+**SFF-118** (writer) Each Message is in a Chunk. Each Chunk holds the Messages of one channel only,
+in the order that the writer wrote them. Each Chunk has `compression` = "" (none) and a non-zero
+`uncompressed_crc`, and is followed by its Message Index records.
 
-| Offset | Size | Field | Type | Meaning |
-|---|---|---|---|---|
-| 0 | 4 | `magic` | ASCII | `SKVT` (video) or `SKAT` (audio) |
-| 4 | 2 | `major` | u16 | Format major version |
-| 6 | 2 | `minor` | u16 | Format minor version |
-| 8 | 2 | `prerelease` | u16 | 0 for a released format, N for the Nth prerelease revision |
-| 10 | 2 | `clock_id` | u16 | The clock of all times in this sidecar (section 5.3) |
-| 12 | 4 | `header_size` | u32 | Size of the header in bytes, with `header_crc32` |
-| 16 | 4 | `record_size` | u32 | Size of each record in bytes |
-| 20 | 4 | `header_flags` | u32 | Section 5.1.1 |
-| 24 | 8 | `n_records` | u64 | Number of records. 0 in a live sidecar. |
-| 32 | 16 | `segment_uid` | bytes | Segment UID of the media file. All zero when the media file has none (a live `.flac`). |
-| 48 | 16 | `take_uuid` | bytes | The ID of the take. Random (UUID version 4). |
-| 64 | 8 | `take_start_host_ns` | i64 | Start of the take on the clock of the sidecar |
-| 72 | 8 | `take_start_utc_ns` | i64 | Start of the take in UTC, in nanoseconds since 1970-01-01T00:00:00Z |
-| 80 | 8 | `clock_freq_hz` | u64 | Frequency of the host clock counter, for diagnostics. 0 when not known. |
-| 88 | 2 | `utc_offset_min` | i16 | Local time minus UTC at the start of the take, in minutes |
-| 90 | 2 | `group_size` | u16 | Number of camera files in the take |
-| 92 | 4 | `body_crc32` | u32 | CRC-32 of all bytes after the header. 0 in a live sidecar. |
-| 96 | 8 | `table_offset` | u64 | Offset of the audio packet table from the start of the sidecar. 0 when there is no table. |
-| 104 | 8 | `table_count` | u64 | Number of packet records in the table |
-| 112 | 4 | `table_record_size` | u32 | Size of each packet record. 0 when there is no table. |
-| 116 | 4 | `json_offset` | u32 | Offset of the diagnostics JSON block from the start of the sidecar. 0 when there is none. |
-| 120 | 4 | `json_size` | u32 | Size of the JSON block in bytes |
-| 124 | 4 | reserved | | 0 |
-| 128 | 32 | `writer` | text | Writer string, for example `skellycam 2.0.0` |
+**SFF-119** (writer) Each Chunk of the image channel holds exactly `frames_per_chunk` Messages
+(section 5), except that the last Chunk of that channel can hold fewer. A writer writes
+`frames_per_chunk` = 1.
 
-The kind-specific fields start at offset 160 (section 5.2 and section 7.1). The last 4 bytes of the
-header are `header_crc32`.
+**SFF-120** (reader) A reader handles any `frames_per_chunk` of 1 or more. The image Chunks, in
+order of their offset in the file, hold the positions in order. The frame at position p is in image
+Chunk ⌊p / `frames_per_chunk`⌋, as Message p − ⌊p / `frames_per_chunk`⌋ × `frames_per_chunk` of that
+Chunk.
 
-**SFF-150** (writer) A writer writes the common header fields at the offsets and with the types of
-the table in section 5.1.
+**SFF-121** (writer) Each Chunk of the audio channel holds exactly 5 Messages, except that the last
+Chunk of that channel can hold fewer.
 
-**SFF-151** (writer) `header_crc32` is the CRC-32 of the header bytes from offset 0 to offset
-`header_size` − 5. A writer that changes a header field recomputes it. Live sidecars also have a
-correct `header_crc32`.
+**SFF-122** (writer) In one channel, the writer writes the Messages in order of position (image) or
+of packet index (audio). The `log_time` of a Message is not less than the `log_time` of the Message
+before it in the same channel.
 
-**SFF-152** (reader) A reader checks a header in this order: `magic`; `major` (SFF-051);
-`header_size` (SFF-179); `header_crc32`; then the other checks of SFF-179. It refuses a header with a
-wrong `header_crc32` (reason `bad_header_crc`).
+**SFF-123** (writer) A writer writes the `freemocap.format` and `freemocap.recording` Metadata
+records after the Header and before the first Chunk. It writes the `freemocap.timing` Metadata
+record of a camera file after the last Chunk and before the Data End record.
 
-**SFF-153** (writer) The diagnostics JSON block, when present, is UTF-8 JSON at `json_offset`, with
-`json_size` bytes. It starts at or after the end of the fixed fields of the header kind and ends at
-or before offset `header_size` − 4. Each other byte between the fixed fields and `header_crc32` is
-0. The block holds facts for diagnostics only, for example the encoder name, `async_depth`, the
-camera control values and the audio host API.
+**SFF-124** (writer) A writer writes no Attachment record.
 
-**SFF-154** (reader) A reader MUST NOT need the diagnostics JSON block to read, play or recover a
-file.
+## 5. Camera files
 
-#### 5.1.1 Header flags
+The `metadata` map of the image Channel holds these keys:
 
-| Bit | Name | Meaning |
-|---|---|---|
-| 0 | `finalised` | The writer completed finalisation step 3 (section 9.1). |
-| 1 | `separate_final` | The appender refused the media file. The separate sidecar is the final form (SFF-354). |
-| 2 | `recovered` | A recovery (section 11) made this sidecar. |
-| 3 | `table_offsets_final` | Only when `table_offset` ≠ 0: the packet table offsets refer to the final media file. When this bit is 0, they refer to the live `.flac` file. |
-| 4–31 | reserved | 0 |
+| Key | Value |
+|---|---|
+| `camera_label` | The label of the camera. The same label is in the topic. |
+| `camera_key` | Optional. A stable key of the camera: an integer from 1 to 2^64 − 1. |
+| `nominal_rate` | `<num>/<den>`: the nominal rate in frames per second, for example `30/1` |
+| `display_rotation` | `0`, `90`, `180` or `270` |
+| `frames_per_chunk` | An integer, 1 or more |
+| `group_position` | Optional. The order of the camera in the take: an integer from 0 to 65,534. |
 
-**SFF-155** (writer) A writer sets `finalised` only in the complete final sidecar of finalisation
-step 3, in which the record offsets, `n_records`, `segment_uid`, the fitted times, the tables and
-`body_crc32` are final. After that, the only change to that sidecar is `separate_final`, which the
-writer makes in a new temporary sidecar that it renames over the old one (SFF-354).
+**SFF-150** (withdrawn) Draft v0.
 
-**SFF-156** (reader) A reader treats a sidecar without `finalised` as live (section 11).
+**SFF-151** (withdrawn) Draft v0.
 
-**SFF-157** (writer) In a finalised sidecar, `body_crc32` is the CRC-32 of all bytes from offset
-`header_size` to the end of the sidecar.
+**SFF-152** (withdrawn) Draft v0.
 
-**SFF-158** (reader) A reader does not need to check each record CRC when it loads a finalised
-sidecar. It MAY check `body_crc32`. When it checks it and it does not match, the reader checks each record CRC, uses only the records before the first record
-with a wrong CRC, and reports the sidecar as damaged.
+**SFF-153** (withdrawn) Draft v0.
 
-### 5.2 Video header fields
+**SFF-154** (withdrawn) Draft v0.
 
-| Offset | Size | Field | Type | Meaning |
-|---|---|---|---|---|
-| 160 | 2 | `display_rotation` | u16 | 0, 90, 180 or 270 |
-| 162 | 2 | `group_position` | u16 | Optional order of the camera in the take. 0xFFFF when not set. |
-| 164 | 4 | `nominal_rate_num` | u32 | Nominal rate numerator (frames) |
-| 168 | 4 | `nominal_rate_den` | u32 | Nominal rate denominator (seconds) |
-| 172 | 4 | reserved | | 0 |
-| 176 | 8 | `camera_key` | u64 | Stable camera key. 0 when not set. |
-| 184 | 16 | `camera_label` | text | Short camera label |
-| 200 | 64 | `audio` | struct | Audio track descriptor (section 7.2). All zero when the file has no audio track. |
-| 264 | 4 | reserved | | 0. End of the fixed video fields at 268. |
-| `header_size` − 4 | 4 | `header_crc32` | u32 | SFF-151. In version 2.0, `header_size` ≥ 272. |
+**SFF-155** (withdrawn) Draft v0.
 
-**SFF-159** (writer) `display_rotation` is the clockwise rotation, in degrees, that a reader applies
-to the stored pixels to show the frame upright. Its value is 0, 90, 180 or 270.
+**SFF-156** (withdrawn) Draft v0.
 
-**SFF-160** (reader) A reader that shows or processes frames applies `display_rotation`. A reader
-refuses a value that is not 0, 90, 180 or 270.
+**SFF-157** (withdrawn) Draft v0.
 
-**SFF-161** (writer) `camera_label` has 1 to 16 bytes from the set `A`–`Z`, `a`–`z`, `0`–`9`, `_`
-and `-`. The camera files of one take have different labels. A writer refuses to start a take with
-two cameras that have the same label.
+**SFF-158** (withdrawn) Draft v0.
 
-**SFF-162** (writer) A writer SHOULD set `camera_key`. When it sets it, `camera_key` is the first
-8 bytes, as a little-endian `u64`, of the SHA-256 of a UTF-8 identity string. For a USB camera with
-a serial number, the string is `usb:<vid>:<pid>:<serial>`, with `<vid>` and `<pid>` as 4 lowercase
-hexadecimal digits and `<serial>` as the device reports it. For other cameras, the writer defines
-the string, which starts with a kind name and a colon, for example `path:`.
+**SFF-159** (withdrawn) Draft v0.
 
-**SFF-163** (writer) `nominal_rate_num` and `nominal_rate_den` are both greater than 0.
+**SFF-160** (withdrawn) Draft v0.
 
-### 5.3 Clocks
+**SFF-161** (withdrawn) Draft v0.
+
+**SFF-162** (withdrawn) Draft v0.
+
+**SFF-163** (withdrawn) Draft v0.
+
+**SFF-164** (withdrawn) Draft v0.
+
+**SFF-165** (withdrawn) Draft v0.
+
+**SFF-166** (withdrawn) Draft v0.
+
+**SFF-167** (withdrawn) Draft v0.
+
+**SFF-168** (withdrawn) Draft v0.
+
+**SFF-169** (withdrawn) Draft v0.
+
+**SFF-170** (withdrawn) Draft v0.
+
+**SFF-171** (withdrawn) Draft v0.
+
+**SFF-172** (withdrawn) Draft v0.
+
+**SFF-173** (withdrawn) Draft v0.
+
+**SFF-174** (withdrawn) Draft v0.
+
+**SFF-175** (withdrawn) Draft v0.
+
+**SFF-176** (withdrawn) Draft v0.
+
+**SFF-177** (withdrawn) Draft v0.
+
+**SFF-178** (withdrawn) Draft v0.
+
+**SFF-179** (withdrawn) Draft v0.
+
+**SFF-180** (withdrawn) Draft v0.
+
+**SFF-181** (writer) A writer writes the keys of the table of section 5 in the `metadata` map of the
+image Channel.
+
+**SFF-182** (writer) `camera_label` has 1 to 16 characters from the set `A`–`Z`, `a`–`z`, `0`–`9`,
+`_` and `-`. The camera files of one take have different labels. A writer refuses to start a take
+with two cameras that have the same label.
+
+**SFF-183** (writer) A writer SHOULD write `camera_key`. Its value is the first 8 bytes, as a
+little-endian unsigned 64-bit integer, of the SHA-256 of a UTF-8 identity string. For a USB camera
+with a serial number, the string is `usb:<vid>:<pid>:<serial>`, with `<vid>` and `<pid>` as 4
+lowercase hexadecimal digits and `<serial>` as the device reports it. For other cameras, the writer
+defines the string, which starts with a kind name and a colon, for example `path:`. When the value
+is 0, the writer writes no `camera_key`.
+
+**SFF-184** (writer, reader) In `nominal_rate`, `<num>` and `<den>` are each an integer from 1 to
+2^20. A reader refuses a file with another value (reason `bad_rate`).
+
+**SFF-185** (writer) `display_rotation` is the clockwise rotation, in degrees, that a reader applies
+to the stored pixels to show the frame upright. A writer stores each frame as the camera or the
+source gave it, and it does not rotate the pixels
+([ADR-68Z6](../decisions/entries/68Z6-rotation-in-metadata-only.md)).
+
+**SFF-186** (reader) A reader that shows or processes frames applies `display_rotation`. A reader
+refuses a value that is not 0, 90, 180 or 270 (reason `bad_rotation`).
+
+**SFF-187** (writer) Each image Message holds a `foxglove.CompressedImage` with `format` = `jpeg`,
+`frame_id` = the `camera_label`, and as `data` one complete JPEG image, from its SOI marker to its
+EOI marker, as the camera or the encoder gave it.
+
+**SFF-188** (writer) For each image Message: `log_time` is the arrival time of the frame;
+`publish_time` is equal to `log_time`; `sequence` is the frame number that the camera or the source
+gives, modulo 2^32; the `timestamp` field holds the sample time, and it is not set when the driver
+gives no sample time ([ADR-752H](../decisions/entries/752H-timing-fields.md)).
+
+**SFF-189** (reader) A reader uses the `timestamp` field as the sample time only when the field is
+set. When it is not set, the frame has no sample time. A reader MUST NOT use an unset `timestamp` as
+the time 0.
+
+**SFF-190** (writer) When the JPEG encoder fails on a frame, the writer writes one `foxglove.Log`
+Message on the log channel, with `level` = `WARNING`, `name` = `skellyfileformat.encode_skip`, and
+as `log_time` and `timestamp` the arrival time of the frame that it did not write.
+
+**SFF-191** (reader) A Log Message does not change the positions of the frames. A reader counts the
+`skellyfileformat.encode_skip` Messages of each camera and reports the count (section 15).
+
+**SFF-192** (writer, reader) A writer writes the `group_position` of a camera only when the user or
+the writer gave the cameras an order. A reader orders the camera files of a take by
+`group_position`, with unset values last, then by the bytes of `camera_label`.
+
+## 6. Audio files
+
+The `metadata` map of the audio Channel holds these keys
+([ADR-HD8Z](../decisions/entries/HD8Z-opus-audio.md),
+[ADR-QDZ7](../decisions/entries/QDZ7-opus-settings-and-timing.md)):
+
+| Key | Value |
+|---|---|
+| `label` | The label of the microphone, with the rules of `camera_label`. The same label is in the topic. |
+| `sample_rate` | `48000` |
+| `channels` | `1` or `2` |
+| `pre_skip` | The pre-skip of the Opus stream: the number of samples at 48 kHz that a reader drops at the start |
+| `output_gain` | The output gain of the Opus header, as a signed Q7.8 integer (RFC 7845) |
+| `opus_head` | The Opus identification header of RFC 7845 section 5.1, in base64 (RFC 4648 section 4, with padding) |
+| `audio_latency_ns` | Optional (provisional). The time from the sound at the microphone to its ADC time, in nanoseconds |
+
+**SFF-200** (withdrawn) Draft v0.
+
+**SFF-201** (withdrawn) Draft v0.
+
+**SFF-202** (withdrawn) Draft v0.
+
+**SFF-203** (withdrawn) Draft v0.
+
+**SFF-204** (withdrawn) Draft v0.
+
+**SFF-205** (withdrawn) Draft v0.
+
+**SFF-206** (withdrawn) Draft v0.
+
+**SFF-207** (withdrawn) Draft v0.
+
+**SFF-208** (withdrawn) Draft v0.
+
+**SFF-209** (writer) A writer writes the keys of the table of section 6 in the `metadata` map of the
+audio Channel. The `channels` and `pre_skip` values are equal to the channel count and the pre-skip
+in `opus_head`, and the mapping family in `opus_head` is 0.
+
+**SFF-210** (writer) A capture writer encodes the audio with Opus (RFC 6716) at 48 kHz, with the
+channels of the microphone device and at most 2. It downmixes a device with more channels. It uses
+the application `audio`, 20 ms packets, variable bit rate at 128,000 bit/s for one channel and
+256,000 bit/s for two channels, and complexity 10.
+
+**SFF-211** (writer) Each audio Message holds a `foxglove.CompressedAudio` with `format` = `opus` and
+as `data` one complete raw Opus packet of 20 ms (960 samples at 48 kHz), with no Ogg, WebM or other
+container framing.
+
+**SFF-212** (writer) For each audio Message: `log_time` is the arrival time of the audio callback
+block that completed the packet; `publish_time` is equal to `log_time`; `sequence` is the packet
+index (0, 1, 2 and so on), modulo 2^32; the `timestamp` field holds the host-clock time of the first
+decoded sample of the packet. The decoded samples include the encoder's priming samples, so packet 0
+starts `pre_skip` samples before the first sample of the microphone.
+
+**SFF-213** (provisional: audio clock drift test A4) A capture writer computes the `timestamp` of
+each packet from a fit of the host-clock times of the callback blocks against the sample index. The
+`timestamp` values of consecutive packets differ by 20 ms ± the drift of the microphone clock.
+
+**SFF-214** (reader) A reader decodes the raw packets with no Opus header given to the decoder (in
+WebCodecs: no `description`). It drops the first `pre_skip` decoded samples of the stream. Decoded
+sample i of packet k, counted before the drop, is at the time `timestamp`(k) + ⌊i × 10^9 / 48000⌋.
+
+**SFF-215** (reader) To start decoding at a packet k after a seek, a reader decodes from packet
+k − 4 (80 ms before) with a new decoder state, and discards the audio before packet k.
+
+**SFF-216** (provisional: microphone latency test A3) When `audio_latency_ns` (L) is present, the
+sound in a sample happened at the time of that sample minus L. When it is absent, a reader uses 0.
+
+**SFF-217** (reader) When `channels` or `pre_skip` is not equal to the value in `opus_head`, the
+reader uses the value in `opus_head` and reports the warning `opus_head_mismatch`.
+
+## 7. Clocks, times and the fit
+
+The `clock_id` key of the `freemocap.recording` record names the host clock of the take:
 
 | `clock_id` | Clock |
 |---|---|
 | 1 | Windows `QueryPerformanceCounter`, in nanoseconds (Python `time.perf_counter_ns`) |
 | 2 | Linux `CLOCK_MONOTONIC`, in nanoseconds |
 | 3 | macOS `mach_absolute_time` converted to nanoseconds with `mach_timebase_info` (`CLOCK_UPTIME_RAW`) |
-| 0x80 | Synthetic aligned timeline of a conversion writer (skellysync). Time 0 is the start of the output. All times of the sidecar are on this timeline. |
-
-**SFF-164** (writer) A writer writes a `clock_id` from the table in section 5.3. All the sidecars of
-one take have the same `clock_id`.
-
-**SFF-165** (provisional: Linux and macOS timing tests, T-S7) The `clock_id` values 2 and 3 are
-provisional until the Linux and macOS timing tests are done.
-
-### 5.4 Video record
-
-In version 2.0, `record_size` is 64. A later minor version can make records larger. Its new fields
-then go after byte 59 and before `record_crc32`.
-
-| Offset | Size | Field | Type | Meaning |
-|---|---|---|---|---|
-| 0 | 8 | `arrival_ns` | i64 | Arrival time (section 5.5) |
-| 8 | 8 | `sample_time_ns` | i64 | Sample time, or absent |
-| 16 | 8 | `legacy_ns` | i64 | A compatibility time that the writer defines, or absent |
-| 24 | 8 | `fitted_ns` | i64 | Fitted time. Absent before finalisation. |
-| 32 | 8 | `offset` | u64 | Offset of the first JPEG byte (the block payload) from the start of the media file |
-| 40 | 4 | `size` | u32 | Size of the JPEG in bytes |
-| 44 | 4 | `jpeg_crc32` | u32 | CRC-32 of the JPEG bytes |
-| 48 | 4 | `source_frame_number` | u32 | Frame number from the camera or the source, modulo 2^32 |
-| 52 | 4 | `write_index` | u32 | Position of the frame in the file |
-| 56 | 4 | `flags` | u32 | Section 5.4.1 |
-| `record_size` − 4 | 4 | `record_crc32` | u32 | CRC-32 of the record bytes from 0 to `record_size` − 5 |
-
-**SFF-166** (writer) A writer writes each record with the fields of the table in section 5.4.
-`record_size` is 64 or more.
-
-**SFF-167** (writer) Record number k has `write_index` k. Its frame is the block with the container
-timestamp of `write_index` k (SFF-104).
-
-**SFF-168** (reader) A reader steps through the records by `record_size`. It finds `record_crc32`
-in the last 4 bytes of each record.
-
-**SFF-169** (writer) `jpeg_crc32` is the CRC-32 of the `size` bytes at `offset` in the media file.
-
-#### 5.4.1 Record flags
+| 128 | Synthetic timeline of a conversion writer (skellysync). Time 0 is the start of the output. |
 
-| Bit | Name | Set when |
-|---|---|---|
-| 0 | `gap` | `source_frame_number` is neither the previous `source_frame_number` + 1 (modulo 2^32) nor equal to it. Frames are missing before this frame. |
-| 1 | `repeat` | `source_frame_number` is equal to the previous `source_frame_number`. |
-| 2 | `encode_skip` | The encoder failed on one or more frames before this frame. Those frames are not in the file. |
-| 3 | reserved | Always 0 |
-| 4 | `fit_valid` | `fitted_ns` holds a fitted time. |
-| 5 | `fit_unreliable` | The writer judges the fit of this part of the file poor. The writer defines the rule. For information only. |
-| 6–7 | `offset_state` | 0 = live offset; 1 = live offset of the last frame, found after the container closed (SFF-402); 2 = final offset; 3 = reserved |
-| 8 | `recovered` | A recovery made this record (section 11). |
-| 9–31 | reserved | Always 0 |
+The `freemocap.timing` Metadata record of a camera file holds these keys
+([ADR-FF01](../decisions/entries/FF01-fit-and-breakpoints-in-metadata.md)):
 
-**SFF-170** (writer) "Previous" is the `source_frame_number` of the previous record in the file. A
-writer sets `gap` exactly when `source_frame_number` is neither previous + 1 (modulo 2^32) nor
-previous. It sets `repeat` exactly when it is equal to previous. It sets neither on the first
-record. After a frame that the encoder skipped, the next record has `encode_skip` (SFF-171), and
-also `gap` when its number is not previous + 1.
-
-**SFF-171** (writer) When the encoder fails on a frame, the writer sets `encode_skip` on the record
-of the next frame that it writes.
+| Key | Value |
+|---|---|
+| `fitter` | The name of the method that made the fit |
+| `fitter_version` | The version of that method |
+| `fitter_params` | A JSON object of its parameters |
+| `segments` | A JSON array of fit segments, in order of `seq_first`. Each segment is an object with `seq_first`, `seq_last`, `t0_ns` and `period_ps`. |
+| `breakpoints` | A JSON array of `[position, sequence]` pairs, in order of position |
 
-**SFF-172** (writer) A writer sets `fit_valid` on all records of a file or on none.
+Example:
 
-**SFF-173** (writer) In a finalised sidecar, `offset_state` is 2 on each record.
+```
+fitter         = skellycam-lattice
+fitter_version = 1.0.0
+fitter_params  = {"outlier_reject_ms": 5}
+segments       = [{"seq_first": 1000, "seq_last": 55012, "t0_ns": "81234567000", "period_ps": "33389000"}]
+breakpoints    = [[0, 1000], [5, 1007]]
+```
 
-### 5.5 Times and player time
-
-| Writer kind | `arrival_ns` | `sample_time_ns` | `legacy_ns` | `fitted_ns` |
-|---|---|---|---|---|
-| Capture writer | Host-clock time when the writer received the frame | Capture-driver time on the host clock (for Media Foundation with a QPC-based sample time: sample time × 100), or absent | Writer-defined, or absent | Written at finalisation (SFF-175) |
-| Conversion writer from old timestamp files | The old per-frame timestamp, on its host clock | Absent | Writer-defined, or absent | Written at finalisation, or absent |
-| skellysync (`clock_id` 0x80, provisional, section 14) | Slot time on the synthetic timeline | Source presentation time (SFF-600) | Absent | Absent |
-
-**SFF-174** (writer) A writer fills the time fields as the table in section 5.5 gives for its kind.
-
-**SFF-175** (writer) At finalisation, a capture writer writes `fitted_ns` for every frame and sets
-`fit_valid` on every record, except in a file with fewer than 2 records, which has no fitted times.
-A conversion writer MAY do the same. The fitted time is the writer's estimate of the frame lattice on
-the host clock, from the arrival times and the sample times. The writer MAY fit parts of the file
-separately.
+**SFF-250** (withdrawn) Draft v0.
 
-**SFF-176** (reader) The player time of a frame is `fitted_ns` when the sidecar is finalised and
-every record has `fit_valid`. Otherwise it is `arrival_ns`, for every frame of the file.
-
-**SFF-177** (writer) The player time never decreases from one record to the next in one file.
-
-**SFF-178** (reader) A reader does not use `legacy_ns` to place frames.
-
-**SFF-179** (reader) A reader refuses a sidecar when any of these is true, and it reports the
-reason in brackets:
-
-- the magic is not `SKVT` or `SKAT`, or does not match the media file: `SKVT` for a camera file,
-  `SKAT` for an audio file (`bad_magic`);
-- the `major` is not known (`unsupported_version`, SFF-051);
-- `header_size` is below the minimum of its kind (272 for `SKVT`, 256 for `SKAT` in version 2.0),
-  or is not a multiple of 8, or is larger than the sidecar (`bad_header_size`);
-- `header_crc32` is wrong (`bad_header_crc`, SFF-152);
-- `record_size` is below 64 (`SKVT`) or 48 (`SKAT`), or is not a multiple of 8, or
-  `table_offset` ≠ 0 and `table_record_size` is below 48 or not a multiple of 8 (`bad_record_size`);
-- the JSON block is not in the range of SFF-153 (`bad_json`);
-- a table, the drift table or (in a finalised sidecar) the `n_records` records go past the end of
-  the sidecar or overlap each other or the header (`out_of_bounds`).
+**SFF-251** (withdrawn) Draft v0.
 
-**SFF-180** (writer, reader) A later minor version adds video record fields after byte 59 and audio
-record fields after byte 43, before `record_crc32`. The `type` field of an audio record stays at
-offset 40, and a reader uses it to tell the record kinds apart.
-
-## 6. Audio: FLAC in `.mka` (skellycam)
-
-While the writer records, a skellycam audio file is a native FLAC file
-([RFC 9639](https://www.rfc-editor.org/rfc/rfc9639)). At finalisation, the writer stream-copies its
-FLAC frames into a Matroska file with DocType `matroska` (the `.mka` file).
-
-**SFF-200** (writer) The final audio file has exactly one track, with CodecID `A_FLAC`. Its
-CodecPrivate is `fLaC` followed by one STREAMINFO metadata block with the last-block flag set (42
-bytes). It has no other metadata block, for example no SEEKTABLE. The STREAMINFO is the one in the
-`.flac` file after the encoder closed, or the one from the encoder start when the encoder did not
-close.
-
-**SFF-201** (writer) Each FLAC frame is one `SimpleBlock`. No block is laced. The FLAC frames in the
-`.mka` are byte-identical to the frames of the live `.flac` file.
-
-**SFF-202** (writer) While it records, the writer writes each FLAC frame whole and flushes it to the
-file before it writes the packet record of that frame (section 7.4).
-
-**SFF-203** (reader) A reader MUST NOT use the STREAMINFO total sample count. It is 0 after a crash,
-and the stream copy keeps that value. The reader uses `total_samples` of the sidecar and the packet
-table.
-
-**SFF-204** (writer) The `.mka` verifies when the CRC-32 of each FLAC frame in it matches its packet
-record, and its decoded sample count is `total_samples`. The writer verifies the `.mka` in
-finalisation step 2, before any rename. It deletes the live `.flac` file only after that.
-
-**SFF-205** (writer) The audio file and the camera files of one take use the same host clock: the
-same `clock_id`, read from the same clock source of the computer.
-
-**SFF-206** (writer) The container timestamp of a FLAC frame is `first_sample` × 1000 /
-`sample_rate` ms, round half up, with TimestampScale 1,000,000.
-
-**SFF-207** (withdrawn) The `.mka` file is not bound to its `.flac` file by name. Both belong to the
-take of their `take_uuid` (SFF-208).
-
-**SFF-208** (writer) A take has at most one skellycam audio file. A reader pairs a `.mka` and a
-`.flac` with their live audio sidecar by `take_uuid`.
-
-## 7. Audio timing sidecar (`.skat`) and the packet table
-
-An audio timing sidecar has the common header (section 5.1) with magic `SKAT`, then audio records.
-All audio records have `record_size` bytes, a `type` field at offset 40 and `record_crc32` in the
-last 4 bytes, which covers bytes 0 to `record_size` − 5. In version 2.0, `record_size` is 48. A
-later minor version can make audio records larger. Its new fields then go after byte 43 and before
-`record_crc32`.
-
-- The **live** audio sidecar (`<stem>.skat.live`, section 12) holds timing records and packet
-  records in the order that the writer wrote them.
-- The **final** audio sidecar holds `n_records` timing records, then the packet table at
-  `table_offset` (`table_count` packet records), then the drift table (section 7.5).
-
-### 7.1 Audio header fields
-
-| Offset | Size | Field | Type | Meaning |
-|---|---|---|---|---|
-| 160 | 64 | `audio` | struct | Audio track descriptor (section 7.2) |
-| 224 | 8 | `audio_latency_ns` | i64 | Time from the sound at the microphone to its ADC time, or absent (provisional) |
-| 232 | 8 | `drift_table_offset` | u64 | Offset of the drift table from the start of the sidecar. 0 when there is none (provisional). |
-| 240 | 4 | `drift_count` | u32 | Number of drift records (provisional) |
-| 244 | 4 | reserved | | 0 |
-| 248 | 4 | reserved | | 0. End of the fixed audio fields at 252. |
-| `header_size` − 4 | 4 | `header_crc32` | u32 | SFF-151. In version 2.0, `header_size` ≥ 256. |
-
-**SFF-250** (writer) A writer writes the audio header fields at the offsets of the table in
-section 7.1. In a final audio sidecar, `table_record_size` is equal to `record_size`.
-
-**SFF-251** (provisional: audio latency test A3) `audio_latency_ns` comes from a latency measurement
-of the microphone. Until that test is done, a writer writes INT64_MIN.
-
-### 7.2 Audio track descriptor
-
-| Offset | Size | Field | Type | Meaning |
-|---|---|---|---|---|
-| +0 | 2 | `track_number` | u16 | Matroska TrackNumber of the FLAC track. 0 = no audio track. |
-| +2 | 2 | `channels` | u16 | Number of channels |
-| +4 | 2 | `bits_per_sample` | u16 | Bits per sample |
-| +6 | 2 | reserved | | 0 |
-| +8 | 4 | `sample_rate` | u32 | Samples per second |
-| +12 | 4 | reserved | | 0 |
-| +16 | 8 | `total_samples` | u64 | Total samples for each channel. 0 in a live sidecar. |
-| +24 | 34 | `flac_streaminfo` | bytes | The 34-byte body of the STREAMINFO block of the CodecPrivate (SFF-200) |
-| +58 | 6 | reserved | | 0 |
-
-**SFF-252** (writer) A writer writes the audio track descriptor with the fields of the table in
-section 7.2. In a finalised sidecar, `total_samples` is the sum of `n_samples` of the packet table.
-
-**SFF-253** (reader) A reader that decodes with the WebCodecs `AudioDecoder` uses the codec `flac`
-and this 42-byte description: `fLaC`, then the 4 bytes `0x80 0x00 0x00 0x22`, then
-`flac_streaminfo`.
-
-### 7.3 Timing record (type 1)
-
-The writer writes one timing record for each audio callback block.
-
-| Offset | Size | Field | Type | Meaning |
-|---|---|---|---|---|
-| 0 | 8 | `sample_index` | i64 | Index of the first sample of the block |
-| 8 | 8 | `host_ns` | i64 | Host-clock time at the start of the callback |
-| 16 | 8 | `adc_ns` | i64 | ADC time of the end of the block, on the host clock: the time of sample `sample_index` + `frames`. Or absent. |
-| 24 | 8 | `current_ns` | i64 | Current time that the audio API gives, on the host clock, or absent |
-| 32 | 4 | `block_index` | u32 | Index of the block |
-| 36 | 4 | `frames` | u32 | Samples in the block for each channel |
-| 40 | 2 | `type` | u16 | 1 |
-| 42 | 2 | `flags` | u16 | Bit 0 input overflow; bit 1 input underflow; bit 2 silence inserted for a lost block; bit 3 priming; bits 4–15 reserved |
-| `record_size` − 4 | 4 | `record_crc32` | u32 | CRC-32 of bytes 0 to `record_size` − 5 |
-
-**SFF-254** (writer) A writer writes timing records with the fields of the table in section 7.3, in
-`block_index` order, with no gap in `block_index`.
-
-**SFF-255** (writer) When the audio API gives no usable ADC time (for example 0), the writer writes
-`adc_ns` as INT64_MIN.
-
-### 7.4 Packet record (type 2)
-
-| Offset | Size | Field | Type | Meaning |
-|---|---|---|---|---|
-| 0 | 8 | `offset` | u64 | Offset of the FLAC frame from the start of the media file |
-| 8 | 8 | `first_sample` | i64 | Index of the first sample of the frame |
-| 16 | 4 | `size` | u32 | Size of the FLAC frame in bytes |
-| 20 | 4 | `n_samples` | u32 | Samples in the frame for each channel |
-| 24 | 4 | `frame_crc32` | u32 | CRC-32 of the FLAC frame bytes |
-| 28 | 12 | reserved | | 0 |
-| 40 | 2 | `type` | u16 | 2 |
-| 42 | 2 | reserved | | 0 |
-| `record_size` − 4 | 4 | `record_crc32` | u32 | CRC-32 of bytes 0 to `record_size` − 5 |
-
-**SFF-256** (writer) A writer writes packet records with the fields of the table in section 7.4. It
-writes no packet record with `size` = 0. The first `first_sample` is 0. Each next `first_sample` is
-the previous `first_sample` + `n_samples`.
-
-**SFF-257** (writer) A writer writes each timing record before every FLAC frame that holds any of
-its samples. It writes the packet record of each FLAC frame after that frame and before the next
-FLAC frame. It flushes each record to the file when it writes it.
-
-**SFF-258** (writer) In a final audio sidecar, the packet offsets refer to the `.mka` file, and the
-writer sets `table_offsets_final`. In a live audio sidecar, they refer to the `.flac` file.
-
-**SFF-259** (reader) A reader finds the bytes of audio sample n by a binary search of the packet
-table on `first_sample`. A sample n below 0 or at or above `total_samples` is an error.
-
-### 7.5 Drift table and the audio-to-video mapping (provisional)
-
-| Offset | Size | Field | Type | Meaning |
-|---|---|---|---|---|
-| 0 | 8 | `segment_first_sample` | i64 | n0: the first sample of the segment |
-| 8 | 8 | `t0_ns` | i64 | Host-clock time of sample n0 |
-| 16 | 8 | `rate_hz` | f64 | f_eff: the measured sample rate of the segment on the host clock |
-| 24 | 8 | `residual_p99_ns` | i64 | 99th percentile of the fit residual |
-| 32 | 8 | `segment_end_sample` | i64 | The first sample after the segment |
-| 40 | 2 | `type` | u16 | 3 |
-| 42 | 2 | `flags` | u16 | Bit 0 `fit_unreliable`; bit 1 `host_fit` (the segment is a fit of `host_ns`, SFF-263); bits 2–15 reserved |
-| `record_size` − 4 | 4 | `record_crc32` | u32 | CRC-32 of bytes 0 to `record_size` − 5 |
-
-**SFF-260** (provisional: audio clock drift test A4) At finalisation, a writer writes the drift table
-at `drift_table_offset`, with `drift_count` records: one for each segment of a piecewise-linear fit
-of `adc_ns` against `sample_index` + `frames`. The writer starts a new segment at a residual jump of
-more than 3 ms. It sets `fit_unreliable` when `residual_p99_ns` is more than 5 ms or the segment is
-shorter than 10 s.
-
-**SFF-261** (provisional: audio clock drift test A4 and audio latency test A3) The host-clock time of
-sample n in a segment is t0_ns + (n − n0) × 10^9 / f_eff. The sample at host-clock time T is
-n0 + (T − t0_ns − `audio_latency_ns`) × f_eff / 10^9, rounded down. When `audio_latency_ns` is
-absent, the reader uses 0. A result within ±1 sample of this value conforms.
-
-**SFF-262** (provisional: Linux and macOS audio timing test) The meaning of `adc_ns` and
-`current_ns` for `clock_id` 2 and 3 is provisional.
-
-**SFF-263** (provisional: audio clock drift test A4) When no timing record has an `adc_ns`, the writer
-makes the drift table from a fit of `host_ns` against `sample_index` instead, with the rules of
-SFF-260, and sets `host_fit` on each drift record.
-
-## 8. Audio in the camera MKV (skellysync)
-
-**SFF-300** (writer) A skellysync camera file has one FLAC track. The writer writes the audio in the
-same pass as the video. The FLAC track keeps the source sample rate and the source channels, at
-16 bits per sample.
-
-**SFF-301** (provisional: skellysync D-FPS and D-DRIFT) The audio of frame k starts at sample
-k × `sample_rate` × `nominal_rate_den` / `nominal_rate_num`, round half up, and ends before the
-first sample of frame k + 1. Where the source has no audio for a sample, the writer writes silence.
-The audio does not continue after the end of the last frame.
-
-**SFF-302** (writer) The sidecar of a skellysync camera file holds the audio track descriptor
-(section 7.2) and an audio packet table at `table_offset`, after the video records. The packet
-records have the layout of section 7.4. In version 2.0, `table_record_size` is 48. The writer sets
-`table_offsets_final`.
-
-**SFF-303** (writer) A skellysync writer writes no live offsets. It writes the sidecar after the
-media file is complete, with final offsets from a scan (section 10).
-
-**SFF-304** (writer) In a skellysync camera file, the container timestamp of a FLAC frame is
-`first_sample` × 1000 / `sample_rate` ms, round half up.
-
-## 9. Embedding and finalisation
-
-### 9.1 Finalisation order
-
-A temporary file has the final name with `.tmp` added (section 12). A rename replaces the target
-file in one step. This spec covers crashes that stop the writer process. It does not cover a power
-loss or a crash of the operating system.
-
-**SFF-350** (writer) A writer finalises each media file in this order. It flushes each file to the
-disk before it renames it.
-
-1. When recovery or an audio step needs a new media file, write it as a temporary file. For an audio
-   file, this step is the stream copy from the `.flac` into `<stem>.mka.tmp`.
-2. Scan the new or the existing media file (section 10). Rebuild each offset, and check each frame
-   CRC against its record: a video record pairs with the block that has the container timestamp of
-   its `write_index`; a packet record pairs with the FLAC frame in the same position. For an audio
-   file, also verify the `.mka` (SFF-204). When a check fails, stop the finalisation and do a
-   recovery (section 11).
-3. Write the complete final sidecar as a temporary file (`<stem>.skvt.tmp` or `<stem>.skat.tmp`):
-   the fitted times and the flags (`offset_state` = 2), `n_records`, the tables, `total_samples`,
-   the final `segment_uid`, each record CRC, `body_crc32`, the `finalised` flag, and `header_crc32`.
-4. Rename the temporary sidecar to `<stem>.skvt` or `<stem>.skat`. Then, when step 1 made a
-   temporary media file, rename it to its final name.
-5. Embed the sidecar (section 9.2). When the appender refuses, write a copy of the separate sidecar
-   with `separate_final` set and a new `header_crc32` as a temporary file, rename it over the
-   separate sidecar, and go to step 7.
-6. Verify the embed (section 9.3), then delete the separate sidecar. When the embed does not verify,
-   cut the attachment off as SFF-363 gives, then set `separate_final` as in step 5.
-7. For an audio file: delete the `.flac` file and the live audio sidecar.
-
-**SFF-351** (writer) The writer writes the recording manifest (section 15.3) after step 7 of every
-file of the take.
-
-### 9.2 Appender
-
-**SFF-352** (writer) The appender embeds a sidecar in this order:
-
-1. Append an `Attachments` element with one `AttachedFile` (`FileName`, `FileMediaType`, `FileUID`,
-   `FileData`) at the end of the file. `FileUID` is 8 random bytes and is not 0. Flush the file to
-   the disk.
-2. Rewrite the Segment size in place, with the same size width. Flush the file to the disk.
-3. Rewrite the SeekHead in the SeekHead span with one more Seek entry for the Attachments. The new
-   entry has a `SeekPosition` of 8 bytes, relative to the Segment data start (21 bytes for the
-   entry). When the SeekHead had a CRC-32 element, write a CRC-32 element as its first child,
-   computed over all the SeekHead children after it. Let R be the span length minus the length of
-   the new SeekHead element, with its size field at the smallest width. When R = 0, write no Void.
-   When R = 1, make the SeekHead size field 1 byte wider. When R ≥ 2, fill the rest of the span with
-   a Void. Flush the file to the disk.
-
-**SFF-353** (writer) The appender refuses, and changes nothing, when: the Segment has an unknown
-size; the Segment does not end at the end of the file; the first child of the Segment is not a
-SeekHead; the file already has an Attachments element; the new Segment size does not fit in the
-existing size width; or R (step 3) is below 0.
-
-**SFF-354** (writer) A writer embeds each sidecar when the appender does not refuse. When the
-appender refuses, the writer sets `separate_final` in the separate sidecar and keeps it as the final
-form.
-
-**SFF-355** (writer) The appender changes only the Segment size, the bytes of the SeekHead span, and
-the bytes after the old end of the file. It does not move a frame.
-
-**SFF-356** (writer) A writer MUST NOT use a tool that writes the Attachments before the Clusters,
-for example `ffmpeg -attach`.
-
-### 9.3 Verify and delete
-
-**SFF-357** (writer) The embed verifies when all of these are true: the SHA-256 of the embedded
-`FileData` is equal to the SHA-256 of the separate sidecar; the locator (section 9.4) finds the
-attachment; and the CRC-32 of the first and the last frame are equal to their records. For an audio
-sidecar, the frames are those of the packet records. When there is no frame (`n_records` = 0 for
-video, `table_count` = 0 for audio), the frame condition is true.
-
-**SFF-358** (writer) A writer deletes a separate sidecar only after its embed verifies. When the
-embed does not verify, the writer keeps the separate sidecar.
-
-### 9.4 Locator
-
-**SFF-359** (reader) A reader finds an embedded sidecar from the start of the file. It reads the EBML
-header, the Segment header, the SeekHead and the Info (for `SegmentUID`), then the Attachments
-element at the position that the SeekHead gives, then the `FileData`. It reads no byte inside a
-Cluster.
-
-**SFF-360** (reader) The locator matches an `AttachedFile` by its `FileName` and its
-`FileMediaType` (section 12). It reports these failures: not EBML; no Segment; no SeekHead; no
-Attachments entry; Attachments past the end of the file; a SeekHead entry that does not point to an
-Attachments element; `FileData` with an unknown size; short `FileData`; no matching `AttachedFile`.
-
-### 9.5 Which sidecar to use
-
-**SFF-361** (reader) A reader uses the embedded sidecar when the reader accepts it (SFF-152,
-SFF-179) and its `segment_uid` is equal to the Segment UID of the media file. The live audio
-sidecar of a `.flac` file has no Segment UID to match (SFF-550). Otherwise, it uses a
-separate sidecar that it accepts and whose `segment_uid` is equal. Otherwise, it can index the file
-by a scan (SFF-553), and the frames then have no times.
-
-### 9.6 Interrupted embed
-
-**SFF-362** (reader) The embed is interrupted when bytes follow the end of the Segment, when the
-Segment ends with an Attachments element that the SeekHead does not reference, or when the SeekHead
-span does not parse or its CRC-32 element does not match. A reader then uses the separate sidecar.
-
-**SFF-363** (writer) To recover an interrupted embed, a writer cuts the file at the old end of the
-Segment (the start of the unreferenced Attachments element, or the end of the Segment), restores the
-Segment size, writes the SeekHead span again with the Seek entries other than the Attachments entry
-(as SFF-352 step 3 gives), and embeds again from the separate sidecar.
-
-**SFF-364** (reader, writer) A separate sidecar without `finalised` shows that finalisation did not
-complete step 3. A reader and a writer treat the file as live (section 11).
-
-### 9.7 Crash during finalisation
-
-The table gives each state that a crash can leave, the state that a reader reports (SFF-666), what
-the reader uses, and what a recovery does. A recovery first deletes each temporary file that a row
-does not name.
-
-| State after the crash | Reader state | Reader uses | Recovery |
-|---|---|---|---|
-| Live media file and live sidecar | `live` | The live sidecar | Section 11 |
-| A finalised separate sidecar that does not match its media file, and `<media>.tmp` exists (step 4, between the two renames) | `needs_recovery` | Nothing of this file | Rename `<media>.tmp` to its final name, then steps 5 to 7 |
-| Audio: a finalised `.skat`, no `.mka`, a `.mka.tmp`, and the `.flac` and the live audio sidecar of the same take | `live` | The `.flac` and the live audio sidecar | Rename `<stem>.mka.tmp` to `<stem>.mka`, then steps 5 to 7 |
-| Finalised separate sidecar, matching media file, no attachment | `finalised` | The separate sidecar | Steps 5 to 7 |
-| A finalised separate sidecar, and its temporary copy with `separate_final` (step 5) | `finalised` | The separate sidecar | Step 5 again |
-| Interrupted embed (SFF-362) | `finalised` | The separate sidecar | SFF-363, then steps 6 and 7 |
-| Embedded sidecar and separate sidecar both present | `finalised` | The embedded sidecar (SFF-361) | Step 6, then step 7 |
-| Audio: a finalised `.mka`, and a `.flac` and a live audio sidecar of the same take | `finalised` | The `.mka` | The row that applies to the `.mka`, then step 7 |
-
-**SFF-365** (reader, writer) A reader and a recovery handle each state of the table in section 9.7
-as the table gives.
-
-**SFF-366** (writer) A recovery can stop at any write or rename and start again. Each stop leaves a
-state of the table in section 9.7 or of section 11, and the next recovery ends in the same final
-state.
-
-**SFF-367** (writer) When a rename or a delete fails, for example because another process holds the
-file open, the writer tries it again. Until it succeeds, the files stay in the state before the
-rename or delete. On POSIX systems, a writer SHOULD flush the folder after each rename.
-
-**SFF-368** (reader) A reader reads a sidecar in one pass and then closes it. It does not keep a
-sidecar or a temporary file open.
-
-## 10. Segment UID, live offsets and final offsets
-
-**SFF-400** (writer) `segment_uid` in a sidecar is the Segment UID of the media file whose bytes the
-offsets refer to. After a remux, the writer writes the new Segment UID.
-
-**SFF-401** (reader) A reader rejects a sidecar whose `segment_uid` is not equal to the Segment UID
-of the media file, and reports the rejection. The live audio sidecar of a `.flac` file is an
-exception (SFF-550).
-
-**SFF-402** (writer) A capture writer of a camera file configures the container to write each
-packet to the file when the next packet is given to it (FFmpeg `flush_packets=1`), and to end a
-Cluster after each frame (FFmpeg `cluster_size_limit=1` or `cluster_time_limit=0`). Without the
-second setting, FFmpeg holds frames of a few KiB in memory and the file size gives wrong offsets.
-The file then ends with frame k after the writer gives frame k + 1 to the container. The writer writes the sidecar
-header, with the Segment UID of the live file, before it gives the first frame to the container.
-Before finalisation, it writes record k after it gives frame k + 1 to the container, with the live
-offset `offset` = file size − `size` of frame k, and `offset_state` = 0. After the container closes,
-it finds the offset of the last frame by a walk of the last Cluster, checks its CRC and writes its
-record with `offset_state` = 1, or it writes that record at finalisation.
-
-**SFF-403** (writer) A writer uses live offsets only in a media file that has one track.
-
-**SFF-404** (writer) A scan finds each block of the track of the sidecar by an EBML walk from the
-Segment start. It ignores the blocks of other tracks and a partial element at the end of the file. It gives the payload offset, the size and the CRC-32 of each block. Finalisation uses these
-values as the final offsets.
-
-**SFF-405** (reader) A reader that scans a file accepts Clusters with an unknown size.
-
-## 11. Unfinalised and crashed files
-
-**SFF-450** (reader) In a live sidecar, the file size gives the largest possible number of records.
-A reader reads records from the first record to the first record with a wrong `record_crc32`, or to
-a partial record at the end. It ignores all bytes after that point.
-
-**SFF-451** (reader) A reader MAY play a live camera file from its live sidecar. It uses only frames
-with a valid record. It does not use a frame that has no record.
-
-**SFF-452** (writer) A video recovery does these steps:
-
-1. Read the valid records (SFF-450).
-2. Scan the live file (SFF-404, SFF-405). Pair each record with the block that has the container
-   timestamp of its `write_index`, and check `jpeg_crc32`.
-3. Keep the longest first part of the file in which each record pairs with a block with the same
-   CRC. Drop all records and blocks after it.
-4. Write the paired blocks to a temporary media file (finalisation step 1). Set `recovered` on each
-   record and in the header.
-5. Do finalisation steps 2 to 7.
-
-**SFF-453** (writer) An audio recovery does these steps: read the valid records of the live audio
-sidecar (SFF-450); keep the FLAC frames of the `.flac` file up to the first frame that has no valid
-packet record or whose `frame_crc32` does not match, and drop the frames from there to the end; keep
-the timing records; set the `recovered` header flag; then do the audio finalisation (section 9.1).
-
-**SFF-454** (reader) A reader accepts these states after a crash: one timing record with no packet
-record after it; one complete FLAC frame with no packet record; one video frame in the file with no
-record; a sidecar with a header and no records; a media file with a header and no frames.
-
-**SFF-455** (writer) After a recovery finalises every file of the take, it writes the recording
-manifest again.
-
-## 12. File, attachment and MIME names
-
-| Item | Video | Audio |
-|---|---|---|
-| Sidecar magic | `SKVT` | `SKAT` |
-| Separate sidecar | `<stem>.skvt` | `<stem>.skat` |
-| Live sidecar | `<stem>.skvt` | `<stem>.skat.live` (the stem of the `.flac` file) |
-| Attachment `FileName` | `video_timing.skvt` | `audio_timing.skat` |
-| Attachment `FileMediaType` | `application/x-skellyfileformat-video-timing` | `application/x-skellyfileformat-audio-timing` |
-| Temporary file | the final name + `.tmp` | the final name + `.tmp` |
-
-`<stem>` is the name of the media file without its last extension. For example, the separate sidecar
-of `take.id-a1b2.idx-0.mkv` is `take.id-a1b2.idx-0.skvt`, and the live audio sidecar of
-`take.audio.flac` is `take.audio.skat.live`.
-
-**SFF-500** (writer) A writer uses the names of the table in section 12.
-
-**SFF-501** (reader) A reader finds a separate or live sidecar by the name of the table, in the
-folder of its media file. It finds an embedded sidecar by `FileName` and `FileMediaType` together.
-
-**SFF-502** (reader) A reader gets nothing from a file name except the name of the sidecar of a media
-file, the temporary state (SFF-503) and the manifest (section 15.3).
-
-**SFF-503** (reader) A reader does not read a file whose name ends with `.tmp`. It MAY note that
-`<media>.tmp` exists, only to report `needs_recovery` (section 9.7).
-
-**SFF-504** (reader) The candidate media files of a folder are the files whose name does not end with
-`.tmp` and whose first 4 bytes are `1A 45 DF A3` (Matroska) or `66 4C 61 43` (`fLaC`).
-
-## 13. Files that are not in this format
-
-**SFF-550** (reader) A media file is in this format when it has an embedded sidecar (section 9.4)
-that the reader accepts, or a separate or live sidecar with the name of section 12 that the reader
-accepts. A separate sidecar must also have a `segment_uid` equal to the Segment UID of the media
-file. The live sidecar of a `.flac` file is an exception, because a `.flac` file has no Segment UID:
-it binds to the `.flac` whose stem it has (section 12), and both belong to the take of its
-`take_uuid`.
-
-**SFF-551** (reader) A recording with no file in this format is a legacy recording. This spec does
-not tell how to read it.
-
-**SFF-552** (reader) A file with a sidecar of an unknown `major` is "unsupported version" (SFF-051),
-not legacy.
-
-**SFF-553** (reader) A reader MAY index an MJPEG MKV file that has no usable sidecar by a scan. The
-frames then have no times. The reader reports that the file is not in this format.
-
-## 14. skellysync camera sidecar header
-
-skellysync writes camera files with the video sidecar of section 5, the FLAC track of section 8 and
-`clock_id` 0x80. The provisional requirements of this section wait for the skellysync decisions
-D-Q, D-FPS, D-HDR and D-DRIFT. SFF-602 is final.
-
-**SFF-600** (provisional: skellysync D-FPS) The record field `source_frame_number` holds the index of
-the source frame. `sample_time_ns` holds its source presentation time minus the presentation time of
-the first source frame used, so that it is on the synthetic timeline. `arrival_ns` holds the slot
-time on the synthetic timeline. `fitted_ns` is absent, and no record has `fit_valid`. When a later
-minor version needs wider fields, it makes `record_size` larger (section 5.4).
-
-**SFF-601** (provisional: skellysync D-Q, D-HDR and D-DRIFT) skellysync puts the source description
-in the diagnostics JSON block: the file base name, size and content hash, the codec, bit depth, range
-and transfer, the encoder and quality, and the sync result. A later minor version can move fields
-into fixed binary.
-
-**SFF-602** (writer) skellysync does not rotate the pixels. It writes the source rotation as
+**SFF-252** (withdrawn) Draft v0.
+
+**SFF-253** (withdrawn) Draft v0.
+
+**SFF-254** (withdrawn) Draft v0.
+
+**SFF-255** (withdrawn) Draft v0.
+
+**SFF-256** (withdrawn) Draft v0.
+
+**SFF-257** (withdrawn) Draft v0.
+
+**SFF-258** (withdrawn) Draft v0.
+
+**SFF-259** (withdrawn) Draft v0.
+
+**SFF-260** (withdrawn) Draft v0.
+
+**SFF-261** (withdrawn) Draft v0.
+
+**SFF-262** (withdrawn) Draft v0.
+
+**SFF-263** (withdrawn) Draft v0.
+
+**SFF-264** (writer) All files of a take have the same `clock_id`, from the table of section 7. All
+their times are on that clock.
+
+**SFF-265** (provisional: Linux and macOS timing tests, T-S7 of the skellycam plan) The `clock_id`
+values 2 and 3 are provisional.
+
+**SFF-266** (writer) Before it finishes a camera file, a capture writer writes the
+`freemocap.timing` record with the keys of the table of section 7. The fitting method is the
+writer's choice. A conversion writer MAY write the record.
+
+**SFF-267** (writer) In each segment, `seq_first` ≤ `seq_last`, and both are sequence values of
+frames of the file. `t0_ns` is the fitted time of the frame with sequence `seq_first`. `period_ps` is
+the fitted frame period in picoseconds, an integer greater than 0. The segments do not overlap, and a
+segment does not span a wrap of the sequence past 2^32 − 1.
+
+**SFF-268** (reader) The fitted time of a frame with sequence s in a segment is
+`t0_ns` + ⌊(s − `seq_first`) × `period_ps` / 1000⌋, computed with integers.
+
+**SFF-269** (writer) The first breakpoint is `[0, s0]`, where s0 is the sequence of position 0.
+After it, each frame at position p > 0 whose sequence is not (sequence of position p − 1 + 1)
+modulo 2^32 is a breakpoint `[p, sequence]`.
+
+**SFF-270** (reader) The sequence of the frame at position p is (s_b + p − p_b) modulo 2^32, where
+`[p_b, s_b]` is the last breakpoint with p_b ≤ p.
+
+**SFF-271** (reader) The player time of each frame of a camera file is its fitted time, when the file
+has a `freemocap.timing` record and each frame is in a segment. Otherwise it is the arrival time
+(`log_time`), for every frame of the file. A reader does not mix the two in one file, and it reports
+the warning `missing_fit` when it uses the arrival time.
+
+**SFF-272** (writer) The player time never decreases from one position to the next in one file.
+
+**SFF-273** (reader) A reader MUST NOT change its behaviour because of `fitter`, `fitter_version` or
+`fitter_params`.
+
+**SFF-274** (reader) The time zero of a take is `take_start_host_ns` (section 15). A reader shows no
+frame of a camera at a time before the player time of position 0 of that camera.
+
+## 8. skellysync files
+
+skellysync writes this profile ([ADR-X1G6](../decisions/entries/X1G6-read-old-write-mcap.md)). The
+provisional requirements of this section wait for the skellysync decisions D-Q, D-FPS, D-HDR,
+D-DRIFT and D-AUDIO. SFF-307 is final.
+
+**SFF-300** (withdrawn) Draft v0.
+
+**SFF-301** (withdrawn) Draft v0.
+
+**SFF-302** (withdrawn) Draft v0.
+
+**SFF-303** (withdrawn) Draft v0.
+
+**SFF-304** (withdrawn) Draft v0.
+
+**SFF-305** (provisional: skellysync D-AUDIO) skellysync writes one camera file for each source video
+and one audio file for the audio that it keeps, with the rules of sections 4 to 6.
+
+**SFF-306** (provisional: skellysync D-FPS) skellysync writes `clock_id` 128. The `log_time` of a frame
+is its slot time on the synthetic timeline. The `timestamp` is the source presentation time minus the
+presentation time of the first source frame used. `sequence` is the index of the source frame.
+skellysync writes no `freemocap.timing` record.
+
+**SFF-307** (writer) skellysync does not rotate the pixels. It writes the source rotation as
 `display_rotation`.
 
-**SFF-603** (provisional: skellysync D-FPS) skellysync writes `take_start_host_ns` = 0. It writes
+**SFF-308** (provisional: skellysync D-Q, D-HDR and D-DRIFT) skellysync writes a description of each
+source (file base name, size and content hash, codec, bit depth, range and transfer, encoder and
+quality, and the sync result) in a Metadata record that those decisions name.
+
+**SFF-309** (provisional: skellysync D-FPS) skellysync writes `take_start_host_ns` = 0. It writes
 `take_start_utc_ns` as the start of the source recording when it knows it, else as the time of the
 conversion.
 
+## 9. Finished, unfinished and repaired files
+
+([ADR-S4FG](../decisions/entries/S4FG-writing-crash-and-repair.md))
+
+**SFF-350** (withdrawn) Draft v0.
+
+**SFF-351** (withdrawn) Draft v0.
+
+**SFF-352** (withdrawn) Draft v0.
+
+**SFF-353** (withdrawn) Draft v0.
+
+**SFF-354** (withdrawn) Draft v0.
+
+**SFF-355** (withdrawn) Draft v0.
+
+**SFF-356** (withdrawn) Draft v0.
+
+**SFF-357** (withdrawn) Draft v0.
+
+**SFF-358** (withdrawn) Draft v0.
+
+**SFF-359** (withdrawn) Draft v0.
+
+**SFF-360** (withdrawn) Draft v0.
+
+**SFF-361** (withdrawn) Draft v0.
+
+**SFF-362** (withdrawn) Draft v0.
+
+**SFF-363** (withdrawn) Draft v0.
+
+**SFF-364** (withdrawn) Draft v0.
+
+**SFF-365** (withdrawn) Draft v0.
+
+**SFF-366** (withdrawn) Draft v0.
+
+**SFF-367** (withdrawn) Draft v0.
+
+**SFF-368** (withdrawn) Draft v0.
+
+**SFF-369** (writer) A writer finishes a device file with a Data End record, a Summary and a Footer.
+The Summary holds the Schema, Channel, Statistics, Chunk Index and Metadata Index records, and a
+Summary Offset section follows it. The Data End record holds the CRC of the data section.
+
+**SFF-370** (provisional: fsync cost test) While it records, a capture writer forces the file data to
+the disk at least once each second.
+
+**SFF-371** (reader) A device file is unfinished when its last 8 bytes are not the MCAP magic, or when
+its Footer does not point to a valid Summary. A reader opens an unfinished file without its Summary:
+it reads the records from the start of the file in order. It uses each complete Chunk whose
+`uncompressed_crc` is correct.
+
+**SFF-372** (reader) A reader of an unfinished file stops at the first record that is not complete.
+It reports the number of bytes after the last complete record (`torn_bytes`). When a Chunk is
+complete but its CRC is wrong, the reader stops before that Chunk and reports the state `damaged`.
+A reader checks that its read reached the last complete record. A stop with no error before that
+record is a reader fault.
+
+**SFF-373** (reader) In an unfinished file, a reader takes the `freemocap.format` and
+`freemocap.recording` records from the data section (SFF-123). A file with no `freemocap.format`
+record before its first Chunk is not in this format.
+
+**SFF-374** (writer) A program MUST NOT repair a file without the agreement of the user for that
+file. skellycam asks: "An incomplete recording was found. Would you like to repair it?"
+
+**SFF-375** (writer) A repair cuts the file after the last complete Chunk that has a correct CRC, with
+its complete Message Index records. Then it appends a `freemocap.timing` record (camera files), a
+`freemocap.repair` Metadata record, a Data End record with a data section CRC of 0, a rebuilt Summary,
+a Summary Offset section and a Footer. It never changes a byte before the cut. A repair that stops
+before its end leaves an unfinished file, and a new repair starts again from the same cut.
+
+**SFF-376** (writer) The `freemocap.repair` record has the keys `cut_bytes` (the number of bytes that
+the repair removed) and `repair_writer` (the writer string of the program that repaired the file).
+
+**SFF-377** (reader) A reader treats a repaired file as a finished file. It reports the state
+`repaired` when the file has a `freemocap.repair` record. A data section CRC of 0 means "not
+available" (MCAP).
+
+## 10. Withdrawn section
+
+Draft v0 section 10 (Segment UID and offsets) is withdrawn.
+
+**SFF-400** (withdrawn) Draft v0.
+
+**SFF-401** (withdrawn) Draft v0.
+
+**SFF-402** (withdrawn) Draft v0.
+
+**SFF-403** (withdrawn) Draft v0.
+
+**SFF-404** (withdrawn) Draft v0.
+
+**SFF-405** (withdrawn) Draft v0.
+
+## 11. Withdrawn section
+
+Draft v0 section 11 (unfinalised and crashed files) is withdrawn. Section 9 replaces it.
+
+**SFF-450** (withdrawn) Draft v0.
+
+**SFF-451** (withdrawn) Draft v0.
+
+**SFF-452** (withdrawn) Draft v0.
+
+**SFF-453** (withdrawn) Draft v0.
+
+**SFF-454** (withdrawn) Draft v0.
+
+**SFF-455** (withdrawn) Draft v0.
+
+## 12. Withdrawn section
+
+Draft v0 section 12 (file, attachment and MIME names) is withdrawn.
+
+**SFF-500** (withdrawn) Draft v0.
+
+**SFF-501** (withdrawn) Draft v0.
+
+**SFF-502** (withdrawn) Draft v0.
+
+**SFF-503** (withdrawn) Draft v0.
+
+**SFF-504** (withdrawn) Draft v0.
+
+## 13. Files that are not in this format
+
+**SFF-550** (withdrawn) Draft v0.
+
+**SFF-551** (withdrawn) Draft v0.
+
+**SFF-552** (withdrawn) Draft v0.
+
+**SFF-553** (withdrawn) Draft v0.
+
+**SFF-554** (reader) A reader examines each regular file directly in the folder whose first 8 bytes
+are the MCAP magic. It ignores the other files.
+
+**SFF-555** (reader) An MCAP file is in this format when its Header `profile` is `freemocap` and it
+has a `freemocap.format` record whose `major` the reader knows. A finished file has the record in its
+Metadata Index. An unfinished file has it before its first Chunk (SFF-373).
+
+**SFF-556** (reader) An MCAP file with another `profile`, or with no `freemocap.format` record, is not
+in this format (state `not_in_format`). A file of this format with a `major` that the reader does not
+know has the state `unsupported_version` (SFF-060).
+
+**SFF-557** (reader) A folder with no file of this format holds a legacy recording, or none. This spec
+does not tell how to read a legacy recording.
+
+## 14. Withdrawn section
+
+Draft v0 section 14 (skellysync camera sidecar header) is withdrawn. Section 8 replaces it.
+
+**SFF-600** (withdrawn) Draft v0.
+
+**SFF-601** (withdrawn) Draft v0.
+
+**SFF-602** (withdrawn) Draft v0.
+
+**SFF-603** (withdrawn) Draft v0.
+
 ## 15. The recording as a whole
 
-### 15.1 Recording facts in the headers
+The `freemocap.recording` Metadata record holds these keys
+([ADR-TDB5](../decisions/entries/TDB5-whole-recording-no-manifest.md)):
 
-**SFF-650** (writer) Each sidecar of a take holds the same `take_uuid`, `take_start_host_ns`,
-`take_start_utc_ns`, `utc_offset_min`, `group_size` and `clock_id`. `take_uuid` is not all zero.
-`take_start_host_ns` and `take_start_utc_ns` are not INT64_MIN.
+| Key | Value |
+|---|---|
+| `take_uuid` | The ID of the take: a random UUID version 4, in the text form of SFF-013 |
+| `take_start_host_ns` | The start of the take on the host clock |
+| `take_start_utc_ns` | The start of the take in UTC, in nanoseconds since 1970-01-01T00:00:00Z |
+| `utc_offset_min` | Local time minus UTC at the start of the take, in minutes |
+| `clock_id` | The host clock (section 7) |
+| `clock_freq_hz` | Optional. The frequency of the host clock counter, for diagnostics |
+| `group_size` | The number of camera files of the take |
 
-**SFF-651** (writer) A capture writer reads `take_start_host_ns` and `take_start_utc_ns` one after
-the other, with no other work between the two reads, before the first frame or sample of any file of
-the take. `utc_offset_min` is the local offset at that moment. A writer MUST NOT write a time-zone
-name.
+**SFF-650** (withdrawn) Draft v0.
 
-**SFF-652** (writer) `group_size` is the number of camera files of the take. The audio file is not
+**SFF-651** (withdrawn) Draft v0.
+
+**SFF-652** (withdrawn) Draft v0.
+
+**SFF-653** (withdrawn) Draft v0.
+
+**SFF-654** (withdrawn) Draft v0.
+
+**SFF-655** (withdrawn) Draft v0.
+
+**SFF-656** (withdrawn) Draft v0.
+
+**SFF-657** (withdrawn) Draft v0.
+
+**SFF-658** (withdrawn) Draft v0.
+
+**SFF-659** (withdrawn) Draft v0.
+
+**SFF-660** (withdrawn) Draft v0.
+
+**SFF-661** (withdrawn) Draft v0.
+
+**SFF-662** (withdrawn) Draft v0.
+
+**SFF-663** (withdrawn) Draft v0.
+
+**SFF-664** (withdrawn) Draft v0.
+
+**SFF-665** (withdrawn) Draft v0.
+
+**SFF-666** (withdrawn) Draft v0.
+
+**SFF-667** (withdrawn) Draft v0.
+
+**SFF-668** (withdrawn) Draft v0.
+
+**SFF-669** (writer) A writer writes the keys of the table of section 15 in the `freemocap.recording`
+record of each device file. All files of a take have the same values.
+
+**SFF-670** (writer) A capture writer reads `take_start_host_ns` and `take_start_utc_ns` one after the
+other, with no other work between the two reads, before the first frame or sample of any file of the
+take. `utc_offset_min` is the local offset at that moment. A writer MUST NOT write a time-zone name.
+
+**SFF-671** (writer) `group_size` is the number of camera files of the take. The audio file is not
 counted.
 
-**SFF-653** (writer) No file of this format holds an absolute path, a user name, the friendly name
-of a device, a device path or a raw serial number.
+**SFF-672** (writer) No record of a file of this format holds an absolute path, a user name, the
+friendly name of a device, a device path or a raw serial number.
 
-### 15.2 Opening a recording
+**SFF-673** (writer) A writer puts the files of one take, and no other device files, directly in one
+folder.
 
-**SFF-654** (reader) A reader opens a recording from one folder. It looks only at the files directly
-in that folder, not in its subfolders. The recording is the files in this format (SFF-550) that hold
-the same `take_uuid`.
+**SFF-674** (reader) A reader opens one folder. It looks only at the files directly in that folder.
+It groups the files of this format by `take_uuid`, and it reports each take. It needs no other file to
+open a take. An unfinished file belongs to the take of its `take_uuid`.
 
-**SFF-655** (reader) A reader MUST be able to open a recording without its manifest, also when some
-files are live.
+**SFF-675** (reader) When a take has fewer camera files than `group_size`, the reader reports the
+take as `incomplete`, with the warning `incomplete_take`, and it opens the other files.
 
-**SFF-656** (reader) A reader does not mix files with different `take_uuid` values. When the
-manifest exists, a file with a `take_uuid` different from the manifest is stale: the reader ignores
-it and reports a warning. When no manifest exists and the folder holds more than one take, the
-reader reports each take.
+**SFF-676** (reader) When two camera files of one take have the same `camera_label`, the reader
+reports the warning `duplicate_label` and keeps both files.
 
-**SFF-657** (reader) When a take has fewer camera files than `group_size`, the reader reports the
-take as incomplete and opens the other files.
+**SFF-677** (reader) When the files of one take disagree on a key of the `freemocap.recording` record,
+the reader reports the warning `take_fact_mismatch` and uses the values of the first camera file in
+the order of SFF-192.
 
-**SFF-658** (reader) The time zero of the take is `take_start_host_ns`. For a time before the player
-time of the first record of a camera, the reader shows no frame of that camera.
+### 15.1 The reader result
 
-**SFF-659** (reader) When two camera files of one take have the same `camera_label`, the reader
-reports a warning and keeps both files.
+A reader can give the result of opening a folder as JSON. The conformance tests and the golden files
+use this result to compare readers.
 
-### 15.3 Recording manifest
+**SFF-678** (reader) The reader result is a JSON object with these members, serialised with the JSON
+Canonicalization Scheme (RFC 8785):
 
-The manifest is a UTF-8 JSON file `<rec>.skellyrec.json` in the recording folder. The writer chooses
-`<rec>`. Example:
+- `result_version`: 1;
+- `folder_state`: `ok` (one or more takes), `legacy` or `empty` (SFF-557);
+- `takes`: an array, in order of `take_uuid`. Each take has `take_uuid`, `state` (`complete` or
+  `incomplete`), `warnings` (an array of warning codes, sorted) and `files` (an array in the order of
+  SFF-192, then the audio file);
+- each item of `files`: `name` (the file name), `kind` (`camera` or `audio`), `state`, `reason` (a
+  reason code or null), `label`, `torn_bytes`, `messages` (the number of image or audio Messages
+  read), `encode_skips` (camera files), `fit` (true when the player time is the fitted time),
+  `warnings` and, when the test asks for them, `records`;
+- each item of `records`: `[position, sequence, log_time, sample_time or null, player_time]` for a
+  camera file, and `[packet_index, log_time, timestamp]` for an audio file;
+- `other_files`: an array of the files of SFF-554 that are not in this format, each with `name`,
+  `state` and `reason`.
 
-```json
-{
-  "skellyfileformat": {"major": 2, "minor": 0, "prerelease": 1},
-  "writer": "skellycam 2.0.0",
-  "take_uuid": "3f2a0c1e9b7d4e8a8f61c2d4b5a69e01",
-  "group_size": 1,
-  "take": {"start_host_ns": "123456789012345", "start_utc_ns": "1794500000000000000", "utc_offset_min": -300},
-  "clock": {"id": 1, "freq_hz": "10000000"},
-  "files": [
-    {"path": "take.id-a1b2.idx-0.mkv", "kind": "camera", "camera_label": "a1b2",
-     "camera_key": "1234567890123456789", "segment_uid": "cc82e5a1d3f04b7f9a1e2b3c4d5e6f70",
-     "n_records": "1800", "nominal_rate": {"num": 30, "den": 1}, "display_rotation": 90},
-    {"path": "take.audio.mka", "kind": "audio", "segment_uid": "0a1b2c3d4e5f60718293a4b5c6d7e8f9",
-     "total_samples": "1440000", "sample_rate": 48000, "channels": 1}
-  ]
-}
-```
+Each integer that can be outside the range −2^53 to 2^53 is a JSON string (SFF-010).
 
-**SFF-660** (writer) A writer writes the manifest with these members: `skellyfileformat` (`major`,
-`minor`, `prerelease`), `writer`, `take_uuid`, `group_size`, `take` (`start_host_ns`,
-`start_utc_ns`, `utc_offset_min`), `clock` (`id`, `freq_hz`) and `files`. Each item of `files` has
-`path`, `kind` (`camera` or `audio`) and `segment_uid`. A camera item also has `camera_label`,
-`n_records`, `nominal_rate` (`num`, `den`) and `display_rotation`, and it has `camera_key` and
-`group_position` only when the header sets them. The item of a file with audio also has
-`total_samples`, `sample_rate` and `channels`. Every writer that finalises a take writes a manifest,
-also skellysync.
+**SFF-679** (reader) The file states are `finished`, `repaired`, `unfinished`, `damaged`,
+`unsupported_version` and `not_in_format`. When two states apply, the reader reports the first in
+this order: `unsupported_version`, `damaged`, `unfinished`, `repaired`, `finished`.
 
-**SFF-661** (writer) Each 64-bit integer in the manifest is a JSON string of decimal digits, with a
-`-` sign when negative. Each UID is in the text form of SFF-007. `path` is relative to the recording
-folder and uses `/`.
-
-**SFF-662** (writer) The manifest has the same values as the headers. Its `skellyfileformat.major`
-is equal to the `major` of each listed sidecar.
-
-**SFF-663** (writer) A writer writes the manifest to `<rec>.skellyrec.json.tmp`, then renames it to
-`<rec>.skellyrec.json`.
-
-**SFF-664** (reader) When the manifest and a header disagree on a value of a file whose `take_uuid`
-is the manifest's, the reader uses the header and reports a warning.
-
-### 15.4 Reader results
-
-**SFF-665** (reader) A reader orders the camera files of a take by `group_position` (unset values
-last), then by the bytes of `camera_label`.
-
-**SFF-666** (reader) A reader reports one of these states for each candidate media file (SFF-504):
-`finalised`, `live` (also with no records), `damaged` (SFF-158), `needs_recovery` (section 9.7),
-`unsupported_version` (SFF-051), `not_in_format` (with the reason of SFF-179 when a sidecar was
-refused). When two states apply, it reports the first in this order: `unsupported_version`,
-`needs_recovery`, `damaged`, `live`, `finalised`. It reports one of these states for each take:
-`complete` or `incomplete`. It reports the recording as `legacy` when no file is in this format
-(SFF-551). It reports each warning that this spec names.
-
-**SFF-667** (reader) When the files of one take disagree on `clock_id`, the take start times,
-`utc_offset_min` or `group_size`, the reader reports a warning and uses the values of the first
-camera file in the order of SFF-665.
-
-**SFF-668** (reader) When a folder holds more than one `*.skellyrec.json`, the reader uses none of
-them and reports a warning.
+**SFF-680** (reader) The reason codes are `bad_metadata`, `bad_rate`, `bad_rotation`, `bad_label`,
+`bad_schema`, `missing_metadata` and `crc_mismatch`. The warning codes are `incomplete_take`,
+`duplicate_label`, `take_fact_mismatch`, `missing_fit`, `encode_skip` and `opus_head_mismatch`. A
+reader reports each reason and warning that this spec names, and no other.
 
 ## Appendix A. Golden files
 
 Gate 2 makes these files. Each is committed with its SHA-256 sum and the script that made it, from
-synthetic frames and pinned tools. The tests of [conformance.md](conformance.md) name them. A test
-that needs a state made from a golden file (for example a crash at a finalisation step) makes it
-itself, from the golden file and a script. FFmpeg writes no `SegmentUID` in its bit-exact mode, so a
-generator that uses that mode patches a random `SegmentUID` into the `Info` element after muxing.
+synthetic frames and pinned tools. The tests of [conformance.md](conformance.md) name them. Each
+golden file has the reader result of SFF-678, with records, as a committed JSON file.
 
 | # | Golden file | Sections |
 |---|---|---|
-| G1 | Finalised camera MKV, about 90 frames at a small size, with an embedded sidecar and valid fitted times | 4, 5, 9, 10 |
-| G2 | The G1 media before the embed: no attachment, a separate finalised sidecar | 9.5 |
-| G3 | Killed camera MKV (unknown-size Segment, no SeekHead, a partial last Cluster) and its live sidecar, with a torn 37-byte tail, one record with a wrong CRC and one frame with no record. Also a variant with a record in the middle whose block has another CRC. | 11 |
-| G4 | G3 after recovery | 11 |
-| G5 | G1 remuxed by `ffmpeg -map 0 -c copy` (new Segment UID, Attachments before the Clusters) | 9.5, 10 |
-| G6 | Sidecar-only vectors: offsets above 2^32 and near 2^53, INT64_MIN values, every flag bit, undefined bits set, non-zero reserved bytes, no fit, a zero-filled 4 KiB tail | 2, 3, 5, 11 |
-| G7 | Header vectors: a higher `minor` with more header bytes, a larger `record_size` and a larger `table_record_size`; an unknown `major` with other bytes after offset 10 changed; `prerelease` > 0; two files that differ only in the writer string; a wrong `header_crc32`; a wrong `body_crc32` with one bad record; a wrong magic; each refusal case of SFF-179 | 3, 5.1 |
-| G8 | Rotation vectors: `display_rotation` 0, 90, 180 and 270 with coloured corner markers and the expected upright corner colours | 5.2 |
-| G9 | JPEG edge frames: no DHT; bytes after the entropy-coded data | 4 |
-| G10 | Appender inputs: no tags; tags; Chapters in the header; a SeekHead with exactly 1 byte left; a SeekHead with a CRC-32 element; refusal inputs (Attachments present, no room, bytes after the Segment, unknown-size Segment, first Segment child not a SeekHead, Segment size width too small) | 9.2 |
-| G11 | Interrupted-embed states: Attachments after the Segment end; Segment size updated but SeekHead not; a torn SeekHead span | 9.6 |
-| G12 | A file above 4 GiB with `FileData` past 4 GiB and record offsets above 2^32. The test makes it and does not commit it. | 9.2, 9.4, 10 |
-| G13 | `.mka` with an embedded `.skat`, mono and stereo at 48 kHz, with the packet table and a drift table for a known drift with one step | 6, 7 |
-| G14 | Killed `.flac` (STREAMINFO total 0) and its `.skat.live`: one timing record with no packet record; one FLAC frame with no packet record; a clean kill. Also G14 after recovery, and a `.mka` whose STREAMINFO total is non-zero and wrong. | 6, 7, 11 |
-| G15 | skellysync camera MKV: JPEG and FLAC 44.1 kHz stereo, embedded sidecar with an audio packet table | 8, 14 |
-| G16 | Recording folders: finalised (4 cameras, `.mka`, manifest); the same without the manifest; a manifest that disagrees with a header; a stale file of another take; a missing camera; a crashed folder; two cameras with one label; two takes and no manifest; two manifests; leftover `.tmp` files; files of one take that disagree on `clock_id` | 15 |
-| G17 | Files not in this format: MJPEG MKV with no sidecar; a small H.264 MP4; a WAV with a timestamp JSON | 13 |
+| G1 | A finished take: 2 camera files of about 90 frames each at a small size, one with a dropped frame (a breakpoint) and a `freemocap.timing` record; and an audio file of 3 s, mono, with a click every 500 ms | 4, 5, 6, 7, 15 |
+| G2 | G1 with a stereo audio file | 6 |
+| G3 | A camera file with `frames_per_chunk` = 3 and a last Chunk of 2 frames | 4 |
+| G4 | Unfinished camera and audio files: a clean cut at a record boundary; a torn tail of 37 bytes; a complete Chunk with a wrong CRC | 9 |
+| G5 | G4 after repair, and G4 with an interrupted repair (a partial `freemocap.timing` record after the cut) | 9 |
+| G6 | Version vectors: a higher `minor` with an unknown key, an unknown channel and an unknown Metadata record; an unknown `major`; `prerelease` > 0; two files that differ only in the Header `library` | 3 |
+| G7 | Metadata error vectors: an integer with a leading zero; a `+` sign; a `nominal_rate` of 0/1 and of 2^20 + 1; a `display_rotation` of 45; a bad `camera_label`; a missing `freemocap.format` record; a `channels` value that disagrees with `opus_head` | 2, 5, 6 |
+| G8 | Rotation vectors: `display_rotation` 0, 90, 180 and 270 with coloured corner markers and the expected upright corner colours | 5 |
+| G9 | A camera file with an unset `timestamp` on every frame, and one with an encoder skip (a `skellyfileformat.encode_skip` Log Message) | 5 |
+| G10 | Fit vectors: two segments, a sequence wrap at 2^32 − 1, a `period_ps` that gives a remainder, and a file with no `freemocap.timing` record | 7 |
+| G11 | Recording folders: a finished take of 4 cameras and audio; a missing camera; a crashed take; two cameras with one label; two takes in one folder; files of one take that disagree on `clock_id` | 15 |
+| G12 | Files not in this format: an MCAP file with the profile `ros2`; an MCAP file of profile `freemocap` with no `freemocap.format` record; an MJPEG MKV; a small H.264 MP4 | 13 |
+| G13 | (provisional) A skellysync camera file and audio file | 8 |

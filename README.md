@@ -2,7 +2,7 @@
 
 skellyfileformat defines the file format of skellycam and skellysync recordings: a profile of
 [MCAP](https://mcap.dev/spec) with JPEG video and timing in MCAP messages
-([ADR-SFK5](decisions/entries/SFK5-mcap-container.md)). The [specification](spec/SPEC.md) gives the
+([ADR-DK8S](decisions/entries/DK8S-mcap-profile-files-and-names.md)). The [specification](spec/SPEC.md) gives the
 channels, the schemas, the field meanings, the clocks and the recovery rules, so that other programs
 can implement the format from the spec alone.
 
@@ -14,17 +14,19 @@ The sections marked "normative" are rules. A change to them needs a decision ent
 
 ## Scope (normative)
 
-The format describes one recording (one take): a set of synchronised camera and audio files that
-share one clock ([ADR-41VF](decisions/entries/41VF-whole-recording-scope-mcap.md)). It covers these
-files:
+The format describes one recording (one take): a set of synchronised MCAP files, one for each
+device, that share one clock ([ADR-TDB5](decisions/entries/TDB5-whole-recording-no-manifest.md)).
+It covers these files:
 
-- the camera video: an MCAP file in which each frame is one JPEG in a `foxglove.CompressedImage`
-  message, with the timing of the frame in the MCAP fields and the facts in the file metadata
-  ([ADR-SFK5](decisions/entries/SFK5-mcap-container.md));
-- the audio of skellycam and skellysync: Opus packets in `foxglove.CompressedAudio` messages in
-  MCAP, with the Opus identification header fields in the channel metadata
-  ([ADR-HD8Z](decisions/entries/HD8Z-opus-audio.md));
-- the recording manifest: a derived JSON index of the files of one recording.
+- each camera file: an MCAP file of profile `freemocap` in which each frame is one JPEG in a
+  `foxglove.CompressedImage` message, with the timing of the frame in the MCAP fields and the facts
+  in the file metadata ([ADR-DK8S](decisions/entries/DK8S-mcap-profile-files-and-names.md),
+  [ADR-752H](decisions/entries/752H-timing-fields.md));
+- the audio file of skellycam and skellysync: Opus packets in `foxglove.CompressedAudio` messages,
+  with the Opus identification header fields in the channel metadata
+  ([ADR-HD8Z](decisions/entries/HD8Z-opus-audio.md)).
+
+There is no recording manifest.
 
 It also covers the recording as a whole: which files make up one recording, the clock that they
 share, the facts about the recording in each file's metadata (authoritative), how a writer records
