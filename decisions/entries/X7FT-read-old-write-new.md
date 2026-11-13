@@ -1,6 +1,6 @@
 # X7FT — Read old recordings, write only the new format
 
-**Status:** accepted, 2026-11-12 (user; backfilled from the skellycam plan rev 3.8).
+**Status:** superseded by [X1G6](X1G6-read-old-write-mcap.md), 2026-11-13 (commit to main; was accepted, 2026-11-12).
 
 ## Decision
 

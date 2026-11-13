@@ -18,3 +18,4 @@ the reason for a decision. The [index](README.md) has the Active and Proposed en
 | [3KH3](entries/3KH3-finalisation-embed-fallback.md) | Embed each sidecar at the end of its file when the appender can, else keep it separate; verify, then delete; recover an interrupted embed | superseded by SFK5 |
 | [WD1R](entries/WD1R-file-attachment-and-mime-names.md) | Names: `.skvt`/`.skat` (magics `SKVT`/`SKAT`), attachment names and MIME types; one live audio sidecar; manifest name | superseded by SFK5 |
 | [CA03](entries/CA03-flac-audio.md) | FLAC is the audio codec; skellycam writes `.audio.mka` with `.skau`, skellysync a FLAC track in each camera MKV | superseded by HD8Z |
+| [X7FT](entries/X7FT-read-old-write-new.md) | Old recordings stay readable; new skellycam and skellysync write only this format; no sidecar means legacy | superseded by X1G6 |

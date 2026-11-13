@@ -22,13 +22,13 @@ These entries are `accepted` or `evidence`.
 | [0YV1](entries/0YV1-fitted-time-in-sidecar.md) | The sidecar holds the fitted time of each frame; the player uses it, or the arrival time before finalisation | accepted |
 | [VJ14](entries/VJ14-shared-package-and-spec.md) | skellyfileformat is the one shared package for the format, with a descriptive spec; the spec fixes the names | accepted |
 | [5K7G](entries/5K7G-no-recorded-overlays.md) | No recorded overlays: no burned-in stamp, no overlay file or attachment; the player draws the frame label | accepted |
-| [X7FT](entries/X7FT-read-old-write-new.md) | Old recordings stay readable; new skellycam and skellysync write only this format; no sidecar means legacy | accepted |
 | [M4DF](entries/M4DF-format-versioning.md) | Format version = major.minor of the skellycam release that last changed the format; u16 major/minor/prerelease in each header | accepted |
 | [25VV](entries/25VV-whole-recording-scope-names.md) | The format describes a whole synchronised recording; headers authoritative; derived manifest; spec fixes only its own names; repo rules | accepted |
 | [CE4D](entries/CE4D-rotation-in-header-only.md) | Frames stored unrotated; `display_rotation` in the sidecar header only; no container rotation flag; readers apply it | accepted |
 | [SFK5](entries/SFK5-mcap-container.md) | Each file is an MCAP file; JPEG frames as `foxglove.CompressedImage`; timing in MCAP fields; facts in metadata; no MKV, sidecar or embed | accepted |
 | [HD8Z](entries/HD8Z-opus-audio.md) | Opus audio as raw packets in `foxglove.CompressedAudio`; OpusHead fields in channel metadata; pre-skip and 80 ms seek pre-roll | accepted |
 | [WD9A](entries/WD9A-lichtblick-reference-viewer.md) | Lichtblick is the external test viewer, not Foxglove; VLC compatibility dropped; audio tests use a pinned Lichtblick build with an Audio panel | accepted |
+| [X1G6](entries/X1G6-read-old-write-mcap.md) | Old recordings stay readable; new skellycam and skellysync write only MCAP with JPEG and Opus; no file of this format means legacy | accepted |
 
 ### Proposed
 

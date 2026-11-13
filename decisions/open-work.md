@@ -10,7 +10,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-HD8Z](entries/HD8Z-opus-audio.md),
   [ADR-VJ14](entries/VJ14-shared-package-and-spec.md),
   [ADR-5K7G](entries/5K7G-no-recorded-overlays.md),
-  [ADR-X7FT](entries/X7FT-read-old-write-new.md),
+  [ADR-X1G6](entries/X1G6-read-old-write-mcap.md),
   [ADR-M4DF](entries/M4DF-format-versioning.md),
   [ADR-25VV](entries/25VV-whole-recording-scope-names.md) and
   [ADR-CE4D](entries/CE4D-rotation-in-header-only.md).
@@ -54,5 +54,5 @@ task. Delete an item when its work is done. The PR that closes an item records t
   skellycam plan) ([ADR-25VV](entries/25VV-whole-recording-scope-names.md)).
 - **S10b: correct the audio start of old recordings?** The audio of old skellycam recordings is
   9–74 ms early. The user must decide if playback corrects it
-  ([ADR-X7FT](entries/X7FT-read-old-write-new.md)). skellycam does the legacy playback, so the
+  ([ADR-X1G6](entries/X1G6-read-old-write-mcap.md)). skellycam does the legacy playback, so the
   result goes into a skellycam entry. Delete this item when that entry exists.
