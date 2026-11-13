@@ -5,7 +5,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
 
 - **Absorb the format entries into the spec.** When `spec/SPEC.md` or `README.md` states all rules of
   an entry, move the entry to Historical as absorbed:
-  [ADR-SFK5](entries/SFK5-mcap-container.md),
+  [ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md),
   [ADR-0YV1](entries/0YV1-fitted-time-in-sidecar.md),
   [ADR-HD8Z](entries/HD8Z-opus-audio.md),
   [ADR-VJ14](entries/VJ14-shared-package-and-spec.md),
@@ -15,7 +15,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-41VF](entries/41VF-whole-recording-scope-mcap.md) and
   [ADR-68Z6](entries/68Z6-rotation-in-metadata-only.md).
 - **Rewrite the spec as an MCAP profile.** `spec/SPEC.md` and `spec/conformance.md` hold the v0
-  draft of the MKV design, which [ADR-SFK5](entries/SFK5-mcap-container.md) withdraws. Keep the
+  draft of the MKV design, which [ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md) withdraws. Keep the
   parts that do not depend on the container: the scope and the terms, the versioning, the clocks,
   the times and the fitted time, the files that are not in this format, the recording as a whole,
   the rotation. Withdraw the IDs of the MKV profile, the sidecar layouts, embedding, offsets and the
@@ -23,7 +23,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   ([ADR-41VF](entries/41VF-whole-recording-scope-mcap.md)). After gate 1, write the runnable tests
   and the golden files, then stop for gate 2.
 - **MCAP profile choices.** The user decides these before the new draft
-  ([ADR-SFK5](entries/SFK5-mcap-container.md)):
+  ([ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md)):
   - one MCAP file for each device of a take, or one file for the take;
   - the message encoding of the schemas (protobuf, FlatBuffers, ROS 2 or JSON);
   - which MCAP field holds the arrival time and which holds the sample time, for video and for
@@ -42,7 +42,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
     with the embed and the FLAC file.
 - **MCAP desk tests.** Before the new draft, measure: a kill test of the camera and the audio MCAP
   writers with recovery; the files in Lichtblick; Range reads and WebCodecs Opus in Electron; the
-  write throughput of four cameras and the microphone ([ADR-SFK5](entries/SFK5-mcap-container.md)).
+  write throughput of four cameras and the microphone ([ADR-DK8S](entries/DK8S-mcap-profile-files-and-names.md)).
   The skellycam permalinks of the evidence wait for a push of the skellycam `dom/research` branch.
 - **Provisional parts of spec v0.** Mark these parts provisional in `spec/SPEC.md`. Close each of
   them before v2.0.0: the fields that wait for the audio clock drift test and for the Linux and

@@ -22,3 +22,4 @@ the reason for a decision. The [index](README.md) has the Active and Proposed en
 | [M4DF](entries/M4DF-format-versioning.md) | Format version = major.minor of the skellycam release that last changed the format; u16 major/minor/prerelease in each header | superseded by 7K3C |
 | [25VV](entries/25VV-whole-recording-scope-names.md) | The format describes a whole synchronised recording; headers authoritative; derived manifest; spec fixes only its own names; repo rules | superseded by 41VF |
 | [CE4D](entries/CE4D-rotation-in-header-only.md) | Frames stored unrotated; `display_rotation` in the sidecar header only; no container rotation flag; readers apply it | superseded by 68Z6 |
+| [SFK5](entries/SFK5-mcap-container.md) | Each file is an MCAP file; JPEG frames as `foxglove.CompressedImage`; timing in MCAP fields; facts in metadata; no MKV, sidecar or embed | superseded by DK8S |

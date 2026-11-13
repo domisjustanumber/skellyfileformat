@@ -1,6 +1,6 @@
 # SFK5 — MCAP is the container: JPEG frames and timing in MCAP messages; no MKV, no sidecar, no embed
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [DK8S](DK8S-mcap-profile-files-and-names.md), 2026-11-13 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

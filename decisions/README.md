@@ -22,7 +22,6 @@ These entries are `accepted` or `evidence`.
 | [0YV1](entries/0YV1-fitted-time-in-sidecar.md) | The sidecar holds the fitted time of each frame; the player uses it, or the arrival time before finalisation | accepted |
 | [VJ14](entries/VJ14-shared-package-and-spec.md) | skellyfileformat is the one shared package for the format, with a descriptive spec; the spec fixes the names | accepted |
 | [5K7G](entries/5K7G-no-recorded-overlays.md) | No recorded overlays: no burned-in stamp, no overlay file or attachment; the player draws the frame label | accepted |
-| [SFK5](entries/SFK5-mcap-container.md) | Each file is an MCAP file; JPEG frames as `foxglove.CompressedImage`; timing in MCAP fields; facts in metadata; no MKV, sidecar or embed | accepted |
 | [HD8Z](entries/HD8Z-opus-audio.md) | Opus audio as raw packets in `foxglove.CompressedAudio`; OpusHead fields in channel metadata; pre-skip and 80 ms seek pre-roll | accepted |
 | [WD9A](entries/WD9A-lichtblick-reference-viewer.md) | Lichtblick is the external test viewer, not Foxglove; VLC compatibility dropped; audio tests use a pinned Lichtblick build with an Audio panel | accepted |
 | [X1G6](entries/X1G6-read-old-write-mcap.md) | Old recordings stay readable; new skellycam and skellysync write only MCAP with JPEG and Opus; no file of this format means legacy | accepted |
@@ -31,6 +30,7 @@ These entries are `accepted` or `evidence`.
 | [68Z6](entries/68Z6-rotation-in-metadata-only.md) | Frames stored unrotated; `display_rotation` in the camera file's metadata only; no other rotation; readers apply it | accepted |
 | [QDZ7](entries/QDZ7-opus-settings-and-timing.md) | Opus: device channels (max 2), 48 kHz, 20 ms, `audio`, VBR 128/256 kbit/s; timestamp = first decoded sample; reader drops pre-skip | accepted |
 | [752H](entries/752H-timing-fields.md) | Arrival in `log_time`, sample time in `timestamp`, `sequence` = frame or packet number; no legacy time; encoder skips as `foxglove.Log` | accepted |
+| [DK8S](entries/DK8S-mcap-profile-files-and-names.md) | One MCAP file per device; profile `freemocap`; protobuf; topics carry the label; `freemocap.*` metadata records; writer in Header `library` | accepted |
 
 ### Proposed
 
