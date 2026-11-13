@@ -33,6 +33,7 @@ These entries are `accepted` or `evidence`.
 | [PV6S](entries/PV6S-writing-crash-reading-and-repair.md) | Fixed-count chunks, no compression, data CRC, fsync ~1 s; crashed files read in place; user-approved repair cuts after the last good chunk | accepted |
 | [D9N1](entries/D9N1-opus-audio-settings-and-timing.md) | Opus in `foxglove.CompressedAudio`; OpusHead fields in channel metadata, `sample_rate` = decode rate, gain 0; 48 kHz 20 ms VBR; log_time = arrival | accepted |
 | [5G42](entries/5G42-gate1-names.md) | Gate 1 names: `freemocap.repair` record, audio `label`, `audio_latency_ns` in the audio channel metadata, RFC 8785 reader result | accepted |
+| [T24G](entries/T24G-spec-v1-review-fixes-crash-fit-audio.md) | Spec v1 review fixes, 15 items: records before first chunk, CRC checks, crash-read end, repair details, fit maths and cover, Opus and camera details | accepted |
 
 ### Proposed
 
@@ -41,7 +42,6 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
-| [T24G](entries/T24G-spec-v1-review-fixes-crash-fit-audio.md) | Spec v1 review fixes, 15 items: records before first chunk, CRC checks, crash-read end, repair details, fit maths and cover, Opus and camera details | `spec` | proposed |
 | [WG08](entries/WG08-reader-result-states-and-codes.md) | Reader result: `invalid` state, folder states, reason and warning codes, `audio_count`, take counting, null members, integer types, sort orders | `spec.reader_result` | proposed |
 | [W4PF](entries/W4PF-shared-package-and-no-overlays.md) | Consolidate VJ14 and 5K7G: one shared package, spec fixes its own names only, no recorded overlays; no change of decision | none | proposed |
 

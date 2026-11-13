@@ -1,11 +1,13 @@
 # T24G — Spec v1 review fixes: crash reading, repair details, fit evaluation, audio and camera details
 
-**Status:** proposed, 2026-11-13 (spec v1 review; the agent proposes, the user decides each item).
+**Status:** accepted, 2026-11-13 (user; proposed from the spec v1 review).
 
 ## Decision
 
-Each item is separate. The user can accept or reject each one. The source of each item in the
-review is in brackets.
+The user accepted each item. The source of each item in the review is in brackets. These items
+add to [ADR-MG7C](MG7C-fit-segments-by-position.md),
+[ADR-PV6S](PV6S-writing-crash-reading-and-repair.md) and
+[ADR-D9N1](D9N1-opus-audio-settings-and-timing.md). They change none of their rules.
 
 1. **Records before the first chunk.** A writer writes the Metadata records of the file facts, then
    each Schema and Channel record of the file (also the log channel), outside chunks and before
