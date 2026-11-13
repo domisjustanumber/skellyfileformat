@@ -28,6 +28,7 @@ These entries are `accepted` or `evidence`.
 | [CE4D](entries/CE4D-rotation-in-header-only.md) | Frames stored unrotated; `display_rotation` in the sidecar header only; no container rotation flag; readers apply it | accepted |
 | [SFK5](entries/SFK5-mcap-container.md) | Each file is an MCAP file; JPEG frames as `foxglove.CompressedImage`; timing in MCAP fields; facts in metadata; no MKV, sidecar or embed | accepted |
 | [HD8Z](entries/HD8Z-opus-audio.md) | Opus audio as raw packets in `foxglove.CompressedAudio`; OpusHead fields in channel metadata; pre-skip and 80 ms seek pre-roll | accepted |
+| [WD9A](entries/WD9A-lichtblick-reference-viewer.md) | Lichtblick is the external test viewer, not Foxglove; VLC compatibility dropped; audio tests use a pinned Lichtblick build with an Audio panel | accepted |
 
 ### Proposed
 
