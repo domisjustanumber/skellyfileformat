@@ -594,10 +594,15 @@ The rules of the README section [Versioning](../README.md#versioning-normative) 
 ([ADR-9DV4](../decisions/entries/9DV4-format-version-from-freemocap.md)). The format version is the
 `major.minor` of the freemocap release that last changed any file of the folder.
 
-**SFF-707** (writer) Each file of this format that this spec defines records its format
-version as `format_version` (the text `major.minor`, for example `2.0`) and `format_prerelease` (an
-integer). `major`, `minor` and `format_prerelease` are integers from 0 to 65,535. The section of each
-file gives the place of these fields.
+**SFF-707** (writer) These files record the format version as `format_version` (the text
+`major.minor`, for example `2.0`) and `format_prerelease` (an integer): the manifest, each timing
+sidecar, the capture info JSON, the processing info JSON, the calibration TOML, the descriptor of the
+Parquet, the header record of the journal, the export inventory and the BVH metadata JSON
+(section 18). `major`, `minor` and `format_prerelease` are integers from 0 to 65,535. The section of
+each file gives the place of these fields. A media file is a standard file with no added field: a
+writer writes no version field and no writer string of this format into a camera file or an audio
+file. The timing sidecar of a device pair holds the format version and the writer string for its
+media file ([ADR-E45D](../decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)).
 
 **SFF-708** (reader) A reader MUST refuse a file with a `major` that it does not know (state
 `unsupported_version`). It does not report the file as legacy.
@@ -612,9 +617,10 @@ released writer writes `format_prerelease` = 0.
 
 **SFF-711** (reader) A reader MAY refuse a file with `format_prerelease` > 0.
 
-**SFF-712** (writer, reader) Each file of this format that this spec defines holds a writer
-string `writer`, for example `skellycam 2.1.3`. A reader MUST NOT change its behaviour because of
-it. skellysync writes the format version that skellyfileformat gives.
+**SFF-712** (writer, reader) Each file that SFF-707 names holds a writer string `writer`, for
+example `skellycam 2.1.3`. A media file holds none: the `writer` of its timing sidecar is the writer
+string of the device pair. A reader MUST NOT change its behaviour because of a writer string.
+skellysync writes the format version that skellyfileformat gives.
 
 **SFF-713** (reader) The version of a container (the Matroska `DocTypeVersion`, the MP4
 brands, the Parquet format version) is not the format version. A reader does not use it as the
@@ -659,8 +665,9 @@ any case. The capture writer fixes `<rec>` when the take starts. No writer chang
 does not write a file of this spec under another name or in another subfolder.
 
 **SFF-717** (writer, reader) A program MUST NOT rename a file or a subfolder inside a take
-folder. A program MAY rename the take folder. A reader finds `<rec>` in the manifest or in a timing
-sidecar header, never in the name of the take folder.
+folder. A program MAY rename the take folder. A reader finds `<rec>` in the manifest. When it
+rebuilds the links, it finds `<rec>` in the name of a timing sidecar file (SFF-868). It never finds
+`<rec>` in the name of the take folder.
 
 **SFF-718** (reader) A reader finds a folder file by its exact name, built from `<rec>`. It does
 not search with a glob pattern. The only exceptions are the manifest rebuild (SFF-731) and the
@@ -675,7 +682,10 @@ uses 7, then 8 characters for every camera of the take, until each label is diff
 `camera_key` 0 gets the label `cam<N>`, where N is its `group_position` (section 8).
 
 **SFF-721** (reader) A reader scans only the root of the take folder and the media folder. It
-finds the files of the other subfolders through the manifest. It does not look inside other
+finds the files of the other subfolders through the manifest, or by their fixed names. To find a
+file by its fixed name, a reader MAY test one exact path of section 18 that it builds from `<rec>`,
+for example `annotated_videos/<rec>.<camera_label>.annotated.mp4`. It does not list another
+subfolder. It does not search another subfolder with a glob pattern. It does not look inside other
 subfolders for files of this format.
 
 **SFF-722** (writer) A writer of this format does not write `synchronized_videos_README.md`.
@@ -745,13 +755,15 @@ manifest of this format, a reader rebuilds the links by a scan. It finds the dev
 folder by their content (section 20). It finds each folder file by the fixed suffix of its name
 (`_info.json`, `_recording_info.json`, `_camera_calibration.toml`, `_data.parquet`,
 `_realtime_journal.bin`), with the
-`<rec>` of the timing sidecars, and it accepts exactly one match for each role. It gives the take
+`<rec>` of the timing sidecars, and it accepts exactly one match for each role. The scan does not
+find the files of the other subfolders (SFF-721). It gives the take
 warning `manifest_missing`. It does not write a manifest.
 
 ## 6. Camera files
 
 A camera file is a Matroska file ([RFC 9559](https://www.rfc-editor.org/rfc/rfc9559)) with DocType
-`matroska` ([ADR-6RSB](../decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md)).
+`matroska` ([ADR-6RSB](../decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md)). It
+holds no version field and no writer string of this format: its timing sidecar holds them (SFF-707).
 
 **SFF-732** (writer) A camera file has exactly one track: a video track with CodecID `V_MJPEG`
 and a track number below 128. It has no other track.
@@ -804,7 +816,7 @@ has, in this order: header lines, one column line, data rows, and footer lines.
 frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
 0,1000,1203311,1180002,0,4127,61234,5b1e0c2a
 ...
-# fit_segment pos_first=0 pos_last=18341 t0_ns=1190001 period_ps=33366700
+# fit_segment pos_first=0 pos_last=18341 t0_ns=1190001 period_ps=33366700000
 # end rows=18342 gaps=2 filled=0 encode_skips=0
 ```
 
@@ -846,8 +858,8 @@ The header of a video timing sidecar holds these keys, in this order:
 | Key | Value |
 |---|---|
 | `skellyfileformat` | `video_timing` |
-| `format_version`, `format_prerelease` | Section 3 |
-| `writer` | The writer string |
+| `format_version`, `format_prerelease` | Section 3. They apply to the device pair (SFF-707). |
+| `writer` | The writer string. It applies to the device pair (SFF-712). |
 | `take_uuid` | The ID of the take (SFF-703) |
 | `take_start_host_ns` | The take start on the host clock (absolute) |
 | `take_start_utc_ns` | The take start in UTC, in nanoseconds since 1970-01-01T00:00:00Z |
@@ -926,7 +938,8 @@ camera file. On a mismatch, a reader refuses the pair (state `invalid`, reason `
 
 The audio file is Opus ([RFC 6716](https://www.rfc-editor.org/rfc/rfc6716)) in a fragmented ISO BMFF
 file (ISO/IEC 14496-12), with the Opus mapping of the "Encapsulation of Opus in ISO Base Media File
-Format" specification ([ADR-92TM](../decisions/entries/92TM-opus-audio-in-fragmented-mp4.md)).
+Format" specification ([ADR-92TM](../decisions/entries/92TM-opus-audio-in-fragmented-mp4.md)). It
+holds no version field and no writer string of this format: its timing sidecar holds them (SFF-707).
 
 **SFF-760** (writer) The audio file starts with `ftyp` and a `moov` that holds one `trak` with
 an `Opus` sample entry and its `dOps` box, and an `mvex` box. The `moov` lists no samples. The audio
@@ -961,7 +974,8 @@ pre-skip.
 
 The header of the audio timing sidecar holds, in this order: `skellyfileformat` (`audio_timing`),
 `format_version`, `format_prerelease`, `writer`, the take keys of section 8 (`take_uuid` to
-`audio_count`), and these keys:
+`audio_count`), and these keys. The version keys and `writer` apply to the device pair, as in
+section 8:
 
 | Key | Value |
 |---|---|
@@ -1018,8 +1032,8 @@ Fit lines of a footer:
 
 ```
 # fit fitter=skellycam-lattice fitter_version=1.0.0 fitter_params={"outlier_reject_ms":5}
-# fit_segment pos_first=0 pos_last=5005 t0_ns=1190001 period_ps=33366700
-# fit_segment pos_first=5006 pos_last=18341 t0_ns=167201004 period_ps=33366700
+# fit_segment pos_first=0 pos_last=5005 t0_ns=1190001 period_ps=33366700000
+# fit_segment pos_first=5006 pos_last=18341 t0_ns=167201004000 period_ps=33366700000
 ```
 
 In an audio sidecar, a segment line is
@@ -1077,8 +1091,19 @@ no frame of a camera before the player time of its position 0.
 **SFF-784** (reader) A reader maps an audio sample to take time only with the fit of the audio
 sidecar (SFF-779). It MUST NOT use the take start and the nominal sample rate. It adds
 `file_sample_offset` to a decoded sample index before it uses the fit. When the sidecar has no fit
-(for example after a crash), the reader computes a fit from the rows (`adc_ns` when present, else
-`host_ns`) and gives the warning `missing_fit`.
+(for example after a crash), the reader gives the warning `missing_fit` and computes one fit segment
+from the rows that it uses (SFF-746), with this method ([ADR-E45D](../decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)):
+
+- The time of a row is its `adc_ns` when that field is not empty, else its `host_ns`.
+- a is the first row that the reader uses, and b is the last. n_a and n_b are their `first_sample`
+  values. T_a and T_b are their times.
+- `row_first` = the `block` of a, `row_last` = the `block` of b, `n0` = n_a and `t0_ns` = T_a.
+- `period_fs` = ⌊(T_b − T_a) × 10^6 / (n_b − n_a)⌋, an integer in femtoseconds, rounded down.
+- The reader computes each value with integers of unlimited size, and it evaluates the segment with
+  SFF-779 for each sample of the file.
+
+When the reader uses fewer than two rows, or `period_fs` is not greater than 0 (SFF-778), the reader
+computes no fit. It then maps no sample of the file to take time.
 
 **SFF-785** (reader) The usable length of an audio file is the smaller of the samples that the
 CSV rows hold and the samples that the file holds. A reader schedules no audio after that length.
@@ -1381,7 +1406,9 @@ UTF-8 JSON of the descriptor `RecordingMetadata` (parts/parquet-descriptor.md), 
 LZ4_RAW or Brotli. A writer MAY use a dictionary on the string columns.
 
 **SFF-819** (reader) A reader of this file supports `BYTE_STREAM_SPLIT` on FLOAT and DOUBLE
-columns and ZSTD compression.
+columns and ZSTD compression. A reader MUST also accept the Arrow type int64 in the columns
+`frame_number` and `run_id`. Files of an earlier writer have this type. A reader does not refuse
+such a file (reason `bad_schema`).
 
 **SFF-820** (writer) Each channel declares `dtype`: `float32` (the default) or `float64`.
 `TIMESTAMPS` channels are `float64`. A row of a `float32` channel has its value in `value` and null in
@@ -1408,8 +1435,8 @@ against `<rec>` of the take, not against the name of the take folder.
 `writer`.
 
 **SFF-826** (writer) Each camera source is `camera:<camera_label>`, with the definition of
-parts/parquet-descriptor.md: `camera_key`, `video_filename`, `timing_filename`, `timing_method` and
-`inferred_offset_s`. The definition holds no nominal frame rate: the timing sidecar is its home.
+parts/parquet-descriptor.md: `camera_key`, `camera_label`, `video_filename`, `timing_filename`,
+`timing_method` and `inferred_offset_s`. The definition holds no nominal frame rate: the timing sidecar is its home.
 
 **SFF-827** (writer) `frame_number` of a camera row is the position of the frame in its camera
 file. All cameras of a sensor group use the same `frame_number` for one multi-camera frame.
@@ -1440,7 +1467,9 @@ from 0 to 1. A point that the tracker did not detect on a frame has `x` and `y` 
 
 **SFF-833** (writer) The file holds each retained run. `selected_run_id` names the run to show. A
 new posthoc run gets a new `run_id`. A writer never replaces or changes a run whose `origin` is
-`realtime`.
+`realtime`, with one exception. A repair MAY rewrite the times of a realtime run: `timestamp_s` of
+its rows and the values of its `TIMESTAMPS` rows. A repair changes nothing else of a realtime run
+([ADR-E45D](../decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)).
 
 **SFF-834** (writer) A run from the realtime journal (section 17) has, in the stage provenance
 of each sensor group, `origin` = `realtime` and a `coverage` object: `frames_in_take`,
@@ -1505,13 +1534,18 @@ parameter-change events (as event records).
 **SFF-843** (reader) A reader scans the journal from its start. At each offset it looks for
 `magic`. It checks `length` and `crc32`. It uses a record only when both are correct. It skips a bad
 record by a scan for the next `magic`. It stops at a torn tail. It reports the number of good
-records, the number of rejected records and `torn_bytes`. A reader refuses a journal whose header
-declares a channel with a `dtype` that is not `float32` (`bad_schema`).
+records, the number of rejected records and `torn_bytes` in the `folder_files` item of the journal
+(SFF-885). A journal with one or more rejected records is `damaged` (reason `crc_mismatch`). A
+journal with a torn tail, or with no end record, is `unfinished` (SFF-791). When both apply, the
+journal is `damaged` (SFF-886). A reader refuses a journal whose header declares a channel with a
+`dtype` that is not `float32` (state `invalid`, reason `bad_schema`) ([ADR-E45D](../decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)).
 
 **SFF-844** (writer) At the end of the take, freemocap folds the journal into a new Parquet run
 with `origin` = `realtime` and its coverage block (section 16). The fold takes `timestamp_s` of each
 row and the value of each `TIMESTAMPS` row from the timing sidecars of the take (SFF-828), not from
-the journal.
+the journal. The fold uses the player times that the sidecars give at the time of the fold. For a
+sidecar with no fit, for example after a crash, that time is the arrival time (SFF-781). A later
+repair adds a fit to the sidecar and MAY rewrite the times of the run (SFF-833).
 
 **SFF-845** (writer) freemocap deletes the journal only after it has read the new Parquet run
 back and compared the number of values and a SHA-256 digest of the folded values with the journal.
@@ -1527,17 +1561,23 @@ passes.
 
 These files are in formats of other projects. For each, this section gives the name, the container
 and codec, and the content mapping ([ADR-QS7B](../decisions/entries/QS7B-blender-outputs-and-exports.md)).
-Run 0 uses the names below. A run N other than 0 uses the folder `run-<N>/` inside the folder of the
-file, and `.run-<N>` before the last suffix of each file name.
+
+A name with no run number is always a name of run 0. Each file of a run N other than 0 has `run-<N>`
+in its name. Each subsection gives the place of `run-<N>` for its files. A writer does not rename or
+replace a file of this section when the selected run changes. `selected_run_id` of the processing info JSON
+(section 14) names the selected run ([ADR-E45D](../decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)).
 
 ### 18.1 Blender
 
 | Path | Content |
 |---|---|
-| `<rec>.blend` | The Blender scene of the selected run |
+| `<rec>.blend` | The Blender scene of run 0 |
 | `blender/run-<N>/<rec>.run-<N>.blend` | The scene of run N, for N other than 0 |
-| `blender/3d_models/<root>.fbx`, `<root>.bvh` | The rig as FBX or BVH, when the user asks for them. `<root>` is `FreeMoCap_<route>`. |
-| `blender/3d_models/<root>.bvh.metadata.json` | For a BVH: `import_route`, `run_id`, `sensor_group`, `source`, `missing_sample_policy` and `missing_frames_by_bone` |
+| `blender/3d_models/<root>.fbx`, `<root>.bvh` | The rig of run 0 as FBX or BVH, when the user asks for them. `<root>` is `FreeMoCap_<route>`. |
+| `blender/3d_models/<root>.bvh.metadata.json` | The BVH metadata JSON. For a BVH: `format_version`, `format_prerelease`, `writer` (section 3), `import_route`, `run_id`, `sensor_group`, `source`, `missing_sample_policy` and `missing_frames_by_bone` |
+
+A 3D model file of a run N other than 0 is in the folder `run-<N>/` inside `blender/3d_models/`, and
+it has `.run-<N>` before the last suffix of its file name.
 
 **SFF-847** (writer) The freemocap Blender addon writes only the files of the table. It writes
 no pickle, no `saved_data/`, no `output_data/` file and no `video_export/` file into a take of this
@@ -1558,7 +1598,8 @@ with a `calibration` property; a plane with the video of each camera; the camera
 
 | Path | Content |
 |---|---|
-| `annotated_videos/<rec>.<camera_label>.annotated.mp4` | A copy of the camera video with the 2D tracking of the selected run drawn on it |
+| `annotated_videos/<rec>.<camera_label>.annotated.mp4` | A copy of the camera video with the 2D tracking of run 0 drawn on it |
+| `annotated_videos/run-<N>/<rec>.<camera_label>.annotated.run-<N>.mp4` | The same for run N, for N other than 0 |
 
 **SFF-850** (writer) An annotated video is H.264 (libx264, `yuv420p`, CRF 18) in MP4, at the
 nominal rate of the camera, with one frame for each frame of the camera file, in position order, and
@@ -1589,7 +1630,8 @@ read tracking data from it.
 | `exports/calibration_copies/<file>.toml` | Copies of aligned calibrations |
 | `exports/README.md`, `exports/csv/README.md`, `exports/npy/README.md` | Guides for people |
 
-`<prefix>` is `<rec>`, or `<rec>.run-<N>` for run N. `<table>` is `<label>--<source name after its
+`<prefix>` is `<rec>` for run 0, and `<rec>.run-<N>` for a run N other than 0. The exports of each
+run are in the same folders: an export has no `run-<N>/` folder. `<table>` is `<label>--<source name after its
 first ':'>`, and for `OVERLAY_2D` also `--<camera_label>`. The labels are `2d_overlay`
 (`OVERLAY_2D`), `3d_keypoints_raw` (`RAW_KEYPOINTS_3D`), `3d_keypoints_filtered` (`KEYPOINTS_3D`),
 `3d_landmarks` (`LANDMARKS_3D`) and `3d_segment_poses` (`SEGMENT_ORIGINS` with `ROTATIONS_WORLD`).
@@ -1616,7 +1658,8 @@ static file has no `timestamp_s` and no `frame_number` column.
 holds no object array (SFF-884). The NPZ file holds `<table>.values.npy`, `frames.npy`,
 `timestamps.npy` and `recording_info.json`.
 
-**SFF-858** (writer) The export inventory is a JSON file with `version`, `status` (`complete`),
+**SFF-858** (writer) The export inventory is a JSON file with `format_version`,
+`format_prerelease`, `writer` (section 3), `version`, `status` (`complete`),
 `artifacts` (each export file with `filename`, `location`, `sha256`, `rows`, `columns`,
 `source_sha256`, `run_id` and `format`), `snapshots` and `csv` (the CSV conventions). The exporter
 writes it last.
@@ -1638,11 +1681,13 @@ UTF-8 text with LF line ends. The content is not specified.
 A skellysync folder is a take folder with the device pairs of skellysync and a manifest. It has no
 info JSON, Parquet or calibration ([ADR-VPD9](../decisions/entries/VPD9-spec-draft-v2-details.md)).
 
-**SFF-862** (writer) skellysync writes one camera file and its sidecar for each camera, and,
+**SFF-862** (writer) (provisional: the skellysync decisions D-Q, D-FPS, D-HDR, D-DRIFT and D-AUDIO)
+skellysync writes one camera file and its sidecar for each camera, and,
 when its input has audio, one audio file and its sidecar, with the rules of sections 6 to 10. Its
 `clock` is `synthetic`. Its `camera_key` can be 0.
 
-**SFF-863** (reader) A reader does not give the warning `missing_fit` for a file whose `clock`
+**SFF-863** (reader) (provisional: the skellysync decisions D-Q, D-FPS, D-HDR, D-DRIFT and D-AUDIO)
+A reader does not give the warning `missing_fit` for a file whose `clock`
 is `synthetic`.
 
 ## 20. Opening a folder
@@ -1664,8 +1709,10 @@ device pair has that `take_uuid`, the reader reports the manifest with the state
 `take_fact_mismatch`) and rebuilds the links (SFF-731).
 
 **SFF-868** (reader) A reader takes `<rec>` from the manifest. When it rebuilds the links, it
-takes `<rec>` from the name of a camera sidecar: the name without the suffix `.<camera_label>.csv`.
-When the sidecars give two values, it gives the take warning `take_fact_mismatch`.
+takes `<rec>` from the name of a timing sidecar file. For a camera sidecar, `<rec>` is the name
+without the suffix `.<camera_label>.csv`. For an audio sidecar, `<rec>` is the name without the
+suffix `.audio.csv`. A take with only an audio sidecar uses the audio sidecar name. When the
+sidecars give two values, it gives the take warning `take_fact_mismatch`.
 
 **SFF-869** (reader) When a take has fewer camera files than `group_size`, or fewer audio files
 than `audio_count`, the reader reports the take as `incomplete`, with the warning `incomplete_take`,
@@ -1706,9 +1753,11 @@ apply. This section tells how a reader recognises a legacy folder and what it re
 reads the old files is in skellycam and freemocap. The informative
 [legacy annex](legacy-annex.md) describes the files of each layout.
 
-**SFF-875** (reader) A folder is legacy when it has no manifest of this format and no device pair
-of this format, and it has one or more regular files. A reader then reports the folder state `legacy`
-and does not change the folder.
+**SFF-875** (reader) A folder is legacy when it has no file of this format, and it has one or more
+regular files. A reader then reports the folder state `legacy` and does not change the folder. A
+folder with a file of this format and no take is `unreadable` (SFF-888), not legacy. Examples are a
+folder with only a timing sidecar of this format, and a folder with only `<rec>_data.parquet` of this
+format.
 
 **SFF-876** (reader) A reader reports the family `pre_v1` and the note "freemocap pre-v1 layout,
 unsupported" for a folder with one of these: a `SyncedVideos/` or `RawVideos/` subfolder and a
@@ -1724,7 +1773,7 @@ holds all of them and `ambiguous` = true. It does not guess.
 
 | Era | Releases | Signal |
 |---|---|---|
-| V1a | v1.0.25 to v1.1.0 | `output_data/recording_parameters.json` has `mediapipe_parameters_model` with `skip_2d_image_tracking`; `output_data/raw_data/mediapipeBodyWorld_*` |
+| V1a | v1.0.25 to v1.0.34, and the tag `1.1.0` | `output_data/recording_parameters.json` has `mediapipe_parameters_model` with `skip_2d_image_tracking`; `output_data/raw_data/mediapipeBodyWorld_*` |
 | V1b–V1d | v1.1.0 to v1.3.0 | `recording_parameters.json` has `mediapipe_parameters_model` with `run_3d_triangulation` and `run_reprojection_error_filtering`; `output_data/raw_data/mediapipe3dData_numCams_*` |
 | V1b–V1c | v1.1.0 to v1.1.1 | as V1b–V1d, and `mediapipe_skeleton_segment_lengths.json` |
 | V1e–V1h' | v1.3.1 to v1.7.4 | `recording_parameters.json` has `tracking_parameters_model` and `run_reprojection_error_filtering`; `mediapipe_skeleton_3d.npy` or `mediapipe_2dData_*`; a body CSV whose first column is `body_nose_x` |
@@ -1733,6 +1782,9 @@ holds all of them and `ambiguous` = true. It does not guess.
 | V1h–V1h' | v1.7.0 to v1.7.4 | as V1g–V1h', and a TOML with `world_position`, `groundplane_calibration` or a board `name` |
 | V1h' | v1.7.4 | as V1h–V1h', and a `reprojection_error` column in `<name>_by_frame.csv` |
 | V1i | v1.8.0 to v1.8.2 | `recording_parameters.json` has `use_triangulate_outlier_rejection` |
+
+The tag `1.1.0` (with no `v`) is not the release v1.1.0. It is v1.0.34 with one more log line. For a
+V1a folder, a reader reports the range v1.0.25 to v1.0.34. The release v1.1.0 starts era V1b.
 
 **SFF-879** (reader) For a `v1` folder, a reader gives each warning of this table whose range
 overlaps the reported range:
@@ -1794,8 +1846,10 @@ JSON Canonicalization Scheme (RFC 8785):
 - each item of `records`: `[position, source_frame_number, arrival_ns, sample_ns, player_ns]` for a
   camera, and `[block, first_sample, n_samples, host_ns, fitted_ns]` for audio. An absent value is
   null;
-- each item of `folder_files`: `path`, `role`, `state` (`present`, `missing`, `invalid`, `ambiguous`
-  or `not_checked`), `reason` and `warnings`;
+- each item of `folder_files`: `path`, `role`, `state` (`present`, `missing`, `invalid`, `ambiguous`,
+  `not_checked`, `unsupported_version`, `unfinished` or `damaged`), `reason` and `warnings`. The item
+  of the journal also has three integer counts: the number of good records, the number of rejected
+  records and `torn_bytes` (SFF-843);
 - each item of `links`: `check` (a name of SFF-872), `state` (`ok`, `mismatch` or `not_checked`)
   and `detail` (null, or a text);
 - `other_files`: an array of the files of the root and the media folder that are not in this format,
@@ -1804,17 +1858,27 @@ JSON Canonicalization Scheme (RFC 8785):
   `eras` and `warnings`.
 
 Each member that the list names is present. A member that does not apply is null. Times are relative
-to the take start, as JSON numbers. They can be negative.
+to the take start, as JSON numbers. They can be negative. Each integer member is a JSON number:
+`result_version`, `rows`, `torn_bytes`, the three counts of the journal item, and each integer of
+`records` (a position, a source frame
+number, a sample index, a number of samples and a time). No integer member is a JSON string
+(SFF-702). `camera_key` is a text, not an integer.
 
 **SFF-886** (reader) The file states are `unsupported_version`, `invalid`, `damaged`,
 `unfinished`, `repaired`, `finished` and `not_in_format`. When two apply, the reader reports the first
 in this order: `unsupported_version`, `invalid`, `damaged`, `unfinished`, `repaired`, `finished`. A
-file that this spec makes a reader refuse is `invalid`, with one reason code.
+file that this spec makes a reader refuse is `invalid`, with one reason code. These are the states of
+the items of `files` and `other_files`. A folder file has the states of SFF-885. When two of
+`unsupported_version`, `invalid`, `damaged` and `unfinished` apply to a folder file, the reader
+reports the first in the same order. A folder file with a `major` that the reader does not know is
+`unsupported_version` (SFF-708). Of the folder files, only the journal is a live file (SFF-787):
+`unfinished` and `damaged` are states of the journal (SFF-843).
 
 **SFF-887** (reader) The reason codes are `bad_metadata`, `missing_metadata`, `bad_rate`,
 `bad_rotation`, `bad_label`, `bad_time` (a time 2^53 ns or more from the take start),
 `crc_mismatch`, `take_fact_mismatch`, `bad_schema` (a JSON, TOML or Parquet file, or a journal header, without the
-members or the columns of its section) and `code_in_file`. The take warnings are `incomplete_take`,
+members or the columns of its section; int64 in the Parquet columns `frame_number` and `run_id` is
+not a cause, SFF-819) and `code_in_file`. The take warnings are `incomplete_take`,
 `duplicate_label`, `take_fact_mismatch`, `extra_files`, `manifest_missing`, `stray_tmp`,
 `orphan_file`, `camera_key_zero`, `stale_processing_info`, `summary_stale`, `calibration_mismatch`
 and `realtime_run`. The file warnings are `missing_fit`, `encode_skip` and `prerelease`. The folder
@@ -1849,19 +1913,19 @@ a committed JSON file.
 
 | # | Golden folder | Sections |
 |---|---|---|
-| G1 | A capture-only take: 2 cameras of about 90 frames at a small size, one with a gap, both with a fit; audio of 3 s, mono, with a click every 500 ms | 4 to 11 |
+| G1 | A capture-only take: 2 cameras of about 90 frames at a small size, one with a gap, both with a fit; audio of 3 s, mono, with a click every 500 ms. Each camera shows a flash at the time of each click | 4 to 11 |
 | G2 | G1 with stereo audio | 9, 10 |
 | G3 | A processed take: G1 plus both info JSONs, a calibration TOML, a Parquet with 2D and 3D, and the exports | 13 to 16, 18 |
 | G4 | A rotated camera: `display_rotation` 0, 90, 180 and 270, with coloured corner markers and the expected upright corner colours | 6, 8 |
 | G5 | A crashed take: unfinished camera files and sidecars (a clean cut, a torn row of 37 bytes, a row with a wrong CRC), an unfinished audio file (a clean kill and a torn fragment), a `.tmp` manifest and the old manifest | 12 |
 | G6 | G5 after repair, and G5 with an interrupted repair | 12 |
-| G7 | A take with no manifest, and a take whose manifest has another `take_uuid` | 5, 20 |
+| G7 | Two copies of G3: one with its manifest deleted, and one whose manifest has another `take_uuid` | 5, 20 |
 | G8 | A renamed take folder | 4, 20 |
-| G9 | Mismatch vectors: `take_uuid`, `camera_key`, a Parquet frame range, image dimensions, a rotation in `camera_configs`, an unresolved file name, a stale `parquet_sha256`, a calibration hash | 20 |
+| G9 | Mismatch vectors: `take_uuid`, `camera_key`, a Parquet frame range, image dimensions, a rotation in `camera_configs`, an unresolved file name, a stale `parquet_sha256`, a calibration hash, a `calibration_uuid` | 20 |
 | G10 | Version vectors: a higher `minor` with an unknown header key, column and JSON member; an unknown `major`; `format_prerelease` > 0 | 3 |
 | G11 | Header and row error vectors: an integer with a leading zero; a `+` sign; a `nominal_rate` of 0/1 and of 2^20 + 1; a `display_rotation` of 45; a bad label; a missing header key | 2, 7, 8 |
 | G12 | Fit vectors: two video segments; a source frame gap; a `period_ps` with a remainder; an audio fit with `period_fs`; a sidecar with no fit | 11 |
-| G13 | A realtime journal: good records, a record with a wrong CRC, a 4 KiB zero hole, a torn tail; and the Parquet run of its fold | 16, 17 |
+| G13 | A realtime take: a complete small take (2 camera files, their timing sidecars and a manifest) that also holds a realtime journal (good records, a record with a wrong CRC, a 4 KiB zero hole, a torn tail) and the Parquet run of its fold | 5 to 8, 16, 17 |
 | G14 | A calibration take and a motion-capture take that holds a copy of its TOML; a library TOML outside a take | 15 |
 | G15 | Legacy folders: one v1 folder of each era signal; a v0.0.x folder; a v0.1.0 folder; a folder of MP4 files only | 21 |
 | G16 | Files with code: a pickle in the take folder; an NPY with an object array | 22 |

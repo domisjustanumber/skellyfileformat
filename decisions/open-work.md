@@ -8,6 +8,36 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-3D33](entries/3D33-spec-draft-v2-details-folder-files.md) at gate 1 on 2026-11-16. Write the
   runnable tests of [conformance.md](../spec/conformance.md) and the golden folders G1 to G16 of
   SPEC.md Appendix A, and stop for gate 2. G17 waits for the skellysync decisions.
+  [ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) gives the place of the tests, the
+  names that they call and the rules of the golden files. Write the expected reader result of G1
+  first, and stop for the approval of the user. Also do the repository changes of its item 9:
+  `.gitattributes`, the golden generator in `tools/`, and the `golden/` and `tests/` rows and the
+  command of the failing run in `AGENTS.md`.
+- **Open points of [ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md).** The user
+  must decide each of them. The spec holds the smallest text until then.
+  - Item 1: [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) item 19a.
+  - Item 2: [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) item 19b.
+  - Item 3: the place of the three members in the export inventory and in the BVH metadata JSON (the
+    spec lists them first); and `README.md` section "Versioning", which says that each file records
+    the format version and a writer string. Make the README agree. For the other files of SPEC.md
+    section 18, see [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) item 19g.
+  - Item 3 changes one rule of [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md) and
+    [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md). The [Rules](README.md#rules) can need an
+    entry that supersedes them.
+  - Item 4: [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) items 19d and 19e.
+  - Item 5: [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) item 19f.
+  - Item 6: what `fitted_ns` of `records` holds for an audio file whose fit the reader computed. For
+    the result member `fit`, see [ADR-Q4BK](entries/Q4BK-spec-v2-details-part-4.md) item 3a. For the
+    other points, see [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) item 19c.
+- **Review of the proposed entries.** The user reviews each item of
+  [ADR-W6HV](entries/W6HV-spec-v2-details-part-3.md) (items 1 and 2),
+  [ADR-Q4BK](entries/Q4BK-spec-v2-details-part-4.md) (3 and 4),
+  [ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) (5 to 8),
+  [ADR-ATW0](entries/ATW0-spec-v2-details-part-6.md) (9 to 13),
+  [ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md) (14 to 17) and
+  [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) (18 and 19), and accepts or rejects each
+  entry. The CHOICE items need a decision. The spec and the conformance list do not change before
+  that.
 - **Absorb the accepted entries into the spec.** After gate 1, when `spec/SPEC.md` or `README.md`
   states all rules of an entry, move the entry to Historical as absorbed:
   [ADR-2C9V](entries/2C9V-whole-take-folder-scope-and-package.md),
@@ -38,6 +68,8 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - SFF-848: the `.blend` scene contents are future freemocap work;
   - SFF-862, SFF-863 and G17: skellysync folders wait for the skellysync decisions D-Q, D-FPS,
     D-HDR, D-DRIFT and D-AUDIO;
+  - G5 and G6: the stand-in for the killed camera file waits for desk tests DT-R1 and DT5
+    ([ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) item 6);
   - the nested model types of the Parquet descriptor (`SkeletonSnapshot` and the others) are copied
     into parts/parquet-descriptor.md at gate 1.
 - **Desk tests that the decisions name.** A kill during a replace on Windows
@@ -54,7 +86,10 @@ task. Delete an item when its work is done. The PR that closes an item records t
   reader must also accept `int64` from older files), whole-file TOML writes and a new `calibration_uuid` for each geometry change, no copy
   of the capture JSON in `<rec>_recording_info.json`, the reader through the manifest, the realtime
   journal node, and the names of `RECORDING_CONTRACT.md` and `shared/recording-contract/paths.json`.
-  The Blender addon: MKV video planes, the `blender/` outputs and no pickle.
+  The Blender addon: MKV video planes, the `blender/` outputs and no pickle. freemocap and the addon:
+  `format_version`, `format_prerelease` and `writer` in the export inventory and in the BVH metadata
+  JSON, and `run-<N>` in the name of each file of a run other than 0
+  ([ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) items 3 and 4).
 - **Permalinks to the skellycam evidence.** The new entries cite skellycam `dom/research` files as
   plain paths. Many of them are not committed yet. Change them to full-SHA permalinks after that
   branch is committed and pushed.

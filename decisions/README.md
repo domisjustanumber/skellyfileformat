@@ -35,6 +35,8 @@ These entries are `accepted` or `evidence`.
 | [T8PK](entries/T8PK-privacy-notice-and-no-code-in-files.md) | Private data allowed in any field and declared in the manifest `privacy` list; no strip option yet; no file format that runs code | accepted |
 | [VPD9](entries/VPD9-spec-draft-v2-details.md) | Spec draft v2 details, part 1: structure, IDs, names, CSV dialect, columns, fit lines, clocks, media boxes, repair line, journal layout | accepted |
 | [3D33](entries/3D33-spec-draft-v2-details-folder-files.md) | Spec draft v2 details, part 2: manifest, info JSONs, TOML, Parquet v2 fields, Blender, exports, opening, legacy, privacy, result codes | accepted |
+| [E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) | Spec draft v2 corrections: journal counts, folder-file states, version fields, run names, realtime times, audio fit | accepted |
+| [G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) | Gate 2: tests in `tests/conformance/`; reader, writer and detail function names; writer scope; golden file rules | accepted |
 
 ### Proposed
 
@@ -43,6 +45,12 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
+| [W6HV](entries/W6HV-spec-v2-details-part-3.md) | Spec draft v2 details, part 3 (items 1, 2): journal frame numbers, events and digest; camera row alignment, `filled`, `repeat` | `spec` | proposed |
+| [Q4BK](entries/Q4BK-spec-v2-details-part-4.md) | Spec draft v2 details, part 4 (items 3, 4): reader result members; "a file of this format"; orphan files, `missing_media` | `spec` | proposed |
+| [0XX2](entries/0XX2-spec-v2-details-part-5.md) | Spec draft v2 details, part 5 (items 5 to 8): legacy result, manifest rebuild, link check parts, summary, manifest lock | `spec` | proposed |
+| [ATW0](entries/ATW0-spec-v2-details-part-6.md) | Spec draft v2 details, part 6 (items 9 to 13): unfinished pairs, flags and counts, `realtime_run`, calibration, footer lines | `spec` | proposed |
+| [DM9S](entries/DM9S-spec-v2-details-part-7.md) | Spec draft v2 details, part 7 (items 14 to 17): JavaScript scope, privacy list, pickles, identity string, ranges, exports | `spec` | proposed |
+| [72QQ](entries/72QQ-spec-v2-details-part-8.md) | Spec draft v2 details, part 8 (items 18, 19): tests with no Pass text; the points left open by E45D | `spec` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

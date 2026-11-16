@@ -56,16 +56,19 @@ legacy folders stays in skellycam and freemocap.
   - A freemocap patch release does not change the format.
   - The skellyfileformat package and skellycam release at the same `major.minor` when the format
     changes.
-- **Version fields.** Each file of the format records the format version under which it was written:
-  `format_version` (`major.minor`) and `format_prerelease`. `major`, `minor` and `format_prerelease`
-  are unsigned integers that fit in 16 bits. The spec gives the place of the fields in each file.
+- **Version fields.** Each file that the spec names in SFF-707 records the format version under which
+  it was written: `format_version` (`major.minor`) and `format_prerelease`. `major`, `minor` and
+  `format_prerelease` are unsigned integers that fit in 16 bits. The spec gives the place of the
+  fields in each of these files. A camera file and an audio file are standard media files with no
+  added field: the timing sidecar holds the fields for its media file
+  ([ADR-E45D](decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)).
   - `format_prerelease` is 0 for a released format, and N for the Nth prerelease revision.
   - A reader must refuse a file with a `major` that it does not know.
   - A reader must read a file with a higher `minor` of a `major` that it knows, and skip the fields
     that it does not know.
 - **Container versions.** The version of a container (Matroska, MP4, Parquet) is not the format
   version.
-- **Writer string.** Each file also holds a writer string, for example `skellycam 2.1.0`. It is for
+- **Writer string.** Each of these files also holds a writer string, for example `skellycam 2.1.0`. It is for
   diagnostics only. A reader must not change its behaviour because of it. skellysync writes the
   format version that skellyfileformat gives, not its own version.
 - **Package version.** The skellyfileformat package uses semantic versioning. Its `major.minor` is

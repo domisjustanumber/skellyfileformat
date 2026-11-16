@@ -344,10 +344,15 @@ Pass: the JS reader gives the same times as the Python reader. A time difference
 is reported as an error.
 
 **SFT-703** Writer and reader: version fields and rules
-Checks: SFF-707, SFF-708, SFF-709, SFF-710, SFF-711, SFF-714
-Input: G10; the output of each writer.
-Pass: each file of the writers has `format_version` 2.0 and a `format_prerelease`. A file with an
-unknown `major` is `unsupported_version`, not legacy. A file with a higher `minor` reads, and the
+Checks: SFF-707, SFF-708, SFF-709, SFF-710, SFF-711, SFF-712, SFF-714
+Input: G10; the output of each writer, with an export and a BVH.
+Pass: each file that SFF-707 names has `format_version` 2.0, a `format_prerelease` and a `writer`:
+the manifest, each timing sidecar, both info JSONs, the calibration TOML, the Parquet descriptor, the
+journal header, the export inventory and the BVH metadata JSON. No camera file and no audio file
+holds one of these three fields. The version and the writer string of a device pair are those of its
+timing sidecar. A file with an
+unknown `major` is `unsupported_version`, not legacy. A folder file with an unknown `major` has the
+state `unsupported_version` in `folder_files`. A file with a higher `minor` reads, and the
 unknown key, column and member are ignored. A file with `format_prerelease` > 0 reads with the
 warning `prerelease`.
 
@@ -366,7 +371,7 @@ Pass: each file has the name and the place of section 4. `<rec>` obeys SFF-715. 
 hexadecimal characters, or 7 or 8 for the two cameras. No `synchronized_videos_README.md` exists.
 
 **SFT-706** Reader: a renamed take folder
-Checks: SFF-717, SFF-718, SFF-868
+Checks: SFF-717, SFF-718
 Input: G8.
 Pass: the reader result of the renamed folder is equal to that of the original, except for the path.
 The reader opens no file by a glob pattern.
@@ -391,11 +396,17 @@ Input: G3 with a `summary` whose `display_rotation` and `nominal_fps` differ fro
 Pass: the reader result uses the sidecar values and has the warning `summary_stale`.
 
 **SFT-710** Reader: a missing or wrong manifest
-Checks: SFF-731, SFF-867
-Input: G7.
-Pass: with no manifest, the result has `manifest` = `missing`, the warning `manifest_missing`, and the
-same files and links as G3. With a manifest of another take, the manifest is `invalid`
-(`take_fact_mismatch`) and the links are rebuilt. The reader writes no file.
+Checks: SFF-731, SFF-867, SFF-868
+Input: G7; G1 with its manifest and its camera pairs deleted.
+Pass: with no manifest, the result has `manifest` = `missing` and the warning `manifest_missing`.
+`recording_name` is the `<rec>` of the camera sidecar names. The result has the same device pairs as
+G3. Its `folder_files` are the root files of G3 that have a fixed suffix of SFF-731: the capture
+info JSON, the processing info JSON, the calibration TOML and the Parquet. The files of G3 in
+`annotated_videos/`, `exports/`, `blender/` and `logs/` are not in the result, and the reader lists
+none of these subfolders. Each link check that compares no manifest value has the same state as for
+G3. With a manifest of another take, the manifest is `invalid` (`take_fact_mismatch`), and the
+reader rebuilds the links in the same way. For the copy
+of G1, `recording_name` is the audio sidecar name without `.audio.csv`. The reader writes no file.
 
 ### Camera files (section 6)
 
@@ -421,7 +432,9 @@ Pass: the reader decodes each frame and ignores the EXIF tag.
 **SFT-714** Reader: an unfinished camera file
 Checks: SFF-740, SFF-757
 Input: G5.
-Pass: the reader finds each complete frame from the CSV offsets, and the same frames by a walk.
+Pass: the reader finds each complete frame from the CSV offsets, and the same frames by a walk. The
+check of the CSV offsets is provisional: it waits for desk test DT5 (SFF-757). The check of the walk
+does not wait.
 
 ### Timing sidecars (sections 7, 8 and 10)
 
@@ -489,7 +502,9 @@ Pass: the microphone time of each sample is its fitted time minus 5 ms.
 Checks: SFF-772, SFF-773, SFF-774
 Input: the output of skellycam on Windows; G11 with an unknown `clock`.
 Pass: each file has `clock` `windows_qpc` and the same take start. No time-zone name is written. An
-unknown `clock` is `invalid` with `bad_metadata`.
+unknown `clock` is `invalid` with `bad_metadata`. The same checks on Linux and macOS, with the
+`clock` values `linux_monotonic` and `macos_uptime_raw`, are provisional: they wait for the timing
+tests T-S7 (SFF-773). The Windows checks do not wait.
 
 **SFT-726** Writer: the fit
 Checks: SFF-775, SFF-776, SFF-778
@@ -514,7 +529,10 @@ at or before t, and no frame is shown before position 0.
 Checks: SFF-784, SFF-785
 Input: G1, and G5 (a killed audio file with no fit).
 Pass: the take time of each click is the time of the matching video flash to within 1 ms. With no
-fit, the reader fits the rows and gives `missing_fit`. No audio is scheduled after the usable length.
+fit, the reader fits the rows and gives `missing_fit`. The fit of the reader is the one segment of
+SFF-784: its `n0`, `t0_ns` and `period_fs` equal the committed values, in Python and JS. For a copy
+of the G5 audio sidecar with one row, the reader computes no fit and maps no sample to take time. No
+audio is scheduled after the usable length.
 
 ### Writing, crashed files and repair (section 12)
 
@@ -522,7 +540,9 @@ fit, the reader fits the rows and gives `missing_fit`. No audio is scheduled aft
 Checks: SFF-786, SFF-787, SFF-788, SFF-789
 Input: a kill of each writer at 50 points during a take and during freemocap processing.
 Pass: each whole file is the old or the new version, or is absent, with at most a `.tmp`. Each live
-file is a valid prefix. freemocap holds `.processing.lock` while it changes a folder file.
+file is a valid prefix. freemocap holds `.processing.lock` while it changes a folder file. The check
+that a writer forces each live file to disk about once a second is provisional: it waits for the
+measurement of the cost of fsync (SFF-788). The other checks do not wait.
 
 **SFT-731** Reader: stray temporary files
 Checks: SFF-790
@@ -541,7 +561,9 @@ Input: G5; G6.
 Pass: the program asks the user before it repairs. After the repair, each byte before the cut is
 unchanged, each sidecar has a fit, a repair line and an `# end` line, and the reader reports
 `repaired`. The audio file is cut after its last complete fragment and is not remuxed. A repair of
-the interrupted repair gives the same files, except for `cut_bytes`.
+the interrupted repair gives the same files, except for `cut_bytes`. The check of the repaired camera
+file (each complete block is kept) is provisional: it waits for desk test DT-R1 (SFF-797). The checks
+of the sidecars and the audio file do not wait.
 
 **SFT-734** Reader: the reader changes nothing
 Checks: SFF-799
@@ -588,7 +610,8 @@ entry, and the copy of the old take does not change. After each kill, each TOML 
 
 **SFT-740** Reader: finding and linking the calibration
 Checks: SFF-814, SFF-815
-Input: G14; G9 (a calibration hash mismatch); a take with a second TOML in its root.
+Input: G14; G9 (a calibration hash mismatch and a `calibration_uuid` mismatch); a take with a second
+TOML in its root.
 Pass: the reader uses the TOML of the manifest and ignores the second TOML. A hash or ID mismatch is a
 `mismatch` of the links. The camera tables are linked by `camera_key`, in order of `index`.
 
@@ -596,10 +619,16 @@ Pass: the reader uses the TOML of the manifest and ignores the second TOML. A ha
 
 **SFT-741** Writer: Blender outputs
 Checks: SFF-847, SFF-848, SFF-849
-Input: the Blender export of G3, with FBX and BVH, for run 0 and run 1.
-Pass: only the files of section 18.1 are written. The scene has the objects and properties of
+Input: the Blender export of G3, with FBX and BVH, for run 0 and run 1; then a change of
+`selected_run_id` from 0 to 1.
+Pass: only the files of section 18.1 are written. No file of run 0 has a run number in its name:
+`<rec>.blend` is the scene of run 0. Each file of run 1 has `run-1` in its name, at the place that
+section 18.1 gives. The export of run 1 changes no file of run 0. The change of `selected_run_id`
+renames and replaces no file. The scene has the objects and properties of
 SFF-848, and the video plane of a rotated camera is upright. A `<rec>.blend1` is not in the
-reader result.
+reader result. The checks of the scene (its objects, its properties and the upright video plane) are
+provisional: they wait for the freemocap work on the `.blend` scene contents (SFF-848). The checks of
+the written files and of `<rec>.blend1` do not wait.
 
 **SFT-742** Writer: annotated videos
 Checks: SFF-850, SFF-851, SFF-852, SFF-853
@@ -610,9 +639,14 @@ frame k of the run. A `.partial.mp4` file is not in the reader result.
 
 **SFT-743** Writer: exports
 Checks: SFF-854, SFF-855, SFF-856, SFF-857, SFF-858, SFF-859
-Input: an export of G3 with every format and data kind, for run 0 and run 1.
-Pass: each file has the path and the format of section 18.3. A float32 value `0.1` is written as
+Input: an export of G3 with every format and data kind, for run 0 and run 1; then a change of
+`selected_run_id` from 0 to 1.
+Pass: each file has the path and the format of section 18.3. The prefix of each file of run 0 is
+`<rec>`, and the prefix of each file of run 1 is `<rec>.run-1`. The export of run 1 changes no file of
+run 0. The change of `selected_run_id` renames and replaces no file. The inventory has
+`format_version`, `format_prerelease` and `writer`. A float32 value `0.1` is written as
 `0.1`. The arrays have the shape and the dtype of their channels, and load with pickles not allowed.
+`frames.npy` is int32 and `timestamps.npy` is float64.
 The inventory lists each file with its SHA-256 and is written last. An interrupted export leaves no
 partial file outside `.staging-*`.
 
@@ -639,9 +673,10 @@ is NaN. Each row group holds one channel.
 
 **SFT-747** Reader: other Parquet readers
 Checks: SFF-819
-Input: the Parquet of G3.
+Input: the Parquet of G3; a copy of it with the columns `frame_number` and `run_id` as int64.
 Pass: pyarrow 26.0.0, polars 2.0.0, DuckDB 2.0.0 and hyparquet 1.25.6 with hyparquet-compressors
-1.1.2 (pinned) read every value bit-exactly.
+1.1.2 (pinned) read every value bit-exactly. The reader of this package reads the int64 copy. It
+gives the same values as for the Parquet of G3, and it does not give the reason `bad_schema`.
 
 **SFT-748** Writer: the row rules
 Checks: SFF-822, SFF-827, SFF-828, SFF-831
@@ -667,11 +702,15 @@ Pass: each camera source is `camera:<label>` with `camera_key`, `video_filename`
 
 **SFT-751** Writer: runs and realtime runs
 Checks: SFF-833, SFF-834, SFF-844
-Input: G13, then a posthoc run on it.
+Input: G13, then a posthoc run on it; a fold of G13 with unfinished timing sidecars (no fit), then a
+repair that rewrites the times of the realtime run.
 Pass: the fold gives a run with `origin` `realtime`, a `coverage` object and no checkpoints. Skipped
 frames have null `x`, `y` and `visibility`. `timestamp_s` of each row of the realtime run and the
-value of each of its `TIMESTAMPS` rows equal the times from the timing sidecars. The posthoc run gets
-a new `run_id`, and the realtime run is unchanged, byte for byte in its rows.
+value of each of its `TIMESTAMPS` rows equal the player times that the timing sidecars give at the
+time of the fold. With no fit, these are the arrival times. The posthoc run gets
+a new `run_id`, and the realtime run is unchanged, byte for byte in its rows. After the repair, the
+times of the realtime run equal the fitted times of the repaired sidecars. Only `timestamp_s` and the
+values of the `TIMESTAMPS` rows of the realtime run differ: each other value of the run is unchanged.
 
 **SFT-752** Reader: the realtime warning
 Checks: SFF-835
@@ -706,9 +745,12 @@ made is in the journal.
 
 **SFT-757** Reader: damaged journals
 Checks: SFF-843
-Input: G13; G13 with a header that declares one channel with the `dtype` `float64`.
-Pass: the reader skips the record with a wrong CRC, finds the next record after the zero hole, stops
-at the torn tail, and reports the counts of the committed result. The journal with the `float64`
+Input: G13; G13 with a header that declares one channel with the `dtype` `float64`; a copy of the
+G13 journal with only good records and a torn tail; a copy with only good records and no end record.
+Pass: the reader skips the record with a wrong CRC, finds the next record after the zero hole and
+stops at the torn tail. The `folder_files` item of the journal has the three counts of the committed
+result: the good records, the rejected records and `torn_bytes`. Its state is `damaged`, with the
+reason `crc_mismatch`. Each of the two copies is `unfinished`. The journal with the `float64`
 channel is `invalid` with the reason `bad_schema`.
 
 **SFT-758** Writer: the journal after the fold

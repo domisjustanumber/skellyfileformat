@@ -37,7 +37,10 @@ Synchronisation: the cameras are cut to their overlap, and the camera with the f
 reference. Each other camera gets its nearest frame. Duplicated frames are written with no mask.
 Neither the device ID nor the rotation setting is saved.
 
-## 3. Files that freemocap wrote (era V1a, v1.0.25 to v1.1.0)
+## 3. Files that freemocap wrote (era V1a, v1.0.25 to v1.0.34)
+
+Era V1a also holds the tag `1.1.0` (with no `v`). That tag is v1.0.34 with one more log line. It is
+not the release v1.1.0, which starts era V1b.
 
 | File | Content |
 |---|---|
