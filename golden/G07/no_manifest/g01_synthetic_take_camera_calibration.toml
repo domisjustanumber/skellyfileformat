@@ -1,0 +1,57 @@
+[metadata]
+format_version = "2.0"
+format_prerelease = 1
+writer = "skellyfileformat-goldgen 1.0.0"
+calibration_uuid = "00000000000040008000000000000301"
+source_take_uuid = "00000000000040008000000000000302"
+reprojection_error_px = 0.25
+initial_cost = 1.5
+final_cost = 0.25
+n_iterations = 4
+solver_time_seconds = 0.5
+n_observations_used = 180
+n_observations_rejected = 0
+aligned = false
+solver_method = "anipose"
+transformation_history = []
+
+[metadata.board]
+squares_x = 5
+squares_y = 3
+square_length_mm = 54.0
+marker_length_ratio = 0.8
+aruco_dictionary_enum = 2
+
+[e40ba1]
+name = "e40ba1"
+id = "e40ba1"
+camera_key = "e40ba19b877f64fb"
+camera_label = "e40ba1"
+index = 0
+size = [64, 48]
+matrix = [[60.0, 0.0, 32.0], [0.0, 60.0, 24.0], [0.0, 0.0, 1.0]]
+distortions = [0.01, -0.02, 0.0, 0.0, 0.0]
+rotation = [0.0, 0.0, 0.0]
+translation = [0.0, 0.0, 0.0]
+world_orientation = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+world_position = [0.0, 0.0, 0.0]
+
+[e40ba1.controls_at_calibration]
+exposure_us = 4000
+gain = 32
+
+[d20676]
+name = "d20676"
+id = "d20676"
+camera_key = "d206761ad952f62f"
+camera_label = "d20676"
+index = 1
+size = [64, 48]
+matrix = [[60.0, 0.0, 32.0], [0.0, 60.0, 24.0], [0.0, 0.0, 1.0]]
+distortions = [0.01, -0.02, 0.0, 0.0, 0.0]
+rotation = [0.0, 0.0, 0.0]
+translation = [-500.0, 0.0, 0.0]
+world_orientation = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+world_position = [500.0, 0.0, 0.0]
+
+[d20676.controls_at_calibration]

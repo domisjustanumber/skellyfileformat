@@ -7,6 +7,7 @@ import pickle
 import zipfile
 from pathlib import Path
 
+import checks_capture as capture
 import checks_folder as checks
 import pytest
 
@@ -23,6 +24,12 @@ def test_sft_766_golden_part(golden_or_skip):
     assert any(config["user_name"] for config in info["camera_configs"].values()), "G3 has a user camera name"
     assert any(device["serial"] for device in devices) and any(device["os_device_id"] for device in devices)
     assert checks.privacy_faults(folder) == []
+
+
+def test_sft_766_writer_part(writer, tmp_path):
+    """SFT-766 Writer: the privacy list of the manifest that the package writer writes (a camera with a name, a serial and a port)."""
+    capture.record_take(writer, tmp_path / "take", audio=capture.microphone())
+    assert checks.privacy_faults(tmp_path / "take") == []
 
 
 @pytest.mark.parametrize("case", ["g3", "g7_no_manifest", "g1_audio_only"])

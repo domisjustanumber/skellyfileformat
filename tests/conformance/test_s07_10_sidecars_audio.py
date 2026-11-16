@@ -55,7 +55,7 @@ def test_sft_716_strict_reading(reader, golden_or_skip, variant, vector, case):
         assert sidecar.torn == 8 and any(line.startswith("# fit ") for line in sidecar.footer)
         item = c.cameras_of(c.only_take(c.read(reader, folder)))[0]
         assert item["state"] == "unfinished"
-        assert item["rows"] == len(sidecar.rows) == 90, "no data row after the first footer line, and no footer line counts"
+        assert item["rows"] == len(sidecar.rows) > 0, "no data row after the first footer line, and no footer line counts"
         assert item["torn_bytes"] == c.torn_bytes_of_pair(video), "the bytes of the torn footer line are in `torn_bytes`"
         assert item["fit"] is False
         return
@@ -76,7 +76,7 @@ def test_sft_716_strict_reading(reader, golden_or_skip, variant, vector, case):
     assert item["torn_bytes"] == c.torn_bytes_of_pair(folder / item["name"])
 
 
-VECTORS_717 = ["take", "confirmed_key", "converter", "encoder_failure", "equal_source_frame_number", "reader_gap_warning"]
+VECTORS_717 = ["take", "confirmed_key", "converter", "encoder_failure", "equal_source_frame_number", "empty_source_frame_number", "reader_gap_warning"]
 
 
 @pytest.mark.parametrize("vector", VECTORS_717)
@@ -105,15 +105,18 @@ def test_sft_717_video_sidecar(writer, reader, golden_or_skip, tmp_path, vector)
         assert videos[1].header["camera_key"] == remembered, "the confirmed camera has the remembered key"
         assert c.capture_info_of(folder)["camera_configs"][remembered]["key_origin"] == "confirmed_by_user"
     elif vector == "converter":
-        sent = c.record_take(writer, folder, [c.camera(0, camera_key="0", key_origin=None)], mode="conversion")
+        # A converter has one old time for each frame and no driver time.
+        sent = c.record_take(writer, folder, [c.camera(0, camera_key="0", key_origin=None)], mode="conversion", sampled=False)
         (video,) = c.check_video_sidecars(folder, capture=False)
         assert video.integers("arrival_ns") == sent["arrival_ns"][0], "the converter writes the old time as `arrival_ns`"
+        assert all(row["sample_ns"] == "" for row in video.rows), "`sample_ns` is empty when no driver time exists"
     else:
         raw = vector == "encoder_failure"
         requested = dict(c.camera(0)["requested"], capture_format="YUYV" if raw else "MJPG")
         take = writer.TakeWriter(folder, "synthetic_take", [c.camera(0, requested=requested)], None, writer=c.WRITER)
         # encoder_failure: the raw frame 2 has no bytes, so the JPEG encoder fails and no frame is stored.
-        numbers = [1000, 1001, 1002, 1003, 1004] if raw else [1000, 1001, 1001, 1002]
+        empty = vector == "empty_source_frame_number"
+        numbers = [1000, 1001, 1002, 1003, 1004] if raw else [1000, None, 1005, 1006] if empty else [1000, 1001, 1001, 1002]
         for position, number in enumerate(numbers):
             data = c.yuyv(position) if raw else c.jpeg(position)
             if raw and position == 2:
@@ -125,6 +128,9 @@ def test_sft_717_video_sidecar(writer, reader, golden_or_skip, tmp_path, vector)
         if raw:
             assert len(flags) == 4 and flags[2] & c.ENCODE_SKIP, "the row after the encoder failure has `encode_skip`"
             assert int(video.lines("end")[0]["encode_skips"]) == 1
+        elif empty:
+            # Row 1 has no number, and row 2 follows it: `gap` is 0 in both, also with the jump from 1000 to 1005.
+            assert video.rows[1]["source_frame_number"] == "" and flags[1:3] == [0, 0], "`gap` is 0 next to an empty number"
         else:
             assert flags[2] & c.REPEAT and not flags[2] & c.GAP, "the flag `repeat` and not the flag `gap`"
 

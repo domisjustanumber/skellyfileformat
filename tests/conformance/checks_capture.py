@@ -690,13 +690,14 @@ def microphone(channels: int = 1) -> dict:
 
 def record_take(
     writer, folder: Path, cameras: list[dict] | None = None, audio: dict | None = None, *, rec: str = "synthetic_take",
-    frames: int = 12, blocks: int = 25, gap_camera: int | None = 1, after=lambda: None, **options,
+    frames: int = 12, blocks: int = 25, gap_camera: int | None = 1, after=lambda: None, sampled: bool = True, **options,
 ) -> dict:  # fmt: skip
     """Record a small synthetic take with `TakeWriter` and close it. Return the input, for the checks.
 
     Each camera gets `frames` JPEG frames. Camera `gap_camera` loses one source frame before position 5.
     The audio gets `blocks` blocks of 4,800 samples, with a click at sample 4,207 and then each 24,000.
     `after` is called after the take starts and after each write call (SFT-730).
+    `sampled=False` gives no `sample_ns` (a converter has none).
     """
     cameras = [camera(0), camera(1)] if cameras is None else cameras
     take = writer.TakeWriter(folder, rec, cameras, audio, writer=WRITER, **options)
@@ -708,7 +709,7 @@ def record_take(
             data = jpeg(position, colour=(30 + 40 * index, 40, 80))
             number = 1000 + position + (1 if index == gap_camera and position >= 5 else 0)
             arrival = 33_333_333 * (position + 1) + 1000 * index
-            take.write_frame(index, data, start + arrival, source_frame_number=number, sample_ns=start + arrival - 4_000_000)
+            take.write_frame(index, data, start + arrival, source_frame_number=number, sample_ns=start + arrival - 4_000_000 if sampled else None)
             after()
             sent["jpegs"][index].append(data)
             sent["arrival_ns"][index].append(arrival)
@@ -1055,7 +1056,9 @@ def check_sidecar_common(path: Path) -> Sidecar:
     assert all(re.fullmatch(r"[a-z0-9_]+", key) for key in sidecar.header)
     assert sidecar.columns == columns, "the column line follows the header (SFF-743)"
     assert not sidecar.bad_crc and len(sidecar.rows) == len(sidecar.row_lines), "each row has its fields and a correct CRC"
-    assert b'"' not in sidecar.data and b"'" not in sidecar.data, "no field is quoted (SFF-741)"
+    # The value of `fitter_params` is a JSON object (SFF-776): it holds quotes. Every other byte holds none.
+    unquoted = [line.split("fitter_params=")[0] for line in lines]
+    assert not any('"' in line or "'" in line for line in unquoted), "no field is quoted (SFF-741)"
     assert all(" " not in line for line in sidecar.row_lines), "a field holds no space"
     assert sidecar.footer and sidecar.footer[-1].startswith("# end "), "the `# end` line is last (SFF-745)"
     assert len(keys) + 1 + len(sidecar.rows) + len(sidecar.footer) == len(lines) - 1, "no row follows a footer line"
@@ -1139,6 +1142,11 @@ def check_audio_pair(m4a_path: Path) -> Mp4:
     silent = [size for size, flag in zip(sizes, flags) if flag & SILENCE]
     assert [int(end[key]) for key in ("rows", "samples", "gaps", "silence_samples")] == [len(firsts), sum(sizes), len(silent), sum(silent)]
     assert all(flag & ~(OVERFLOW | SILENCE) == 0 for flag in flags)
+    # The bitrate is in the range of the settings (SFF-762: 128 or 256 kbit/s, VBR). The band is a test tolerance:
+    # the click signal of the tests gives about 0.72 of the target on the golden files.
+    target = 128 * mp4.channels
+    kbits = len(m4a_path.read_bytes()) * 8 / (sum(sizes) / 48000) / 1000
+    assert 0.5 * target <= kbits <= 1.2 * target, f"the bitrate {kbits:.0f} kbit/s is near {target} kbit/s (SFF-762)"
     return mp4
 
 
@@ -1325,12 +1333,14 @@ def check_recording_manifest(folder: Path) -> dict:
 
 
 def check_whole_writes_hold_lock(events: list, paths: list[str]) -> None:
-    """Each replace of a whole file is between a `lock` event and an `unlock` event of `.processing.lock`."""
+    """Each read and each replace of a whole file is between a `lock` event and an `unlock` event of `.processing.lock`."""
     held, replaced = False, []
     for event, path in events:
         if path == LOCK and event in ("lock", "unlock"):
             assert held == (event == "unlock"), "the lock events are in pairs"
             held = event == "lock"
+        elif event == "read" and path in paths:
+            assert held, f"the writer holds {LOCK} while it reads {path} (SFF-789)"
         elif event == "replace":
             assert path in paths, f"only a whole file is replaced: {path}"
             assert held, f"the writer holds {LOCK} while it replaces {path} (SFF-789)"
@@ -1402,6 +1412,11 @@ def check_repaired_files(folder: Path, before: Path) -> None:
         assert new_media[:media_cut] == old_media[:media_cut], "each byte of the media file before the cut is unchanged"
         if new.kind == "audio":
             assert media_cut == parse_mp4(old_media).complete_end, "the audio file is cut after its last complete fragment"
+            # The new file has no torn box, and the old complete fragments are the first ones. The kinds are those of SFF-760.
+            kinds = boxes(new_media, 0, len(new_media))
+            assert kinds[-1][2] == len(new_media), "the repaired audio file has no incomplete box"
+            assert re.fullmatch(rb"ftypmoov(moofmdat)*(mfra)?", b"".join(kind for kind, _, _ in kinds)), "the repaired audio file keeps its box order"
+            assert len(parse_mp4(new_media).fragments) == len(parse_mp4(old_media).fragments), "no complete fragment is lost, and none is added"
 
 
 def strip_cut_bytes(data: bytes) -> bytes:

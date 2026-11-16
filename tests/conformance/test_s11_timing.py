@@ -124,13 +124,15 @@ def test_sft_728_player_time_and_frame_shown(reader, golden_or_skip, target):
             assert player == c.video_fitted_ns(sidecar), "the player time is the fitted time"
             assert "missing_fit" not in item["warnings"]
         else:
-            assert player == [record[2] for record in item["records"]], "the player time is the arrival time"
+            arrival = sidecar.integers("arrival_ns")[: len(player)]  # from the sidecar, not from the `records`
+            assert [record[2] for record in item["records"]] == arrival and player == arrival, "the player time is the arrival time"
             assert "missing_fit" in item["warnings"]
         assert all(a <= b for a, b in zip(player, player[1:])), "the player time never decreases"
         equal = [k for k in range(len(player) - 1) if player[k] == player[k + 1]]
-        if equal:
-            strict = reader.camera_details(folder, item["name"])["strict_ns"]
-            assert all(strict[k + 1] - strict[k] == 1 for k in equal), "the times for freemocap differ by 1 ns"
+        strict = [player[0]]  # SFF-782: s(0) = p(0), s(k) = max(p(k), s(k - 1) + 1)
+        for value in player[1:]:
+            strict.append(max(value, strict[-1] + 1))
+        assert reader.camera_details(folder, item["name"])["strict_ns"] == strict, "the times for freemocap strictly increase (SFF-782)"
         if name == "G12" and item is cameras[3]:
             assert equal, "camera 3 of G12 has two rows with equal fitted times, and `records` hold the two equal times"
         # At each test time t, the frame shown is the last frame with a player time at or before t.

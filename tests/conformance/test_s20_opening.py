@@ -55,7 +55,7 @@ def test_sft_761_device_pairs_and_orphan_files(reader, variant, case):
     assert result["folder_warnings"].count("orphan_file") == 1
 
 
-@pytest.mark.parametrize("case", ["g9", "two_takes", "camera_missing", "third_camera_pair", "one_label", "clock_disagrees"])
+@pytest.mark.parametrize("case", ["g9", "two_takes", "camera_missing", "third_camera_pair", "one_label", "clock_disagrees", "group_size_disagrees"])
 def test_sft_762_takes_and_counts(reader, variant, golden_or_skip, case):
     """SFT-762 Reader: takes and counts. Checks: SFF-866, SFF-869, SFF-870, SFF-871."""
     if case == "g9":  # each take is reported
@@ -83,6 +83,10 @@ def test_sft_762_takes_and_counts(reader, variant, golden_or_skip, case):
         _third_sidecar(folder, f"{rec}.{OTHER_LABEL}", with_media=True)
     elif case == "one_label":
         checks.set_header(_pair(folder, 1)[1], "camera_label", checks.manifest(folder)["cameras"][0]["camera_label"])
+    elif case == "group_size_disagrees":
+        # Camera 1 says 3 and camera 0 says 2. The two files are the full take only with the value of group_position 0.
+        assert checks.header(_pair(folder, 0)[1])["group_size"] == "2"
+        checks.set_header(_pair(folder, 1)[1], "group_size", "3")
     else:
         assert checks.header(_pair(folder, 0)[1])["clock"] != "linux_monotonic"
         checks.set_header(_pair(folder, 1)[1], "clock", "linux_monotonic")
@@ -90,8 +94,10 @@ def test_sft_762_takes_and_counts(reader, variant, golden_or_skip, case):
     if case == "camera_missing":
         assert take["state"] == "incomplete" and "incomplete_take" in take["warnings"]
     else:
-        code = {"third_camera_pair": "extra_files", "one_label": "duplicate_label", "clock_disagrees": "take_fact_mismatch"}[case]
+        code = {"third_camera_pair": "extra_files", "one_label": "duplicate_label", "clock_disagrees": "take_fact_mismatch", "group_size_disagrees": "take_fact_mismatch"}[case]
         assert code in take["warnings"]
+    if case == "group_size_disagrees":
+        assert take["state"] == "complete" and "incomplete_take" not in take["warnings"], "the values of `group_position` 0 are used"
     if case == "one_label":
         assert len([item for item in take["files"] if item["kind"] == "camera"]) == 2, "the reader keeps both files"
 

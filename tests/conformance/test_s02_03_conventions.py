@@ -57,7 +57,7 @@ def test_sft_701_integer_and_value_forms(reader, golden_or_skip, case, reason):
     assert [item["reason"] for item in invalid] == [reason]
 
 
-@pytest.mark.parametrize("vector", ["take_start_near_2_62", "row_time_2_53_python", "row_time_2_53_js"])
+@pytest.mark.parametrize("vector", ["take_start_near_2_62", "take_starts_differ_by_1_near_2_62", "row_time_2_53_python", "row_time_2_53_js"])
 def test_sft_702_64_bit_integers_in_javascript(reader, js_reader, variant, vector):
     """SFT-702 Reader: 64-bit integers in JavaScript. Checks: SFF-706."""
     folder = variant("G01")
@@ -66,6 +66,14 @@ def test_sft_702_64_bit_integers_in_javascript(reader, js_reader, variant, vecto
             c.set_header(path, "take_start_host_ns", 2**62 - 1_000_003)
         python = c.read_bytes(reader, folder, records=True, scope="player")
         assert js_reader(folder, records=True) == python, "the JS reader gives the same times as the Python reader"
+        return
+    if vector == "take_starts_differ_by_1_near_2_62":
+        # 2^62 - 1 and 2^62 - 2 are the same float64, so a reader that parses the header with a float sees no disagreement.
+        for index, path in enumerate(c.media_files(folder, ".csv")):
+            c.set_header(path, "take_start_host_ns", 2**62 - 1 - (index > 0))
+        python = c.read_bytes(reader, folder, records=True, scope="player")
+        assert "take_fact_mismatch" in c.only_take(json.loads(python))["warnings"], "the two take starts differ by 1 ns (SFF-706, SFF-871)"
+        assert js_reader(folder, records=True) == python, "the JS reader gives the same result as the Python reader"
         return
     changed = c.load_json(folder / c.MANIFEST)["cameras"][0]
     c.set_row(folder / changed["timing"], 10, "arrival_ns", 2**53)
@@ -163,6 +171,17 @@ def test_sft_703_check_on_golden(golden_or_skip, target):
             for item in take["files"]:
                 if item["rows"] is not None:  # not `invalid` and not `unsupported_version`
                     assert ("prerelease" in item["warnings"]) == (not path.endswith("/prerelease_0.full.json")), path
+
+
+def test_sft_703_descriptor_and_journal_header_on_golden(golden_or_skip):
+    """SFT-703, the Parquet descriptor of G3 and the journal header of G13 have the three fields (SFF-707, SFF-710)."""
+    import checks_folder as f
+
+    descriptor = f.descriptor(f.one(golden_or_skip("G03"), "*_data.parquet"))
+    golden_or_skip("G13")
+    header = f.journal_header(f.scan_journal(f.one(golden_or_skip("G13"), "*_realtime_journal.bin").read_bytes()))
+    for name, value in (("the Parquet descriptor", descriptor), ("the journal header", header)):
+        assert value.get("format_version") == "2.0" and value.get("format_prerelease") == 1 and value.get("writer"), name
 
 
 @pytest.mark.external("freemocap, Blender addon")

@@ -1,0 +1,192 @@
+{
+  "skellyfileformat": "processing_info",
+  "format_version": "2.1",
+  "format_prerelease": 1,
+  "writer": "skellyfileformat-goldgen 1.0.0",
+  "take_uuid": "00000000000040008000000000000001",
+  "processed": {
+    "schema_version": 1,
+    "parquet_sha256": "6ba99b69425f797e55fc02a4f524a85152c3c2a9a4da2b0415789efb32967cf8",
+    "recording_id": "g01_synthetic_take",
+    "parquet": "g01_synthetic_take_data.parquet",
+    "selected_run_id": 0,
+    "runs": {
+      "0": {
+        "sensor_groups": {
+          "camera_group:d8888d": {
+            "clock_description": "recording-relative seconds; timing method declared per source",
+            "sample_count": 90
+          }
+        },
+        "cameras": [
+          "e40ba1",
+          "d20676"
+        ],
+        "reference_frames": {
+          "camera:e40ba1:image": {
+            "camera_key": "e40ba19b877f64fb",
+            "calibration_camera": "e40ba1",
+            "width": 64,
+            "height": 48
+          },
+          "camera:d20676:image": {
+            "camera_key": "d206761ad952f62f",
+            "calibration_camera": "d20676",
+            "width": 64,
+            "height": 48
+          },
+          "calibrated_world": {
+            "name": "calibrated_world",
+            "basis": "blender_x_right_y_forward_z_up",
+            "units": "mm",
+            "alignment": null,
+            "additional_transform": null
+          }
+        },
+        "data": [
+          {
+            "channel": "OVERLAY_2D",
+            "source": "keypoint_model:synthetic_stick",
+            "sensor_group": "camera_group:d8888d",
+            "reference_frame": "camera:e40ba1:image",
+            "names": [
+              "body.kp_a",
+              "body.kp_b",
+              "body.kp_c",
+              "body.kp_d",
+              "body.kp_e"
+            ],
+            "components": {
+              "x": "px",
+              "y": "px",
+              "visibility": "1"
+            }
+          },
+          {
+            "channel": "OVERLAY_2D",
+            "source": "keypoint_model:synthetic_stick",
+            "sensor_group": "camera_group:d8888d",
+            "reference_frame": "camera:d20676:image",
+            "names": [
+              "body.kp_a",
+              "body.kp_b",
+              "body.kp_c",
+              "body.kp_d",
+              "body.kp_e"
+            ],
+            "components": {
+              "x": "px",
+              "y": "px",
+              "visibility": "1"
+            }
+          },
+          {
+            "channel": "OVERLAY_2D",
+            "source": "keypoint_model:synthetic_pair",
+            "sensor_group": "camera_group:d8888d",
+            "reference_frame": "camera:e40ba1:image",
+            "names": [
+              "body.p",
+              "body.q"
+            ],
+            "components": {
+              "x": "px",
+              "y": "px",
+              "visibility": "1"
+            }
+          },
+          {
+            "channel": "OVERLAY_2D",
+            "source": "keypoint_model:synthetic_pair",
+            "sensor_group": "camera_group:d8888d",
+            "reference_frame": "camera:d20676:image",
+            "names": [
+              "body.p",
+              "body.q"
+            ],
+            "components": {
+              "x": "px",
+              "y": "px",
+              "visibility": "1"
+            }
+          },
+          {
+            "channel": "RAW_KEYPOINTS_3D",
+            "source": "keypoint_model:synthetic_stick",
+            "sensor_group": "camera_group:d8888d",
+            "reference_frame": "calibrated_world",
+            "names": [
+              "kp_a",
+              "kp_b",
+              "kp_c",
+              "kp_d",
+              "kp_e"
+            ],
+            "components": {
+              "x": "mm",
+              "y": "mm",
+              "z": "mm"
+            }
+          },
+          {
+            "channel": "RAW_KEYPOINTS_3D",
+            "source": "keypoint_model:synthetic_pair",
+            "sensor_group": "camera_group:d8888d",
+            "reference_frame": "calibrated_world",
+            "names": [
+              "p",
+              "q"
+            ],
+            "components": {
+              "x": "mm",
+              "y": "mm",
+              "z": "mm"
+            }
+          },
+          {
+            "channel": "KEYPOINTS_3D",
+            "source": "keypoint_model:synthetic_stick",
+            "sensor_group": "camera_group:d8888d",
+            "reference_frame": "calibrated_world",
+            "names": [
+              "kp_a",
+              "kp_b",
+              "kp_c",
+              "kp_d",
+              "kp_e"
+            ],
+            "components": {
+              "x": "mm",
+              "y": "mm",
+              "z": "mm"
+            }
+          },
+          {
+            "channel": "KEYPOINTS_3D",
+            "source": "keypoint_model:synthetic_pair",
+            "sensor_group": "camera_group:d8888d",
+            "reference_frame": "calibrated_world",
+            "names": [
+              "p",
+              "q"
+            ],
+            "components": {
+              "x": "mm",
+              "y": "mm",
+              "z": "mm"
+            }
+          }
+        ]
+      }
+    },
+    "conventions": {
+      "quaternion_order": "wxyz",
+      "segment_pose": "saved origin and world orientation",
+      "units": "per component",
+      "coordinates": "per reference frame",
+      "array_order": "frames, names, components"
+    },
+    "export_inventories": []
+  },
+  "x_future": 1
+}

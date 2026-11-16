@@ -1,0 +1,1 @@
+{"journal":{"check_count":114,"check_digest":"edc3fcdcbade138004f28285df0b7a8ae860d2f9a2d61ef6a103b363a538b625","good_offsets":[0,773,871,892,951,1010,1069,1128,1187,1246,1305,1364,1423,1482,1600,1659,1718,1777,1836,5991,6050,6109],"hole":[1895,4096],"name":"g13_synthetic_take_realtime_journal.bin","rejected_offsets":[1541],"torn_tail":6168}}

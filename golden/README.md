@@ -6,8 +6,13 @@ The committed bytes are the reference
 ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 10).
 A change to a golden file needs a decision entry ([AGENTS.md section 4](../AGENTS.md#4-project-rules)).
 
-Only G1 exists. It is the worked example for the other folders. The user reviewed it on 2026-11-16
-and accepted its conventions for the other folders ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md), ADR-G21H item 5).
+G1 to G16 exist. G17 does not exist: it waits for the skellysync decisions. G1 is the worked
+example for the other folders. The user reviewed G1 on 2026-11-16 and accepted its conventions for
+the other folders ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md), ADR-G21H item 5).
+The user has not reviewed the other folders. Each file `G<NN>…_CHOICES.md` and
+`CAPTURE_VECTORS_CHOICES.md` lists the choices of its folders that the spec does not give. Each of
+these lists is a proposal, but `G01_CHOICES.md` is accepted. No reader exists, so each expected
+result comes from the spec text only.
 
 ## Layout
 
@@ -35,7 +40,7 @@ golden/
 ## How to make and check the files
 
 The reference platform is Windows x86-64 with Python 3.13.13 and the dependency group `golden` of
-`pyproject.toml`: av 19.0.2 (FFmpeg 9.0.2, libopus 1.6.1) and pillow 13.0.0. On another platform,
+`pyproject.toml`: av 19.0.2 (FFmpeg 9.0.2, libopus 1.6.1), pillow 13.0.0, numpy 2.4.6 and pyarrow 26.0.0. On another platform,
 the encoders can give other bytes.
 
 | Task | Command |
@@ -47,8 +52,9 @@ the encoders can give other bytes.
 `uv run pytest` also tests the sums and the text files. It skips the tests that decode the media
 files, because the default environment has no PyAV.
 
-The scripts are `tools/make_golden.py` (the command), `tools/goldgen/common.py` (the shared code)
-and `tools/goldgen/g01.py` (the input of G1).
+The scripts are `tools/make_golden.py` (the command), `tools/goldgen/common.py`,
+`folder_common.py` and `capture_cases.py` (the shared code) and one module `tools/goldgen/g<NN>.py`
+for each folder.
 
 ## G1: what the take holds
 

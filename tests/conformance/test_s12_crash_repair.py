@@ -20,13 +20,14 @@ G5_CASES = ["audio_clean_kill", "audio_torn_fragment"]
 REPAIR_WRITER = "skellycam 2.0.1"
 
 # The child process of SFT-730. It records the take of `record_take` and writes one line after the
-# take starts and after each write call. The test kills it after a given number of lines.
+# take starts and after each write call, then waits for one byte on standard input. The test sends the
+# byte for each step but the last one that it wants, and then kills the child: the kill point is exact.
 CHILD = """
 import sys
 sys.path.insert(0, sys.argv[2])
 import skellyfileformat
 import checks_capture as c
-c.record_take(skellyfileformat, c.Path(sys.argv[1]), audio=c.microphone(), after=lambda: print("step", flush=True))
+c.record_take(skellyfileformat, c.Path(sys.argv[1]), audio=c.microphone(), after=lambda: (print("step", flush=True), sys.stdin.buffer.read(1)))
 """
 KILL_POINTS = 50  # the take has 1 + 2 * 12 + 25 = 50 steps before `close`
 
@@ -53,18 +54,26 @@ def test_sft_730_whole_files_and_live_files(writer, tmp_path):
     # A kill at 50 points of a take.
     for point in range(1, KILL_POINTS + 1):
         killed = tmp_path / f"killed_{point}"
-        process = subprocess.Popen([sys.executable, "-c", CHILD, str(killed), str(HERE)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # noqa: S603
+        process = subprocess.Popen(  # noqa: S603
+            [sys.executable, "-c", CHILD, str(killed), str(HERE)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
         try:
-            lines = [process.stdout.readline() for _ in range(point)]
-            assert all(lines), f"the writer ran to kill point {point}: {process.stderr.read().decode()[-500:] if not all(lines) else ''}"
+            for step in range(point):
+                line = process.stdout.readline()
+                assert line, f"the writer ran to kill point {point}: {process.stderr.read().decode()[-500:]}"
+                if step < point - 1:
+                    process.stdin.write(b"x")
+                    process.stdin.flush()
         finally:
             process.kill()
             process.wait()
+            for pipe in (process.stdin, process.stdout, process.stderr):
+                pipe.close()
         c.check_killed_folder(killed)
-    # After a kill, the lock file that no process holds does not stop the next writer.
-    assert (killed / c.LOCK).is_file()
-    writer.repair_take(killed, writer=REPAIR_WRITER)
-    assert c.load_json(killed / c.MANIFEST)["state"] == "finished"
+        # After a kill, the lock file that no process holds does not stop the next writer.
+        assert (killed / c.LOCK).is_file()
+        writer.repair_take(killed, writer=REPAIR_WRITER)
+        assert c.load_json(killed / c.MANIFEST)["state"] == "finished", f"kill point {point}"
 
 
 @pytest.mark.provisional("the measurement of the cost of fsync (SFF-788)")
@@ -162,9 +171,12 @@ def test_sft_733_repair(writer, reader, golden_or_skip, variant, vector):
         same = [key for key in c.MANIFEST_MEMBERS if key not in ("state", "writer", "summary", "warnings")]
         assert {key: new[key] for key in same} == {key: old[key] for key in same}, "no other member changes"
         # The repair writes the manifest after the media files and the sidecars, while it holds the lock.
-        c.check_whole_writes_hold_lock(events, [c.MANIFEST])
+        # A media file or a sidecar may be changed by a rename: the Pass text does not forbid it.
+        whole = [event for event in events if not (event[0] == "replace" and event[1].startswith(c.MEDIA + "/"))]
+        c.check_whole_writes_hold_lock(whole, [c.MANIFEST])
         replaced = max(i for i, event in enumerate(events) if event == ("replace", c.MANIFEST))
-        assert all(i < replaced for i, (_, path) in enumerate(events) if path.startswith(c.MEDIA + "/"))
+        written = [i for i, (_, path) in enumerate(events) if path.startswith(c.MEDIA + "/")]
+        assert written and all(i < replaced for i in written), "the repair calls the trace for its media files and sidecars, before the manifest"
     elif vector == "no_manifest":
         folder = variant("G05", "audio_torn_fragment")
         (folder / c.MANIFEST).unlink()
@@ -176,6 +188,7 @@ def test_sft_733_repair(writer, reader, golden_or_skip, variant, vector):
         take = c.only_take(c.read(reader, folder))
         for item in take["files"]:
             assert item["state"] == "unfinished" and item["fit"] is False and "missing_fit" in item["warnings"]
+        assert c.load_json(folder / c.MANIFEST)["state"] == "recording", "`state` of the manifest is `recording`"
     else:
         first, second = variant("G05", "audio_torn_fragment"), variant("G06", "interrupted_repair")
         _repair(writer, first)
