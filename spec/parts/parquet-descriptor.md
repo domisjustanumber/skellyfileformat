@@ -11,7 +11,10 @@ Status: **draft v2, for review at gate 1**. This part is normative. Section 16 o
 [ADR-72QQ](../../decisions/entries/72QQ-spec-v2-details-part-8.md) and
 [ADR-ATW0](../../decisions/entries/ATW0-spec-v2-details-part-6.md). The nested types of
 `RecordedModel`, and what a reader checks in them, are from
-[ADR-W5JC](../../decisions/entries/W5JC-nested-model-types-in-the-descriptor-part.md).
+[ADR-W5JC](../../decisions/entries/W5JC-nested-model-types-in-the-descriptor-part.md). The source
+names, the Parquet values and the JSON types of the structure check are from
+[ADR-6VRQ](../../decisions/entries/6VRQ-spec-v2-details-part-13.md). The scope of the writer rules
+is from [ADR-N6KY](../../decisions/entries/N6KY-spec-v2-details-part-14.md) item 40.
 
 ## Conventions
 
@@ -99,7 +102,7 @@ place of the camera ID).
 | `timing:<sensor_group>` | `timing` | `{"method": <timing method>}` (closed) |
 | `keypoint_model:<model name>` | `tracker` | The tracker configuration, as an object |
 | `object_detector:<detector name>` | `tracker` | The detector configuration, as an object |
-| `charuco_detector:<board name>` | `tracker` | **v2.** The board definition of SPEC.md section 15 |
+| `charuco_detector:<squares_x>x<squares_y>` | `tracker` | **v2.** The board definition of SPEC.md section 15. The name holds `squares_x` and `squares_y` of the board, for example `charuco_detector:5x3`. The board has no name member (SPEC.md SFF-836) |
 | `model:<model_id>` | `instance` | `ReconstructionSourceDefinition` |
 
 A reader splits a source name at its first `:`.
@@ -112,8 +115,8 @@ The timing methods are `recorded`, `inferred_from_fps` and `mean_camera_times`.
 |---|---|---|
 | `camera_key` | text | **v2.** The `camera_key` of the camera (SPEC.md section 8) |
 | `camera_label` | text | **v2.** The `camera_label` |
-| `video_filename` | text | The name of the camera file |
-| `timing_filename` | text | **v2.** The name of its timing sidecar |
+| `video_filename` | text | The file name of the camera file, with no folder. The file is in the media folder |
+| `timing_filename` | text | **v2.** The file name of its timing sidecar, with no folder. The file is in the media folder |
 | `timing_method` | timing method | `recorded` for a take of this format |
 | `inferred_offset_s` | float | 0.0 |
 
@@ -131,7 +134,7 @@ timing sidecar is its home).
 | `landmark_names` | array of text | |
 | `segment_origins` | map of segment to landmark | Each landmark is in `landmark_names` |
 | `segment_parents` | map of segment to segment or null | Same keys as `segment_origins`; each parent is a segment |
-| `joint_angle_names` | map of joint to an array of text | |
+| `joint_angle_names` | map of joint to an array of text | No two joints of a model have an equal angle name |
 
 ## `Channel` (closed)
 
@@ -166,8 +169,8 @@ Units: `rad`, `px`, `1` (no unit), `s`, `mm`.
 |---|---|---|---|---|---|
 | `TIMESTAMPS` (capture) | `camera:<label>` | null | `capture` | `timestamp_s` → `s` | `timing` |
 | `TIMESTAMPS` (group) | `timing:<group>` | null | `synchronized` | `timestamp_s` → `s` | `timing` |
-| `OVERLAY_2D` | `keypoint_model:…` | `camera:<label>:image` | `<stage>.<point>` | `x`, `y` → `px`; `visibility` → `1` | `observations` |
-| `OVERLAY_2D` (ChArUco, **v2**) | `charuco_detector:<board>` | `camera:<label>:image` | `corner_<id>` | `x`, `y` → `px`; `visibility` → `1` | `observations` |
+| `OVERLAY_2D` | `keypoint_model:…` | `camera:<label>:image` | `<tracker stage>.<point>` | `x`, `y` → `px`; `visibility` → `1` | `observations` |
+| `OVERLAY_2D` (ChArUco, **v2**) | `charuco_detector:<squares_x>x<squares_y>` | `camera:<label>:image` | `corner_<id>`: `<id>` is the OpenCV corner ID, in decimal | `x`, `y` → `px`; `visibility` → `1` | `observations` |
 | `BOXES_2D` | `object_detector:…` | `camera:<label>:image` | detection stage names | `x1`, `y1`, `x2`, `y2` → `px`; `confidence`, `detector_ran` → `1` | `observations` |
 | `REPROJECTION_ERROR` | `camera:<label>` | `camera:<label>:image` | diagnostic point names | `error` → `px` | `triangulation` |
 | `RECONSTRUCTION_COVERAGE` | `camera:<label>` | `camera:<label>:image` | same | `observed`, `reconstructed` → `1` | `triangulation` |
@@ -180,7 +183,7 @@ Units: `rad`, `px`, `1` (no unit), `s`, `mm`.
 | `SEGMENT_ORIGINS` | `model:<id>` | spatial reference | segment names | `x`, `y`, `z` | `reconstruction` |
 | `ROTATIONS_WORLD` | `model:<id>` | spatial reference | segment names | `w`, `x`, `y`, `z` → `1` | `reconstruction` |
 | `ROTATIONS_LOCAL` | `model:<id>` | `<model_id>:segment_parents` | segment names | `w`, `x`, `y`, `z` → `1` | `reconstruction` |
-| `JOINT_ANGLES` | `model:<id>` | `<model_id>:segment_parents` | the angle names of each joint | `radians` → `rad` | `reconstruction` |
+| `JOINT_ANGLES` | `model:<id>` | `<model_id>:segment_parents` | the names of `joint_angle_names` of the source definition: each joint in member order, each name in array order | `radians` → `rad` | `reconstruction` |
 | `DERIVED_POINTS` | `model:<id>` | spatial reference | `center_of_mass` | `x`, `y`, `z` | `biomechanics` |
 | `MODEL_SCALE`, `SEGMENT_SCALES`, `SEGMENT_LENGTHS` | `model:<id>` | fit reference | | | `scale_fit`; static only, derived from the fit on read |
 
@@ -230,7 +233,7 @@ components are those of the channel. Static channels have no rows.
 | `base_run_id` | integer or null | 0 or more; given with `base_descriptor_signature` |
 | `base_descriptor_signature` | text or null | |
 | `origin` | `realtime` or `posthoc` | **v2** |
-| `coverage` | object or null | **v2.** SPEC.md SFF-834, with the member `events` |
+| `coverage` | object or null | **v2.** SPEC.md SFF-834 gives each member and its value, also the member `events` |
 
 ## `RecordedModel` (closed)
 
@@ -240,7 +243,7 @@ components are those of the channel. Static channels have no rows.
 | `detector_type` | text | 1 or more characters |
 | `tracker_keypoint_names` | array of text | 1 or more; different |
 | `tracker_connections` | array of pairs of text | **v2** (from `sfn26`). Each name is in `tracker_keypoint_names`. Omitted when empty |
-| `segment_topology` | array of `{name, parent, proximal, distal}` | **v2.** SPEC.md SFF-832 |
+| `segment_topology` | array of `{name, parent, proximal, distal}` | **v2.** SPEC.md SFF-832. One item for each item of `skeleton.segments`, in that order. `name` is the segment name. `parent` is `rest_pose.parents[name]`. `proximal` is `frame.origin` and `distal` is `frame.primary_point`: landmark names |
 | `skeleton` | `SkeletonSnapshot` | |
 | `rest_pose` | `RestPoseSnapshot` | |
 | `mappings` | array of `TrackerMappingSnapshot` | 1 or more |
@@ -260,11 +263,14 @@ The rules of `RecordedModel` and of its nested types are of two kinds
 
 - **Structure.** Each member is present, except a member that its row lets the writer omit. Each
   member has the JSON type of the column "Type", with the number of items that the column gives. A
-  closed type has no other member. The reader of this package checks the structure (SPEC.md
+  closed type has no other member. An "integer" is a JSON number with no fraction in its value: `1`
+  and `1.0` pass. A "float" is each JSON number: `0` passes for `position`. A text is a JSON
+  string. The reader of this package checks the structure (SPEC.md
   SFF-893). A structure fault makes the Parquet file `invalid` with the reason `bad_schema`.
-- **Writer rules.** Each other rule is a writer rule: the column "Rule", each list with the title
-  "Writer rules" and each sentence that starts with "Writer rule". These are the cross-reference
-  rules, the value ranges and the enum values. A writer must obey each writer rule. The reader of
+- **Writer rules.** Each rule that is not a structure rule is a writer rule, at each place of this
+  part. The column "Rule", the lists "Writer rules" and the sentences "Writer rule" are examples. A
+  rule in the text of a type, for example "`weight` (float; more than 0)", is also a writer rule.
+  The writer rules are the cross-reference rules, the value ranges and the enum values. A writer must obey each writer rule. The reader of
   this package does not check the writer rules in version 2.0.
 
 A later minor version can add an optional deep check. The deep check reports a fault of a writer rule
@@ -305,6 +311,8 @@ Writer rules:
 - no two landmarks have the same name or alias;
 - each point name of each `frame` and `observation_frame` is a landmark;
 - each name in `landmark_groups` and `landmark_connections` is a landmark;
+- no two joints have an equal name in the `angle_names` of their `convention`. So the names of
+  `JOINT_ANGLES` are different;
 - when `joints` is not empty, each segment is the `child` of at most one joint, exactly one segment
   is the `child` of no joint, and the joints make no cycle;
 - when `derived_quantities` contains `inertia`, no segment has a null `anatomical_segment`.
@@ -584,9 +592,9 @@ segment `tip` has an `observation_frame`. The other segments omit it.
   ],
   "joints": [
    {"name": "base_tip", "parent": "base", "child": "tip", "connect_at": "b", "joint_type": "ball",
-    "convention": {"sequence": "zyx", "angle_names": ["z_angle", "y_angle", "x_angle"], "zero_offsets": [0.0, 0.0, 0.0]}},
+    "convention": {"sequence": "zyx", "angle_names": ["base_tip_z", "base_tip_y", "base_tip_x"], "zero_offsets": [0.0, 0.0, 0.0]}},
    {"name": "tip_end", "parent": "tip", "child": "end", "connect_at": "d", "joint_type": "hinge",
-    "convention": {"sequence": "zyx", "angle_names": ["z_angle", "y_angle", "x_angle"], "zero_offsets": [0.0, 0.0, 0.0]}}
+    "convention": {"sequence": "zyx", "angle_names": ["tip_end_z", "tip_end_y", "tip_end_x"], "zero_offsets": [0.0, 0.0, 0.0]}}
   ],
   "chains": [{"name": "stick_chain", "segments": ["base", "tip", "end"], "joints": ["base_tip", "tip_end"]}],
   "landmark_groups": [{"name": "all_points", "landmark_names": ["a", "b", "c", "d", "e"], "tags": ["stick"]}],
@@ -673,4 +681,6 @@ X right, Y forward, Z up, millimetres) and `recording_id` (text or null).
    and `visibility` 0. A frame that a realtime run skipped has all three null.
 8. `BOXES_2D`: one box for each stage and frame. A stage with no box on a frame has all six
    components null. `detector_ran` is 1 when a detector of that stage ran on the frame, else 0.
-9. The names of `OVERLAY_2D` are `<stage>.<point>`. A reader splits them at the first `.`.
+9. The names of `OVERLAY_2D` of a `keypoint_model` source are `<tracker stage>.<point>`. A reader
+   splits them at the first `.`. `<tracker stage>` is the name of a stage of the tracker: a text
+   with 1 or more characters and no `.`. It is not a processing stage.

@@ -62,7 +62,7 @@ legacy folders stays in skellycam and freemocap.
   fields in each of these files. A camera file and an audio file are standard media files with no
   added field: the timing sidecar holds the fields for its media file
   ([ADR-E45D](decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)).
-  - `format_prerelease` is 0 for a released format, and N for the Nth prerelease revision.
+  - `format_prerelease` is 0 for a released format. For a draft, the spec gives its value (SFF-710).
   - A reader must refuse a file with a `major` that it does not know.
   - A reader must read a file with a higher `minor` of a `major` that it knows, and skip the fields
     that it does not know.

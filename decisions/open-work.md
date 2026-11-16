@@ -15,7 +15,30 @@ task. Delete an item when its work is done. The PR that closes an item records t
   command of the failing run in `AGENTS.md`. The golden folders also get the vectors that
   [ADR-W6HV](entries/W6HV-spec-v2-details-part-3.md) to
   [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) add to Appendix A (G8, G9, G11, G12, G13, G15
-  and G16).
+  and G16). [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 22 gives the layout and the
+  cases, with two expected results for each case (the scopes `full` and `player`).
+  [ADR-QH61](entries/QH61-spec-v2-details-part-15.md) item 46 gives the tests that this repository
+  runs.
+- **Points that the user did not decide on 2026-11-16** (the review of parts 9 to 15).
+  - The value of `format_prerelease` after the user sends the draft to external review. It is 1
+    until then (SFF-710, [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 20).
+  - The identity string of a camera with no serial number and no port path (SFF-752) waits for a
+    decision of the user.
+- **Complete section 18.3** ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 23). G3
+  holds no export, and SFT-743 has no golden part, until these points are decided: one inventory
+  for the tall and the wide exports; the snapshot members `revision` and `selection`;
+  `float_precision` for float32; the bytes of the NPZ; the texts of the notebook and of the
+  READMEs; `<file>` of `calibration_copies/`; and `exported_at` in a golden file. The entry lists
+  the facts in which the freemocap code does not agree with section 18.3.
+- **Points that the details of parts 9 to 15 leave open.** The user must decide each of them.
+  - The `source` of the warning `camera_gap` that a repair adds to the manifest (SFF-727, SFF-793).
+  - A folder that holds only a TOML, a Parquet or a journal of this format: for the scope `player`
+    the file has no mark (SFF-892). Is `folder_state` then `unreadable`, as for `full`, or `legacy`
+    (SFF-875, SFF-888)?
+  - `README.md` says that `format_prerelease` is "N for the Nth prerelease revision". SFF-710 now
+    says 1 for each internal draft. The README needs the same rule.
+  - SFT-763 takes G5 and G6 as inputs for the row-count part of `frames`. Appendix A does not say
+    which folder files G5 and G6 hold.
 - **Open points of [ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md).**
   [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) item 19 closed the other points. The user
   must decide each of these. The spec holds the smallest text until then.
@@ -24,24 +47,12 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - Item 3 changes one rule of [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md) and
     [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md). The [Rules](README.md#rules) can need an
     entry that supersedes them.
-  - Item 6: what `fitted_ns` of `records` holds for an audio file whose fit the reader computed.
 - **Points that the accepted details of 2026-11-16 leave open.** The user must decide each of them.
-  - The value of the manifest `state` after a repair of an unfinished take (SPEC.md SFF-793).
-    [ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2 does not decide
-    it, and the spec does not give it.
-  - A journal is left over and the manifest already has `state` `finished`. Does freemocap also ask
-    the user before it folds that journal (SFF-793, SFF-845)?
-    [ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2 decides only that
-    no program folds a journal automatically at start-up.
   - The `role` of the `folder_files` item of `calibration.file`: the manifest roles have no role for
     the calibration TOML.
   - The place and the reason of a timing sidecar alone whose `take_uuid` the reader cannot read.
   - The place of a folder file that the manifest lists and that holds another `take_uuid`:
     `folder_files` with a `take_uuid` mismatch, or `other_files` (SFF-889).
-  - The JavaScript reader gives `not_checked` for `frames`
-    ([ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md) item 14). It can evaluate the part that
-    compares the row counts of the camera files
-    ([ADR-W6HV](entries/W6HV-spec-v2-details-part-3.md) item 2b).
 - **Absorb the accepted entries into the spec.** After gate 1, when `spec/SPEC.md` or `README.md`
   states all rules of an entry, move the entry to Historical as absorbed:
   [ADR-2C9V](entries/2C9V-whole-take-folder-scope-and-package.md),
@@ -63,8 +74,15 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-Q4BK](entries/Q4BK-spec-v2-details-part-4.md),
   [ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md),
   [ADR-ATW0](entries/ATW0-spec-v2-details-part-6.md),
-  [ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md) and
-  [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md).
+  [ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md),
+  [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md),
+  [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md),
+  [ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md),
+  [ADR-YYE3](entries/YYE3-spec-v2-details-part-11.md),
+  [ADR-0WTH](entries/0WTH-spec-v2-details-part-12.md),
+  [ADR-6VRQ](entries/6VRQ-spec-v2-details-part-13.md),
+  [ADR-N6KY](entries/N6KY-spec-v2-details-part-14.md) and
+  [ADR-QH61](entries/QH61-spec-v2-details-part-15.md).
 - **Provisional parts of spec draft v2.** Close each of them before v2.0.0:
   - SFF-756, bit 1 `filled`: its meaning waits for the slot assembly of the skellycam plan, row 2.2,
     and for desk tests DT4 and DT7. A writer of version 2.0 writes 0 to it
@@ -91,7 +109,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - `tracker_connections` has the mark **v2**. `object_geometry` and `tracker_stage_path` have only
     "From `sfn26`". The three members have the same origin.
   - `segment_topology` (SFF-832): no code has this member. freemocap at c27fc299 and at `sfn26`
-    refuses it.
+    refuses it. [ADR-6VRQ](entries/6VRQ-spec-v2-details-part-13.md) item 38a gives its values.
   - `joint_angle_names` of `ReconstructionSourceDefinition`: c27fc299 has exactly 3 names for each
     joint, and `sfn26` has any number. `EulerConvention.angle_names` has exactly 3 at the two commits.
   - `sequence` of `EulerConvention`: the code also accepts upper-case letters. The part says `x`,
@@ -133,7 +151,19 @@ task. Delete an item when its work is done. The PR that closes an item records t
   `calibration_uuid_after` in `CalibrationUpdateRequest`, writes `coverage.events`, starts the fold
   only after `state` is `finished`, folds no journal and repairs no file at start-up before the user
   agrees ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md)), rewrites the times of a realtime run after a repair, and writes
-  `version` 5 in the export inventory.
+  `version` 5 in the export inventory. From
+  [ADR-JB3A](entries/JB3A-repair-state-question-and-skellycam-lock.md): skellycam also takes
+  `.processing.lock` for each write of the capture info JSON, the repair sets the manifest `state`
+  to `finished`, and freemocap asks one time for the whole take, also before it folds a left-over
+  journal of a finished take. From the details of parts 9 to 15: each writer writes
+  `format_prerelease` 1; the repair writes the manifest again
+  ([ADR-YYE3](entries/YYE3-spec-v2-details-part-11.md) item 26a); freemocap writes the summary
+  values of [ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 24, `data_records` in the
+  journal end record, the `coverage` values, the integer group time, `segment_topology`, the source
+  `charuco_detector:<squares_x>x<squares_y>` and different joint angle names
+  ([ADR-6VRQ](entries/6VRQ-spec-v2-details-part-13.md),
+  [ADR-N6KY](entries/N6KY-spec-v2-details-part-14.md)). The readers get the `scope` argument and the
+  `--records` switch ([ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 21).
 - **Permalinks to the skellycam evidence.** The new entries cite skellycam `dom/research` files as
   plain paths. Many of them are not committed yet. Change them to full-SHA permalinks after that
   branch is committed and pushed.

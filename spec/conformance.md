@@ -18,8 +18,28 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 - The tests of draft v2 start at SFT-700 and are numbered in file order (SPEC.md section 2).
 - **Writer** tests run a writer and check its output. **Reader** tests run a reader on the inputs. A
   test marked `(provisional)` waits for the same open item as the requirement that it checks.
-- "Python and JS" means that the Python reader and the JavaScript reader both run the test and give
-  the same reader result (SPEC.md section 23), byte for byte, for the parts that the JS reader reads.
+- "Python and JS" means that the test runs for the scope `player` (SPEC.md SFF-892) with two
+  readers: the Python reader with the scope `player`, and the JavaScript reader. Each gives the
+  committed `player` result of the case (`<case>.player.json`, SPEC.md Appendix A), byte for byte.
+  The Python reader with the scope `full` also runs the test. It gives the committed `full` result
+  (`<case>.full.json`), byte for byte
+  ([ADR-0JVZ](../decisions/entries/0JVZ-spec-v2-details-part-9.md) item 21).
+- In this repository, "skellycam" in an Input line is the package writer `TakeWriter` with
+  synthetic input. "The converter" is `TakeWriter` in a conversion. The repair is `repair_take`
+  ([ADR-QH61](../decisions/entries/QH61-spec-v2-details-part-15.md) item 46).
+- A test, or a Pass sentence, is **external** when it needs a run of freemocap, a run of the
+  Blender addon, capture hardware or an answer of a user. Its mark is `(external: <program>)`.
+  `<program>` names what the test needs: `freemocap`, `Blender addon`, `Blender`, `skellycam` (the
+  capture program with a camera), `capture hardware` or `user`. Two names have a comma between
+  them. The mark after a test ID applies to the whole test. The mark at the end of a Pass sentence
+  applies only to that sentence. The repository of that program runs an external test or sentence.
+  This repository does not.
+- An external test can have a line that starts with `Golden part:`. The line gives what this
+  repository runs of the test: each Pass sentence that a file of the named golden folder, or the
+  package writer, can show. An external test with no such line has no golden part.
+- A test whose only inputs are golden files is not external. Examples are SFT-746, SFT-748, SFT-750
+  and SFT-753. The test makes the Parquet of the G12 vector of SFT-748 with the functions of the
+  golden generator.
 
 ## Withdrawn tests
 
@@ -327,7 +347,8 @@ Checks: SFF-700, SFF-701, SFF-702, SFF-703, SFF-704, SFF-705
 Input: the output of each writer on G1 and G3.
 Pass: each CSV, JSON and TOML file is UTF-8 with no BOM and LF line ends. Each CSV integer has the
 form of SFF-701. Each JSON file has one object, with the members in the order of its section, and
-each integer outside ±2^53 is a string. Each `take_uuid` and `calibration_uuid` is 32 lowercase
+no member is an integer in a string. Each JSON number has the form of SFF-702, for example `30`
+and `29.97`. Each `take_uuid` and `calibration_uuid` is 32 lowercase
 hexadecimal characters of a UUID version 4. Each CRC is 8 lowercase hexadecimal characters. Each row
 time is relative to the take start, and an absent time is an empty field.
 
@@ -350,14 +371,23 @@ and JS.
 Checks: SFF-707, SFF-708, SFF-709, SFF-710, SFF-711, SFF-712, SFF-714, SFF-891
 Input: G10; the output of each writer, with an export and a BVH.
 Pass: each file that SFF-707 names has `format_version` 2.0, a `format_prerelease` and a `writer`:
-the manifest, each timing sidecar, both info JSONs, the calibration TOML, the Parquet descriptor, the
-journal header, the export inventory and the BVH metadata JSON. No camera file and no audio file
+the manifest, each timing sidecar, both info JSONs, the calibration TOML, the Parquet descriptor and
+the journal header. The export inventory and the BVH metadata JSON also have them (external:
+freemocap, Blender addon). Before v2.0.0, `format_prerelease` is 1 in each file (SFF-710). No camera file and no audio file
 holds one of these three fields. The version and the writer string of a device pair are those of its
 timing sidecar. A file with an
 unknown `major` is `unsupported_version`, not legacy. A folder file with an unknown `major` has the
 state `unsupported_version` in `folder_files`. A file with a higher `minor` reads, and the
-unknown key, column and member are ignored. The Python and JS readers of this package read a file
-with `format_prerelease` > 0 and give it the file warning `prerelease` (SFF-891). No other file of SPEC.md section 18 holds one of the three fields.
+unknown key, column and member are ignored. In `higher_minor` of G10, the reader also ignores the
+unknown key in `[metadata]` and in the camera table of the TOML, and the flag bit 7 (128) of the
+row of the video sidecar. In `higher_minor_journal` of G10, the good record of the unknown type 200
+counts in `records`, and the reader uses no value of it. The TOML and journal vectors are tests of
+the scope `full` only. SFF-714 has no case in version 2.0, because each field has minor 0. The
+first minor version that adds a field adds the vector. The Python and JS readers of this package
+read a file with `format_prerelease` > 0 and give it the file warning `prerelease` (SFF-891). Each
+file of each golden case has this warning. The only exception is the case `prerelease_0` of G10:
+no file of it has the warning. No other file of SPEC.md section 18 holds one of the three fields
+(external: freemocap, Blender addon).
 
 **SFT-704** Reader: the writer string and container versions do not change the result
 Checks: SFF-712, SFF-713
@@ -366,13 +396,16 @@ Pass: the reader results are equal.
 
 ### The take folder and the manifest (sections 4 and 5)
 
-**SFT-705** Writer: names and layout
+**SFT-705** (external: freemocap) Writer: names and layout
 Checks: SFF-715, SFF-716, SFF-719, SFF-720, SFF-722
 Input: the output of skellycam and freemocap for G3; a writer run with two cameras whose keys have the
-same first 6 characters; a converter run that writes a camera with `camera_key` 0.
+same first 6 characters; a converter run that writes a camera with `camera_key` 0; a `TakeWriter`
+that gets a folder with a file of this format of another take.
+Golden part: the names in G3, and the three runs of the package writer.
 Pass: each file has the name and the place of section 4. `<rec>` obeys SFF-715. The labels are 6
 hexadecimal characters, or 7 or 8 for the two cameras. The camera with `camera_key` 0 has the label
-`cam<N>`, where N is its `group_position`. No `synchronized_videos_README.md` exists.
+`cam<N>`, where N is its `group_position`. No `synchronized_videos_README.md` exists. The
+`TakeWriter` that gets a folder with a file of another take refuses to start (SFF-719).
 
 **SFT-706** Reader: a renamed take folder
 Checks: SFF-717, SFF-718, SFF-824
@@ -393,13 +426,19 @@ Input: a skellycam take with a forced camera gap; freemocap processing of it, wi
 calls traced.
 Pass: the manifest exists before the first frame, with `state` `recording`, and is complete and
 valid at each moment of the take. After the take, `state` is `finished`, and `warnings` has
-`camera_gap`. After freemocap, each file of the take is listed with its role and owner, the warnings
-of skellycam remain, and `writer` is the freemocap string. Each `sha256` of a `files` item is a
-SHA-256 or null, as SFF-723 gives for its role. skellycam and freemocap each hold
-`.processing.lock` while they read, change and write the manifest, and each keeps the members and
-the items of the other. `summary` has the members of SFF-728: `exposure_us` for each camera, the
-`audio` object, `{run_id, origin, recorded_at}` for each run, the sorted `warnings`, and a
-`nominal_fps` with 3 decimal places.
+`camera_gap`. The test calls `add_warning` with `control_mismatch` and with `awb_not_settled`. The
+manifest holds each with `source` `skellycam`, its `camera_key` and its `detail`. The detection of
+the two conditions is not in this test (external: skellycam). After freemocap, each file of the
+take is listed with its role and owner, the warnings
+of skellycam remain, and `writer` is the freemocap string (external: freemocap). Each `sha256` of a `files` item is a
+SHA-256 or null, as SFF-723 gives for its role. skellycam holds
+`.processing.lock` while it reads, changes and writes the manifest. freemocap does the same, and
+each keeps the members and
+the items of the other (external: freemocap). `summary` has the members and the values of SFF-728: `exposure_us` for each camera, the
+`audio` object, the sorted `warnings`, and a
+`nominal_fps` and a `duration_s` with at most 3 decimal places. In the manifest with `state`
+`recording`, each `duration_s`, `stored_px`, `gaps` and `filled` is null. `processing_runs` has
+`{run_id, origin, recorded_at}` for each run (external: freemocap).
 
 **SFT-709** Reader: the summary is not used
 Checks: SFF-729, SFF-730
@@ -411,19 +450,26 @@ two inputs. The wrong `sha256` of the `files` item changes nothing in the result
 
 **SFT-710** Reader: a missing or wrong manifest
 Checks: SFF-731, SFF-867, SFF-868
-Input: G7; G1 with its manifest and its camera pairs deleted; the copy of G7 with no manifest, with
-a file `other_info.json` in its root.
+Input: G7; G1 with its manifest and its camera pairs deleted; the case `no_manifest` of G7, with
+a file `other_info.json` in its root and a file in `exports/`, both added at test time; the case
+`no_manifest` of G7 with one camera pair renamed at test time to another `<rec>`.
 Pass: with no manifest, the result has `manifest` = `missing` and the warning `manifest_missing`.
 `recording_name` is the `<rec>` of the camera sidecar names. The result has the same device pairs as
 G3. Its `folder_files` are the root files of G3 that have an exact name of SFF-731: the capture
 info JSON, the processing info JSON, the calibration TOML and the Parquet. The
-file `other_info.json`, whose name only ends in a fixed suffix, is not in `folder_files`. The files
-of G3 in `exports/` are not in the result, and the reader does not list that subfolder. The link check `calibration` is `not_checked`. `hashes` and `files` have
-only their Parquet parts, and they are `ok`. Each link check that compares no manifest value has the
-same state as for G3. With a manifest of another take, the manifest is `invalid`
-(`take_fact_mismatch`), and the
-reader rebuilds the links in the same way. For the copy
-of G1, `recording_name` is the audio sidecar name without `.audio.csv`. The reader writes no file.
+file `other_info.json`, whose name only ends in a fixed suffix, is not in `folder_files`. The file
+in `exports/` is not in the result, and the reader does not list that subfolder. The link checks
+`calibration` and `camera_key` are `not_checked`. `hashes` and `files` have
+only their Parquet parts, and they are `ok`. `rotation` has only its capture info part. Each link
+check that compares no manifest value has the
+same state as for G3. For the case `other_take_manifest`, the take has `manifest` = `invalid` and
+the warning `manifest_missing`, and the
+reader rebuilds the links in the same way. The manifest is not in `folder_files`. It is in
+`other_files` as `invalid`, with the reason `take_fact_mismatch`, and the folder has the warning
+`orphan_file`. For the copy
+of G1, `recording_name` is the audio sidecar name without `.audio.csv`. For the case with the
+renamed camera pair, the take has the warning `take_fact_mismatch`, and `recording_name` is the
+`<rec>` of the video sidecar with the lowest `group_position`. The reader writes no file.
 
 ### Camera files (section 6)
 
@@ -433,14 +479,14 @@ Input: the output of skellycam for G1 and G4; a writer run with a nominal rate o
 Pass: each camera file has one `V_MJPEG` track, one keyframe `SimpleBlock` for each frame and no
 lacing. The timestamps are the index timestamps of SFF-736, and `DefaultDuration` is the frame
 period. No rotation element and no EXIF orientation exists. The JPEG bytes have no APPn timing data.
-The take folder holds no overlay file. FFmpeg (pinned) and Blender (pinned) count the frames of the
-sidecar. The writer refuses the nominal rate of 1001/1.
+The take folder holds no overlay file. FFmpeg (pinned) counts the frames of the
+sidecar. Blender (pinned) counts the same number (external: Blender). The writer refuses the nominal rate of 1001/1.
 
 **SFT-712** Writer: JPEG bytes
 Checks: SFF-734
 Input: a recording from an MJPEG camera (test hardware), and from a raw-frame source; a request for
 H.264 capture.
-Pass: the block payloads are the bytes that the camera sent. A raw source gives valid JPEG frames.
+Pass: the block payloads are the bytes that the camera sent (external: capture hardware). A raw source gives valid JPEG frames.
 The writer refuses the request for H.264 capture.
 
 **SFT-713** Reader: JPEG and block parsing
@@ -475,8 +521,12 @@ keys in the order of the spec and single spaces.
 Checks: SFF-746, SFF-747
 Input: G5.
 Pass: the torn row counts in `torn_bytes`, and the file is `unfinished`. The row with a wrong CRC makes
-the file `damaged` with `crc_mismatch`, and the read stops at it. A sidecar with no `# end` line is
-`unfinished`.
+the file `damaged` with `crc_mismatch`, and the read stops at it. `torn_bytes` of the `damaged`
+sidecar does not count the row with the wrong CRC or the rows after it. A sidecar with no `# end` line is
+`unfinished`. A copy of a finished sidecar of G1, cut at test time in the middle of its `# end`
+line, is `unfinished`: the reader reads no data row after the first footer line, the complete
+footer lines count in no member, the bytes of the torn footer line are in `torn_bytes`, and `fit`
+is false.
 
 **SFT-717** Writer: the video sidecar
 Checks: SFF-749, SFF-752, SFF-754, SFF-755, SFF-756, SFF-758
@@ -529,7 +579,10 @@ input overflow has the flag `overflow`.
 **SFT-723** Reader: pre-skip and output gain
 Checks: SFF-766
 Input: G1.
-Pass: decoded sample 0 is the first sample after the pre-skip. The click offsets equal the source.
+Pass: `audio_details` of the Python reader gives the pre-skip of `dOps`. The reader does not
+decode. The test decodes the audio with PyAV (pinned), drops the pre-skip samples and applies no
+output gain. Decoded sample 0 is the first sample after the pre-skip. The click offsets equal the
+source.
 
 **SFT-724** (provisional) Reader: audio latency
 Checks: SFF-771
@@ -576,7 +629,10 @@ correct row CRC.
 Pass: the take time of each click is the time of the matching video flash to within 1 ms. With no
 fit, the reader fits the rows and gives `missing_fit`, and `fit` of the item is false. The fit of
 the reader is the one segment of
-SFF-784: its `n0`, `t0_ns` and `period_fs` equal the committed values, in Python and JS. A row with
+SFF-784: its `n0`, `t0_ns` and `period_fs`, from `audio_details` of the Python reader, equal the
+committed values. `fitted_ns` of each audio record is the fitted time of its `first_sample` with
+the fit that the reader uses: the fit lines for G1, and the fit of the reader for G5, in Python and
+JS. For the copy with one row, each `fitted_ns` is null. A row with
 the flag `silence` is a usable row for the fit: the copy with the flag `silence` gives the same
 `rows` and the same fit as G5. For a copy
 of the G5 audio sidecar with one row, the reader computes no fit and maps no sample to take time. No
@@ -590,9 +646,10 @@ Checks: SFF-786, SFF-787, SFF-788, SFF-789
 Input: a kill of each writer at 50 points during a take and during freemocap processing.
 Pass: each whole file is the old or the new version, or is absent, with at most a `.tmp`. Each live
 file is a valid prefix. freemocap holds `.processing.lock` while it writes a folder file whole (an
-info JSON, the calibration TOML, the Parquet or an export), and each
-writer of the manifest holds it while it reads, changes and writes the manifest. freemocap appends
-to the journal without the lock, also while another program holds the lock. The lock is the
+info JSON, the calibration TOML, the Parquet or an export) (external: freemocap). Each
+writer of the manifest holds it while it reads, changes and writes the manifest. skellycam holds it
+for each whole-file write that it makes: the manifest and the capture info JSON. freemocap appends
+to the journal without the lock, also while another program holds the lock (external: freemocap). The lock is the
 file lock of the operating system on the empty file `.processing.lock`. After a kill, the lock file
 that no process holds does not stop the next writer. The check
 that a writer forces each live file to disk about once a second is provisional: it waits for the
@@ -607,19 +664,32 @@ Pass: the `.tmp` manifest is not read, and it is in no list of the result. `fold
 **SFT-732** Reader: unfinished files
 Checks: SFF-791, SFF-792
 Input: G5.
-Pass: each unfinished file reads to its last complete record. `torn_bytes` of each pair is the bytes
-of the torn last line of its sidecar plus the bytes of its media file after the last complete block
-or fragment. The torn audio fragment is ignored.
+Pass: each unfinished file reads to its last complete record. `torn_bytes` of each pair is the sum
+of SFF-791: the bytes of the last line of its sidecar when that line has no LF, plus the bytes of
+its media file after the last complete block
+or fragment when the last line of the sidecar is not an `# end` line. The torn audio fragment is
+ignored. `torn_bytes` is 0 for each pair of G1 and for each pair of `repaired` of G6.
 
 **SFT-733** Writer: repair
 Checks: SFF-793, SFF-794, SFF-795, SFF-796, SFF-797, SFF-798
 Input: G5; G6; a start-up of skellycam and of freemocap with G5, one time with a user who agrees
 and one time with a user who does not agree.
-Pass: the program asks the user the question of SFF-793 before it repairs, also at start-up. Before
+Pass: the program asks the user the question of SFF-793 before it repairs, also at start-up
+(external: user).
+skellycam asks about a take that it recorded on its own (external: user). When freemocap runs, freemocap asks, and
+the user gets one question for the take (external: freemocap, user). Before
 the user agrees, and when the user does not agree, the SHA-256 of each file and the list of files do
-not change, and the reader still reads the files in place. After the repair, each byte before the cut is
+not change (external: user). Before a call of `repair_take`, the reader reads the files of G5 in place. After the repair, each byte before the cut is
 unchanged, each sidecar has a fit, a repair line and an `# end` line, and the reader reports
-`repaired`. The repair line has `cut_bytes`, `media_cut_bytes` and `repair_writer`, in this order.
+`repaired`. `state` of the manifest is `finished`, and no manifest has another value of `state`.
+The repair writes the manifest after the media files and the sidecars, while it holds
+`.processing.lock`. In the manifest, `writer` is the writer string of the program that did the
+repair, the summary has the values of the repaired files, and `warnings` has `camera_gap` for a
+repaired video sidecar with `gaps` more than 0. No other member changes. A copy of G5 with no
+manifest gets no manifest from the repair. In `interrupted_repair` of G6, `state` of the manifest
+is `recording`, and each sidecar is `unfinished`, with `fit` false and `missing_fit`, also when it
+has fit lines and a `# repair` line.
+The repair line has `cut_bytes`, `media_cut_bytes` and `repair_writer`, in this order.
 The audio file is cut after its last complete fragment and is not remuxed. A repair of
 the interrupted repair gives the same files, except for `cut_bytes` and `media_cut_bytes`. The check
 of the repaired camera
@@ -636,8 +706,10 @@ the read.
 
 **SFT-735** Writer: the capture info JSON
 Checks: SFF-800, SFF-801, SFF-802
-Input: a skellycam take of 2 cameras, one with a user name, and a microphone.
-Pass: the file exists at the take start and at its end, each time complete. It has the members of
+Input: a skellycam take of 2 cameras, one with a user name, and a microphone, with the file system
+calls traced.
+Pass: the file exists at the take start and at its end, each time complete. skellycam holds
+`.processing.lock` for each of the two writes. It has the members of
 section 13, in order, and no member of the forbidden list. `camera_configs` is keyed by `camera_key`.
 Each control name is from SFF-802, and `audio` names the microphone.
 
@@ -646,16 +718,18 @@ Checks: SFF-803
 Input: G3 with the camera configs in another order and with `camera_label` values swapped.
 Pass: each config is linked to the camera of its key.
 
-**SFT-737** Writer: the processing info JSON
+**SFT-737** (external: freemocap) Writer: the processing info JSON
 Checks: SFF-804, SFF-805
 Input: freemocap processing of G1, then an export.
+Golden part: G3.
 Pass: the file has the members of section 14 and no member of the capture info JSON. `parquet_sha256`
 is the hash of the Parquet after each write. `channel` of each `data` item is the `kind` of its
 descriptor channel. `selected_run_id` is a key of `runs`. The file is rewritten after the export,
 with the inventory in `export_inventories`.
 
-**SFT-738** Writer: the calibration TOML
+**SFT-738** (external: freemocap) Writer: the calibration TOML
 Checks: SFF-806, SFF-807, SFF-808, SFF-809
+Golden part: G14.
 Input: freemocap calibration of G14, with and without a ground-plane alignment; freemocap processing
 with each of the two TOML files.
 Pass: the file parses as TOML 1.0.0, with `[metadata]` first and one table for each camera, keyed by
@@ -664,8 +738,9 @@ label, in order of `index`. Each key of section 15 is present, with the alignmen
 is the transpose of the rotation matrix. For each of the two TOML files, a point (X, Y, Z) that is
 triangulated in the TOML world is the point (−Y, X, Z) of `calibrated_world`.
 
-**SFT-739** Writer: calibration identity, copies and the library
+**SFT-739** (external: freemocap) Writer: calibration identity, copies and the library
 Checks: SFF-810, SFF-811, SFF-812, SFF-813
+Golden part: G14.
 Input: G14; then a ground-plane alignment of the calibration; a kill during each TOML write.
 Pass: the calibration take, the library and `last_successful_camera_calibration.toml` hold identical
 bytes. The motion-capture take holds a byte-identical copy, and its manifest has the
@@ -682,7 +757,7 @@ manifest, the reader uses `<rec>_camera_calibration.toml`.
 
 ### Blender outputs, annotated videos, exports and logs (section 18)
 
-**SFT-741** Writer: Blender outputs
+**SFT-741** (external: Blender addon) Writer: Blender outputs
 Checks: SFF-847, SFF-848, SFF-849
 Input: the Blender export of G3, with FBX and BVH, for run 0 and run 1; then a change of
 `selected_run_id` from 0 to 1.
@@ -697,14 +772,14 @@ reader result. The checks of the scene (its objects, its properties and the upri
 provisional: they wait for the freemocap work on the `.blend` scene contents (SFF-848). The checks of
 the written files and of `<rec>.blend1` do not wait.
 
-**SFT-742** Writer: annotated videos
+**SFT-742** (external: freemocap) Writer: annotated videos
 Checks: SFF-850, SFF-851, SFF-852, SFF-853
 Input: freemocap processing of G3 and G4.
 Pass: each camera has `annotated_videos/<rec>.<label>.annotated.mp4` with as many frames as its
 camera file, in the stored orientation, with the derivation comment. Frame k shows the 2D points of
 frame k of the run. A `.partial.mp4` file is not in the reader result.
 
-**SFT-743** Writer: exports
+**SFT-743** (external: freemocap) Writer: exports
 Checks: SFF-854, SFF-855, SFF-856, SFF-857, SFF-858, SFF-859
 Input: an export of G3 with every format and data kind, for run 0 and run 1; then a change of
 `selected_run_id` from 0 to 1.
@@ -717,14 +792,19 @@ and `csv` members of SFF-858, with `location` `exports` and a `format` of the li
 `0.1`. The arrays have the shape and the dtype of their channels, and load with pickles not allowed.
 `frames.npy` is int32 and `timestamps.npy` is float64.
 The inventory lists each file with its SHA-256 and is written last. An interrupted export leaves no
-partial file outside `.staging-*`.
+partial file outside `.staging-*`. A trace shows that the exporter holds `exports/.exports.lock`
+from before its first write in `.staging-*` until after it writes the inventory (SFF-859). This
+test has no golden part: G3 holds no export, and a golden export waits for the open-work item
+"Complete section 18.3" ([ADR-PVG8](../decisions/entries/PVG8-spec-v2-details-part-10.md)
+item 23).
 
 **SFT-744** Reader: hidden export files
 Checks: SFF-860
-Input: G3 with `exports/.staging-1/` and `exports/.publication.json`.
+Input: G3 with `exports/.staging-1/` and `exports/.publication.json`. The test makes the two
+hidden items at test time. It needs no export.
 Pass: they are not in the reader result.
 
-**SFT-745** Writer: logs
+**SFT-745** (external: freemocap) Writer: logs
 Checks: SFF-861
 Input: a take after a freemocap run that writes a log.
 Pass: each log is `logs/<program>.log`, UTF-8 with LF line ends.
@@ -754,7 +834,9 @@ Checks: SFF-822, SFF-827, SFF-828, SFF-831
 Input: the Parquet of G3; a Parquet from G12 (the two rows with equal fitted times).
 Pass: every row rule of parts/parquet-descriptor.md holds. `frame_number` of each camera row is the
 position of its frame. The capture times equal the strict player times of the sidecars divided by
-10^9, and the group time of each frame is the mean of the strict camera times. The two frames of G12
+10^9: each is the float64 nearest to s / 10^9. The group time of each frame is the mean of the
+strict camera times, rounded half up to the nanosecond: m = ⌊(2 × S + n) / (2 × n)⌋ ns, and the
+group `timestamp_s` is the float64 nearest to m / 10^9 (SFF-828). The two frames of G12
 have times that differ by 1 ns. A point that was not detected has null
 `x` and `y` and `visibility` 0.
 
@@ -763,26 +845,36 @@ Checks: SFF-829, SFF-830
 Input: G3 with a rotated camera (`display_rotation` 90); freemocap processing of one camera of G1.
 Pass: the 2D points of the rotated camera are in stored-JPEG pixels, and its image reference has the
 stored width and height. The 3D reference frame is `calibrated_world` with the Blender basis, in mm.
-The take with one camera uses the reference frame `camera_plane`, in pixels.
+The take with one camera uses the reference frame `camera_plane`, in pixels (external: freemocap).
 
 **SFT-750** Writer: camera sources and skeletons
 Checks: SFF-826, SFF-832
 Input: the Parquet of G3.
 Pass: each camera source is `camera:<label>` with `camera_key`, `video_filename` and
-`timing_filename` that name files of the take, and no nominal rate. Each model has
-`tracker_connections` whose names are in `tracker_keypoint_names`, and a `segment_topology`. A model
+`timing_filename`, and no nominal rate. Each of the two names is a file name with no folder, and
+it names a file of the media folder. Each model has
+`tracker_connections` whose names are in `tracker_keypoint_names`, and a `segment_topology`.
+`segment_topology` has one item for each item of `skeleton.segments`, in that order, with `parent`
+from `rest_pose.parents`, `proximal` = `frame.origin` and `distal` = `frame.primary_point`: landmark
+names. A model
 with no connection pair omits `tracker_connections`. No
 `tracker_schema.json` exists.
 
-**SFT-751** Writer: runs and realtime runs
+**SFT-751** (external: freemocap) Writer: runs and realtime runs
 Checks: SFF-833, SFF-834, SFF-844
 Input: G13, then a posthoc run on it; a fold of G13 with unfinished timing sidecars (no fit), then a
 repair of the sidecars, then freemocap opens the take; a take whose manifest has `state`
 `recording`.
-Pass: the fold gives a run with `origin` `realtime`, a `coverage` object and no checkpoints. Each
+Golden part: G13.
+Pass: the fold gives a run with `origin` `realtime`, a `coverage` object and no checkpoints. In
+`coverage`, `frames_in_take` is `sample_count`, `frames_processed` is the number of frames with one
+or more data records, `skips` is `{"no_record": frames_in_take − frames_processed}`,
+`journal_crc_rejects` is `rejected_records` of the journal, and `clean_close` is true only when
+the journal has a good end record. Each event has `time_ns`, `stage`, `parameter` and `value`. Each
 event record of the journal is in `coverage.events` of the stage that it names, for each sensor
 group, in journal order. `latency_ms` has the nearest-rank percentiles of `processed_ns` minus the
-group time. Skipped
+group time m of SFF-828: `p50` is latency ⌈0.5 × k⌉ and `p99` is latency ⌈0.99 × k⌉ of the k
+latencies in increasing order, in milliseconds. Skipped
 frames have null `x`, `y` and `visibility`. `timestamp_s` of each row of the realtime run and the
 value of each of its `TIMESTAMPS` rows equal the player times that the timing sidecars give at the
 time of the fold. With no fit, these are the arrival times. The posthoc run gets
@@ -802,8 +894,10 @@ text and no counts.
 **SFT-753** Writer: ChArUco observations
 Checks: SFF-836
 Input: G14 (the calibration take).
-Pass: the ChArUco corners are `OVERLAY_2D` rows of a `charuco_detector` source. No other file holds
-them.
+Pass: the Parquet of `calibration_take` has one run, with the `TIMESTAMPS` rows and the ChArUco
+rows. The ChArUco corners are `OVERLAY_2D` rows of the source
+`charuco_detector:<squares_x>x<squares_y>` of the board. Each name is `corner_<id>`, with the
+OpenCV corner ID in decimal. No other file holds them.
 
 **SFT-754** Reader: geometry against the TOML
 Checks: SFF-837
@@ -812,7 +906,7 @@ world (an alignment); G3 with a TOML whose `fx` differs by 1e-3.
 Pass: for the first and the third input, the run uses its stored geometry, and the take has the
 warning `calibration_mismatch`. The rigid change of the world gives no `calibration_mismatch`.
 
-**SFT-755** Writer: Parquet publication
+**SFT-755** (external: freemocap) Writer: Parquet publication
 Checks: SFF-838
 Input: a freemocap run, with the file system calls traced.
 Pass: the Parquet is written as a `.tmp` and replaced while `.processing.lock` is held, then the
@@ -820,15 +914,17 @@ processing info JSON, then the manifest.
 
 ### Realtime journal (section 17)
 
-**SFT-756** Writer: journal records
+**SFT-756** (external: freemocap) Writer: journal records
 Checks: SFF-839, SFF-840, SFF-841, SFF-842
 Input: a realtime session of 60 s with the journal on.
+Golden part: G13 (its good records).
 Pass: the first record is the header. Each record has a correct magic, length and CRC, and no
 padding: each data payload has 22 + 4 × n × k bytes. Each channel is
 declared before its data, with the `dtype` `float32`. No channel has the kind `TIMESTAMPS`. Each
 `frame_number` is a position of a multi-camera frame of the take. Missing values are NaN. Each result
 kind of SFF-842 that the session
-made is in the journal.
+made is in the journal. The end record has `data_records` (the number of data records that the
+writer wrote) and `clean_close`.
 
 **SFT-757** Reader: damaged journals
 Checks: SFF-843
@@ -837,22 +933,33 @@ header that declares one channel of the kind `TIMESTAMPS`; a copy of the
 G13 journal with only good records and a torn tail; a copy with only good records and no end record.
 Pass: the reader skips the record with a wrong CRC, finds the next record after the zero hole and
 stops at the torn tail. The `folder_files` item of the journal has the three members of the committed
-result: `records`, `rejected_records` and `torn_bytes`. The zero hole is not a rejected record. The
+result: `records`, `rejected_records` and `torn_bytes`. They follow the scan of SFF-843: `records`
+counts the good records of each type; `torn_bytes` is the number of bytes from the `magic` of the
+torn tail to the end of the file; and a rejected record after the start of the torn tail does not
+count. The zero hole is not a rejected record. A copy of the G13 journal, changed at test time,
+with a cut record before a good record has that record in `rejected_records`. A copy that ends with
+the first 2 bytes of `magic` and has no torn tail has `torn_bytes` 2. This is a test of the scope
+`full` only. The
 state is `damaged`, with the
 reason `crc_mismatch`. Each of the two copies is `unfinished`. The journal with the `float64`
 channel and the journal with the `TIMESTAMPS` channel are `invalid` with the reason `bad_schema`.
 
-**SFT-758** Writer: the journal after the fold
+**SFT-758** (external: freemocap, user) Writer: the journal after the fold
 Checks: SFF-793, SFF-845
 Input: G13; G13 with a forced failure of the read-back check; an unfinished take (a manifest with
 `state` `recording`) with a left-over journal, at the start-up of freemocap, one time with a user
-who agrees and one time with a user who does not agree.
+who agrees and one time with a user who does not agree; a take whose manifest has `state`
+`finished`, with a left-over journal with no end record, one time for each answer.
+Golden part: G13 (the count and the digest of the check).
 Pass: the journal is deleted only after a fold whose check passes. The count and the digest of the
 check equal the values that the test computes from the G13 journal with the rule of SFF-845. After
 the forced failure, the journal is
 kept. At start-up, freemocap does not fold the left-over journal automatically. It asks the
 question of SFF-793. Before the user agrees, and when the user does not agree, no file of the take
-changes. When the user agrees, freemocap folds the journal as part of the repair.
+changes. When the user agrees, freemocap folds the journal as part of the repair. freemocap asks
+one time for the whole take: one question for the media files and the journal together. For the
+take with `state` `finished`, freemocap asks the question of SFF-793 before it folds the journal,
+and it folds only when the user agrees.
 
 **SFT-759** (provisional) Load and kill tests of the journal
 Checks: SFF-846
@@ -876,7 +983,7 @@ with a sidecar of another `take_uuid` with no media file.
 Pass: the extra `.mkv` is in `other_files` as `not_in_format`. The sidecar of the take is in the
 `files` of the take as `invalid`, with the reason `missing_media` and the path of the missing media
 file as its `name`. It gives no `extra_files`. The sidecar of the other `take_uuid` is in
-`other_files`, with the same state and reason. `folder_warnings` has `orphan_file` one time.
+`other_files`, with the same state and reason. Its `name` there is the path of the sidecar. `folder_warnings` has `orphan_file` one time.
 
 **SFT-762** Reader: takes and counts
 Checks: SFF-866, SFF-869, SFF-870, SFF-871
@@ -890,11 +997,14 @@ and the values of `group_position` 0 are used.
 
 **SFT-763** Reader: link checks
 Checks: SFF-720, SFF-824, SFF-872, SFF-873, SFF-874
-Input: G3; G9; G3 with one `camera_key` 0.
+Input: G3; G9; G3 with one `camera_key` 0; G5; G6.
 Pass: G3 has each link `ok`. `links` holds each check one time, in the order of the table of
 SFF-872, with `detail` null. Each vector of G9 gives `mismatch` in its check, and the stale
 `parquet_sha256` gives `stale_processing_info`. The camera files with different numbers of rows give
-`mismatch` in `frames`. The Parquet with a wrong `recording_id` is `invalid` in `folder_files`, with
+`mismatch` in `frames`. The row-count part of `frames` compares only the camera files with the
+state `finished`, when the take has two or more of them: for G5 and G6, the reader does not
+evaluate it. The check `files` tests each file name of a Parquet camera source in the media
+folder. The Parquet with a wrong `recording_id` is `invalid` in `folder_files`, with
 `take_fact_mismatch`. A part whose file is absent or `invalid` is not evaluated. The key 0 camera
 has the label `cam<N>` and is linked by label, with
 `camera_key_zero`.
@@ -909,8 +1019,15 @@ Pass: each folder has `folder_state` `legacy`, and the family, the release range
 warnings of the committed result. A folder whose matched rows are in one chain has the range of its
 last matched row, and
 `ambiguous` false. The folder with signals in two chains, and the folder with no era signal, have
-`ambiguous` true. The pre-v1 folders have the family `pre_v1`. The folder of MP4 files only has the
+`ambiguous` true. The case `v1i` matches only the row V1i, and `ambiguous` is false. The cases
+`v1g_v1h` and later match their TOML signals only when the calibration lookup of SFF-880 gives the
+state `present`. The pre-v1 folders have the family `pre_v1`, with `release_range` null,
+`ambiguous` false and empty `eras` and `warnings`. The result holds no note text. The folder of MP4
+files only has the
 family `unknown`, with `release_range` null, `ambiguous` false and empty `eras` and `warnings`.
+`legacy.calibration` is null for `pre_v1` and for `unknown`. In each legacy folder, `takes` is
+`[]`, and `other_files` lists each file of the root and of `synchronized_videos/`, not of their
+subfolders.
 
 **SFT-765** Reader: calibration lookup in v1 folders
 Checks: SFF-880
@@ -931,37 +1048,58 @@ take with only an audio file.
 
 **SFT-767** Reader: no code in files
 Checks: SFF-884
-Input: G16.
+Input: G16; copies of G16, changed at test time, with these files in the manifest: an NPZ file
+with one member with an object `descr` and one other member that is not an NPY file; a file with
+the suffix `.npz` that is not a ZIP file; an NPZ file with a `.npy` member with no NPY header; an
+NPY file with no NPY header.
 Pass: the reader does not load the pickle or the object array. The pickle is in `other_files` as
 `invalid` with `code_in_file`. The reader reads only the header of the NPY, and its `folder_files`
 item is `invalid` with
-`code_in_file`. No code from the files runs (a canary file is not created).
+`code_in_file`. For an NPZ file, the reader reads the ZIP directory and only the NPY header of each
+member whose name ends in `.npy`. The NPZ file with the object `descr` is `invalid` with
+`code_in_file`. The file that is not a ZIP file, the NPZ file with the member with no NPY header
+and the NPY file with no NPY header are `invalid` with `bad_schema`. The checks of the NPY and NPZ
+files are tests of the scope `full` only: for the scope `player`, each of these items is
+`not_checked`. No code from the files runs (a canary file is not created).
 
 ### The reader result (section 23)
 
 **SFT-768** Reader: the reader result, Python and JS
-Checks: SFF-756, SFF-885, SFF-886, SFF-887, SFF-888, SFF-889, SFF-890
-Input: every golden folder of Appendix A; an empty folder; a folder with only one timing sidecar of
-G1.
+Checks: SFF-756, SFF-853, SFF-885, SFF-886, SFF-887, SFF-888, SFF-889, SFF-890
+Input: every case of every golden folder of Appendix A; an empty folder; a folder with only one
+timing sidecar of G1; a folder with only the capture info JSON of G3; a copy of G3, changed at test
+time, with an empty file (0 bytes) at the path of an annotated video and its manifest item.
 Pass: each result is valid JSON in the canonical form of RFC 8785, with each member of SFF-885.
 The states follow the order of SFF-886, and each code is from SFF-887. The sort orders are
 those of SFF-890. Each `name` and `path` is relative to the take folder, with `/`. A code is at most
 one time in each `warnings` array. The file of G12 with the flag `encode_skip` in a usable row has
 the file warning `encode_skip`. The empty folder has `folder_state` `empty`. The folder with one
 timing sidecar has `folder_state` `unreadable`, the sidecar in `other_files` as `invalid` with
-`missing_media`, and the folder warning `orphan_file`. The Python and JS results are equal to the
-committed result, byte for byte, for
-the parts that the JS reader reads (SFF-892).
+`missing_media`, its own path as its `name`, and the folder warning `orphan_file`. The folder with
+only the capture info JSON is `unreadable`: the file is in `other_files` as `invalid`, with
+`take_fact_mismatch`, and the folder has `orphan_file` (SFF-889). In the copy of G3 with the empty
+annotated video, the item of that file is `present`, and the other members of the result do not
+change: the reader reads no tracking data from an annotated video (SFF-853). For each case, the
+Python reader with the scope `full` gives the bytes of `<case>.full.json`. The Python reader with
+the scope `player` gives the bytes of `<case>.player.json`. The JS reader gives the bytes of
+`<case>.player.json`. Each comparison is byte for byte (SFF-892).
 
-**SFT-769** Reader: the JavaScript reader scope
+**SFT-769** Reader: the scope `player`, Python and JS
 Checks: SFF-892
-Input: G3; G9.
-Pass: in the JS result, the TOML, the Parquet and the journal are `not_checked`, and the three
-integer members of the journal item are null. The link checks `frames`, `dimensions`, `hashes` and
-`calibration` are `not_checked`. The checks `take_uuid`, `camera_key`, `rotation` and `files` are
-evaluated on the files that the JS reader reads. The comparison with the Python result leaves out
-each check that is `not_checked` in the JS result. All other members equal the Python result. A
-vector of G9 that is only in the TOML, the Parquet or the journal is a test of the Python reader
+Input: G3; G9; G13; G16; a `v1` case of G15; a folder with only the Parquet of G3.
+Pass: the Python reader with the scope `player` and the JS reader give the same bytes for each
+input: the committed `player` result. The JS command writes the canonical JSON to standard output,
+and no other byte, with and without `--records`. In the `player` result, each item of a TOML, a
+Parquet, a journal, an NPY file or an NPZ file that exists is `not_checked`, with `reason` null and
+`warnings` `[]`, and the three integer members of the journal item are null. A `missing` item stays
+`missing`. The link checks `frames`, `dimensions`, `hashes` and `calibration` are `not_checked`.
+The checks `take_uuid`, `camera_key`, `rotation` and `files` have only the parts that need no TOML,
+Parquet or journal. The take warnings `stale_processing_info`, `calibration_mismatch` and
+`realtime_run` are absent. The Parquet alone is `not_in_format` in `other_files`, with no
+`orphan_file`. For the `v1` case, `family` and `calibration` are those of the `full` result,
+`release_range` is `["v1.0.25","v1.8.2"]`, `ambiguous` is true, `eras` is `[]`, and `warnings` has
+the four warnings of SFF-879. Each other member of the `player` result equals the `full` result. A
+vector of G9 that is only in the TOML, the Parquet or the journal is a test of the scope `full`
 only.
 
 ### Tracking Parquet: the reader and the models (section 16)
@@ -971,7 +1109,9 @@ Checks: SFF-893
 Input: four copies of the Parquet of G3. The test makes them at test time, with a changed
 descriptor: one with a missing member of a model; one with a member of a wrong JSON type; one with
 an unknown member in a closed type; and one that breaks only a writer rule, for example a joint
-whose `child` names no segment.
-Pass: this is a test of the Python reader only (SFF-892). For each of the first three copies, the
+whose `child` names no segment. A fifth copy has `1.0` for an integer member and `0` for a value
+of a `position`.
+Pass: this is a test of the scope `full` only (SFF-892). For each of the first three copies, the
 `folder_files` item of the Parquet is `invalid`, with the reason `bad_schema`. The reader does not
-refuse the fourth copy: its item is `present`, as for G3.
+refuse the fourth copy: its item is `present`, as for G3. The fifth copy is also `present`: an
+"integer" is a JSON number with no fraction in its value, and a "float" is each JSON number.

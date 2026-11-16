@@ -45,6 +45,14 @@ These entries are `accepted` or `evidence`.
 | [72QQ](entries/72QQ-spec-v2-details-part-8.md) | Spec draft v2 details, part 8 (items 18, 19): tests with no Pass text; the points left open by E45D | accepted |
 | [W5JC](entries/W5JC-nested-model-types-in-the-descriptor-part.md) | Nested model types in the Parquet descriptor part; `presentation`; the reader checks structure only; four code repairs | accepted |
 | [1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) | Journal appends need no lock; no automatic fold or repair at start-up; privacy kinds and era chains confirmed; SFF-893 | accepted |
+| [JB3A](entries/JB3A-repair-state-question-and-skellycam-lock.md) | Repair sets manifest `state` to `finished`; freemocap asks before it folds a left-over journal; one question for one take; skellycam lock for whole-file writes | accepted |
+| [0JVZ](entries/0JVZ-spec-v2-details-part-9.md) | Spec draft v2 details, part 9 (items 20 to 22): prerelease number 1, result scopes `full` and `player`, layout of the golden folders | accepted |
+| [PVG8](entries/PVG8-spec-v2-details-part-10.md) | Spec draft v2 details, part 10 (items 23 to 25): no exports in G3, manifest summary values, a manifest that the reader does not use | accepted |
+| [YYE3](entries/YYE3-spec-v2-details-part-11.md) | Spec draft v2 details, part 11 (items 26a, 28, 29): manifest details after a repair, `torn_bytes` and footer lines, legacy result | accepted |
+| [0WTH](entries/0WTH-spec-v2-details-part-12.md) | Spec draft v2 details, part 12 (items 30 to 36): legacy era signals, link check parts, row counts, result values, pre-skip | accepted |
+| [6VRQ](entries/6VRQ-spec-v2-details-part-13.md) | Spec draft v2 details, part 13 (items 37 to 39): ChArUco source, Parquet values with no definition, JSON types in the structure check | accepted |
+| [N6KY](entries/N6KY-spec-v2-details-part-14.md) | Spec draft v2 details, part 14 (items 40, 42, 43, 45): writer rules, journal count names and scan, NPZ files | accepted |
+| [QH61](entries/QH61-spec-v2-details-part-15.md) | Spec draft v2 details, part 15 (items 46, 47): tests that run at gate 2; tests for requirements with no Pass text | accepted |
 
 ### Proposed
 
