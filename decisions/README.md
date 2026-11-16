@@ -19,21 +19,20 @@ These entries are `accepted` or `evidence`.
 | # | Decision | Status |
 |---|----------|--------|
 | [0001](entries/0001-decision-log-agents-md-and-private-data.md) | Decision log and its rules; `AGENTS.md` files hold the instructions; `plans/` is local; no private data | accepted |
-| [WD9A](entries/WD9A-lichtblick-reference-viewer.md) | Lichtblick is the external test viewer, not Foxglove; VLC compatibility dropped; audio tests use a pinned Lichtblick build with an Audio panel | accepted |
-| [X1G6](entries/X1G6-read-old-write-mcap.md) | Old recordings stay readable; new skellycam and skellysync write only MCAP with JPEG and Opus; no file of this format means legacy | accepted |
-| [7K3C](entries/7K3C-format-versioning-in-metadata.md) | Format version = major.minor of the skellycam release that last changed the format; major/minor/prerelease in each file's metadata | accepted |
-| [68Z6](entries/68Z6-rotation-in-metadata-only.md) | Frames stored unrotated; `display_rotation` in the camera file's metadata only; no other rotation; readers apply it | accepted |
-| [752H](entries/752H-timing-fields.md) | Arrival in `log_time`, sample time in `timestamp`, `sequence` = frame or packet number; no legacy time; encoder skips as `foxglove.Log` | accepted |
-| [DK8S](entries/DK8S-mcap-profile-files-and-names.md) | One MCAP file per device; profile `freemocap`; protobuf; topics carry the label; `freemocap.*` metadata records; writer in Header `library` | accepted |
-| [TDB5](entries/TDB5-whole-recording-no-manifest.md) | Whole recording of per-device MCAP files; no manifest; takes grouped by `take_uuid`; canonical reader-result JSON; repo rules | accepted |
-| [10JC](entries/10JC-lichtblick-audio-checks.md) | Lichtblick audio checks: mrkbac/lichtblick at 70f5900, built offline, Opus picked by hand at 48 kHz, 1x only; sync judged in skellycam | accepted |
-| [MG7C](entries/MG7C-fit-segments-by-position.md) | Fit segments keyed by position (`pos_first`, `pos_last`), in position order with no gap; fitter named; breakpoints give `sequence` | accepted |
-| [PV6S](entries/PV6S-writing-crash-reading-and-repair.md) | Fixed-count chunks, no compression, data CRC, fsync ~1 s; crashed files read in place; user-approved repair cuts after the last good chunk | accepted |
-| [D9N1](entries/D9N1-opus-audio-settings-and-timing.md) | Opus in `foxglove.CompressedAudio`; OpusHead fields in channel metadata, `sample_rate` = decode rate, gain 0; 48 kHz 20 ms VBR; log_time = arrival | accepted |
-| [5G42](entries/5G42-gate1-names.md) | Gate 1 names: `freemocap.repair` record, audio `label`, `audio_latency_ns` in the audio channel metadata, RFC 8785 reader result | accepted |
-| [T24G](entries/T24G-spec-v1-review-fixes-crash-fit-audio.md) | Spec v1 review fixes, 15 items: records before first chunk, CRC checks, crash-read end, repair details, fit maths and cover, Opus and camera details | accepted |
-| [WG08](entries/WG08-reader-result-states-and-codes.md) | Reader result: `invalid` state, folder states, reason and warning codes, `audio_count`, take counting, null members, integer types, sort orders | accepted |
-| [W4PF](entries/W4PF-shared-package-and-no-overlays.md) | One shared package (spec, tests, golden files, Python and JS readers, writer); spec fixes its own names, not file names; no recorded overlays | accepted |
+| [2C9V](entries/2C9V-whole-take-folder-scope-and-package.md) | The format is the whole take folder; every file fully specified, incl. other formats by content mapping; one package; JS reader for player needs | accepted |
+| [5XNA](entries/5XNA-folder-layout-names-and-manifest.md) | Folder layout and fixed names; folder renamable, files not; `<rec>` prefix; `recording_manifest.json` with links, warnings, privacy, summary | accepted |
+| [6RSB](entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md) | Camera files: MJPEG MKV with index timestamps; one CSV timing sidecar per file; `camera_key` link key; fit in the sidecar; player time | accepted |
+| [92TM](entries/92TM-opus-audio-in-fragmented-mp4.md) | Audio: Opus (libopus) in fragmented MP4 with 1 s fragments, one CSV sidecar; silence for gaps; fit for timing; crash read and clean-up rules | accepted |
+| [9DV4](entries/9DV4-format-version-from-freemocap.md) | Format version = major.minor of the freemocap release that last changed the folder; package and skellycam in step; version in each file | accepted |
+| [CZQ9](entries/CZQ9-read-old-write-new-and-legacy-recognition.md) | Old recordings stay readable; new programs write only this format; the spec recognises v1 folders by era; pre-v1 unsupported; legacy annex | accepted |
+| [DE9S](entries/DE9S-rotation-in-the-video-csv-header.md) | Frames stored unrotated; `display_rotation` in the video CSV header only, plus one informative manifest summary copy; 2D in stored pixels | accepted |
+| [G1YG](entries/G1YG-writing-crash-reading-and-repair.md) | Whole files via `.tmp` and replace; live files append and flush; crashed files read in place; repair only after the user agrees | accepted |
+| [KW3G](entries/KW3G-reader-result-for-the-folder.md) | One canonical reader result for the folder: file states, codes, folder files, link checks, private-data flag; the reader never writes | accepted |
+| [N6HS](entries/N6HS-info-jsons-and-calibration.md) | Two info JSONs, one writer each, no copied fields; one fact one home; calibration as a setup file with `calibration_uuid` and a copy per take | accepted |
+| [P76Y](entries/P76Y-tracking-parquet.md) | Tracking Parquet: 2D and 3D in one file; value f32 + value_f64; BYTE_STREAM_SPLIT, ZSTD 3; descriptor v2 links; realtime runs marked | accepted |
+| [Q9X2](entries/Q9X2-realtime-tracking-journal.md) | Realtime tracking: CRC-framed binary journal by its own freemocap node, folded into a Parquet run; deleted only after a verified fold | accepted |
+| [QS7B](entries/QS7B-blender-outputs-and-exports.md) | Blender outputs in `blender/` with `<rec>.blend` at the root; addon pickle dropped; annotated videos, exports and logs specified | accepted |
+| [T8PK](entries/T8PK-privacy-notice-and-no-code-in-files.md) | Private data allowed in any field and declared in the manifest `privacy` list; no strip option yet; no file format that runs code | accepted |
 
 ### Proposed
 
@@ -42,6 +41,8 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
+| [VPD9](entries/VPD9-spec-draft-v2-details.md) | Spec draft v2 details, part 1: structure, IDs, names, CSV dialect, columns, fit lines, clocks, media boxes, repair line, journal layout | `spec` | proposed |
+| [3D33](entries/3D33-spec-draft-v2-details-folder-files.md) | Spec draft v2 details, part 2: manifest, info JSONs, TOML, Parquet v2 fields, Blender, exports, opening, legacy, privacy, result codes | `spec` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

@@ -3,3 +3,8 @@
 
 [extend]
 useDefault = true
+
+[[allowlists]]
+description = "Example camera_key in the calibration TOML sample of spec/SPEC.md section 15: a made-up hash, not a credential (ADR-VPD9)"
+paths = ['''spec/SPEC\.md''']
+regexes = ['''9c41d07a55e2b318''']

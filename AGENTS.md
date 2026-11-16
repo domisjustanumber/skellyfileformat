@@ -8,19 +8,21 @@ Keep technical names, field names, values, formulas, code and YAML unchanged.
 
 ## 1. Purpose
 
-skellyfileformat defines the file format of skellycam and skellysync recordings: a profile of MCAP
-with JPEG video and Opus audio
-([ADR-DK8S](decisions/entries/DK8S-mcap-profile-files-and-names.md), [ADR-D9N1](decisions/entries/D9N1-opus-audio-settings-and-timing.md)). It holds the
-normative spec, the conformance test list and the golden files. After the spec and the tests are
-approved, it also holds a Python reader and writer and a JavaScript reader. skellycam, skellysync and
-freemocap use it. Other programs can implement the format from the spec alone.
+skellyfileformat defines the take folder of skellycam, skellysync and freemocap recordings: MJPEG
+in MKV and Opus in fragmented MP4, each with a CSV timing sidecar, and every folder file that the
+programs add ([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md),
+[ADR-6RSB](decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md),
+[ADR-92TM](decisions/entries/92TM-opus-audio-in-fragmented-mp4.md)). It holds the normative spec,
+the conformance test list and the golden folders. After the spec and the tests are approved, it also
+holds a Python reader and writer and a JavaScript reader. skellycam, skellysync and freemocap use it.
+Other programs can implement the format from the spec alone.
 
 | Path | Role |
 |---|---|
 | `AGENTS.md` | The root instructions file for coding agents |
 | `CLAUDE.md` | Imports this file. It has no other content. |
 | `README.md` | Normative: the scope, the compatibility promise, the versioning and what "conforming" means |
-| `spec/` | Normative: the spec (`SPEC.md`) and the conformance test list (`conformance.md`) |
+| `spec/` | Normative: the spec (`SPEC.md`, with `parts/`) and the conformance test list (`conformance.md`). Informative: `legacy-annex.md` ([ADR-VPD9](decisions/entries/VPD9-spec-draft-v2-details.md), proposed) |
 | `decisions/` | Decision log ([`README.md`](decisions/README.md)) and its open work ([`open-work.md`](decisions/open-work.md)) |
 | `tools/` | The doc checks: `check_decision_log.py`, `check_links.py`, `check_private_data.py`, `check_ai_attribution.py` and `check_spec_traceability.py`. Their tests are in `tools/tests/`. |
 | `plans/` | A local working folder. Git ignores it. |

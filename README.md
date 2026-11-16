@@ -1,10 +1,12 @@
 # skellyfileformat
 
-skellyfileformat defines the file format of skellycam and skellysync recordings: a profile of
-[MCAP](https://mcap.dev/spec) with JPEG video and timing in MCAP messages
-([ADR-DK8S](decisions/entries/DK8S-mcap-profile-files-and-names.md)). The [specification](spec/SPEC.md) gives the
-channels, the schemas, the field meanings, the clocks and the recovery rules, so that other programs
-can implement the format from the spec alone.
+skellyfileformat defines the take folder of skellycam, skellysync and freemocap recordings: MJPEG
+video in MKV and Opus audio in fragmented MP4, each with a CSV timing sidecar, and every folder file
+that the programs add, such as the manifest, the info JSONs, the calibration TOML and the tracking
+Parquet ([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md)). The
+[specification](spec/SPEC.md) gives the names, the layouts, the meaning of each field, the clocks, the
+writing and recovery rules, and how a reader opens a folder, so that other programs can make a
+compatible folder or read the output of freemocap from the spec alone.
 
 **Status: draft.** No format version is released yet. The spec and its conformance tests are written
 first and reviewed. Code comes after them ([AGENTS.md section 4](AGENTS.md#4-project-rules)).
@@ -14,64 +16,68 @@ The sections marked "normative" are rules. A change to them needs a decision ent
 
 ## Scope (normative)
 
-The format describes one recording (one take): a set of synchronised MCAP files, one for each
-device, that share one clock ([ADR-TDB5](decisions/entries/TDB5-whole-recording-no-manifest.md)).
-It covers these files:
+The format describes one take folder: the files of one synchronised capture and every file that the
+programs add to it later ([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md),
+[ADR-5XNA](decisions/entries/5XNA-folder-layout-names-and-manifest.md)). It covers these files:
 
-- each camera file: an MCAP file of profile `freemocap` in which each frame is one JPEG in a
-  `foxglove.CompressedImage` message, with the timing of the frame in the MCAP fields and the facts
-  in the file metadata ([ADR-DK8S](decisions/entries/DK8S-mcap-profile-files-and-names.md),
-  [ADR-752H](decisions/entries/752H-timing-fields.md));
-- the audio file of skellycam and skellysync: Opus packets in `foxglove.CompressedAudio` messages,
-  with the Opus identification header fields in the channel metadata
-  ([ADR-D9N1](decisions/entries/D9N1-opus-audio-settings-and-timing.md)).
+- each camera file: an MKV file with one MJPEG track and index timestamps, with its CSV timing
+  sidecar ([ADR-6RSB](decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md));
+- the audio file: Opus in fragmented MP4, with its CSV timing sidecar
+  ([ADR-92TM](decisions/entries/92TM-opus-audio-in-fragmented-mp4.md));
+- the recording manifest, the capture info JSON, the processing info JSON and the calibration TOML
+  ([ADR-N6HS](decisions/entries/N6HS-info-jsons-and-calibration.md));
+- the tracking Parquet and the realtime journal
+  ([ADR-P76Y](decisions/entries/P76Y-tracking-parquet.md),
+  [ADR-Q9X2](decisions/entries/Q9X2-realtime-tracking-journal.md));
+- the Blender outputs, the annotated videos, the exports and the logs, by name, container and content
+  mapping ([ADR-QS7B](decisions/entries/QS7B-blender-outputs-and-exports.md)).
 
-There is no recording manifest.
-
-It also covers the recording as a whole: which files make up one recording, the clock that they
-share, the facts about the recording in each file's metadata (authoritative), how a writer records
-the set, and how a reader opens a recording, also when it is crashed or incomplete.
-
-The format does not cover recordings that older programs wrote, for example H.264 MP4 files and
-timestamp CSV files. The programs that read those recordings define how they read them. Section 13
-of the spec tells how to find a file that is not in this format.
+It also covers the folder as a whole: the fixed names, the links between the files, the clock that
+the files share, the writing rules, how a reader opens a folder (also when it is crashed or
+incomplete), and how a reader recognises a legacy folder of freemocap v1.x
+([ADR-CZQ9](decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md)). The code that reads
+legacy folders stays in skellycam and freemocap.
 
 ## Compatibility promise (normative)
 
 - A conforming reader must read every released format version.
-- A released format version is one with `prerelease` = 0 in its metadata
+- A released format version is one with `format_prerelease` = 0 in its files
   ([Versioning](#versioning-normative)).
-- A file with `prerelease` > 0 has no compatibility promise. A later reader can refuse it.
+- A file with `format_prerelease` > 0 has no compatibility promise. A later reader can refuse it.
 - A writer writes only the latest format version.
 
 ## Versioning (normative)
 
-- **Format version.** The format version is the `major.minor` of the skellycam release that last
-  changed the format.
-  - A change that an older reader cannot read needs a new skellycam major version.
-  - An added field needs a new skellycam minor version, or a new major version.
-  - A skellycam patch release does not change the format.
-- **Version fields.** The metadata of each file holds three values: `major`, `minor` and
-  `prerelease`. Each is an unsigned integer that fits in 16 bits, written as a decimal string
-  ([ADR-7K3C](decisions/entries/7K3C-format-versioning-in-metadata.md)).
-  - `prerelease` is 0 for a released format, and N for the Nth prerelease revision.
+- **Format version.** The format version is the `major.minor` of the freemocap release that last
+  changed any file of the take folder
+  ([ADR-9DV4](decisions/entries/9DV4-format-version-from-freemocap.md)).
+  - A change that an older reader cannot read needs a new freemocap major version.
+  - An added field needs a new freemocap minor version, or a new major version.
+  - A freemocap patch release does not change the format.
+  - The skellyfileformat package and skellycam release at the same `major.minor` when the format
+    changes.
+- **Version fields.** Each file of the format records the format version under which it was written:
+  `format_version` (`major.minor`) and `format_prerelease`. `major`, `minor` and `format_prerelease`
+  are unsigned integers that fit in 16 bits. The spec gives the place of the fields in each file.
+  - `format_prerelease` is 0 for a released format, and N for the Nth prerelease revision.
   - A reader must refuse a file with a `major` that it does not know.
   - A reader must read a file with a higher `minor` of a `major` that it knows, and skip the fields
     that it does not know.
-- **MCAP version.** The MCAP version of a file (its magic) is not the format version.
-- **Writer string.** Each file also holds a writer string, for example `skellycam 2.1.0`. It is
-  for diagnostics only. A reader must not change its behaviour because of it. skellysync writes the
+- **Container versions.** The version of a container (Matroska, MP4, Parquet) is not the format
+  version.
+- **Writer string.** Each file also holds a writer string, for example `skellycam 2.1.0`. It is for
+  diagnostics only. A reader must not change its behaviour because of it. skellysync writes the
   format version that skellyfileformat gives, not its own version.
 - **Package version.** The skellyfileformat package uses semantic versioning. Its `major.minor` is
-  the format version that it implements. Its patch number counts the library fixes that do not
-  change the format.
+  the format version that it implements. Its patch number counts the library fixes that do not change
+  the format.
 
 ## Conformance (normative)
 
 - A conforming writer writes files that obey each writer requirement of [SPEC.md](spec/SPEC.md),
   and it passes each writer test of [conformance.md](spec/conformance.md).
 - A conforming reader obeys each reader requirement of SPEC.md, passes each reader test of
-  conformance.md, and reads each golden file in `golden/` to the expected result.
+  conformance.md, and reads each golden folder in `golden/` to the expected result.
 - Each requirement has an ID `SFF-NNN`. Each test has an ID `SFT-NNN` and names the requirements
   that it checks.
 
