@@ -1,6 +1,6 @@
 # X1G6 — Old recordings stay readable; new skellycam and skellysync write only the MCAP profile
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [CZQ9](CZQ9-read-old-write-new-and-legacy-recognition.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

@@ -1,6 +1,6 @@
 # WG08 — The reader result: file and folder states, reason and warning codes, take counting and the JSON form
 
-**Status:** accepted, 2026-11-13 (user; proposed from the spec v1 review).
+**Status:** superseded by [KW3G](KW3G-reader-result-for-the-folder.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

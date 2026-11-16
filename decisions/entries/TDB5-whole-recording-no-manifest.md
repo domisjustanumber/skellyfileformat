@@ -1,6 +1,6 @@
 # TDB5 — The whole recording without a manifest; takes grouped by `take_uuid`; a canonical reader result
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [2C9V](2C9V-whole-take-folder-scope-and-package.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

@@ -1,6 +1,6 @@
 # 68Z6 — Frames stored unrotated; `display_rotation` in the camera file's metadata only
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [DE9S](DE9S-rotation-in-the-video-csv-header.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

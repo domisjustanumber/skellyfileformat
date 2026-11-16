@@ -1,6 +1,6 @@
 # 7K3C — Format version = the skellycam release that last changed the format; written in each file's metadata
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [9DV4](9DV4-format-version-from-freemocap.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

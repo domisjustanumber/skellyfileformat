@@ -1,6 +1,6 @@
 # T24G — Spec v1 review fixes: crash reading, repair details, fit evaluation, audio and camera details
 
-**Status:** accepted, 2026-11-13 (user; proposed from the spec v1 review).
+**Status:** superseded by [G1YG](G1YG-writing-crash-reading-and-repair.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

@@ -1,6 +1,6 @@
 # D9N1 — Opus audio: messages, channel metadata, encoder settings, timing and decoding
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [92TM](92TM-opus-audio-in-fragmented-mp4.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

@@ -1,6 +1,6 @@
 # DK8S — MCAP profile: one file per device, profile `freemocap`, protobuf, names and topics
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [6RSB](6RSB-camera-files-mjpeg-mkv-and-csv-timing.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

@@ -1,6 +1,6 @@
 # 5G42 — Four names of spec draft v1 confirmed at gate 1: the repair record, the audio label, the audio latency key and RFC 8785
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [G1YG](G1YG-writing-crash-reading-and-repair.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

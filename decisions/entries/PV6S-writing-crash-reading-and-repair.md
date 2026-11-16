@@ -1,6 +1,6 @@
 # PV6S — Writing rules and crash reading; the repair of a crashed file cuts after the last good chunk, only after the user agrees
 
-**Status:** accepted, 2026-11-13 (user).
+**Status:** superseded by [G1YG](G1YG-writing-crash-reading-and-repair.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 

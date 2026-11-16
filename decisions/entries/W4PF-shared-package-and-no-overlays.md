@@ -1,6 +1,6 @@
 # W4PF — One shared package with a descriptive spec; no recorded overlays (consolidation)
 
-**Status:** accepted, 2026-11-13 (user; proposed from the spec v1 review).
+**Status:** superseded by [2C9V](2C9V-whole-take-folder-scope-and-package.md), 2026-11-16 (commit to main; was accepted, 2026-11-13).
 
 ## Decision
 
