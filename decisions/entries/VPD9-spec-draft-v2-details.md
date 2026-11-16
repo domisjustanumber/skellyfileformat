@@ -1,12 +1,17 @@
 # VPD9 — Spec draft v2 details, part 1: structure, names, media files, timing and writing
 
-**Status:** proposed, 2026-11-16 (agent; spec draft v2 for gate 1).
+**Status:** accepted, 2026-11-16 (user; gate 1 review of spec draft v2, item by item).
 
 ## Decision
 
 The user's decisions ([ADR-2C9V](2C9V-whole-take-folder-scope-and-package.md) to
-[ADR-QS7B](QS7B-blender-outputs-and-exports.md)) do not fix these details. Spec draft v2 uses them.
-Gate 1 reviews them. Part 2 is [ADR-3D33](3D33-spec-draft-v2-details-folder-files.md).
+[ADR-QS7B](QS7B-blender-outputs-and-exports.md)) do not fix these details. An agent proposed them in
+spec draft v2. The user accepted each item at gate 1, and changed item 13. Part 2 is
+[ADR-3D33](3D33-spec-draft-v2-details-folder-files.md).
+
+The user also confirmed these rules of the draft at gate 1: the file names are a MUST for a writer;
+both `camera_key` and `camera_label` stay, and a program links by `camera_key`; the name that a user
+gives a camera is only the member `user_name` and is in no file name.
 
 1. **Spec structure.** One `spec/SPEC.md`, with the normative part
    `spec/parts/parquet-descriptor.md` and the informative `spec/legacy-annex.md`. The IDs of v2 start
@@ -43,8 +48,11 @@ Gate 1 reviews them. Part 2 is [ADR-3D33](3D33-spec-draft-v2-details-folder-file
 12. **Repair.** The line `# repair cut_bytes=<n> repair_writer=<writer>`. The repair of a camera file
     is provisional until desk test DT-R1. freemocap holds `.processing.lock` for each folder file.
 13. **Journal.** The magic `SKRJ`; record types 1 (header), 2 (data), 3 (event) and 4 (end); float32
-    values with NaN for missing; `frame_number` is the take frame number. Before the delete, a check
-    compares the value count and a SHA-256 of the folded values.
+    values with NaN for missing; `frame_number` is the take frame number, as `i32` (the user changed
+    it from `i64`). Each journal channel declares the `dtype` `float32`, and a reader refuses another
+    `dtype`. A journal holds no time as a data value: the fold takes each time of the realtime run
+    from the timing sidecars. Before the delete, a check compares the value count and a SHA-256 of
+    the folded values.
 14. **skellysync.** A skellysync folder has device pairs and a manifest only, with the `synthetic`
     clock, and its audio in a separate file (spec v0 revival, decision 6).
 

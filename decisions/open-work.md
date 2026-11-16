@@ -3,12 +3,11 @@
 This file holds the open work of the [decision log](README.md). Read the items that apply to your
 task. Delete an item when its work is done. The PR that closes an item records the result.
 
-- **Gate 1: review spec draft v2 (the whole take folder).** The user reviews
-  [SPEC.md](../spec/SPEC.md), [parts/parquet-descriptor.md](../spec/parts/parquet-descriptor.md),
-  [legacy-annex.md](../spec/legacy-annex.md), [conformance.md](../spec/conformance.md) and the
-  proposed entries [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md) and
-  [ADR-3D33](entries/3D33-spec-draft-v2-details-folder-files.md). Then write the runnable tests and
-  the golden folders of SPEC.md Appendix A, and stop for gate 2.
+- **Gate 2: runnable tests and golden folders.** The user accepted the items of
+  [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md) and
+  [ADR-3D33](entries/3D33-spec-draft-v2-details-folder-files.md) at gate 1 on 2026-11-16. Write the
+  runnable tests of [conformance.md](../spec/conformance.md) and the golden folders G1 to G16 of
+  SPEC.md Appendix A, and stop for gate 2. G17 waits for the skellysync decisions.
 - **Absorb the accepted entries into the spec.** After gate 1, when `spec/SPEC.md` or `README.md`
   states all rules of an entry, move the entry to Historical as absorbed:
   [ADR-2C9V](entries/2C9V-whole-take-folder-scope-and-package.md),
@@ -51,7 +50,8 @@ task. Delete an item when its work is done. The PR that closes an item records t
   start and the end, whole), no glob of `*_info.json`, no `synchronized_videos_README.md`, and labels
   from `camera_key`. freemocap: `recording_id` = `<rec>` in place of the folder name
   (`parquet_writer.py:44-45`, `recording_view.py:46-47`), the descriptor v2 fields, the value columns
-  and encodings, whole-file TOML writes and a new `calibration_uuid` for each geometry change, no copy
+  and encodings, `int32` in place of `int64` for the Parquet columns `frame_number` and `run_id` (the
+  reader must also accept `int64` from older files), whole-file TOML writes and a new `calibration_uuid` for each geometry change, no copy
   of the capture JSON in `<rec>_recording_info.json`, the reader through the manifest, the realtime
   journal node, and the names of `RECORDING_CONTRACT.md` and `shared/recording-contract/paths.json`.
   The Blender addon: MKV video planes, the `blender/` outputs and no pickle.

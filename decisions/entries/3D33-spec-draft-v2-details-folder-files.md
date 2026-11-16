@@ -1,10 +1,11 @@
 # 3D33 — Spec draft v2 details, part 2: folder files, opening a folder, legacy and the reader result
 
-**Status:** proposed, 2026-11-16 (agent; spec draft v2 for gate 1).
+**Status:** accepted, 2026-11-16 (user; gate 1 review of spec draft v2, item by item).
 
 ## Decision
 
-Spec draft v2 uses these details. Gate 1 reviews them. Part 1 is
+An agent proposed these details in spec draft v2. The user accepted each item at gate 1, and changed
+the integer types of items 5 and 8. Part 1 is
 [ADR-VPD9](VPD9-spec-draft-v2-details.md).
 
 1. **Manifest.** The members, roles, owners and `state` (`recording`, `finished`) of SPEC.md section
@@ -18,7 +19,8 @@ Spec draft v2 uses these details. Gate 1 reviews them. Part 1 is
    the label; `index` is `group_position`; `controls_at_calibration` is a sub-table. A change of
    geometry (an alignment or a transform) gives a new `calibration_uuid`. Every TOML write is whole. A
    reader uses only the TOML that the manifest names.
-5. **Parquet.** `value_f64` is column 10. Each channel has `dtype`. The descriptor gains
+5. **Parquet.** The columns `frame_number` and `run_id` are `int32` (the user changed them from
+   `int64`). `value_f64` is column 10. Each channel has `dtype`. The descriptor gains
    `format_version`, `format_prerelease`, `writer` and `take_uuid`; `recording_id` is `<rec>`. A camera
    source is `camera:<camera_label>`, with `camera_key`, `camera_label`, `timing_filename` and no
    `nominal_fps`. A camera sensor group is named from the hash of its `camera_key` values. The group
@@ -32,7 +34,7 @@ Spec draft v2 uses these details. Gate 1 reviews them. Part 1 is
    orientation of the stored frames, no time stamp.
 8. **Exports.** The notebook moves into `exports/`. The inventory is
    `<prefix>.export_inventory.json`, so that its name differs from the processing info JSON. The tall
-   CSV has one `value` column. Each NPY array has the `dtype` of its channel.
+   CSV has one `value` column. Each NPY array has the `dtype` of its channel. `frames.npy` is `int32`.
 9. **Logs.** `logs/<program>.log`.
 10. **Opening a folder.** A device pair is found by the first line of its CSV and the magic of its
     media file. A media file or a sidecar alone gives `orphan_file`. Two takes give

@@ -669,8 +669,9 @@ Pass: each camera source is `camera:<label>` with `camera_key`, `video_filename`
 Checks: SFF-833, SFF-834, SFF-844
 Input: G13, then a posthoc run on it.
 Pass: the fold gives a run with `origin` `realtime`, a `coverage` object and no checkpoints. Skipped
-frames have null `x`, `y` and `visibility`. The posthoc run gets a new `run_id`, and the realtime run
-is unchanged, byte for byte in its rows.
+frames have null `x`, `y` and `visibility`. `timestamp_s` of each row of the realtime run and the
+value of each of its `TIMESTAMPS` rows equal the times from the timing sidecars. The posthoc run gets
+a new `run_id`, and the realtime run is unchanged, byte for byte in its rows.
 
 **SFT-752** Reader: the realtime warning
 Checks: SFF-835
@@ -700,14 +701,15 @@ processing info JSON, then the manifest.
 Checks: SFF-839, SFF-840, SFF-841, SFF-842
 Input: a realtime session of 60 s with the journal on.
 Pass: the first record is the header. Each record has a correct magic, length and CRC. Each channel is
-declared before its data. Missing values are NaN. Each result kind of SFF-842 that the session
+declared before its data, with the `dtype` `float32`. Missing values are NaN. Each result kind of SFF-842 that the session
 made is in the journal.
 
 **SFT-757** Reader: damaged journals
 Checks: SFF-843
-Input: G13.
+Input: G13; G13 with a header that declares one channel with the `dtype` `float64`.
 Pass: the reader skips the record with a wrong CRC, finds the next record after the zero hole, stops
-at the torn tail, and reports the counts of the committed result.
+at the torn tail, and reports the counts of the committed result. The journal with the `float64`
+channel is `invalid` with the reason `bad_schema`.
 
 **SFT-758** Writer: the journal after the fold
 Checks: SFF-845

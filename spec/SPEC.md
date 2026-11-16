@@ -1357,7 +1357,7 @@ in this order:
 |---|---|---|---|---|
 | 1 | `timestamp_s` | float64 | no | The time of the sample in seconds from the take start |
 | 2 | `sensor_group` | string | no | The sampling grid, a key of `runs[run_id].sensor_groups` |
-| 3 | `frame_number` | int64 | no | The sample number on that grid, 0 or more |
+| 3 | `frame_number` | int32 | no | The sample number on that grid, 0 or more |
 | 4 | `source` | string | no | The producer, a key of `runs[run_id].sources` |
 | 5 | `reference_frame` | string | yes | A key of `runs[run_id].reference_frames`, or null |
 | 6 | `channel` | string | no | The channel kind (parts/parquet-descriptor.md) |
@@ -1366,7 +1366,7 @@ in this order:
 | 9 | `value` | float32 | yes | The value, for a channel of `dtype` `float32` |
 | 10 | `value_f64` | float64 | yes | The value, for a channel of `dtype` `float64` |
 | 11 | `units` | string | no | The units of the component |
-| 12 | `run_id` | int64 | no | The run, a key of `runs`, 0 or more |
+| 12 | `run_id` | int32 | no | The run, a key of `runs`, 0 or more |
 
 **SFF-816** (writer) The Arrow schema of the file has exactly the columns of the table, in this
 order, with these types and this nullability. A string column is `string`, not `large_string` or a
@@ -1482,7 +1482,7 @@ Record types:
 | `type` | Record | Payload |
 |---|---|---|
 | 1 | header | UTF-8 JSON (SFF-702): `skellyfileformat` (`"realtime_journal"`), `format_version`, `format_prerelease`, `writer`, `take_uuid`, `origin` (`"realtime"`) and `channels`: an array of channel declarations, each with `channel_index` and the members of a Parquet channel (section 16) |
-| 2 | data | `channel_index` (`u16`), `frame_number` (`i64`, the take frame number of section 16), `processed_ns` (`i64`, relative to the take start), `n` (`u32`, the number of names), `k` (`u32`, the number of components), then n × k `f32` values in name order, then component order |
+| 2 | data | `channel_index` (`u16`), `frame_number` (`i32`, the take frame number of section 16), `processed_ns` (`i64`, relative to the take start), `n` (`u32`, the number of names), `k` (`u32`, the number of components), then n × k `f32` values in name order, then component order |
 | 3 | event | UTF-8 JSON: a parameter change, with `time_ns`, `stage`, `parameter` and `value` |
 | 4 | end | UTF-8 JSON: `records` (the number of data records) and `clean_close` (`true`) |
 
@@ -1494,7 +1494,8 @@ of that channel.
 writer writes each record in one write and flushes it (SFF-787).
 
 **SFF-841** (writer) A data value is `f32`. A missing value is a quiet NaN. The fold writes it as
-null (section 16).
+null (section 16). Each channel of a journal declares the `dtype` `float32`. A journal holds no time
+as a data value.
 
 **SFF-842** (writer) The journal holds each result that the realtime pipeline computes: the raw
 2D for each camera with its visibility; the filtered 2D where it exists; the raw 3D; the filtered
@@ -1504,10 +1505,13 @@ parameter-change events (as event records).
 **SFF-843** (reader) A reader scans the journal from its start. At each offset it looks for
 `magic`. It checks `length` and `crc32`. It uses a record only when both are correct. It skips a bad
 record by a scan for the next `magic`. It stops at a torn tail. It reports the number of good
-records, the number of rejected records and `torn_bytes`.
+records, the number of rejected records and `torn_bytes`. A reader refuses a journal whose header
+declares a channel with a `dtype` that is not `float32` (`bad_schema`).
 
 **SFF-844** (writer) At the end of the take, freemocap folds the journal into a new Parquet run
-with `origin` = `realtime` and its coverage block (section 16).
+with `origin` = `realtime` and its coverage block (section 16). The fold takes `timestamp_s` of each
+row and the value of each `TIMESTAMPS` row from the timing sidecars of the take (SFF-828), not from
+the journal.
 
 **SFF-845** (writer) freemocap deletes the journal only after it has read the new Parquet run
 back and compared the number of values and a SHA-256 digest of the folded values with the journal.
@@ -1607,7 +1611,7 @@ Parquet (section 16), with one column `value` that holds the value of `value` or
 static file has no `timestamp_s` and no `frame_number` column.
 
 **SFF-857** (writer) Each NPY array of a table has the shape (frames, names, components) and the
-`dtype` of its channel, with NaN for a value that is not available. `frames.npy` is int64 and
+`dtype` of its channel, with NaN for a value that is not available. `frames.npy` is int32 and
 `timestamps.npy` is float64: the sorted frame numbers of the table and their times. An NPY or NPZ file
 holds no object array (SFF-884). The NPZ file holds `<table>.values.npy`, `frames.npy`,
 `timestamps.npy` and `recording_info.json`.
@@ -1809,8 +1813,8 @@ file that this spec makes a reader refuse is `invalid`, with one reason code.
 
 **SFF-887** (reader) The reason codes are `bad_metadata`, `missing_metadata`, `bad_rate`,
 `bad_rotation`, `bad_label`, `bad_time` (a time 2^53 ns or more from the take start),
-`crc_mismatch`, `take_fact_mismatch`, `bad_schema` (a JSON, TOML or Parquet file without the members
-or the columns of its section) and `code_in_file`. The take warnings are `incomplete_take`,
+`crc_mismatch`, `take_fact_mismatch`, `bad_schema` (a JSON, TOML or Parquet file, or a journal header, without the
+members or the columns of its section) and `code_in_file`. The take warnings are `incomplete_take`,
 `duplicate_label`, `take_fact_mismatch`, `extra_files`, `manifest_missing`, `stray_tmp`,
 `orphan_file`, `camera_key_zero`, `stale_processing_info`, `summary_stale`, `calibration_mismatch`
 and `realtime_run`. The file warnings are `missing_fit`, `encode_skip` and `prerelease`. The folder

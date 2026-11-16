@@ -22,7 +22,7 @@ Other programs can implement the format from the spec alone.
 | `AGENTS.md` | The root instructions file for coding agents |
 | `CLAUDE.md` | Imports this file. It has no other content. |
 | `README.md` | Normative: the scope, the compatibility promise, the versioning and what "conforming" means |
-| `spec/` | Normative: the spec (`SPEC.md`, with `parts/`) and the conformance test list (`conformance.md`). Informative: `legacy-annex.md` ([ADR-VPD9](decisions/entries/VPD9-spec-draft-v2-details.md), proposed) |
+| `spec/` | Normative: the spec (`SPEC.md`, with `parts/`) and the conformance test list (`conformance.md`). Informative: `legacy-annex.md` ([ADR-VPD9](decisions/entries/VPD9-spec-draft-v2-details.md)) |
 | `decisions/` | Decision log ([`README.md`](decisions/README.md)) and its open work ([`open-work.md`](decisions/open-work.md)) |
 | `tools/` | The doc checks: `check_decision_log.py`, `check_links.py`, `check_private_data.py`, `check_ai_attribution.py` and `check_spec_traceability.py`. Their tests are in `tools/tests/`. |
 | `plans/` | A local working folder. Git ignores it. |
