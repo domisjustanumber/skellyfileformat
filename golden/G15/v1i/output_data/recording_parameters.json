@@ -1,0 +1,6 @@
+{
+  "tracking_parameters_model": {},
+  "anipose_triangulate_3d_parameters_model": {
+    "use_triangulate_outlier_rejection": false
+  }
+}

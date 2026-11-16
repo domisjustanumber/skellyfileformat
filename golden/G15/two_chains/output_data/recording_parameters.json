@@ -1,0 +1,8 @@
+{
+  "mediapipe_parameters_model": {},
+  "tracking_parameters_model": {},
+  "anipose_triangulate_3d_parameters_model": {
+    "run_3d_triangulation": true,
+    "run_reprojection_error_filtering": false
+  }
+}

@@ -1,0 +1,5 @@
+[cam_0]
+rotation = [ 0.0, 5e-7, -5e-7,]
+
+[metadata]
+groundplane_calibration = false

@@ -1,0 +1,5 @@
+{
+  "mediapipe_parameters_model": {
+    "skip_2d_image_tracking": false
+  }
+}
