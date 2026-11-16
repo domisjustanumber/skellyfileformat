@@ -1,0 +1,2 @@
+# The golden files are compared byte for byte (decision G21H item 9). Git must not change a line end.
+golden/** -text

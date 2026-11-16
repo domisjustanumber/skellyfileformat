@@ -25,6 +25,8 @@ Other programs can implement the format from the spec alone.
 | `spec/` | Normative: the spec (`SPEC.md`, with `parts/`) and the conformance test list (`conformance.md`). Informative: `legacy-annex.md` ([ADR-VPD9](decisions/entries/VPD9-spec-draft-v2-details.md)) |
 | `decisions/` | Decision log ([`README.md`](decisions/README.md)) and its open work ([`open-work.md`](decisions/open-work.md)) |
 | `tools/` | The doc checks: `check_decision_log.py`, `check_links.py`, `check_private_data.py`, `check_ai_attribution.py` and `check_spec_traceability.py`. Their tests are in `tools/tests/`. |
+| `golden/` | The golden folders of SPEC.md Appendix A, each with its `SHA256SUMS` and its expected reader results ([`README.md`](golden/README.md)). `tools/make_golden.py` makes them ([ADR-G21H](decisions/entries/G21H-gate-2-tests-location-and-interfaces.md)). |
+| `tests/` | `tests/conformance/` holds the runnable conformance tests of `spec/conformance.md`. They are not in the default pytest run (ADR-G21H). |
 | `plans/` | A local working folder. Git ignores it. |
 
 ## 2. Skills
@@ -49,6 +51,11 @@ These tests must pass.
 Run `uv run pytest tools/tests` to run only the doc checks.
 The doc checks test the decision log, the relative links, the private-data rule and the links
 between the spec requirements and the conformance tests.
+Run `uv run --group conformance pytest tests/conformance` to run the conformance tests.
+These tests fail until the implementation exists
+([ADR-G21H](decisions/entries/G21H-gate-2-tests-location-and-interfaces.md)).
+Run `uv run --group golden python tools/make_golden.py --check` to check the golden files
+against a new run of the generator.
 Report each new test failure to the user.
 Fix the failures of one root cause in one PR.
 

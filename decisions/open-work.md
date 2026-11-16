@@ -19,6 +19,10 @@ task. Delete an item when its work is done. The PR that closes an item records t
   cases, with two expected results for each case (the scopes `full` and `player`).
   [ADR-QH61](entries/QH61-spec-v2-details-part-15.md) item 46 gives the tests that this repository
   runs.
+- **Choices made for G1 that the spec does not give.** [golden/G01_CHOICES.md](../golden/G01_CHOICES.md) holds the numbered list: 29 choices of the
+  golden generator, and 5 points where the spec and the pinned tools do not agree. The user must
+  decide each before the other golden folders copy G1. The list is not here, because this file
+  has a size limit.
 - **Points that the user did not decide on 2026-11-16** (the review of parts 9 to 15).
   - The value of `format_prerelease` after the user sends the draft to external review. It is 1
     until then (SFF-710, [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 20).
