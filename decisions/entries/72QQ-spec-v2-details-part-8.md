@@ -1,6 +1,7 @@
 # 72QQ — Spec draft v2 details, part 8: tests with no Pass text, and the open points of E45D
 
-**Status:** proposed, 2026-11-16 (agent; ambiguous points from the independent review).
+**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
+recommended option of each CHOICE).
 
 ## Decision
 
@@ -8,7 +9,9 @@ This part holds items 18 and 19 of the proposals that [ADR-W6HV](W6HV-spec-v2-de
 introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other parts are
 [ADR-Q4BK](Q4BK-spec-v2-details-part-4.md) (3 and 4), [ADR-0XX2](0XX2-spec-v2-details-part-5.md)
 (5 to 8), [ADR-ATW0](ATW0-spec-v2-details-part-6.md) (9 to 13) and
-[ADR-DM9S](DM9S-spec-v2-details-part-7.md) (14 to 17). Item 19 is not from the independent review.
+[ADR-DM9S](DM9S-spec-v2-details-part-7.md) (14 to 17). Item 19 is not from the independent review. The user accepted
+each item of this part on 2026-11-16, with the recommended option of each CHOICE. The recommended
+option is the text of the item.
 
 18. **Tests for requirements with no Pass text.** No new ID is necessary.
     - SFF-720 (`cam<N>`): SFT-705, with a converter run; SFT-763 (the G3 copy with key 0).
@@ -28,8 +31,9 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
     - `empty` and `unreadable`: SFT-768. The test makes an empty folder, and a folder with only one
       timing sidecar of G1. No golden folder is necessary.
 
-19. **Points left open by [ADR-E45D](E45D-spec-draft-v2-corrections-after-review.md).** The current
-    spec text is the proposal, unless a point gives a different proposal. Each point is a CHOICE.
+19. **Points left open by [ADR-E45D](E45D-spec-draft-v2-corrections-after-review.md).** The spec
+    text of ca2a63f was the proposal, unless a point gave a different proposal. Each point is a
+    CHOICE.
     - a. CHOICE. In SFF-885, the journal item gets the members `records` (the number of good
       records) and `rejected_records`, beside `torn_bytes`. Each of the three is null when the
       journal is `not_checked` (SFF-892). A hole of zeros, for example of 4 KiB, is not a rejected
@@ -44,9 +48,9 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
       general pattern, which is the text of SPEC.md section 18: the folder `run-<N>/`, and
       `.run-<N>` before the last suffix. An example is
       `annotated_videos/run-<N>/<rec>.<camera_label>.annotated.run-<N>.mp4`.
-    - e. CHOICE. `selected_run_id` is in the processing info JSON and in the Parquet descriptor now.
-      A change of the selection then rewrites the Parquet. Proposal: the processing info JSON is
-      the only home, and the descriptor loses the member.
+    - e. CHOICE. The processing info JSON is the only home of `selected_run_id`, and the Parquet
+      descriptor loses the member. Before this entry, the descriptor also held it, and a change of
+      the selection rewrote the Parquet.
     - f. CHOICE. freemocap rewrites the times of a realtime run after a repair (SFF-833). It does
       this when it next opens the take and finds that a sidecar has a `# repair` line and a fit that
       the run did not use.

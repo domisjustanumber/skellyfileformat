@@ -1,6 +1,7 @@
 # DM9S — Spec draft v2 details, part 7: JavaScript scope, privacy, identity, ranges, smaller points
 
-**Status:** proposed, 2026-11-16 (agent; ambiguous points from the independent review).
+**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
+recommended option of each CHOICE).
 
 ## Decision
 
@@ -8,7 +9,9 @@ This part holds items 14 to 17 of the proposals that [ADR-W6HV](W6HV-spec-v2-det
 introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other parts are
 [ADR-Q4BK](Q4BK-spec-v2-details-part-4.md) (3 and 4), [ADR-0XX2](0XX2-spec-v2-details-part-5.md)
 (5 to 8), [ADR-ATW0](ATW0-spec-v2-details-part-6.md) (9 to 13) and
-[ADR-72QQ](72QQ-spec-v2-details-part-8.md) (18 and 19).
+[ADR-72QQ](72QQ-spec-v2-details-part-8.md) (18 and 19). The user accepted
+each item of this part on 2026-11-16, with the recommended option of each CHOICE. The recommended
+option is the text of the item.
 
 14. **JavaScript reader scope** (SFF-892; SFT-768, SFT-769). CHOICE. With the parts of item 6c, the
     JavaScript reader gives `not_checked` for `frames`, `dimensions`, `hashes` and `calibration`. It
@@ -18,8 +21,7 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
 
 15. **Privacy and safety** (SFF-881, SFF-883, SFF-884; SFT-766, SFT-767; G16).
     - a. `media_shows_people` is true when the take has a camera file, an audio file or a Parquet.
-      The no-manifest rule of SFF-883 uses the same list. SFF-881 names only a camera file now, and
-      SFF-883 names a camera file or a capture info JSON. Basis (1),
+      The no-manifest rule of SFF-883 uses the same list. Basis (1),
       [ADR-T8PK](T8PK-privacy-notice-and-no-code-in-files.md) item 2.
     - b. `fields` holds exactly these, when the file exists and the value is not null. Capture info
       JSON, for each camera: `user_name` (`user_entered_name`), `device/model` and `device/os_name`
@@ -63,7 +65,7 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
       the sentence "A take folder holds no overlay file". "The player draws the frame label" is a
       skellycam program rule.
     - f. Appendix A says that G13 is the state after the fold and before the verified delete. G13
-      gets both info JSONs. Appendix A lists no info JSON in G13 now. Basis (3).
+      gets both info JSONs. Basis (3).
 
 ## Reason
 

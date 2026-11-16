@@ -1,6 +1,7 @@
 # 0XX2 — Spec draft v2 details, part 5: legacy result, manifest rebuild, summary and manifest lock
 
-**Status:** proposed, 2026-11-16 (agent; ambiguous points from the independent review).
+**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
+recommended option of each CHOICE).
 
 ## Decision
 
@@ -8,7 +9,9 @@ This part holds items 5 to 8 of the proposals that [ADR-W6HV](W6HV-spec-v2-detai
 introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other parts are
 [ADR-Q4BK](Q4BK-spec-v2-details-part-4.md) (3 and 4), [ADR-ATW0](ATW0-spec-v2-details-part-6.md)
 (9 to 13), [ADR-DM9S](DM9S-spec-v2-details-part-7.md) (14 to 17) and
-[ADR-72QQ](72QQ-spec-v2-details-part-8.md) (18 and 19).
+[ADR-72QQ](72QQ-spec-v2-details-part-8.md) (18 and 19). The user accepted
+each item of this part on 2026-11-16, with the recommended option of each CHOICE. The recommended
+option is the text of the item.
 
 5. **Legacy** (SFF-875 to SFF-880, SFF-885; SFT-764, SFT-765; G15).
    - a. CHOICE. A row of the era table matches when each signal of the row is present. "as X" adds
@@ -16,7 +19,7 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
      chain, the reader reports the range of the last matched row, and `ambiguous` is false. When
      they are in two chains, or no row matches, the reader reports from the lowest first release to
      the highest last release of the matched rows (v1.0.25 to v1.8.2 with no row), and `ambiguous`
-     is true. SFF-878 says now that `ambiguous` is true when the content fits two or more eras.
+     is true.
      Basis (1), [ADR-CZQ9](CZQ9-read-old-write-new-and-legacy-recognition.md) item 6, and (3).
    - b. CHOICE. A legacy folder that is not `v1` and not `pre_v1` has `family` = `unknown`,
      `release_range` null, `ambiguous` false, and empty `eras` and `warnings`. Version 2.0 does not
@@ -28,8 +31,7 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
    - a. In a rebuild, a reader tests these exact names in the root, built from `<rec>`:
      `<rec>_info.json`, `<rec>_recording_info.json`, `<rec>_camera_calibration.toml`,
      `<rec>_data.parquet`, `<rec>_realtime_journal.bin` and `<rec>.blend`. It does not match a
-     suffix. SFF-731 says now "by the fixed suffix of its name" and "exactly one match for each
-     role", and it does not list `<rec>.blend`. Basis (1),
+     suffix. Basis (1),
      [ADR-5XNA](5XNA-folder-layout-names-and-manifest.md) item 3, and (3).
    - b. SFF-814 gets the exception: in a rebuild, the reader uses `<rec>_camera_calibration.toml`.
      Basis (1), [ADR-5XNA](5XNA-folder-layout-names-and-manifest.md) item 8.
@@ -59,7 +61,7 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
      file, not the existence of the file. A lock file that no process holds is not a lock, so no
      stale-lock rule is necessary. A reader ignores the file. Basis (2): freemocap at c27fc299,
      `freemocap/core/recording/parquet_storage/parquet_writer.py`, `recording_write_lock`, lines 28
-     to 33 (`FileLock`, `timeout=0`).
+     to 33 (`FileLock`, `timeout=0`). Confirmed in that file on 2026-11-16.
 
 ## Reason
 

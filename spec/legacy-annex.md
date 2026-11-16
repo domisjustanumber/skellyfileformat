@@ -4,7 +4,10 @@ Status: **draft v2, for review at gate 1**. This annex is informative. It descri
 freemocap v1.0.25 to v1.8.2 wrote, so that other programs can read old freemocap output
 ([ADR-CZQ9](../decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md)). The normative
 rules (recognition, the reader result and the warnings) are in [SPEC.md](SPEC.md) section 21. Pre-v1
-layouts (v0.0.x and v0.1.0) are not described: they are not supported.
+layouts (v0.0.x and v0.1.0) are not described: they are not supported. The layout of the freemocap
+development code is not described: version 2.0 of the format does not recognise it, and a reader
+reports the family `unknown` for it (SPEC.md SFF-877,
+[ADR-0XX2](../decisions/entries/0XX2-spec-v2-details-part-5.md)).
 
 The source is an inventory of the 87 freemocap releases and the pinned skellycam, skellytracker and
 skellyforge versions: skellycam `dom/research`,
@@ -60,6 +63,9 @@ not the release v1.1.0, which starts era V1b.
 
 ## 4. Changes by era
 
+SPEC.md SFF-878 gives the signals of each era, the chains of the rows and the rule for the release
+range that a reader reports.
+
 | Era | Releases | Changes from the era before |
 |---|---|---|
 | V1b | v1.1.0 | 2D from skellytracker. No `mediapipeBodyWorld` file. New `raw_data/mediapipe3dData_numCams_numFrames_numTrackedPoints_reprojectionError.npy` [camera, frame, marker]. Optional `reprojection_filtered_*` files. `recording_parameters.json` keys `run_image_tracking`, `run_3d_triangulation`, `run_reprojection_error_filtering`. **Defect:** skellytracker orders pose, face, left hand, right hand, but freemocap splits body, right, left, face, so the hand and face outputs are mislabelled. |
@@ -86,7 +92,8 @@ plane, with a reprojection error of zero, then rotated.
 - A loader sorts the camera keys as text, so `cam_10` comes before `cam_2`.
 - In a motion-capture recording, the TOML can be missing, can have the name of another recording, or
   can be `last_successful_calibration.toml`. It is not certain to be the calibration that made the
-  3D data. Which TOML was used is not recorded.
+  3D data. Which TOML was used is not recorded. SPEC.md SFF-880 gives the lookup rule of a reader
+  and the result member `legacy.calibration`, with the state `present`, `missing` or `ambiguous`.
 - Units are mm when the square size was entered in mm. A square size of 1 gives board units.
 
 ## 6. Other quirks

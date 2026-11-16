@@ -1,6 +1,7 @@
 # ATW0 — Spec draft v2 details, part 6: unfinished pairs, flags, realtime warning, calibration, footers
 
-**Status:** proposed, 2026-11-16 (agent; ambiguous points from the independent review).
+**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
+recommended option of each CHOICE).
 
 ## Decision
 
@@ -8,7 +9,9 @@ This part holds items 9 to 13 of the proposals that [ADR-W6HV](W6HV-spec-v2-deta
 introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other parts are
 [ADR-Q4BK](Q4BK-spec-v2-details-part-4.md) (3 and 4), [ADR-0XX2](0XX2-spec-v2-details-part-5.md)
 (5 to 8), [ADR-DM9S](DM9S-spec-v2-details-part-7.md) (14 to 17) and
-[ADR-72QQ](72QQ-spec-v2-details-part-8.md) (18 and 19).
+[ADR-72QQ](72QQ-spec-v2-details-part-8.md) (18 and 19). The user accepted
+each item of this part on 2026-11-16, with the recommended option of each CHOICE. The recommended
+option is the text of the item.
 
 9. **Unfinished video pairs** (SFF-740, SFF-746, SFF-791; SFT-714, SFT-732; G5, G6).
    - Row k belongs to the k-th complete block, in file order. A frame is usable when its row is
@@ -24,7 +27,7 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
     - a. `gap` is 0 in the first row, and when the row or the row before has an empty
       `source_frame_number`. Basis (2), draft v0 SFF-170.
     - b. `encode_skips` of the `# end` line is the number of rows with the flag `encode_skip`. A
-      repair can then compute it from the rows. SFF-758 counts the skipped frames now. Basis (3).
+      repair can then compute it from the rows. Basis (3).
     - c. A reader gives the file warning `encode_skip` when one or more usable rows have that flag.
       Each reader makes a file `invalid` with `bad_time` when a row time or a fitted time has a
       magnitude of 2^53 ns or more. Basis (1), [ADR-KW3G](KW3G-reader-result-for-the-folder.md)
@@ -36,15 +39,15 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
 11. **`realtime_run`** (SFF-835; SFT-752). A reader gives the code `realtime_run` one time when a
     run has a stage provenance with `origin` = `realtime`. The text is guidance for the program that
     shows the take. It is not in the reader result. The program shows it for each camera sensor
-    group, with N and M from the `coverage` of the stage `observations`. SFT-752 expects the counts
-    with the warning now. Basis (3).
+    group, with N and M from the `coverage` of the stage `observations`. Basis (3).
 
 12. **Calibration** (SFF-809, SFF-810, SFF-837; parts/parquet-descriptor.md; SFT-738, SFT-754).
     - a. When `aligned` is false, the world is the OpenCV camera frame of the camera with `index` 0:
       +X right, +Y down, +Z along the optical axis. freemocap changes each TOML world to
       `calibrated_world` with one fixed axis map, the same for an aligned and an unaligned TOML. The
       names "forward, left, up" are the labels of that map. They describe the room only after an
-      alignment. SFF-809 gives the axes +X forward, +Y left, +Z up to the calibration world now.
+      alignment. The map is (x, y, z) = (−Y, X, Z), confirmed on 2026-11-16 in skellyforge at
+      f5404db (`coordinate_systems.yaml`, the conventions `ros` and `blender`).
       Basis (2): freemocap at c27fc299, `coordinate_conventions.py` lines 8 to 10,
       `posthoc_reconstruction.py` lines 143 to 145, and `pin_camera_zero_to_origin`
       (`anipose_calibration_helpers.py`, lines 44 to 64).

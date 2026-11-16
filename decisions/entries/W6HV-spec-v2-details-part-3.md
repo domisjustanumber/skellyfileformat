@@ -1,14 +1,16 @@
 # W6HV — Spec draft v2 details, part 3: journal values and camera row alignment
 
-**Status:** proposed, 2026-11-16 (agent; ambiguous points from the independent review).
+**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
+recommended option of each CHOICE).
 
 ## Decision
 
-An independent review found 18 groups of ambiguous points in spec draft v2. An agent proposes one
-resolution for each, in parts 3 to 8. Parts 1 and 2 are [ADR-VPD9](VPD9-spec-draft-v2-details.md)
+An independent review found 18 groups of ambiguous points in spec draft v2. An agent proposed one
+resolution for each, in parts 3 to 8. The user accepted each item of each part on 2026-11-16, with
+the recommended option of each CHOICE. The recommended option is the text of the item. Parts 1 and 2 are [ADR-VPD9](VPD9-spec-draft-v2-details.md)
 and [ADR-3D33](3D33-spec-draft-v2-details-folder-files.md). "Basis" gives the source: (1) an
 accepted entry; (2) code or research evidence; (3) the simplest rule that gives the same reader
-result in each reader. "CHOICE" marks a design choice with a plausible alternative. An item keeps
+result in each reader. "CHOICE" marks a design choice that had a plausible alternative. An item keeps
 its number in all parts.
 
 This part holds items 1 and 2. The other parts are [ADR-Q4BK](Q4BK-spec-v2-details-part-4.md)

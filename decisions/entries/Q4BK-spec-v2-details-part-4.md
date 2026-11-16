@@ -1,6 +1,7 @@
 # Q4BK — Spec draft v2 details, part 4: reader result members and orphan files
 
-**Status:** proposed, 2026-11-16 (agent; ambiguous points from the independent review).
+**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
+recommended option of each CHOICE).
 
 ## Decision
 
@@ -8,7 +9,9 @@ This part holds items 3 and 4 of the proposals that [ADR-W6HV](W6HV-spec-v2-deta
 introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other parts are
 [ADR-0XX2](0XX2-spec-v2-details-part-5.md) (5 to 8), [ADR-ATW0](ATW0-spec-v2-details-part-6.md)
 (9 to 13), [ADR-DM9S](DM9S-spec-v2-details-part-7.md) (14 to 17) and
-[ADR-72QQ](72QQ-spec-v2-details-part-8.md) (18 and 19).
+[ADR-72QQ](72QQ-spec-v2-details-part-8.md) (18 and 19). The user accepted
+each item of this part on 2026-11-16, with the recommended option of each CHOICE. The recommended
+option is the text of the item.
 
 3. **Reader result** (SFF-790, SFF-885, SFF-887, SFF-890; SFT-731, SFT-761, SFT-768; each
    committed result).
@@ -27,7 +30,7 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
      `calibration.file`, and one for each root file with a fixed name of item 6a that exists. An
      item is `missing` only when the manifest names a path that does not exist. A rebuild lists only
      the files that it finds. The state `ambiguous` is used only in `legacy.calibration` (item 5c).
-     SFF-885 lists `ambiguous` as a state of a folder file now. Basis (3).
+     Basis (3).
    - g. CHOICE. In the manifest, `files[].sha256` is the SHA-256 for the roles `capture_info`,
      `processing_info`, `blend`, `blender_output` and `annotated_video`. It is null for `tracking`
      (its home is `parquet_sha256`), `export` (its home is the export inventory),
@@ -38,8 +41,7 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
      SFF-878, in table order, with `-` in place of the dash. Basis (3).
    - i. A file whose name ends in `.tmp` or starts with `.`, and `<rec>.blend1`, is in no list. A
      code is at most one time in a `warnings` array. CHOICE: `stray_tmp` and `orphan_file` become
-     folder warnings, because the file can have no take. SFF-790 and SFF-887 make them take
-     warnings now. Basis (3).
+     folder warnings, because the file can have no take. Basis (3).
 
 4. **Orphans and "a file of this format"** (SFF-865, SFF-869, SFF-875, SFF-887, SFF-888, SFF-889;
    SFT-761).
@@ -47,14 +49,13 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
      JSON file whose `skellyfileformat` member has a value of this spec; a TOML with
      `[metadata].calibration_uuid`; a Parquet with a `freemocap.recording` descriptor of
      `schema_version` 2; a journal with a header record; a media file in a device pair. A media file
-     alone has no mark of the format. It is in `other_files` as `not_in_format`. SFF-875 gives only
-     examples now.
+     alone has no mark of the format. It is in `other_files` as `not_in_format`.
    - b. A take exists for each `take_uuid` that one or more device pairs hold (SFF-866).
    - c. A timing sidecar alone, with a `take_uuid` that the reader can read, is in the `files` of
      its take when that take exists. Its `name` is the path of the missing media file. Its state is
      `invalid`, with the new reason code `missing_media`. It does not count as a camera file or an
      audio file in SFF-869. When no such take exists, the item is in `other_files` with the same
-     state and reason. SFF-865 and SFT-761 list a timing sidecar alone as `not_in_format` now.
+     state and reason.
      CHOICE: a new code cannot be avoided without a false reason.
    - d. A folder file of this format with no take is in `other_files` as `invalid`, with
      `take_fact_mismatch`.
