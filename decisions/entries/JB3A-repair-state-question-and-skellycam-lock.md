@@ -1,6 +1,12 @@
 # JB3A — The manifest `state` after a repair; one question for one take; the lock of skellycam
 
-**Status:** accepted, 2026-11-16 (user; review of the repair and lock details).
+**Status:** absorbed into
+[`spec/SPEC.md#5-the-recording-manifest`](../../spec/SPEC.md#5-the-recording-manifest),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#13-capture-info-json`](../../spec/SPEC.md#13-capture-info-json),
+[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
+[`spec/conformance.md#realtime-journal-section-17`](../../spec/conformance.md#realtime-journal-section-17),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

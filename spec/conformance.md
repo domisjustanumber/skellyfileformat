@@ -530,10 +530,15 @@ is false.
 
 **SFT-717** Writer: the video sidecar
 Checks: SFF-749, SFF-752, SFF-754, SFF-755, SFF-756, SFF-758
-Input: the output of skellycam for G1 and of the converter for an old recording; a skellycam run
+Input: the output of skellycam for G1 (the cases `take` and `confirmed_key`: a camera with a
+remembered key that the user confirmed) and of the converter for an old recording; a skellycam run
 with a forced failure of the JPEG encoder; a source that gives one source frame number two times.
-Pass: the take keys are equal in each sidecar. `camera_key` is not 0 for skellycam. It is the hash
-of the identity string of SFF-752, built from the `device` values of the capture info JSON. The rows
+Pass: the take keys are equal in each sidecar. `camera_key` is not 0 for skellycam. When
+`key_origin` of the camera config is `computed`, `camera_key` is the hash of the identity string of
+form 1, 2 or 3 of SFF-752, built from the `device` values of the capture info JSON. When
+`key_origin` is `confirmed_by_user` or `assigned`, `camera_key` is 16 lowercase hexadecimal
+characters and is not 0: the test does not compute it. The confirmed camera has the remembered key
+and `confirmed_by_user`. No two cameras of a take have the same `camera_key`. The rows
 count from 0, and each camera file of the take has the same number of rows. The gap of G1 has the
 flag `gap`. `gap` is 0 in the first row and next to an empty `source_frame_number`. The row after
 the encoder failure has the flag `encode_skip`. The row with the equal source frame number has the
@@ -711,6 +716,9 @@ calls traced.
 Pass: the file exists at the take start and at its end, each time complete. skellycam holds
 `.processing.lock` for each of the two writes. It has the members of
 section 13, in order, and no member of the forbidden list. `camera_configs` is keyed by `camera_key`.
+Each camera config has `key_origin` after `user_name`, with the value `computed`,
+`confirmed_by_user` or `assigned`, and each `device` has `os_device_id`, a text or null. Each
+`user_name` is null, or a text of 1 to 128 bytes of UTF-8 with no control character.
 Each control name is from SFF-802, and `audio` names the microphone.
 
 **SFT-736** Reader: camera configs by key
@@ -1040,7 +1048,8 @@ Pass: `legacy.calibration` has the state `present` and the path of the TOML in t
 
 **SFT-766** Writer and reader: the privacy list
 Checks: SFF-881, SFF-882, SFF-883
-Input: G3 with a user camera name and a device serial; G7; G1 with its camera pairs deleted.
+Input: G3 with a user camera name, a device serial and an `os_device_id`; G7; G1 with its camera
+pairs deleted.
 Pass: the manifest `privacy` list has exactly the fields of the table of SFF-881 that exist and are
 not null, sorted, and `media_shows_people`
 true. The reader result has `may_contain_private_data` true, also with no manifest, and also for the

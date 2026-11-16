@@ -1,7 +1,24 @@
 # 72QQ — Spec draft v2 details, part 8: tests with no Pass text, and the open points of E45D
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
-recommended option of each CHOICE).
+**Status:** absorbed into [`spec/SPEC.md#3-versioning`](../../spec/SPEC.md#3-versioning),
+[`spec/SPEC.md#11-clocks-the-fit-and-reader-timing`](../../spec/SPEC.md#11-clocks-the-fit-and-reader-timing),
+[`spec/SPEC.md#14-processing-info-json`](../../spec/SPEC.md#14-processing-info-json),
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
+[`spec/SPEC.md#18-blender-outputs-annotated-videos-exports-and-logs`](../../spec/SPEC.md#18-blender-outputs-annotated-videos-exports-and-logs),
+[`spec/SPEC.md#181-blender`](../../spec/SPEC.md#181-blender),
+[`spec/SPEC.md#182-annotated-videos`](../../spec/SPEC.md#182-annotated-videos),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
+[`spec/parts/parquet-descriptor.md#root-recordingmetadata-closed`](../../spec/parts/parquet-descriptor.md#root-recordingmetadata-closed),
+[`spec/conformance.md#the-take-folder-and-the-manifest-sections-4-and-5`](../../spec/conformance.md#the-take-folder-and-the-manifest-sections-4-and-5),
+[`spec/conformance.md#camera-files-section-6`](../../spec/conformance.md#camera-files-section-6),
+[`spec/conformance.md#timing-sidecars-sections-7-8-and-10`](../../spec/conformance.md#timing-sidecars-sections-7-8-and-10),
+[`spec/conformance.md#clocks-the-fit-and-reader-timing-section-11`](../../spec/conformance.md#clocks-the-fit-and-reader-timing-section-11),
+[`spec/conformance.md#tracking-parquet-section-16`](../../spec/conformance.md#tracking-parquet-section-16),
+[`spec/conformance.md#opening-a-folder-section-20`](../../spec/conformance.md#opening-a-folder-section-20),
+[`spec/conformance.md#the-reader-result-section-23`](../../spec/conformance.md#the-reader-result-section-23),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

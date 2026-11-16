@@ -1,7 +1,15 @@
 # ATW0 — Spec draft v2 details, part 6: unfinished pairs, flags, realtime warning, calibration, footers
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
-recommended option of each CHOICE).
+**Status:** absorbed into [`spec/SPEC.md#6-camera-files`](../../spec/SPEC.md#6-camera-files),
+[`spec/SPEC.md#7-csv-timing-sidecars-common-rules`](../../spec/SPEC.md#7-csv-timing-sidecars-common-rules),
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#11-clocks-the-fit-and-reader-timing`](../../spec/SPEC.md#11-clocks-the-fit-and-reader-timing),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#15-calibration-toml`](../../spec/SPEC.md#15-calibration-toml),
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/parts/parquet-descriptor.md#calibrationupdaterequest-closed`](../../spec/parts/parquet-descriptor.md#calibrationupdaterequest-closed),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

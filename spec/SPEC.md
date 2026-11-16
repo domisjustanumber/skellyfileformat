@@ -783,7 +783,8 @@ manifest computes the summary from the files
 - `duration_s` of `audio` is `samples` of the `# end` line divided by `sample_rate` of the header,
   rounded half up to thousandths.
 - `cameras` is in order of `group_position`. `user_name` and `model` are `user_name` and
-  `device.model` of the camera config (section 13). `exposure_us` is `controls.exposure_us.value`
+  `device.model` of the camera config (section 13), so the text rule of `user_name` also applies
+  here. `exposure_us` is `controls.exposure_us.value`
   of that config, or null. `stored_px` is the size of the first stored JPEG. `gaps` and `filled`
   are the counts of the `# end` line.
 - `audio.file` is the path of the audio file.
@@ -972,12 +973,61 @@ applies to the stored frame to show it upright. A reader refuses another value (
 `bad_rotation`).
 
 **SFF-752** (writer) `camera_key` is the first 8 bytes of the SHA-256 of the identity string of the
-camera, as 16 lowercase hexadecimal characters. The identity string is
-`<vendor_id>:<product_id>:serial:<serial>`, or `<vendor_id>:<product_id>:port:<port_path>` when the
-device gives no serial. The four values are the texts of `device` in the capture info JSON
-(section 13), with `0000` for a vendor ID or a product ID that is null. The hash input is the UTF-8
-bytes of the identity string ([ADR-DM9S](../decisions/entries/DM9S-spec-v2-details-part-7.md)). A
-capture writer MUST write a `camera_key` that is not 0. A conversion writer MAY write `0`.
+camera, as 16 lowercase hexadecimal characters. The hash input is the UTF-8 bytes of the identity
+string. The identity string is the first of these forms that applies
+([ADR-70VP](../decisions/entries/70VP-camera-identity-forms-and-remembered-keys.md), which changes
+[ADR-DM9S](../decisions/entries/DM9S-spec-v2-details-part-7.md) item 16a):
+
+1. `<vendor_id>:<product_id>:serial:<serial>`, when the USB serial number is usable. A serial is
+   usable when it is not empty, it is not a known placeholder (for example `0001`), and no other
+   connected camera with the same vendor ID and product ID has the same serial.
+2. `<vendor_id>:<product_id>:port:<port_path>`, when the camera has a port path. The capture writer
+   reads the port path from the operating system, never from the capture library.
+3. `<vendor_id>:<product_id>:device:<os_device_id>`, for a camera that is not a USB device and has
+   a persistent identifier of the operating system (for example a built-in laptop camera).
+4. `<vendor_id>:<product_id>:assigned:<uuid>`. `<uuid>` is 32 lowercase hexadecimal characters of a
+   random UUID. The capture program makes it one time for the camera and remembers it. The user
+   attaches it to the camera again in a later session.
+
+`<vendor_id>`, `<product_id>`, `<serial>`, `<port_path>` and `<os_device_id>` are the texts of
+`device` in the capture info JSON (section 13), with `0000` for a vendor ID or a product ID that is
+null. No file holds `<uuid>`.
+
+A capture writer MUST write a `camera_key` that is not 0. It MUST NOT refuse a camera because of
+its identity. A conversion writer MAY write `0`.
+
+A capture writer MAY write the remembered `camera_key` of a camera in place of the computed one,
+when the user confirmed that the device is that camera. `key_origin` of the camera config
+(section 13) tells which key the file holds.
+
+A capture writer MUST NOT give two different cameras the same `camera_key`. The capture program
+finds a remembered camera by its remembered location (the serial, the port path or the OS device
+identifier), not by a new computation of the hash. When the computed key of a camera is equal to
+the key of a remembered camera that has another location, the capture program MUST NOT use that key
+before it asks the user.
+
+The capture program asks the user in this case: a connected camera matches no remembered camera,
+and its vendor ID and its model name from the operating system are equal to those of a remembered
+camera that is not connected. It asks if the device is that camera. When the user agrees, the
+camera keeps the remembered `camera_key`. When two or more remembered cameras fit, the user selects
+one from a list of them (by `user_name` and `camera_label`), or says that it is a new camera.
+
+The list of remembered cameras is local state of the capture program. It is not in the take folder,
+and this spec defines no file for it. A capture program can make it from the capture info JSON of
+any take.
+
+(provisional: the user must confirm the detail of a usable serial) A serial is also not usable when
+it has a character outside 0x21 to 0x7F, when it has a `,`, or when it is one repeated character.
+The known placeholders, compared in lower case, are `0`, `00`, `000`, `0000`, `00000000`,
+`000000000000`, `0000000000000000`, `1`, `01`, `0001`, `0123456789`, `123456789`, `1234567890`,
+`12345678`, `123456`, `0123456789abcdef`, `sn0001`, `sn12345678`, `none`, `null`, `default`,
+`serial`, `unknown`, `n/a`, `na`, `123` and `200901010001`.
+
+(provisional: the identifier tests on Windows, Linux and macOS) The source of `port_path` is:
+on Windows, `DEVPKEY_Device_LocationPaths[0]`; on Linux, the PCI address of the controller, the USB
+revision and the port chain, from sysfs; on macOS, the `locationID`. The source of `os_device_id`
+is the `AVCaptureDevice.uniqueID` on macOS, or the device instance ID on Windows. The exact text
+form of the two values is not decided.
 
 **SFF-753** (reader) A reader refuses a sidecar whose `camera_label` does not have the form
 of SFF-720 (reason `bad_label`).
@@ -1328,8 +1378,9 @@ A camera config has these members:
 | Member | Value |
 |---|---|
 | `camera_label` | The label (a link for people; `camera_key` is the link key) |
-| `user_name` | The name that the user gave the camera, or null |
-| `device` | `model` (the model text of the device), `os_name` (the device name of the OS), `vendor_id` and `product_id` (4 lowercase hexadecimal characters, or null), `serial` (or null), `port_path` (or null), `backend` (for example `media_foundation`, `v4l2`, `avfoundation`) and `os_index` (the OS index at capture, or null) |
+| `user_name` | The name that the user gave the camera: null, or a text of 1 to 128 bytes of UTF-8 with no control character |
+| `key_origin` | The origin of `camera_key` (SFF-752): `"computed"` (the key is the hash of form 1, 2 or 3, built from the `device` values of this file), `"confirmed_by_user"` (a remembered key that the camera has because the user confirmed the camera, in this session or an earlier one) or `"assigned"` (form 4, made in this session, confirmed by nobody). null when `camera_key` is 0. |
+| `device` | `model` (the model text of the device), `os_name` (the device name of the OS), `vendor_id` and `product_id` (4 lowercase hexadecimal characters, or null), `serial` (or null), `port_path` (or null), `os_device_id` (a text, or null: the persistent identifier of the OS, SFF-752), `backend` (for example `media_foundation`, `v4l2`, `avfoundation`) and `os_index` (the OS index at capture, or null) |
 | `requested` | `width`, `height` and `framerate` (a number, or `"camera_default"`), `capture_format` (`MJPG` or `YUYV`) and `exposure_mode` (`auto`, `manual` or `recommend`) |
 | `controls` | An object of the control values that the writer read back at the take start. Each key is a control name with its unit (SFF-802). Each value is `{"value": <number or null>, "auto": <true, false or null>}`. |
 | `exposure_step` | The result of the exposure step, or null: `selected_exposure_us`, `method` and `samples` (an array of `{exposure_us, mean_luma}`) |
@@ -1338,7 +1389,10 @@ A camera config has these members:
 has no other member. In particular, it has no `videos`, `camera_timing` or `multiframe_timing` map,
 no `recording_name`, `recording_directory`, `recording_uuid`, `mic_device_index` or full timestamp
 object, and, in a camera config, no `rotation`, `camera_index`, `use_this_camera`, `resolution`,
-`color_channels`, `pixel_format` or `writer_fourcc`.
+`color_channels`, `pixel_format` or `writer_fourcc`. `user_name` is metadata only: no writer puts
+it in a file name, in `camera_label` or in the identity string (SFF-752). A writer SHOULD NOT give
+two cameras of one take the same `user_name` that is not null. A reader has no rule for `user_name`
+([ADR-70VP](../decisions/entries/70VP-camera-identity-forms-and-remembered-keys.md)).
 
 **SFF-801** (writer) skellycam writes the capture info JSON when the take starts and again when
 it ends, each time whole (SFF-786), while it holds `.processing.lock` (SFF-789,
@@ -2162,7 +2216,8 @@ Private data is allowed in any field.
 null. `<key>` is a key of `camera_configs`, and `<i>` is an index of the summary `cameras`.
 `media_shows_people` is `true` when the take has a camera file, an audio file or a Parquet
 ([ADR-DM9S](../decisions/entries/DM9S-spec-v2-details-part-7.md); the kinds of the manifest fields:
-[ADR-1HH0](../decisions/entries/1HH0-lock-startup-repair-and-reader-model-check.md)).
+[ADR-1HH0](../decisions/entries/1HH0-lock-startup-repair-and-reader-model-check.md); `os_device_id`:
+[ADR-70VP](../decisions/entries/70VP-camera-identity-forms-and-remembered-keys.md)).
 
 | File | Field | Kind |
 |---|---|---|
@@ -2170,6 +2225,7 @@ null. `<key>` is a key of `camera_configs`, and `<i>` is an index of the summary
 | | `/camera_configs/<key>/device/model` and `/camera_configs/<key>/device/os_name` | `device_name` |
 | | `/camera_configs/<key>/device/serial` | `serial_number` |
 | | `/camera_configs/<key>/device/port_path` | `device_path` |
+| | `/camera_configs/<key>/device/os_device_id` | `device_path` |
 | | `/audio/device_name` | `device_name` |
 | Each timing sidecar | `utc_offset_min` | `time_zone` |
 | The manifest | `/recording_name` | `user_entered_name` |
@@ -2366,7 +2422,10 @@ Gate 2 makes these folders. Each is committed with its SHA-256 sums and the scri
 from synthetic frames and pinned tools. Each case of a folder has two committed reader results of
 SFF-885, with records: one for each scope of SFF-892. The section "Layout and cases" gives the
 files. Each file of each case has `format_prerelease` 1 (SFF-710), and so the warning `prerelease`
-(SFF-891). The only exception is the case `prerelease_0` of G10.
+(SFF-891). The only exception is the case `prerelease_0` of G10. Each capture info JSON of a golden
+folder has `key_origin` and `device.os_device_id` (section 13). `key_origin` is `computed`, except
+in the case `confirmed_key` of G1
+([ADR-70VP](../decisions/entries/70VP-camera-identity-forms-and-remembered-keys.md)).
 
 | # | Golden folder | Sections |
 |---|---|---|
@@ -2399,6 +2458,10 @@ results are beside the case folder: `<case>.full.json` (the scope `full`) and `<
 - G1 to G4, G12, G13 and G16: `take`. G4 has four cameras. G12 has four cameras and audio with a
   fit: camera 0 has two segments and a source frame gap, camera 1 a `period_ps` with a remainder,
   camera 2 no fit, and camera 3 two equal fitted times and an `encode_skip` row.
+- G1 also has `confirmed_key`: a copy of `take` in which camera 1 has `key_origin`
+  `confirmed_by_user` and a `camera_key` that is not the hash of the port form of its
+  `device.port_path` (SFF-752). Its `camera_label` and its file names come from that key. A test
+  that names G1 with no case uses `take`.
 - G5: `audio_clean_kill` and `audio_torn_fragment`. Each has three cameras (0: a clean cut; 1: a
   torn row of 37 bytes; 2: a row with a wrong CRC), the `.tmp` manifest and the old manifest.
 - G6: `repaired` and `interrupted_repair`, from `audio_torn_fragment`. Each sidecar of

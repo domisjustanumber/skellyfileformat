@@ -25,34 +25,19 @@ These entries are `accepted` or `evidence`.
 | [92TM](entries/92TM-opus-audio-in-fragmented-mp4.md) | Audio: Opus (libopus) in fragmented MP4 with 1 s fragments, one CSV sidecar; silence for gaps; fit for timing; crash read and clean-up rules | accepted |
 | [9DV4](entries/9DV4-format-version-from-freemocap.md) | Format version = major.minor of the freemocap release that last changed the folder; package and skellycam in step; version in each file | accepted |
 | [CZQ9](entries/CZQ9-read-old-write-new-and-legacy-recognition.md) | Old recordings stay readable; new programs write only this format; the spec recognises v1 folders by era; pre-v1 unsupported; legacy annex | accepted |
-| [DE9S](entries/DE9S-rotation-in-the-video-csv-header.md) | Frames stored unrotated; `display_rotation` in the video CSV header only, plus one informative manifest summary copy; 2D in stored pixels | accepted |
 | [G1YG](entries/G1YG-writing-crash-reading-and-repair.md) | Whole files via `.tmp` and replace; live files append and flush; crashed files read in place; repair only after the user agrees | accepted |
 | [KW3G](entries/KW3G-reader-result-for-the-folder.md) | One canonical reader result for the folder: file states, codes, folder files, link checks, private-data flag; the reader never writes | accepted |
 | [N6HS](entries/N6HS-info-jsons-and-calibration.md) | Two info JSONs, one writer each, no copied fields; one fact one home; calibration as a setup file with `calibration_uuid` and a copy per take | accepted |
 | [P76Y](entries/P76Y-tracking-parquet.md) | Tracking Parquet: 2D and 3D in one file; value f32 + value_f64; BYTE_STREAM_SPLIT, ZSTD 3; descriptor v2 links; realtime runs marked | accepted |
 | [Q9X2](entries/Q9X2-realtime-tracking-journal.md) | Realtime tracking: CRC-framed binary journal by its own freemocap node, folded into a Parquet run; deleted only after a verified fold | accepted |
-| [QS7B](entries/QS7B-blender-outputs-and-exports.md) | Blender outputs in `blender/` with `<rec>.blend` at the root; addon pickle dropped; annotated videos, exports and logs specified | accepted |
 | [T8PK](entries/T8PK-privacy-notice-and-no-code-in-files.md) | Private data allowed in any field and declared in the manifest `privacy` list; no strip option yet; no file format that runs code | accepted |
 | [VPD9](entries/VPD9-spec-draft-v2-details.md) | Spec draft v2 details, part 1: structure, IDs, names, CSV dialect, columns, fit lines, clocks, media boxes, repair line, journal layout | accepted |
 | [3D33](entries/3D33-spec-draft-v2-details-folder-files.md) | Spec draft v2 details, part 2: manifest, info JSONs, TOML, Parquet v2 fields, Blender, exports, opening, legacy, privacy, result codes | accepted |
-| [E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) | Spec draft v2 corrections: journal counts, folder-file states, version fields, run names, realtime times, audio fit | accepted |
 | [G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) | Gate 2: tests in `tests/conformance/`; reader, writer and detail function names; writer scope; golden file rules | accepted |
-| [W6HV](entries/W6HV-spec-v2-details-part-3.md) | Spec draft v2 details, part 3 (items 1, 2): journal frame numbers, events and digest; camera row alignment, `filled`, `repeat` | accepted |
 | [Q4BK](entries/Q4BK-spec-v2-details-part-4.md) | Spec draft v2 details, part 4 (items 3, 4): reader result members; "a file of this format"; orphan files, `missing_media` | accepted |
 | [0XX2](entries/0XX2-spec-v2-details-part-5.md) | Spec draft v2 details, part 5 (items 5 to 8): legacy result, manifest rebuild, link check parts, summary, manifest lock | accepted |
-| [ATW0](entries/ATW0-spec-v2-details-part-6.md) | Spec draft v2 details, part 6 (items 9 to 13): unfinished pairs, flags and counts, `realtime_run`, calibration, footer lines | accepted |
 | [DM9S](entries/DM9S-spec-v2-details-part-7.md) | Spec draft v2 details, part 7 (items 14 to 17): JavaScript scope, privacy list, pickles, identity string, ranges, exports | accepted |
-| [72QQ](entries/72QQ-spec-v2-details-part-8.md) | Spec draft v2 details, part 8 (items 18, 19): tests with no Pass text; the points left open by E45D | accepted |
-| [W5JC](entries/W5JC-nested-model-types-in-the-descriptor-part.md) | Nested model types in the Parquet descriptor part; `presentation`; the reader checks structure only; four code repairs | accepted |
-| [1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) | Journal appends need no lock; no automatic fold or repair at start-up; privacy kinds and era chains confirmed; SFF-893 | accepted |
-| [JB3A](entries/JB3A-repair-state-question-and-skellycam-lock.md) | Repair sets manifest `state` to `finished`; freemocap asks before it folds a left-over journal; one question for one take; skellycam lock for whole-file writes | accepted |
-| [0JVZ](entries/0JVZ-spec-v2-details-part-9.md) | Spec draft v2 details, part 9 (items 20 to 22): prerelease number 1, result scopes `full` and `player`, layout of the golden folders | accepted |
-| [PVG8](entries/PVG8-spec-v2-details-part-10.md) | Spec draft v2 details, part 10 (items 23 to 25): no exports in G3, manifest summary values, a manifest that the reader does not use | accepted |
-| [YYE3](entries/YYE3-spec-v2-details-part-11.md) | Spec draft v2 details, part 11 (items 26a, 28, 29): manifest details after a repair, `torn_bytes` and footer lines, legacy result | accepted |
-| [0WTH](entries/0WTH-spec-v2-details-part-12.md) | Spec draft v2 details, part 12 (items 30 to 36): legacy era signals, link check parts, row counts, result values, pre-skip | accepted |
-| [6VRQ](entries/6VRQ-spec-v2-details-part-13.md) | Spec draft v2 details, part 13 (items 37 to 39): ChArUco source, Parquet values with no definition, JSON types in the structure check | accepted |
-| [N6KY](entries/N6KY-spec-v2-details-part-14.md) | Spec draft v2 details, part 14 (items 40, 42, 43, 45): writer rules, journal count names and scan, NPZ files | accepted |
-| [QH61](entries/QH61-spec-v2-details-part-15.md) | Spec draft v2 details, part 15 (items 46, 47): tests that run at gate 2; tests for requirements with no Pass text | accepted |
+| [70VP](entries/70VP-camera-identity-forms-and-remembered-keys.md) | Camera identity: serial, port, OS device or assigned form; remembered key after the user confirms; `key_origin`; `user_name` is metadata only | accepted |
 
 ### Proposed
 

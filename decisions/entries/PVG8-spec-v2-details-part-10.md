@@ -1,6 +1,14 @@
 # PVG8 — Spec draft v2 details, part 10: exports of G3, manifest summary, a manifest not used
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details).
+**Status:** absorbed into [`spec/SPEC.md#2-conventions`](../../spec/SPEC.md#2-conventions),
+[`spec/SPEC.md#5-the-recording-manifest`](../../spec/SPEC.md#5-the-recording-manifest),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
+[`spec/SPEC.md#layout-and-cases`](../../spec/SPEC.md#layout-and-cases),
+[`spec/conformance.md#the-take-folder-and-the-manifest-sections-4-and-5`](../../spec/conformance.md#the-take-folder-and-the-manifest-sections-4-and-5),
+[`spec/conformance.md#blender-outputs-annotated-videos-exports-and-logs-section-18`](../../spec/conformance.md#blender-outputs-annotated-videos-exports-and-logs-section-18),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

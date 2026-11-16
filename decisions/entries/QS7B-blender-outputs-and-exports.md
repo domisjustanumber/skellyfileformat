@@ -1,6 +1,14 @@
 # QS7B — Blender outputs, annotated videos and exports are files of the spec, with fixed names
 
-**Status:** accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16).
+**Status:** absorbed into
+[`spec/SPEC.md#4-the-take-folder-layout-and-names`](../../spec/SPEC.md#4-the-take-folder-layout-and-names),
+[`spec/SPEC.md#18-blender-outputs-annotated-videos-exports-and-logs`](../../spec/SPEC.md#18-blender-outputs-annotated-videos-exports-and-logs),
+[`spec/SPEC.md#181-blender`](../../spec/SPEC.md#181-blender),
+[`spec/SPEC.md#182-annotated-videos`](../../spec/SPEC.md#182-annotated-videos),
+[`spec/SPEC.md#183-exports`](../../spec/SPEC.md#183-exports),
+[`spec/SPEC.md#184-logs`](../../spec/SPEC.md#184-logs),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

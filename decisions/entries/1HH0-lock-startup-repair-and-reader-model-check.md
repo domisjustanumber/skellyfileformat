@@ -1,6 +1,14 @@
 # 1HH0 — The lock and the journal; no automatic change at start-up; privacy kinds; era chains
 
-**Status:** accepted, 2026-11-16 (user; review of the applied details).
+**Status:** absorbed into
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#22-privacy-and-safety`](../../spec/SPEC.md#22-privacy-and-safety),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/conformance.md#tracking-parquet-the-reader-and-the-models-section-16`](../../spec/conformance.md#tracking-parquet-the-reader-and-the-models-section-16),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

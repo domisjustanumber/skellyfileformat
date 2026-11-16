@@ -1,6 +1,11 @@
 # W5JC — Nested model types in the Parquet descriptor part
 
-**Status:** accepted, 2026-11-16 (user; review of the model types).
+**Status:** absorbed into
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/parts/parquet-descriptor.md#parquet-descriptor-normative-part-of-specmd-section-16`](../../spec/parts/parquet-descriptor.md#parquet-descriptor-normative-part-of-specmd-section-16),
+[`spec/conformance.md#tracking-parquet-section-16`](../../spec/conformance.md#tracking-parquet-section-16),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

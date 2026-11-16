@@ -1,6 +1,12 @@
 # YYE3 — Spec draft v2 details, part 11: manifest after a repair, torn bytes, legacy result
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details).
+**Status:** absorbed into
+[`spec/SPEC.md#7-csv-timing-sidecars-common-rules`](../../spec/SPEC.md#7-csv-timing-sidecars-common-rules),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/SPEC.md#layout-and-cases`](../../spec/SPEC.md#layout-and-cases),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

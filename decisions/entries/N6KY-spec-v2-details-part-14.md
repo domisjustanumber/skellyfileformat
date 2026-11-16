@@ -1,6 +1,12 @@
 # N6KY — Spec draft v2 details, part 14: writer rules, journal scan, NPZ files
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details).
+**Status:** absorbed into
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
+[`spec/SPEC.md#22-privacy-and-safety`](../../spec/SPEC.md#22-privacy-and-safety),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules`](../../spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

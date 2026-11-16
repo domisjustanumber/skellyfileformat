@@ -1,6 +1,22 @@
 # E45D — Spec draft v2 corrections after the independent review
 
-**Status:** accepted, 2026-11-16 (user; review of the spec after gate 1).
+**Status:** absorbed into [`README.md#versioning-normative`](../../README.md#versioning-normative),
+[`spec/SPEC.md#3-versioning`](../../spec/SPEC.md#3-versioning),
+[`spec/SPEC.md#4-the-take-folder-layout-and-names`](../../spec/SPEC.md#4-the-take-folder-layout-and-names),
+[`spec/SPEC.md#11-clocks-the-fit-and-reader-timing`](../../spec/SPEC.md#11-clocks-the-fit-and-reader-timing),
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
+[`spec/SPEC.md#18-blender-outputs-annotated-videos-exports-and-logs`](../../spec/SPEC.md#18-blender-outputs-annotated-videos-exports-and-logs),
+[`spec/SPEC.md#181-blender`](../../spec/SPEC.md#181-blender),
+[`spec/SPEC.md#182-annotated-videos`](../../spec/SPEC.md#182-annotated-videos),
+[`spec/SPEC.md#183-exports`](../../spec/SPEC.md#183-exports),
+[`spec/SPEC.md#19-skellysync-folders`](../../spec/SPEC.md#19-skellysync-folders),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
+[`spec/conformance.md#tests`](../../spec/conformance.md#tests),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

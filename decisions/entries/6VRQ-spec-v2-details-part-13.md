@@ -1,6 +1,20 @@
 # 6VRQ — Spec draft v2 details, part 13: ChArUco source, Parquet values, JSON types
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details).
+**Status:** absorbed into [`spec/SPEC.md#2-conventions`](../../spec/SPEC.md#2-conventions),
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
+[`spec/parts/parquet-descriptor.md#source-closed`](../../spec/parts/parquet-descriptor.md#source-closed),
+[`spec/parts/parquet-descriptor.md#camerarecordingdefinition-closed`](../../spec/parts/parquet-descriptor.md#camerarecordingdefinition-closed),
+[`spec/parts/parquet-descriptor.md#reconstructionsourcedefinition-closed`](../../spec/parts/parquet-descriptor.md#reconstructionsourcedefinition-closed),
+[`spec/parts/parquet-descriptor.md#channels-and-their-contents`](../../spec/parts/parquet-descriptor.md#channels-and-their-contents),
+[`spec/parts/parquet-descriptor.md#recordedmodel-closed`](../../spec/parts/parquet-descriptor.md#recordedmodel-closed),
+[`spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules`](../../spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules),
+[`spec/parts/parquet-descriptor.md#skeletonsnapshot-closed`](../../spec/parts/parquet-descriptor.md#skeletonsnapshot-closed),
+[`spec/parts/parquet-descriptor.md#example-of-a-recordedmodel-informative`](../../spec/parts/parquet-descriptor.md#example-of-a-recordedmodel-informative),
+[`spec/parts/parquet-descriptor.md#row-rules`](../../spec/parts/parquet-descriptor.md#row-rules),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 

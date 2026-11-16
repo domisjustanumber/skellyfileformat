@@ -1,6 +1,15 @@
 # 0WTH — Spec draft v2 details, part 12: legacy era signals, link check parts, result values
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details).
+**Status:** absorbed into
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#9-audio-file`](../../spec/SPEC.md#9-audio-file),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/SPEC.md#layout-and-cases`](../../spec/SPEC.md#layout-and-cases),
+[`spec/conformance.md#the-take-folder-and-the-manifest-sections-4-and-5`](../../spec/conformance.md#the-take-folder-and-the-manifest-sections-4-and-5),
+[`spec/conformance.md#timing-sidecars-sections-7-8-and-10`](../../spec/conformance.md#timing-sidecars-sections-7-8-and-10),
+2026-11-16 (commit to main; was accepted, 2026-11-16).
 
 ## Decision
 
