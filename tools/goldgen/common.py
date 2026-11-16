@@ -305,7 +305,7 @@ def write_take(folder: Path, take: dict, cameras: list[dict], audio: dict) -> di
             {
                 "name": video, "kind": "camera", "state": "finished", "reason": None, "camera_key": key,
                 "camera_label": label, "rows": len(rows), "torn_bytes": 0, "fit": True,
-                "warnings": ["prerelease"], "records": records,
+                "warnings": ["gap"] * bool(gaps) + ["prerelease"], "records": records,  # SFF-887, sorted (SFF-890)
             }
         )  # fmt: skip
         manifest_cameras.append(

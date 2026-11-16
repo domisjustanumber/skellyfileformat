@@ -56,7 +56,7 @@ TAKE_WARNINGS = {
     "incomplete_take", "duplicate_label", "take_fact_mismatch", "extra_files", "manifest_missing",
     "camera_key_zero", "stale_processing_info", "summary_stale", "calibration_mismatch", "realtime_run",
 }  # fmt: skip
-FILE_WARNINGS = {"missing_fit", "encode_skip", "prerelease"}
+FILE_WARNINGS = {"missing_fit", "encode_skip", "gap", "prerelease"}
 FOLDER_WARNINGS = {"multiple_takes", "stray_tmp", "orphan_file"}
 LEGACY_WARNINGS = {
     "legacy_fake_confidence", "legacy_marker_order", "legacy_nonrigid_alignment", "legacy_calibration_unverified",
@@ -217,7 +217,9 @@ def test_g01_results_agree_with_the_sidecars(case):
         end = footer_values(footer, "end")
         assert footer[-1].startswith("# end ") and item["rows"] == len(rows) == int(end["rows"])
         assert [int(r[0]) for r in rows] == list(range(len(rows)))
-        assert header["format_prerelease"] == "1" and item["warnings"] == ["prerelease"]
+        assert header["format_prerelease"] == "1"
+        has_gap = item["kind"] == "camera" and any(int(r[4]) & 1 for r in rows)  # SFF-887: a usable row with `gap`
+        assert item["warnings"] == ["gap"] * has_gap + ["prerelease"]
         segment = footer_values(footer, "fit_segment")
         t0_ns = int(segment["t0_ns"])
         if item["kind"] == "camera":

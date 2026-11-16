@@ -6,14 +6,14 @@ The committed bytes are the reference
 ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 10).
 A change to a golden file needs a decision entry ([AGENTS.md section 4](../AGENTS.md#4-project-rules)).
 
-Only G1 exists. It is the worked example for the other folders. The user must approve it before
-the other folders use its conventions (ADR-G21H item 5).
+Only G1 exists. It is the worked example for the other folders. The user reviewed it on 2026-11-16
+and accepted its conventions for the other folders ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md), ADR-G21H item 5).
 
 ## Layout
 
 ```
 golden/
-  G01_CHOICES.md               open work: the choices of G1 that the user must decide
+  G01_CHOICES.md               the choices of G1 that the spec does not give, accepted as conventions
   G01/
     SHA256SUMS                 the SHA-256 sum of each other file below G01/
     take/                      a case: one take folder
@@ -55,7 +55,7 @@ and `tools/goldgen/g01.py` (the input of G1).
 - Two cameras with 90 frames each of 64 × 48 pixels, at the nominal rate 30/1. Camera 0 has a
   serial number, a user name and a driver time in each row. Camera 1 has no serial number, no user
   name and no driver time. Camera 1 lost one source frame before position 40, so that row has the
-  flag `gap`.
+  flag `gap`, and the camera file has the file warning `gap`.
 - Audio of 3 s (144,000 samples, mono) in 30 blocks of 4,800 samples.
 - Six events, at 100 ms after the take start and then each 500 ms. At each event, the audio has a
   click of 1 ms, and the frame of each camera that is nearest to the event is white. The fitted
@@ -79,7 +79,7 @@ result from its input and from the rules of SPEC.md section 23. Each member has 
 | `takes[].take_uuid`, `recording_name` | the values of the manifest | SFF-866, SFF-868 |
 | `takes[].state` | `complete`: 2 camera files for `group_size` 2, 1 audio file for `audio_count` 1 | SFF-869 |
 | `takes[].manifest` | `present` | SFF-867 |
-| `takes[].warnings` | `[]`. The manifest warning `camera_gap` is not a warning of the reader | SFF-887 |
+| `takes[].warnings` | `[]`. The manifest warning `camera_gap` is not a warning of the reader. The file warning `gap` shows the gap | SFF-887 |
 | `takes[].may_contain_private_data` | true: the `privacy` list has items | SFF-883 |
 | `files` (the order) | camera 0, camera 1, audio | SFF-890 |
 | `files[].name`, `kind` | the path of the media file; `camera` or `audio` | SFF-885 |
@@ -88,13 +88,13 @@ result from its input and from the rules of SPEC.md section 23. Each member has 
 | `files[].rows` | 90, 90 and 30 | SFF-885, SFF-746 |
 | `files[].torn_bytes` | 0 | SFF-791 |
 | `files[].fit` | true: the sidecar is finished and has fit lines | SFF-885, SFF-747 |
-| `files[].warnings` | `["prerelease"]` | SFF-891, SFF-710 |
+| `files[].warnings` | `["prerelease"]` for camera 0 and for audio. `["gap","prerelease"]` for camera 1: a row has the flag `gap` ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 1) | SFF-887, SFF-890, SFF-891, SFF-710 |
 | `files[].records` (camera) | `[position, source_frame_number, arrival_ns, sample_ns, player_ns]`. `sample_ns` is null for camera 1 | SFF-885 |
 | `player_ns` | the fitted time, with d from the source frame numbers. It is not the strict time | SFF-777, SFF-781, SFF-782 |
 | `files[].records` (audio) | `[block, first_sample, n_samples, host_ns, fitted_ns]` | SFF-885 |
 | `fitted_ns` | the fitted time of `first_sample`, from the fit lines | SFF-779, SFF-784 |
 | `folder_files` | one item: the capture info JSON, with the `role` of the manifest, `present`, `reason` null | SFF-885, SFF-889 |
-| `folder_files[].warnings` | `["prerelease"]`: the capture info JSON has `format_prerelease` 1 | SFF-891 |
+| `folder_files[].warnings` | `["prerelease"]`: the capture info JSON has `format_prerelease` 1. The manifest is not an item, so the result shows nothing for it | SFF-891 |
 | `links` (the order, `detail` null) | the eight checks | SFF-885, SFF-890, SFF-872 |
 | `links`: `take_uuid` | `ok`: the manifest, 3 sidecars and the capture info JSON | SFF-872 |
 | `links`: `camera_key` | `ok`: the manifest with the video sidecars and with the capture info JSON | SFF-872 |
@@ -111,9 +111,10 @@ The `player` result of each case of G1 differs from the `full` result only in th
 
 ## Provisional parts
 
-- The whole of G1 is provisional until the user approves it (ADR-G21H item 5).
-- [G01_CHOICES.md](G01_CHOICES.md) lists each value of G1 that the spec does not give, and each
-  point where the spec and the pinned tools do not agree. Each choice of that list can change G1.
-  [open-work.md](../decisions/open-work.md) has an item for the list.
+- [G01_CHOICES.md](G01_CHOICES.md) lists each value of G1 that the spec does not give. The user
+  accepted the list as the conventions of the golden folders ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 5). The other golden
+  folders copy them.
+- Items 13, 14, 15 and 24 of that list can be rules of the format. The user must decide
+  ([open-work.md](../decisions/open-work.md)).
 - `byte_offset` and `byte_size` (SFF-757), `port_path` and `os_device_id` (SFF-752) and
   `audio_latency_ns` (SFF-771) are provisional in the spec.

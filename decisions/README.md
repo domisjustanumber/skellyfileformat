@@ -38,6 +38,8 @@ These entries are `accepted` or `evidence`.
 | [0XX2](entries/0XX2-spec-v2-details-part-5.md) | Spec draft v2 details, part 5 (items 5 to 8): legacy result, manifest rebuild, link check parts, summary, manifest lock | accepted |
 | [DM9S](entries/DM9S-spec-v2-details-part-7.md) | Spec draft v2 details, part 7 (items 14 to 17): JavaScript scope, privacy list, pickles, identity string, ranges, exports | accepted |
 | [70VP](entries/70VP-camera-identity-forms-and-remembered-keys.md) | Camera identity: serial, port, OS device or assigned form; remembered key after the user confirms; `key_origin`; `user_name` is metadata only | accepted |
+| [94YQ](entries/94YQ-golden-g1-review-decisions.md) | G1 review: file warning `gap`; `DefaultDuration` rounded down; G1 choices are the golden conventions; freemocap suggests camera matches from calibration | accepted |
+| [W389](entries/W389-format-rules-from-the-golden-conventions.md) | Format rules from G1: privacy list in byte order; no line end after a result; unknown elements and boxes ignored; key order in the capture info JSON | accepted |
 
 ### Proposed
 

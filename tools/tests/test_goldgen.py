@@ -94,6 +94,20 @@ def test_mkv_holds_the_jpeg_bytes_unchanged(tmp_path):
     assert [data[at : at + size] for at, size in common.mkv_payloads(data)] == jpegs
 
 
+def test_mkv_default_duration_rounds_down(tmp_path):
+    """SFF-736 at 30000/1001: FFmpeg rounds `DefaultDuration` down; the block timestamps are half up."""
+    av = pytest.importorskip("av")
+    pytest.importorskip("PIL")
+    rate = Fraction(30000, 1001)
+    common.build_mkv(tmp_path / "a.mkv", [common.jpeg_frame(64, 48, p, 0, flash=False) for p in range(31)], rate, 64, 48)
+    data = (tmp_path / "a.mkv").read_bytes()
+    at = data.index(b"\x23\xe3\x83") + 3  # the first DefaultDuration: the Tracks element is before each Cluster
+    assert int.from_bytes(data[at + 1 : at + 1 + (data[at] & 0x7F)], "big") == 33_366_666 == 10**9 * 1001 // 30000
+    with av.open(str(tmp_path / "a.mkv")) as container:
+        times = [packet.pts for packet in container.demux(container.streams[0]) if packet.size]
+    assert times == [common.container_ms(k, rate) for k in range(31)] and times[15] == 501
+
+
 # ---------------------------------------------------------------- G1: the media files
 
 INFO, TRACKS, TRACK_ENTRY, VIDEO = 0x1549A966, 0x1654AE6B, 0xAE, 0xE0
@@ -156,7 +170,7 @@ def test_g01_camera_files(case):
         assert len(entries) == 1  # SFF-732
         entry = dict(children(entries[0], 0, len(entries[0])))
         assert entry[CODEC_ID] == b"V_MJPEG" and entry[TRACK_NUMBER] == b"\x01" and entry[FLAG_LACING] == b"\x00"
-        period_ns = (2 * 10**9 * rate.denominator + rate.numerator) // (2 * rate.numerator)
+        period_ns = 10**9 * rate.denominator // rate.numerator  # SFF-736: rounded down
         assert int.from_bytes(entry[DEFAULT_DURATION], "big") == period_ns
         assert PROJECTION not in dict(children(entry[VIDEO], 0, len(entry[VIDEO])))  # SFF-735
         for at, size in common.mkv_payloads(data):

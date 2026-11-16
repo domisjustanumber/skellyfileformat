@@ -9,8 +9,8 @@ task. Delete an item when its work is done. The PR that closes an item records t
   runnable tests of [conformance.md](../spec/conformance.md) and the golden folders G1 to G16 of
   SPEC.md Appendix A, and stop for gate 2. G17 waits for the skellysync decisions.
   [ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) gives the place of the tests, the
-  names that they call and the rules of the golden files. Write the expected reader result of G1
-  first, and stop for the approval of the user. Also do the repository changes of its item 9:
+  names that they call and the rules of the golden files. The user reviewed G1 ([ADR-94YQ](entries/94YQ-golden-g1-review-decisions.md)): the
+  other folders copy its conventions. Also do the repository changes of its item 9:
   `.gitattributes`, the golden generator in `tools/`, and the `golden/` and `tests/` rows and the
   command of the failing run in `AGENTS.md`. The golden folders also get the vectors that
   [ADR-W6HV](entries/W6HV-spec-v2-details-part-3.md) to
@@ -19,10 +19,6 @@ task. Delete an item when its work is done. The PR that closes an item records t
   cases, with two expected results for each case (the scopes `full` and `player`).
   [ADR-QH61](entries/QH61-spec-v2-details-part-15.md) item 46 gives the tests that this repository
   runs.
-- **Choices made for G1 that the spec does not give.** [golden/G01_CHOICES.md](../golden/G01_CHOICES.md) holds the numbered list: 29 choices of the
-  golden generator, and 5 points where the spec and the pinned tools do not agree. The user must
-  decide each before the other golden folders copy G1. The list is not here, because this file
-  has a size limit.
 - **Points that the user did not decide on 2026-11-16** (the review of parts 9 to 15).
   - The value of `format_prerelease` after the user sends the draft to external review. It is 1
     until then (SFF-710, [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 20).
@@ -66,63 +62,35 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - The place of a folder file that the manifest lists and that holds another `take_uuid`:
     `folder_files` with a `take_uuid` mismatch, or `other_files` (SFF-889).
 - **Absorb the accepted entries into the spec.** The check of 2026-11-16 absorbed 16 entries. Each
-  entry of this list stays Active, because no absorb document states the rule that the line gives,
-  or because a later entry changed the rule and no entry supersedes the old text
-  (the [Rules](README.md#rules)). Write the rule in its absorb document, or supersede the entry.
-  Then absorb the entry.
-  - [ADR-0001](entries/0001-decision-log-agents-md-and-private-data.md) item 2: git tracks
-    `.claude/skills/` and ignores the other files of `.claude/`.
-  - [ADR-2C9V](entries/2C9V-whole-take-folder-scope-and-package.md): item 4 (`RECORDING_CONTRACT.md`
-    of freemocap points to the spec), item 5 (the write layer `skellyfileformat[write]`) and item 7
-    (the player draws the frame label, a skellycam rule).
-  - [ADR-5XNA](entries/5XNA-folder-layout-names-and-manifest.md) item 8: the rebuild "by their
-    fixed suffix". [ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) item 6a changed it to exact
-    names. Also "A program can offer to write a new manifest".
-  - [ADR-6RSB](entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md) item 5: the actual
-    resolution, rate and frame count are "only in the MKV and the CSV" (the rule of the homes).
-  - [ADR-92TM](entries/92TM-opus-audio-in-fragmented-mp4.md): item 1 (no FLAC, WAV or MCAP audio),
-    item 2 (libopus through PyAV, with the version of the `av` pin) and item 12 (Lichtblick).
-    [ADR-0WTH](entries/0WTH-spec-v2-details-part-12.md) item 36 changed item 10.
-  - [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md): item 3 ("each file", and "N for the
-    Nth prerelease revision"). [ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md)
-    item 3 and [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 20 changed it. Item 9 (the
-    release of freemocap 2.x and skellycam 2.x at the same time) is in no absorb document.
-  - [ADR-CZQ9](entries/CZQ9-read-old-write-new-and-legacy-recognition.md) items 1, 3 and 4: the
-    skellycam and freemocap rules (the old formats that they read, the legacy `<video>` path, the
-    "upgrade recording" conversion and the converter).
-  - [ADR-G1YG](entries/G1YG-writing-crash-reading-and-repair.md) item 7: "a take that it owns".
-    [ADR-JB3A](entries/JB3A-repair-state-question-and-skellycam-lock.md) item 3 changed it.
-  - [ADR-KW3G](entries/KW3G-reader-result-for-the-folder.md): item 7 (a folder file is now in
-    `folder_files`) and item 8 ("its files of the kind `camera`": a timing sidecar alone does not
-    count). [ADR-Q4BK](entries/Q4BK-spec-v2-details-part-4.md) item 4 changed them.
-  - [ADR-N6HS](entries/N6HS-info-jsons-and-calibration.md): item 2 (the list of the homes: "the
-    MKV and the CSV only") and item 3 (a calibration changes only when the setup changes; to keep
-    the calibration take is optional and advised).
-  - [ADR-P76Y](entries/P76Y-tracking-parquet.md): item 4 ("freemocap rotates them for display")
-    and item 8 (the warning text and the badge of the UI; the rule that posthoc never replaces a
-    realtime run). [ADR-ATW0](entries/ATW0-spec-v2-details-part-6.md) item 11 and ADR-E45D item 5
-    changed item 8.
-  - [ADR-Q9X2](entries/Q9X2-realtime-tracking-journal.md): item 2 (the journal writer is a node of
-    its own, a freemocap rule) and item 5 ("At start-up, freemocap folds each journal that it
-    finds"). [ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2 changed
-    item 5.
-  - [ADR-T8PK](entries/T8PK-privacy-notice-and-no-code-in-files.md) item 3: freemocap shows the
-    notice when a user exports or shares a take.
-  - [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md): item 2 (ADR-E45D item 3 changed it), item 6
-    (the flag bits: [ADR-W6HV](entries/W6HV-spec-v2-details-part-3.md) item 2d) and item 12 (the
-    repair line: ADR-ATW0 item 13; the lock: ADR-1HH0 item 1).
-  - [ADR-3D33](entries/3D33-spec-draft-v2-details-folder-files.md): item 4 ("A reader uses only the
-    TOML that the manifest names": ADR-0XX2 item 6b added an exception) and item 5
-    (`charuco_detector:<board>`: [ADR-6VRQ](entries/6VRQ-spec-v2-details-part-13.md) item 37).
-  - [ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md): item 2 (ADR-0JVZ item 21
-    changed the interfaces), and items 1, 4 to 6 and 10, which wait for the gate 2 work.
-  - [ADR-Q4BK](entries/Q4BK-spec-v2-details-part-4.md) item 4d: a manifest with no `take_uuid` now
-    has `bad_schema` ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 25).
-  - [ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md): item 6c ("one part for each pair of files":
-    ADR-0WTH item 31) and item 8 (the fold "only after `state` is `finished`": SFF-844 has an
-    exception from ADR-1HH0 item 2).
-  - [ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md) item 14: the scope of the JavaScript reader.
-    ADR-0JVZ item 21 changed it.
+  entry of this list stays Active: no absorb document states the rule of its line, or a later entry
+  (in brackets) changed the rule and no entry supersedes the old text (the [Rules](README.md#rules)).
+  Write the rule in its absorb document, or supersede the entry. Then absorb the entry.
+  - [ADR-0001](entries/0001-decision-log-agents-md-and-private-data.md) item 2: git tracks only `.claude/skills/` of `.claude/`.
+  - [ADR-2C9V](entries/2C9V-whole-take-folder-scope-and-package.md) items 4, 5 and 7: `RECORDING_CONTRACT.md`, `skellyfileformat[write]`, the frame label.
+  - [ADR-5XNA](entries/5XNA-folder-layout-names-and-manifest.md) item 8: "by their fixed suffix" ([ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) item 6a: exact names); the offer of a
+    new manifest.
+  - [ADR-6RSB](entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md) item 5: "only in the MKV and the CSV".
+  - [ADR-92TM](entries/92TM-opus-audio-in-fragmented-mp4.md) items 1, 2 and 12: no FLAC, WAV or MCAP audio; libopus and the `av` pin;
+    Lichtblick. Item 10 ([ADR-0WTH](entries/0WTH-spec-v2-details-part-12.md) item 36).
+  - [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md) items 3 and 9: "N for the Nth prerelease revision" ([ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) item 3,
+    [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 20); the 2.x releases at the same time.
+  - [ADR-CZQ9](entries/CZQ9-read-old-write-new-and-legacy-recognition.md) items 1, 3 and 4: the skellycam and freemocap rules for old recordings.
+  - [ADR-G1YG](entries/G1YG-writing-crash-reading-and-repair.md) item 7: "a take that it owns" ([ADR-JB3A](entries/JB3A-repair-state-question-and-skellycam-lock.md) item 3).
+  - [ADR-KW3G](entries/KW3G-reader-result-for-the-folder.md) items 7 and 8: `folder_files`; a timing sidecar alone ([ADR-Q4BK](entries/Q4BK-spec-v2-details-part-4.md) item 4).
+  - [ADR-N6HS](entries/N6HS-info-jsons-and-calibration.md) items 2 and 3: the list of the homes; when a calibration changes.
+  - [ADR-P76Y](entries/P76Y-tracking-parquet.md) items 4 and 8: the display rotation; the realtime warning and badge
+    ([ADR-ATW0](entries/ATW0-spec-v2-details-part-6.md) item 11, [ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) item 5).
+  - [ADR-Q9X2](entries/Q9X2-realtime-tracking-journal.md) items 2 and 5: the journal node; the fold at start-up ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2).
+  - [ADR-T8PK](entries/T8PK-privacy-notice-and-no-code-in-files.md) item 3: the notice at an export or a share.
+  - [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md): item 2 ([ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) item 3); item 6, the flag bits ([ADR-W6HV](entries/W6HV-spec-v2-details-part-3.md) item 2d); item
+    12, the repair line ([ADR-ATW0](entries/ATW0-spec-v2-details-part-6.md) item 13) and the lock ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 1).
+  - [ADR-3D33](entries/3D33-spec-draft-v2-details-folder-files.md) items 4 and 5: the TOML that the manifest names ([ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) item 6b);
+    `charuco_detector:<board>` ([ADR-6VRQ](entries/6VRQ-spec-v2-details-part-13.md) item 37).
+  - [ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md): item 2 ([ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 21); items 1, 4 to 6 and 10 wait for the gate 2 work.
+  - [ADR-Q4BK](entries/Q4BK-spec-v2-details-part-4.md) item 4d: a manifest with no `take_uuid` ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 25: `bad_schema`).
+  - [ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) items 6c and 8: "one part for each pair of files" ([ADR-0WTH](entries/0WTH-spec-v2-details-part-12.md) item 31); the fold
+    "only after `state` is `finished`" ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2).
+  - [ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md) item 14: the scope of the JavaScript reader ([ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 21).
 - **Provisional parts of spec draft v2.** Close each of them before v2.0.0:
   - SFF-752: the source and the text form of `port_path` and `os_device_id` on each OS are not
     decided ([ADR-70VP](entries/70VP-camera-identity-forms-and-remembered-keys.md) item 1). They wait for these tests on Windows, Linux and macOS: a reboot, a replug
@@ -212,7 +180,9 @@ task. Delete an item when its work is done. The PR that closes an item records t
   from the capture library. Its backend owns a store of remembered cameras: not browser storage,
   and not deleted when a camera is unplugged. skellycam asks the user with a live preview, lets
   the user name a camera, and imports remembered cameras from a take folder. freemocap binds a
-  calibration by `camera_key`.
+  calibration by `camera_key`. From [ADR-94YQ](entries/94YQ-golden-g1-review-decisions.md) item 6: freemocap must run the calibration geometry
+  check before the question about cameras that the OS cannot tell apart, and list the most likely
+  candidates first.
 - **Permalinks to the skellycam evidence.** The new entries cite skellycam `dom/research` files as
   plain paths. Many of them are not committed yet. Change them to full-SHA permalinks after that
   branch is committed and pushed.
@@ -220,3 +190,6 @@ task. Delete an item when its work is done. The PR that closes an item records t
   9–74 ms early. The user must decide if playback corrects it
   ([ADR-CZQ9](entries/CZQ9-read-old-write-new-and-legacy-recognition.md)). skellycam does the legacy
   playback, so the result goes into a skellycam entry. Delete this item when that entry exists.
+- **Cross-platform test tools.** At the end of this work, draft minimal one-off scripts that a
+  person runs by hand on Linux and macOS (camera identity, clocks, golden bytes, the lock, capture
+  and repair). The list is in skellycam `research/CAPTURE_AND_RECORDING_PLAN.md`, section 4.1.

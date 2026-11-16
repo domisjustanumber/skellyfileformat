@@ -1,12 +1,15 @@
 # Choices made for G1 that the spec does not give
 
-This file is open work of the [decision log](../decisions/open-work.md). The golden generator
-(`tools/goldgen/`) needed each of these values to write G1 ([README.md](README.md)). The spec does
-not give them. Each item gives the gap, the choice and the alternative. The user must accept or
-change each choice before the other golden folders copy it
-([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 5). Items 30 to
-34 are points where the spec and the pinned tools, or two texts, do not agree. Delete an item when
-it is decided. Delete this file when it has no item.
+**Accepted by the user on 2026-11-16** ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 5).
+The later golden folders copy these choices as conventions of the golden folders. An item is a rule
+of the format only where the spec states it.
+
+The golden generator (`tools/goldgen/`) needed each of these values to write G1
+([README.md](README.md)). The spec does not give them. Each item gives the gap, the choice and the
+alternative ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 5).
+Items 30 to 34 are points where the spec and the pinned tools, or two texts, did not agree. The same
+entry decided items 20, 22, 23 and 30: each of them gives its decision. Items 13, 14, 15 and 24 can
+be rules of the format: the user must decide ([open-work.md](../decisions/open-work.md)).
 
 1. Appendix A gives no `<rec>` for a golden take. Choice: `g01_synthetic_take`, the same in the
    two cases. Alternative: the case name.
@@ -81,16 +84,19 @@ it is decided. Delete this file when it has no item.
 20. SFF-891 gives the warning `prerelease` to a file. The manifest also has `format_prerelease` 1,
     but it is never an item of the result (SFF-867), and no take warning has this code (SFF-887).
     Choice: the result shows nothing for the manifest. The `folder_files` item of the capture
-    info JSON has `["prerelease"]`. Alternative: a take warning.
+    info JSON has `["prerelease"]`. Alternative: a take warning. Confirmed: SFF-891 now states it
+    ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 3).
 21. The open point "Does a reader check `key_origin`?" applies to `confirmed_key`. Choice: the
     reader does not check it, so the check `camera_key` is `ok` in the two cases.
 22. SFF-872 does not say in words if the row-count part of `frames` alone makes the check `ok`
     when the take has no Parquet. Choice: yes. So `frames` is `ok` for the scope `full` and
     `not_checked` for the scope `player`, and this is the only difference between the two
-    results of G1. Alternative: none found, but the user must confirm the reading.
-23. The reader result holds no sign of the gap of camera 1: `camera_gap` is a manifest warning,
-    not a reader warning (SFF-887), and the flags are not in `records`. Choice: `warnings` of the
-    take is `[]`. This is the text of the spec. The user must confirm that it is the intent.
+    results of G1. Confirmed: SFF-872 now states it ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 4).
+23. **Replaced.** The reader result held no sign of the gap of camera 1: `camera_gap` is a manifest
+    warning, not a reader warning, and the flags are not in `records`. Decision: a reader gives a
+    camera file the file warning `gap` when one or more usable rows have the flag `gap` (SFF-887).
+    The `warnings` of camera 1 are `["gap","prerelease"]` in each result of G1. The `warnings` of
+    the take stay `[]` ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 1).
 24. SFF-885 does not say if a result file ends with a line end. Choice: no byte after the
     canonical JSON, as for the output of the JavaScript command (SFF-892).
 25. Appendix A does not give the format of `SHA256SUMS`. Choice: the format of `sha256sum`: the
@@ -112,10 +118,10 @@ it is decided. Delete this file when it has no item.
     `ftyp` with the brand `iso5`, an empty `udta/meta`, and a `btrt` box in the sample entry.
     Choice: keep them. The last fragment holds one packet with a duration of 312 samples (the
     end of the encoder delay), so the file holds 144,312 − 312 = 144,000 samples (SFF-785).
-30. **Not met by the tool.** SFF-736 rounds `DefaultDuration` half up. FFmpeg 9.0.2 rounds it
-    down: 33,366,666 for 30000/1001, where the spec gives 33,366,667. G1 has 30/1, where the
-    two agree (33,333,333). A golden folder with another rate, and the package writer, need a
-    decision: change the rule, or patch the element after the mux.
+30. **Replaced.** SFF-736 rounded `DefaultDuration` half up. FFmpeg 9.0.2 rounds it down:
+    33,366,666 for 30000/1001, where the spec gave 33,366,667. Decision: SFF-736 now rounds
+    `DefaultDuration` down, as the tool does. The block timestamps stay rounded half up. G1 has
+    30/1, where the two rules agree (33,333,333), so no byte of G1 changes ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 2).
 31. **Not shown by a file.** The settings `application`, VBR and complexity of SFF-762, and the
     flush after each packet of SFF-764, are not in the file. The generator sets them through
     PyAV. No test of the golden files can check them.

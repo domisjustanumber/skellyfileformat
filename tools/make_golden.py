@@ -14,15 +14,23 @@ committed ``SHA256SUMS``. The bytes are the same only on the reference platform 
 from __future__ import annotations
 
 import argparse
+import importlib
+import pkgutil
 import shutil
 import sys
 import tempfile
 from pathlib import Path
 
-from goldgen import common, g01
+import goldgen
+from goldgen import common
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden"
-FOLDERS = {"G01": g01.build}
+# Each module goldgen/gNN.py with a function build(target) makes the folder GNN.
+FOLDERS = {
+    m.name.upper(): importlib.import_module(f"goldgen.{m.name}").build
+    for m in pkgutil.iter_modules(goldgen.__path__)
+    if len(m.name) == 3 and m.name[0] == "g" and m.name[1:].isdigit()
+}
 
 
 def main(argv: list[str]) -> int:

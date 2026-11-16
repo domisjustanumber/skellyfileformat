@@ -11,7 +11,7 @@ dependencies = []
 [dependency-groups]
 dev = ["pytest==9.1.1", "pre-commit==4.6.2"]
 # The golden generator (tools/make_golden.py) and the cross-checks of its output.
-golden = ["av==19.0.2", "pillow==13.0.0"]
+golden = ["av==19.0.2", "numpy==2.4.6", "pillow==13.0.0", "pyarrow==26.0.0"]
 # The failing run of gate 2 (AGENTS.md section 3). The tests decode with PyAV.
 conformance = [{include-group = "golden"}]
 

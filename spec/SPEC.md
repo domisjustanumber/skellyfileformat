@@ -623,7 +623,9 @@ media file ([ADR-E45D](../decisions/entries/E45D-spec-draft-v2-corrections-after
 
 **SFF-709** (reader) A reader MUST read a file with a higher `minor` of a `major` that it
 knows. It ignores the header keys, columns, JSON members, TOML keys, flag bits and record types that
-it does not know.
+it does not know. In a camera file and an audio file, a reader ignores each Matroska element and
+each MP4 box that this spec does not name ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md)
+item 3).
 
 **SFF-710** (writer) A writer writes only the latest format version. Before v2.0.0 is
 released, a writer writes `2.0` and `format_prerelease` = 1. This requirement is the only place
@@ -841,8 +843,10 @@ and no EXIF orientation tag ([ADR-DE9S](../decisions/entries/DE9S-rotation-in-th
 
 **SFF-736** (writer) The TimestampScale is 1,000,000 (1 ms). The container timestamp of the
 frame at position k is ⌊(2 × k × `den` × 1000 + `num`) / (2 × `num`)⌋ ms, where `num/den` is the
-nominal rate (k / nominal rate, rounded half up). The track `DefaultDuration` is the nominal frame
-period in nanoseconds, rounded half up. A writer MUST NOT store measured times in the container. A
+nominal rate (k / nominal rate, rounded half up). The track `DefaultDuration` is
+⌊10^9 × `den` / `num`⌋ ns: the nominal frame period in nanoseconds, rounded down, as the pinned
+FFmpeg writes it ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 2). For
+30000/1001, it is 33,366,666. A writer MUST NOT store measured times in the container. A
 writer refuses a nominal rate above 1000 frames per second.
 
 **SFF-737** (writer) A writer stores no timing data, no overlay and no burned-in text in a
@@ -1011,6 +1015,10 @@ and its vendor ID and its model name from the operating system are equal to thos
 camera that is not connected. It asks if the device is that camera. When the user agrees, the
 camera keeps the remembered `camera_key`. When two or more remembered cameras fit, the user selects
 one from a list of them (by `user_name` and `camera_label`), or says that it is a new camera.
+When freemocap runs and a calibration applies, freemocap first checks from the calibration where
+the cameras are. Then it asks, with the most likely cameras first. skellycam alone does not make
+this check: it asks with no suggestion
+([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 6).
 
 The list of remembered cameras is local state of the capture program. It is not in the take folder,
 and this spec defines no file for it. A capture program can make it from the capture info JSON of
@@ -1370,7 +1378,7 @@ skellycam writes `<rec>_info.json` with the capture facts of the take, and no ot
 | `format_version`, `format_prerelease` | Section 3 |
 | `writer` | The writer string |
 | `take_uuid` | The ID of the take |
-| `camera_configs` | An object. Each key is a `camera_key` (16 hexadecimal characters, or `0` with the label after it, as `0:<camera_label>`). Each value is a camera config (below). |
+| `camera_configs` | An object. Each key is a `camera_key` (16 hexadecimal characters, or `0` with the label after it, as `0:<camera_label>`). Each value is a camera config (below). A writer MUST write the keys in order of `group_position` ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) item 4). |
 | `audio` | null, or an object with `device_name`, `host_api` and `device_channels` |
 
 A camera config has these members:
@@ -1382,7 +1390,7 @@ A camera config has these members:
 | `key_origin` | The origin of `camera_key` (SFF-752): `"computed"` (the key is the hash of form 1, 2 or 3, built from the `device` values of this file), `"confirmed_by_user"` (a remembered key that the camera has because the user confirmed the camera, in this session or an earlier one) or `"assigned"` (form 4, made in this session, confirmed by nobody). null when `camera_key` is 0. |
 | `device` | `model` (the model text of the device), `os_name` (the device name of the OS), `vendor_id` and `product_id` (4 lowercase hexadecimal characters, or null), `serial` (or null), `port_path` (or null), `os_device_id` (a text, or null: the persistent identifier of the OS, SFF-752), `backend` (for example `media_foundation`, `v4l2`, `avfoundation`) and `os_index` (the OS index at capture, or null) |
 | `requested` | `width`, `height` and `framerate` (a number, or `"camera_default"`), `capture_format` (`MJPG` or `YUYV`) and `exposure_mode` (`auto`, `manual` or `recommend`) |
-| `controls` | An object of the control values that the writer read back at the take start. Each key is a control name with its unit (SFF-802). Each value is `{"value": <number or null>, "auto": <true, false or null>}`. |
+| `controls` | An object of the control values that the writer read back at the take start. Each key is a control name with its unit (SFF-802). Each value is `{"value": <number or null>, "auto": <true, false or null>}`. A writer MUST write the keys in the order of the list of SFF-802 ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) item 4). |
 | `exposure_step` | The result of the exposure step, or null: `selected_exposure_us`, `method` and `samples` (an array of `{exposure_us, mean_luma}`) |
 
 **SFF-800** (writer) The capture info JSON has each member of the tables, in their order. It
@@ -2082,7 +2090,10 @@ camera with the lowest `group_position`.
 (SFF-754). The row-count part of `frames` compares the camera files with the state `finished`. A
 reader evaluates it when the take has two or more of them. A camera file that is `repaired`,
 `unfinished` or `damaged` is not in the comparison: a crash and a repair cut each file after its
-own last complete row. SFF-754 gives the multi-camera frames when the values of `rows` differ
+own last complete row. When the take has no Parquet, the row-count part alone decides `frames`:
+for the scope `full`, the check is `ok` when the reader evaluates the part and the row counts are
+equal; for the scope `player`, it is `not_checked` (SFF-892)
+([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 4). SFF-754 gives the multi-camera frames when the values of `rows` differ
 ([ADR-W6HV](../decisions/entries/W6HV-spec-v2-details-part-3.md),
 [ADR-0WTH](../decisions/entries/0WTH-spec-v2-details-part-12.md) item 32).
 
@@ -2209,7 +2220,8 @@ The rules of [ADR-T8PK](../decisions/entries/T8PK-privacy-notice-and-no-code-in-
 Private data is allowed in any field.
 
 **SFF-881** (writer) The manifest member `privacy` is an object with `fields` and
-`media_shows_people`. `fields` is an array, sorted by `file` and then by `field`. Each item has
+`media_shows_people`. `fields` is an array, sorted by `file` and then by `field`, each in the order of its UTF-8 bytes
+([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) item 1). Each item has
 `file` (a path), `field` (a JSON pointer, a TOML key path or a CSV header key) and `kind`:
 `device_name`, `serial_number`, `device_path`, `user_entered_name`, `absolute_path`, `time_zone` or
 `other`. `fields` holds exactly the fields of this table, when the file exists and the value is not
@@ -2263,7 +2275,8 @@ use this result to compare readers
 ([ADR-KW3G](../decisions/entries/KW3G-reader-result-for-the-folder.md)).
 
 **SFF-885** (reader) The reader result is a JSON object with these members, serialised with the
-JSON Canonicalization Scheme (RFC 8785):
+JSON Canonicalization Scheme (RFC 8785). A result has no byte after the canonical JSON: it has no
+line end ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) item 2):
 
 - `result_version`: 2;
 - `folder_state`: `ok`, `unreadable`, `legacy` or `empty` (SFF-888);
@@ -2345,8 +2358,11 @@ not a cause, SFF-819) and `code_in_file`. Each reader makes a file `invalid` wit
 row time or a fitted time has a magnitude of 2^53 ns or more. The take warnings are
 `incomplete_take`, `duplicate_label`, `take_fact_mismatch`, `extra_files`, `manifest_missing`,
 `camera_key_zero`, `stale_processing_info`, `summary_stale`, `calibration_mismatch`
-and `realtime_run`. The file warnings are `missing_fit`, `encode_skip` and `prerelease`. A reader
-gives the file warning `encode_skip` when one or more usable rows have that flag. The folder
+and `realtime_run`. The file warnings are `missing_fit`, `encode_skip`, `gap` and `prerelease`. A
+reader gives the file warning `encode_skip` when one or more usable rows have that flag. In the
+same way, it gives a camera file the file warning `gap` when one or more usable rows have the flag
+`gap` (SFF-756) ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 1). The
+folder
 warnings are `multiple_takes`, `stray_tmp` and `orphan_file`. The legacy warnings are those of
 SFF-879. A reader reports each
 code that this spec names, and no other
@@ -2372,7 +2388,9 @@ SFF-872. Each `warnings` array is sorted by code point.
 
 **SFF-891** (reader) The Python and JavaScript readers of this package read a file with
 `format_prerelease` > 0 and give it the warning `prerelease`. Another reader MAY refuse it as
-`unsupported_version`.
+`unsupported_version`. The manifest is not an item of the result (SFF-889), so its
+`format_prerelease` gives no warning: each other file of the take has the warning
+([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 3).
 
 **SFF-892** (reader) A reader gives its result for a scope: `full` or `player`. The scope is an
 input of the read. It is not a member of the result. The scope `full` is the whole result of

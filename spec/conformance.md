@@ -475,10 +475,11 @@ renamed camera pair, the take has the warning `take_fact_mismatch`, and `recordi
 
 **SFT-711** Writer: the camera file
 Checks: SFF-732, SFF-733, SFF-735, SFF-736, SFF-737
-Input: the output of skellycam for G1 and G4; a writer run with a nominal rate of 1001/1.
+Input: the output of skellycam for G1 and G4; a writer run with a nominal rate of 30000/1001; a
+writer run with a nominal rate of 1001/1.
 Pass: each camera file has one `V_MJPEG` track, one keyframe `SimpleBlock` for each frame and no
 lacing. The timestamps are the index timestamps of SFF-736, and `DefaultDuration` is the frame
-period. No rotation element and no EXIF orientation exists. The JPEG bytes have no APPn timing data.
+period in nanoseconds, rounded down: 33,366,666 for 30000/1001. No rotation element and no EXIF orientation exists. The JPEG bytes have no APPn timing data.
 The take folder holds no overlay file. FFmpeg (pinned) counts the frames of the
 sidecar. Blender (pinned) counts the same number (external: Blender). The writer refuses the nominal rate of 1001/1.
 
@@ -529,7 +530,7 @@ footer lines count in no member, the bytes of the torn footer line are in `torn_
 is false.
 
 **SFT-717** Writer: the video sidecar
-Checks: SFF-749, SFF-752, SFF-754, SFF-755, SFF-756, SFF-758
+Checks: SFF-749, SFF-752, SFF-754, SFF-755, SFF-756, SFF-758, SFF-887
 Input: the output of skellycam for G1 (the cases `take` and `confirmed_key`: a camera with a
 remembered key that the user confirmed) and of the converter for an old recording; a skellycam run
 with a forced failure of the JPEG encoder; a source that gives one source frame number two times.
@@ -540,7 +541,7 @@ form 1, 2 or 3 of SFF-752, built from the `device` values of the capture info JS
 characters and is not 0: the test does not compute it. The confirmed camera has the remembered key
 and `confirmed_by_user`. No two cameras of a take have the same `camera_key`. The rows
 count from 0, and each camera file of the take has the same number of rows. The gap of G1 has the
-flag `gap`. `gap` is 0 in the first row and next to an empty `source_frame_number`. The row after
+flag `gap`, and a reader gives that camera file the file warning `gap` (SFF-887). `gap` is 0 in the first row and next to an empty `source_frame_number`. The row after
 the encoder failure has the flag `encode_skip`. The row with the equal source frame number has the
 flag `repeat` and not the flag `gap`. The `# end` counts agree with the rows, and `encode_skips` is
 the number of rows with the flag `encode_skip`. The converter writes
@@ -1082,7 +1083,9 @@ Pass: each result is valid JSON in the canonical form of RFC 8785, with each mem
 The states follow the order of SFF-886, and each code is from SFF-887. The sort orders are
 those of SFF-890. Each `name` and `path` is relative to the take folder, with `/`. A code is at most
 one time in each `warnings` array. The file of G12 with the flag `encode_skip` in a usable row has
-the file warning `encode_skip`. The empty folder has `folder_state` `empty`. The folder with one
+the file warning `encode_skip`. Each camera file with the flag `gap` in a usable row (camera 1 of
+G1, camera 0 of G12) has the file warning `gap`. A camera file with no such row does not have it.
+The empty folder has `folder_state` `empty`. The folder with one
 timing sidecar has `folder_state` `unreadable`, the sidecar in `other_files` as `invalid` with
 `missing_media`, its own path as its `name`, and the folder warning `orphan_file`. The folder with
 only the capture info JSON is `unreadable`: the file is in `other_files` as `invalid`, with
