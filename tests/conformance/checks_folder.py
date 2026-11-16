@@ -17,7 +17,6 @@ import re
 import shutil
 import struct
 import subprocess
-import sys
 import tomllib
 import zlib
 from pathlib import Path
@@ -839,13 +838,16 @@ def stored_size(camera_file: Path) -> tuple[int, int]:
 
 def spaces_faults(folder: Path) -> list[str]:
     """SFF-829 and SFF-830 (SFT-749): the image references and the 3D reference frame of a take."""
-    described = descriptor(one(folder, "*_data.parquet"))
+    parquet = one(folder, "*_data.parquet")
+    described = descriptor(parquet)
     faults = []
+    sizes = {}
     for run_id, run in described["runs"].items():
         cameras = {s["definition"]["camera_label"]: s["definition"] for s in run["sources"].values() if s["kind"] == "camera"}
         for label, definition in cameras.items():
             frame = run["reference_frames"].get(f"camera:{label}:image")
             size = stored_size(folder / MEDIA / definition["video_filename"])
+            sizes[(run_id, f"camera:{label}:image")] = size
             if frame is None or (frame["width"], frame["height"]) != size:
                 faults.append(f"run {run_id}: the image reference of {label} does not have the stored size {size}")
         for channel in run["channels"]:
@@ -854,6 +856,13 @@ def spaces_faults(folder: Path) -> list[str]:
         world = run["reference_frames"].get("calibrated_world")
         if len(cameras) >= 2 and (world is None or (world["basis"], world["units"]) != ("blender_x_right_y_forward_z_up", "mm")):
             faults.append(f"run {run_id}: the 3D reference frame is not calibrated_world with the Blender basis, in mm")
+    # Each 2D value is a pixel of the stored JPEG, before `display_rotation` (SFF-829).
+    for row in rows_of(parquet):
+        size = sizes.get((str(row["run_id"]), row["reference_frame"]))
+        if row["channel"] == "OVERLAY_2D" and size and row["component"] in ("x", "y") and row["value"] is not None:
+            if not 0 <= row["value"] < size[row["component"] == "y"]:
+                faults.append(f"run {row['run_id']}: a 2D {row['component']} of {row['reference_frame']} is outside the stored frame")
+                break
     return faults
 
 
@@ -1515,14 +1524,36 @@ def parquet_digest(folder: Path) -> tuple[int, str]:
 # ---------------------------------------------------------------- other Parquet readers (SFT-747)
 
 
-def bits(value):
-    """A value that compares bit-exactly: the 64 bits of a float, else the value."""
-    return struct.pack("<d", value).hex() if isinstance(value, float) else value
+def values_sha256(rows) -> str:
+    """The digest of the Parquet values that golden/README.md defines. Each row is a sequence in column order.
+
+    A null is 00. Another value is 01 and then: a float64 as 8 bytes and a float32 as 4 bytes (IEEE 754,
+    little-endian), an integer as 8 bytes (two's complement, little-endian), a text as its UTF-8 length
+    in 4 bytes (little-endian) and its UTF-8 bytes.
+    """
+    digest = hashlib.sha256()
+    for row in rows:
+        values = list(row)
+        assert len(values) == len(COLUMNS)
+        for value, (_, kind, _) in zip(values, COLUMNS):
+            if value is None:
+                digest.update(b"\x00")
+                continue
+            if kind == "string":
+                data = value.encode()
+                data = struct.pack("<I", len(data)) + data
+            elif kind == "float":
+                data = struct.pack("<f", value)
+                assert struct.unpack("<f", data)[0] == value, "a float32 value reads back as the same value"
+            else:
+                data = struct.pack("<d" if kind == "double" else "<q", value)
+            digest.update(b"\x01" + data)
+    return digest.hexdigest()
 
 
-def pyarrow_bits(parquet: Path) -> list[list]:
-    """Each row of a Parquet as a list in column order, with the bits of each float. pyarrow reads."""
-    return [[bits(value) for value in row.values()] for row in rows_of(parquet)]
+def pyarrow_rows(parquet: Path) -> list[list]:
+    """Each row of a Parquet as a list in column order. pyarrow reads."""
+    return [list(row.values()) for row in rows_of(parquet)]
 
 
 HYPARQUET = """
@@ -1544,16 +1575,16 @@ def node_package_version(name: str) -> str | None:
     return load_json(package)["version"] if package.is_file() else None
 
 
-def hyparquet_bits(parquet: Path) -> list[list]:
-    """The same rows as `pyarrow_bits`, read by hyparquet through Node. The script was not run at gate 2."""
+def hyparquet_rows(parquet: Path) -> list[list]:
+    """The rows of a Parquet in column order, read by hyparquet through Node. The script was not run at gate 2.
+
+    The script gives the 64 bits of each float, so the values reach Python with no change.
+    """
     node = shutil.which("node")
     command = [node, "--input-type=module", "--eval", HYPARQUET, str(parquet)]
     done = subprocess.run(command, capture_output=True, check=True, cwd=ROOT / "js")  # noqa: S603
-    return json.loads(done.stdout)
-
-
-def goldgen():
-    """The module `goldgen.folder_common` of the golden generator (decision QH61 item 46)."""
-    if str(ROOT / "tools") not in sys.path:
-        sys.path.insert(0, str(ROOT / "tools"))
-    return pytest.importorskip("goldgen.folder_common")
+    floats = {name for name, kind, _ in COLUMNS if kind in ("float", "double")}
+    return [
+        [struct.unpack("<d", bytes.fromhex(v))[0] if name in floats and v is not None else v for v, (name, _, _) in zip(row, COLUMNS)]
+        for row in json.loads(done.stdout)
+    ]

@@ -9,10 +9,12 @@ A change to a golden file needs a decision entry ([AGENTS.md section 4](../AGENT
 G1 to G16 exist. G17 does not exist: it waits for the skellysync decisions. G1 is the worked
 example for the other folders. The user reviewed G1 on 2026-11-16 and accepted its conventions for
 the other folders ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md), ADR-G21H item 5).
-The user has not reviewed the other folders. Each file `G<NN>…_CHOICES.md` and
-`CAPTURE_VECTORS_CHOICES.md` lists the choices of its folders that the spec does not give. Each of
-these lists is a proposal, but `G01_CHOICES.md` is accepted. No reader exists, so each expected
-result comes from the spec text only.
+Each file `G<NN>…_CHOICES.md` and `CAPTURE_VECTORS_CHOICES.md` lists the choices of its folders
+that the spec does not give. On 2026-11-16, the user also accepted the items of the other lists as
+conventions of the golden folders. They are not rules of the format
+([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). A decision of
+the same day replaced some items: each list gives the decided rule for them. Each list marks the
+items that are still open. No reader exists, so each expected result comes from the spec text only.
 
 ## Layout
 
@@ -34,8 +36,35 @@ golden/
 - Each result file is the canonical JSON of SFF-885 (RFC 8785): one line, with no line end after it.
 - `<case>.truth.json` is canonical JSON. For G1 it holds the first sample of each click
   (`audio.click_samples`) and the position of each flash frame of each camera
-  (`cameras[].flash_positions`). SFT-723 and SFT-729 need these facts.
+  (`cameras[].flash_positions`). SFT-723 and SFT-729 need these facts. The truth file of G3 (and
+  its copy in G8) also has the member `parquet`: `name` (the file name of the Parquet), `rows` (the
+  number of rows) and `values_sha256` (the digest of the next section). SFT-747 needs it.
+- `golden/G12/equal_fitted_times.parquet` is beside the case `take` of G12, so it is not a file of
+  the take. It holds 12 rows: the `TIMESTAMPS` channel `capture` of camera 3, whose rows 6 and 7
+  have equal fitted times. Its descriptor holds only `runs.0.sensor_groups`. It is not a full
+  descriptor. SFT-748 reads the file
+  ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 5).
 - `.gitattributes` stops line-end conversion in this folder.
+
+## The digest of the Parquet values
+
+`values_sha256` is the SHA-256 of a byte string, as 64 lowercase hexadecimal characters. The
+generator computes it from the values that it gives to the Parquet writer, not from the file. A
+reader computes it from the values that it reads. The byte string has, for each row of the file in
+file order (the row groups in order, then the rows in order), for each of the 12 columns in the
+order of the table of SPEC.md section 16, these bytes:
+
+- a null: the byte `00`;
+- another value: the byte `01`, then the value:
+  - `timestamp_s` and `value_f64`: the 8 bytes of the IEEE 754 binary64 value, little-endian;
+  - `value`: the 4 bytes of the IEEE 754 binary32 value, little-endian;
+  - `frame_number` and `run_id`: the integer as 8 bytes, two's complement, little-endian (so a
+    copy with int64 columns has the same digest);
+  - each text column: the number of bytes of the UTF-8 text as 4 bytes, unsigned, little-endian,
+    then the UTF-8 bytes.
+
+The bytes of a float are the bytes of the value as the file stores it, so `-0.0` and `0.0` differ.
+`tools/tests/test_g03.py` checks the digest with bytes that it writes by hand.
 
 ## How to make and check the files
 
@@ -114,6 +143,15 @@ result from its input and from the rules of SPEC.md section 23. Each member has 
 The `player` result of each case of G1 differs from the `full` result only in the check `frames`
 (SFF-892). The result of `confirmed_key` differs from the result of `take` only in `camera_key`,
 `camera_label` and `name` of camera 1.
+
+## G3 and its copies
+
+G3 is the take of G1 with a calibration TOML, a tracking Parquet and the processing info JSON
+([G03_CHOICES.md](G03_CHOICES.md)). Camera 1 of G3 has `display_rotation` 90: the input of SFT-749
+([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 3). So the
+sidecar of camera 1 and the manifest summary differ from G1. The stored frames, the TOML `size`,
+the image reference of the Parquet and the 2D values stay in stored-JPEG pixels (SFF-829). G7, G8,
+G9 and the case `higher_minor` of G10 are copies of G3, so they also have the rotated camera.
 
 ## Provisional parts
 

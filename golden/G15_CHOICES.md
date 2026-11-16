@@ -1,6 +1,10 @@
 # Choices made for G15 that the spec does not give
 
-**Status: proposed. The user did not review this list.**
+**Accepted by the user on 2026-11-16 as conventions of the golden folders**
+([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
+rule of the format only where the spec states it. A decision of the same day replaced choice 4 and
+the contradictions 1 and 4 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)).
+Each of these items gives its decision.
 
 G15 holds the legacy folders of [SPEC.md Appendix A](../spec/SPEC.md#appendix-a-golden-folders).
 `tools/goldgen/g15.py` makes it. The conventions of [G01_CHOICES.md](G01_CHOICES.md) apply and are
@@ -73,7 +77,8 @@ The warnings of the scope `full` are: `v1a`: `legacy_calibration_unverified`,
    `run_3d_triangulation`, `run_reprojection_error_filtering` and
    `use_triangulate_outlier_rejection` are in `anipose_triangulate_3d_parameters_model`. So a
    reader must find a key at any depth. Alternative: each key in `mediapipe_parameters_model` or
-   at the top, which no release wrote. See contradiction 1.
+   at the top, which no release wrote. See contradiction 1. Decision (ADR-XR63): the keys of
+   SFF-878 in `recording_parameters.json` count at any depth.
 5. **The other content of `recording_parameters.json`.** Choice: only the signal keys.
    `mediapipe_parameters_model` and `tracking_parameters_model` are `{}`. The values are free, because a
    signal is the presence of a key: `run_3d_triangulation` is true, and each other value is false. The file has the white
@@ -133,7 +138,7 @@ The warnings of the scope `full` are: `v1a`: `legacy_calibration_unverified`,
    `run_reprojection_error_filtering`; the inventory, for the V1a key list). If "with" means
    "inside", no real folder matches the row. The same question applies to the row V1i: the key
    `use_triangulate_outlier_rejection` is not at the top of the file. The spec must say "at any
-   depth", or name the object of each key. G15 follows choice 4.
+   depth", or name the object of each key. G15 follows choice 4. Decided: "at any depth" (choice 4).
 2. **SFF-878, row V1h–V1h': "a board `name`".** The TOML has no key for the board name. The name is
    in the text of `metadata.charuco_board_object` (`name='7x5 Charuco'`, annex section 4). Each
    camera table of each era has a key `name` (annex section 5). A reader that tests a TOML key
@@ -143,7 +148,7 @@ The warnings of the scope `full` are: `v1a`: `legacy_calibration_unverified`,
    `sessionSettings.txt` only in the first v0.0.x era, and the config YAML in each era. So "or" is
    correct, and G15 uses the config YAML.
 4. **SFF-876 and SFF-877: no order.** The spec does not say which family wins when a folder has
-   the signals of `pre_v1` and of `v1`. No case of G15 has the two.
+   the signals of `pre_v1` and of `v1`. No case of G15 has the two. Decision (ADR-XR63): `v1` wins.
 5. **SFF-875 and SFF-888 with SFF-721.** A reader scans only the root and the media folder. The
    spec does not say if a folder whose only regular files are in other subfolders is `legacy` or
    `empty`. Each case of G15 has a file in the root or in `synchronized_videos/`.

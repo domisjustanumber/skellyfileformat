@@ -210,9 +210,12 @@ components are those of the channel. Static channels have no rows.
 
 | Member | Object |
 |---|---|
-| `filtering` | The filter report of freemocap: `algorithm_version` (1), `config`, `sampling_rate_hz`, `filtered_runs`, `preserved_short_runs`, `gap_filling` |
-| `camera_assignment` | `{status, source_to_calibration, fitness, error_units}`; `error_units` is `pixels_at_1000_pixel_image_diagonal` |
+| `filtering` | An open JSON object. freemocap writes its filter report: `algorithm_version` (1), `config`, `sampling_rate_hz`, `filtered_runs`, `preserved_short_runs`, `gap_filling` |
+| `camera_assignment` | An open JSON object. freemocap writes `{status, source_to_calibration, fitness, error_units}`; `error_units` is `pixels_at_1000_pixel_image_diagonal` |
 | `stage_provenance` | `StageProvenanceSet` |
+
+`filtering` and `camera_assignment` are open: a reader checks only that each is a JSON object, until
+freemocap defines them ([ADR-XR63](../../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 8).
 
 ### `StageProvenanceSet` (closed)
 
@@ -633,6 +636,8 @@ segment `tip` has an `observation_frame`. The other segments omit it.
 ```
 
 ## `CameraModel` (closed)
+
+The camera geometry is in the world of the calibration TOML ([ADR-XR63](../../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 8).
 
 | Member | Type | Rule |
 |---|---|---|

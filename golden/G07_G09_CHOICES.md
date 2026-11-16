@@ -1,6 +1,11 @@
 # Choices made for G7, G8 and G9 that the spec does not give
 
-**Status: proposed. The user did not review this list.**
+**Accepted by the user on 2026-11-16 as conventions of the golden folders**
+([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
+rule of the format only where the spec states it. Decisions of the same day replaced items 5, 26
+and 29 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)). Each of these
+items gives its decision. G3 now has a rotated camera (G03_CHOICES.md item 1), so each case of G7,
+G8 and G9 has it too.
 
 G7, G8 and G9 are copies of G3 ([SPEC.md Appendix A](../spec/SPEC.md#appendix-a-golden-folders)).
 The scripts are `tools/goldgen/g07.py` (G7, and the helpers that G8 and G9 use),
@@ -98,8 +103,10 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
 5. SFF-885 gives each `folder_files` item a `role`, and the manifest is the source of the roles. In
    a rebuild, no manifest gives a role. Choice: the role of the fixed name of SFF-731:
    `capture_info` for `<rec>_info.json`, `processing_info` for `<rec>_recording_info.json`,
-   `tracking` for `<rec>_data.parquet`, and null for the TOML (G03_CHOICES.md item 28). So the
-   `folder_files` of G7 are those of G3. Alternative: null for each item. **The user must decide.**
+   `tracking` for `<rec>_data.parquet`, and `calibration` for `<rec>_camera_calibration.toml`
+   (G03_CHOICES.md item 28). So the `folder_files` of G7 are those of G3. Decision
+   ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): when the reader
+   rebuilds a missing manifest, the role of a folder file comes from its fixed file name.
 6. SFF-883 gives `may_contain_private_data` for a `missing` manifest, and not for an `invalid`
    manifest. Choice: the rule of a missing manifest, because the reader does not use an invalid
    manifest (SFF-867). The take has camera files, so the value is true. The `privacy` list of the
@@ -147,7 +154,9 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
     of `frames` passes, and only the row-count part fails. Alternative: a Parquet of 90 frames,
     which also fails the Parquet part.
 15. **`rotation_in_configs`.** SFF-800 forbids `rotation` in a camera config and gives no form.
-    Choice: `"rotation": 90`, the last member of the config of camera 1. See item 30.
+    Choice: `"rotation": 90`, the last member of the config of camera 1. See item 30. The summary
+    and the sidecar of camera 1 both have `display_rotation` 90, so the part "the manifest summary
+    with each video sidecar" passes, and the case has one fault.
 16. **`unresolved_file`.** Appendix A says "an unresolved file name". Choice: `video_filename` of
     the camera source of camera 1 is `g09_other_take.d20676.mkv`, which names no file in the media
     folder (SFF-826). `timing_filename` stays correct. The vector is in the Parquet, so the scope
@@ -191,7 +200,9 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
     say which rule wins for a listed folder file whose `take_uuid` is the ID of no take. If the
     file is `invalid`, SFF-872 does not evaluate its part, and the check `take_uuid` is `ok`. That
     contradicts SFT-763 ("each vector of G9 gives `mismatch`"). The choice of item 10 (`present`,
-    `mismatch`) follows SFT-763. **The user must decide.**
+    `mismatch`) follows SFT-763. Decision
+    ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): a folder file with
+    another `take_uuid` is `present`, and the check `take_uuid` is `mismatch`, as G9 has it.
 27. **SFF-872, `frames` and `dimensions`: the link of a Parquet camera source to its camera
     file.** The spec does not say how a reader links a camera source to its camera file: by
     `camera_key`, by `camera_label` (the source name `camera:<label>`) or by `video_filename`. G9
@@ -202,7 +213,9 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
 29. **SFF-872, `dimensions`.** The rule says "the image width and height of each Parquet camera
     source". A camera source definition (SFF-826) has no size. The size is in the image reference
     `camera:<label>:image` (SFF-829) and in `image_size` of `camera_geometry`. The choice of item
-    13 uses the image reference. **The user must decide** if the check also tests `image_size`.
+    13 uses the image reference. Decision
+    ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): the check compares
+    the image reference with the camera file, and nothing else.
 30. **SFF-800 and SFF-887: a member that SFF-800 forbids.** The reason `bad_schema` names a file
     "without the members ... of its section". It does not name a file with a member more. SFF-709
     ignores an unknown member only for a higher `minor`. So the spec does not say if a 2.0 capture
@@ -223,13 +236,12 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
 
 ### Notes for the supervisor
 
-35. **`golden/README.md`** says "Only G1 exists" and lists only the G1 scripts. This work does not
-    change that file (the task gave this agent no permission). It must list G7 to G9 and this
-    file.
+35. **`golden/README.md`** said "Only G1 exists". It now lists each folder.
 36. **`tools/goldgen/g03.py`.** `write_case` takes no camera input and no hook for the run. So
-    `g09.py` writes the short camera 0 of `row_counts` with `common.write_take` in a temporary
-    folder, copies its device pair, and writes the Parquet again with `g03.run_and_rows`. A
-    parameter `cameras` of `write_case` and a hook for the run would make this shorter.
+    `g09.py` writes the short camera 0 of `row_counts` with `common.write_take` and the cameras of
+    `g03.take_cameras` in a temporary folder, copies its device pair, and writes the Parquet again
+    with `g03.run_and_rows`. A parameter `cameras` of `write_case` and a hook for the run would make
+    this shorter.
 37. **The size.** G7 has about 690 kB, G8 about 350 kB and G9 about 3.8 MB, nearly all from the
     media files of G3. Appendix A asks for copies of G3, so each case holds the whole take.
     Alternative: a smaller base take for G9, which needs a second set of expected results.

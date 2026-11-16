@@ -58,7 +58,7 @@ def replace_parquet(folder: Path, facts: dict, cameras: list[dict], files: list[
 
 def short_take(folder: Path, facts: dict) -> list[dict]:
     """`row_counts`: camera 0 of G3 with 89 rows. Return the new `files` items (SFF-746)."""
-    cameras = g01.cameras()
+    cameras = g03.take_cameras()
     camera = cameras[SHORT_CAMERA]
     camera |= {"rows": camera["rows"][:SHORT_ROWS], "flash_positions": [p for p in camera["flash_positions"] if p < SHORT_ROWS]}
     with tempfile.TemporaryDirectory() as temporary:

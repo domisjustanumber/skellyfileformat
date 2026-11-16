@@ -1,6 +1,7 @@
 """Golden folder G3 (spec/SPEC.md Appendix A): a processed take, in the case `take`.
 
 The take is the take of G1 with a calibration TOML, a tracking Parquet and the processing info JSON.
+Camera 1 has `display_rotation` 90, so its sidecar and the manifest summary differ from G1.
 Each value of this file is synthetic. The 2D and 3D values come from small formulas: they are not a
 triangulation with the calibration of the take.
 """
@@ -28,6 +29,7 @@ TRACKER_STAGE = "body"
 STAGES = ("timing", "observations", "triangulation", "filtering")  # the stages of G3, in the order of the part
 # The tracker did not detect this point of the model `stick` in camera 1 on these frames (SFF-831).
 UNDETECTED_NAME, UNDETECTED_CAMERA, UNDETECTED_FRAMES = 4, 1, range(10, 13)
+ROTATED_CAMERA = 1  # `display_rotation` 90; its 2D values stay in stored-JPEG pixels (SFF-829)
 
 PAIR = {
     "model_id": "pair",
@@ -264,9 +266,16 @@ def run_and_rows(cameras: list[dict], files: list[dict]) -> tuple[dict, list[tup
     return run, rows
 
 
+def take_cameras() -> list[dict]:
+    """The cameras of G1. Camera 1 has `display_rotation` 90: the rotated camera of SFT-749."""
+    cameras = g01.cameras()
+    cameras[ROTATED_CAMERA]["display_rotation"] = 90
+    return cameras
+
+
 def write_case(folder: Path) -> tuple[dict, list[dict], dict]:
     """Write the take of G3 into `folder`. Return its facts, its cameras and its audio."""
-    cameras, audio = g01.cameras(), g01.audio()
+    cameras, audio = take_cameras(), g01.audio()
     facts = common.write_take(folder, g01.TAKE, cameras, audio)
     files = facts["files"][: len(cameras)]
     toml = fc.calibration_toml(
@@ -311,11 +320,18 @@ def build(out: Path) -> None:
     facts, cameras, audio = write_case(out / "take")
     for scope in ("full", "player"):
         (out / f"take.{scope}.json").write_bytes(common.canonical_json(fc.expected_result(facts, scope)))
-    truth = {  # the same facts as for G1
+    # The digest of the values that the generator gave to the Parquet writer (golden/README.md), for SFT-747.
+    run, rows = run_and_rows(cameras, facts["files"][: len(cameras)])
+    values = [row for group in fc.parquet_rows({"runs": {"0": run}}, rows) for row in group]
+    truth = {  # the facts of G1, and the values of the Parquet
         "audio": {"name": facts["files"][-1]["name"], "click_samples": audio["click_samples"]},
         "cameras": [
             {"name": item["name"], "flash_positions": camera["flash_positions"]}
             for item, camera in zip(facts["files"], cameras)
         ],
-    }
+        "parquet": {
+            "name": f"{facts['recording_name']}_data.parquet", "rows": len(values),
+            "values_sha256": fc.values_sha256(values),
+        },
+    }  # fmt: skip
     (out / "take.truth.json").write_bytes(common.canonical_json(truth))

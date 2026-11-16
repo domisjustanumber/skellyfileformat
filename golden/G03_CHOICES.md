@@ -1,6 +1,11 @@
 # Choices made for G3 that the spec does not give
 
-**Status: proposed. The user did not review this list.**
+**Accepted by the user on 2026-11-16 as conventions of the golden folders**
+([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
+rule of the format only where the spec states it. Decisions of the same day replaced items 1, 3,
+19, 23 and 28 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) items
+3 and 4, [ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)). Each of these
+items gives its decision.
 
 G3 is the processed take of [SPEC.md Appendix A](../spec/SPEC.md#appendix-a-golden-folders): the
 take of G1 with the processing info JSON, a calibration TOML and a tracking Parquet. It has one
@@ -17,7 +22,8 @@ Items 31 to 36 are contradictions and limits of the pinned tools.
 ## What the take holds
 
 - The media files, the timing sidecars and the capture info JSON of `golden/G01/take`, with the
-  same bytes.
+  same bytes. The only exception is the sidecar of camera 1: its header has `display_rotation=90`
+  (item 1).
 - `g01_synthetic_take_camera_calibration.toml`: two cameras, not aligned.
 - `g01_synthetic_take_data.parquet`: one posthoc run, 11 channels, 7,830 rows, 90 frames.
 - `g01_synthetic_take_recording_info.json`: the processing info JSON.
@@ -35,14 +41,14 @@ Each other member has the value and the requirement of G1 ([README.md](README.md
 | `takes[].may_contain_private_data` | true, as for G1. The new files add no `privacy` field: the TOML is not aligned | SFF-881, SFF-883 |
 | `folder_files` (the items) | 4 items: one for each `files` item of the manifest and one for `calibration.file` | SFF-885 |
 | `folder_files` (the order) | The bytes of the path: the TOML, the Parquet, the capture info JSON, the processing info JSON | SFF-890 |
-| `folder_files[].role` | `tracking`, `capture_info` and `processing_info` from the manifest. null for the TOML (item 28) | SFF-723, SFF-885 |
+| `folder_files[].role` | `tracking`, `capture_info` and `processing_info` from the manifest. `calibration` for the TOML (item 28) | SFF-723, SFF-885 |
 | `folder_files[].state`, `reason` | `full`: `present`, null. `player`: the TOML and the Parquet are `not_checked`, null | SFF-885, SFF-892 |
 | `folder_files[].warnings` | `full`: `["prerelease"]` for each item. `player`: `[]` for the TOML and the Parquet | SFF-891, SFF-892 |
 | `links`: `take_uuid` | `ok`. `full`: the manifest, 3 sidecars, 2 info JSONs and the Parquet descriptor. `player`: without the Parquet | SFF-872, SFF-892 |
 | `links`: `camera_key` | `ok`. `full`: the manifest with the video sidecars, the capture info JSON, the TOML and the Parquet. `player`: only the first two parts | SFF-872, SFF-892 |
 | `links`: `frames` | `full`: `ok`. Each Parquet `frame_number` is from 0 to 89, and the 2 camera files have 90 rows each. `player`: `not_checked` | SFF-872, SFF-827, SFF-892 |
 | `links`: `dimensions` | `full`: `ok`. Each image reference has 64 × 48, the size of the stored JPEG. `player`: `not_checked` | SFF-872, SFF-829, SFF-892 |
-| `links`: `rotation` | `ok`, as for G1 | SFF-872 |
+| `links`: `rotation` | `ok`: the capture info JSON has no rotation, and the summary has 0 and 90, as the sidecars | SFF-872 |
 | `links`: `files` | `ok`. `full`: each path of the manifest, and the 4 file names of the Parquet camera sources in `synchronized_videos/`. `player`: only the paths of the manifest | SFF-872, SFF-826, SFF-892 |
 | `links`: `hashes` | `full`: `ok`. The manifest with the TOML, and `parquet_sha256` with the Parquet. `player`: `not_checked` | SFF-872, SFF-892 |
 | `links`: `calibration` | `full`: `ok`. The `calibration_uuid` of the manifest is that of the TOML. `player`: `not_checked` | SFF-872, SFF-814, SFF-892 |
@@ -56,15 +62,24 @@ four link checks of the table.
 
 1. Appendix A says "G1 plus" and gives no `<rec>` and no `take_uuid` for G3. Choice: the take of G1
    itself, with the `<rec>` `g01_synthetic_take` and the `take_uuid` of G1. So each media file,
-   each sidecar and the capture info JSON has the bytes and the name of `golden/G01/take`. Only the
-   manifest differs. Alternative: the `<rec>` `g03_synthetic_take`, with the same bytes under other
-   names, or a new `take_uuid`, which changes each sidecar.
+   each sidecar and the capture info JSON has the name of `golden/G01/take`. Decision
+   ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 3): camera 1
+   has `display_rotation` 90, the input of SFT-749. So the sidecar of camera 1 has the header line
+   `# display_rotation=90`, and the manifest summary has 90 for camera 1. A header line has no
+   CRC, so no other byte of the sidecar changes. The capture info JSON holds no rotation (SFF-800),
+   so it keeps the bytes of G1. The stored frames stay 64 × 48 pixels: the TOML `size`, the image
+   reference of the Parquet and the 2D values are in stored-JPEG pixels (SFF-829), so the TOML and
+   the Parquet do not change. Each other file has the bytes of G1, and the manifest has the other
+   changes of this list.
 2. SFF-725 says that freemocap sets `writer` of the manifest to its own writer string. Choice: the
    writer string of the golden folders in each new file and in the manifest (G01_CHOICES.md item
    3). `owner` of the two new `files` items is `freemocap`. Alternative: `freemocap 2.0.0`.
-3. `<case>.truth.json` (G01_CHOICES.md item 26) has no rule for a processed take. Choice: the same
-   file as for G1. The Parquet needs no truth fact: each expected value of a row comes from the
-   sidecars or from the descriptor.
+3. `<case>.truth.json` (G01_CHOICES.md item 26) has no rule for a processed take. Choice: the
+   members of the file of G1. Decision
+   ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 4): the file
+   also has the member `parquet`, with the SHA-256 of the values that the generator gave to the
+   Parquet writer. [README.md](README.md) defines the digest. SFT-747 checks each Parquet reader
+   against it.
 4. SFF-728 says "the latest `recorded_at`" and gives no comparison rule. Choice: each stage has
    the form `YYYY-MM-DDTHH:MM:SSZ`, so the order of the texts is the order of the times. The four
    stages have 2000-01-01T00:01:00Z to 00:01:03Z, and the summary holds the last one.
@@ -143,9 +158,10 @@ four link checks of the table.
     `ReconstructionSourceDefinition` for each model, with no channel.
 19. The part does not say which members of `processing[<group>]` a writer must write, and it gives
     no member types for `filtering` and `camera_assignment`. Choice: only `stage_provenance`. The
-    manifest summary needs it (`origin` and `recorded_at`, SFF-728). Alternative: the three
-    members, with invented values. **The user must decide if `filtering` and `camera_assignment`
-    are required.**
+    manifest summary needs it (`origin` and `recorded_at`, SFF-728). Decision
+    ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): `filtering` and
+    `camera_assignment` are open JSON objects, and a reader checks only that each is an object,
+    until freemocap defines them. The decision does not make them required, so G3 keeps the choice.
 20. The values of a `StageProvenance` are free. Choice: four stages (`timing`, `observations`,
     `triangulation`, `filtering`), each with `attempt_id` `g03-synthetic-attempt`,
     `effective_settings` `{}`, `default_settings` null, `input_signatures`
@@ -164,7 +180,9 @@ four link checks of the table.
     `calibrated_world` after the axis map of SFF-809. Choice: the world of the TOML, with no axis
     map. So `extrinsics`, `world_position` and `world_orientation` hold the values of the TOML, and
     `id` is the key of the camera table. SFF-837 compares only poses relative to camera 0, so the
-    choice does not change `calibration_mismatch`. **The user must decide.**
+    choice does not change `calibration_mismatch`. Decision
+    ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): the camera
+    geometry of the descriptor is in the world of the calibration TOML, as G3 has it.
 24. `calibration_camera` of the manifest and of an image reference is "the name of the camera
     table". Choice: the `camera_label`, which is the key of the table (SFF-806).
 
@@ -188,9 +206,11 @@ four link checks of the table.
 ### The processing info JSON and the reader result
 
 28. SFF-885 gives each `folder_files` item a `role`, and the manifest has no role for
-    `calibration.file` (an open point of [open-work.md](../decisions/open-work.md)). Choice: null,
-    by "a member that does not apply is null" (SFF-885). Alternative: a new value `calibration`.
-    **The user must decide.**
+    `calibration.file`. Decision
+    ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): the reader gives
+    the role `calibration` to the file that `calibration.file` names. Before, the results of G3 had
+    null. Each result of each golden case with a TOML (G3, G7, G8, G9, `higher_minor` of G10 and
+    G14) now has `calibration`.
 29. Section 14 says that a `data` item has `components` and does not give its form. Choice: the
     `components` object of the descriptor channel (component to units), and `names` as in the
     channel. The `data` items are in the order of `channels`. `cameras` is in order of
@@ -213,7 +233,8 @@ four link checks of the table.
 34. **SFF-892 and the processing info JSON.** The scope `player` reads the processing info JSON,
     but not the Parquet. So its item is `present` with `prerelease` in the two results, and the
     check `take_uuid` has its part in the two results, while `hashes` is `not_checked` for `player`.
-35. **`golden/README.md`.** It says "Only G1 exists". This work does not change that file.
+35. **`golden/README.md`.** It said "Only G1 exists". It now lists each folder, the rotated camera
+    of G3 and the digest of item 3.
 36. **`tools/goldgen/common.py`.** `expected_result` gives only the result of a capture-only take,
     and `write_take` does not return the manifest. `folder_common.py` wraps the first and reads the
     manifest again from the file. `g01.build` makes the truth file inline, so `g03.py` repeats

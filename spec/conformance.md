@@ -38,8 +38,8 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
   repository runs of the test: each Pass sentence that a file of the named golden folder, or the
   package writer, can show. An external test with no such line has no golden part.
 - A test whose only inputs are golden files is not external. Examples are SFT-746, SFT-748, SFT-750
-  and SFT-753. The test makes the Parquet of the G12 vector of SFT-748 with the functions of the
-  golden generator.
+  and SFT-753. G12 holds the Parquet of the vector of SFT-748 as committed bytes
+  ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 5).
 
 ## Withdrawn tests
 
@@ -377,7 +377,9 @@ freemocap, Blender addon). Before v2.0.0, `format_prerelease` is 1 in each file 
 holds one of these three fields. The version and the writer string of a device pair are those of its
 timing sidecar. A file with an
 unknown `major` is `unsupported_version`, not legacy. A folder file with an unknown `major` has the
-state `unsupported_version` in `folder_files`. A file with a higher `minor` reads, and the
+state `unsupported_version` in `folder_files`. An item with the state `unsupported_version` has
+`reason` null and the warning `prerelease`, and the link checks evaluate no part that needs it
+([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 7). A file with a higher `minor` reads, and the
 unknown key, column and member are ignored. In `higher_minor` of G10, the reader also ignores the
 unknown key in `[metadata]` and in the camera table of the TOML, and the flag bit 7 (128) of the
 row of the video sidecar. In `higher_minor_journal` of G10, the good record of the unknown type 200
@@ -456,7 +458,9 @@ a file `other_info.json` in its root and a file in `exports/`, both added at tes
 Pass: with no manifest, the result has `manifest` = `missing` and the warning `manifest_missing`.
 `recording_name` is the `<rec>` of the camera sidecar names. The result has the same device pairs as
 G3. Its `folder_files` are the root files of G3 that have an exact name of SFF-731: the capture
-info JSON, the processing info JSON, the calibration TOML and the Parquet. The
+info JSON, the processing info JSON, the calibration TOML and the Parquet. Their roles come from
+their fixed names: `capture_info`, `processing_info`, `calibration` and `tracking`
+([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 5). The
 file `other_info.json`, whose name only ends in a fixed suffix, is not in `folder_files`. The file
 in `exports/` is not in the result, and the reader does not list that subfolder. The link checks
 `calibration` and `camera_key` are `not_checked`. `hashes` and `files` have
@@ -504,8 +508,8 @@ Checks: SFF-740, SFF-757
 Input: G5.
 Pass: the reader finds each complete frame from the CSV offsets, and the same frames by a walk. Row
 k belongs to the k-th complete block. The reader uses no row after the last complete block and no
-block after the last usable row. `rows` is the number of usable CSV rows, and `records` holds only
-the usable frames. The
+block after the last usable row. `rows` is the number of usable CSV rows, also of the rows after the
+last complete block, and `records` holds only the usable frames ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2). The
 check of the CSV offsets is provisional: it waits for desk test DT5 (SFF-757). The check of the walk
 does not wait.
 
@@ -539,7 +543,9 @@ Pass: the take keys are equal in each sidecar. `camera_key` is not 0 for skellyc
 form 1, 2 or 3 of SFF-752, built from the `device` values of the capture info JSON. When
 `key_origin` is `confirmed_by_user` or `assigned`, `camera_key` is 16 lowercase hexadecimal
 characters and is not 0: the test does not compute it. The confirmed camera has the remembered key
-and `confirmed_by_user`. No two cameras of a take have the same `camera_key`. The rows
+and `confirmed_by_user`. A new camera whose computed key is the key of a remembered camera, and
+that the user says is not that camera, gets an assigned key with `key_origin` `assigned`
+(external: user; [ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 10). No two cameras of a take have the same `camera_key`. The rows
 count from 0, and each camera file of the take has the same number of rows. The gap of G1 has the
 flag `gap`, and a reader gives that camera file the file warning `gap` (SFF-887). `gap` is 0 in the first row and next to an empty `source_frame_number`. The row after
 the encoder failure has the flag `encode_skip`. The row with the equal source frame number has the
@@ -565,7 +571,8 @@ Pass: the pair is `invalid` with `bad_metadata`.
 Checks: SFF-760, SFF-761, SFF-762, SFF-764, SFF-767, SFF-768, SFF-769, SFF-770
 Input: the output of skellycam for G1 and G2, with the write calls of the audio file traced.
 Pass: the audio file has the boxes of SFF-760 and fragments of about 1 s. `dOps` has 1 or 2
-channels, the encoder pre-skip and output gain 0. The bitrate is in the range of the settings. The
+channels, the encoder pre-skip and output gain 0. The bitrate is 0.5 to 1.2 times the setting of
+128 kbit/s for each channel ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 6). The
 trace shows a flush after each packet that the muxer gives, and the file ends with an `mfra` box. The
 sidecar rows are contiguous in `first_sample`, and the `# end` counts agree. No microphone name is in
 the sidecar.
@@ -687,11 +694,15 @@ the user gets one question for the take (external: freemocap, user). Before
 the user agrees, and when the user does not agree, the SHA-256 of each file and the list of files do
 not change (external: user). Before a call of `repair_take`, the reader reads the files of G5 in place. After the repair, each byte before the cut is
 unchanged, each sidecar has a fit, a repair line and an `# end` line, and the reader reports
-`repaired`. `state` of the manifest is `finished`, and no manifest has another value of `state`.
+`repaired`. Each sidecar keeps no row after its first bad row. Each repaired video sidecar has as
+many rows as its camera file has blocks. The repair appends nothing to a media file: the repaired
+camera file has no Cues and no new SeekHead, and the repaired audio file has no `mfra` box. The
+reader accepts the two files ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1, 3 and 4). `state` of the manifest is `finished`, and no manifest has another value of `state`.
 The repair writes the manifest after the media files and the sidecars, while it holds
 `.processing.lock`. In the manifest, `writer` is the writer string of the program that did the
 repair, the summary has the values of the repaired files, and `warnings` has `camera_gap` for a
-repaired video sidecar with `gaps` more than 0. No other member changes. A copy of G5 with no
+repaired video sidecar with `gaps` more than 0, with the `source` of the program that did the repair
+([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 5). No other member changes. A copy of G5 with no
 manifest gets no manifest from the repair. In `interrupted_repair` of G6, `state` of the manifest
 is `recording`, and each sidecar is `unfinished`, with `fit` false and `missing_fit`, also when it
 has fit lines and a `# repair` line.
@@ -699,7 +710,7 @@ The repair line has `cut_bytes`, `media_cut_bytes` and `repair_writer`, in this 
 The audio file is cut after its last complete fragment and is not remuxed. A repair of
 the interrupted repair gives the same files, except for `cut_bytes` and `media_cut_bytes`. The check
 of the repaired camera
-file (each complete block is kept) is provisional: it waits for desk test DT-R1 (SFF-797). The checks
+file (its first n blocks are kept, SFF-795) is provisional: it waits for desk test DT-R1 (SFF-797). The checks
 of the sidecars and the audio file do not wait.
 
 **SFT-734** Reader: the reader changes nothing
@@ -724,8 +735,12 @@ Each control name is from SFF-802, and `audio` names the microphone.
 
 **SFT-736** Reader: camera configs by key
 Checks: SFF-803
-Input: G3 with the camera configs in another order and with `camera_label` values swapped.
-Pass: each config is linked to the camera of its key.
+Input: G3 with the camera configs in another order and with `camera_label` values swapped; the case
+`confirmed_key` of G1; G3 with the `key_origin` `"remembered"` in one camera config, changed at
+test time.
+Pass: each config is linked to the camera of its key. The case `confirmed_key` reads with no error:
+the reader does not compute the key from the `device` values. The capture info JSON with
+`"remembered"` is `invalid`, with `bad_schema` ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 9).
 
 **SFT-737** (external: freemocap) Writer: the processing info JSON
 Checks: SFF-804, SFF-805
@@ -803,9 +818,9 @@ and `csv` members of SFF-858, with `location` `exports` and a `format` of the li
 The inventory lists each file with its SHA-256 and is written last. An interrupted export leaves no
 partial file outside `.staging-*`. A trace shows that the exporter holds `exports/.exports.lock`
 from before its first write in `.staging-*` until after it writes the inventory (SFF-859). This
-test has no golden part: G3 holds no export, and a golden export waits for the open-work item
-"Complete section 18.3" ([ADR-PVG8](../decisions/entries/PVG8-spec-v2-details-part-10.md)
-item 23).
+test has no golden part: G3 holds no export. Section 18.3 is provisional, and a golden export waits
+for the port of the freemocap exporter ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 12,
+[ADR-PVG8](../decisions/entries/PVG8-spec-v2-details-part-10.md) item 23).
 
 **SFT-744** Reader: hidden export files
 Checks: SFF-860
@@ -835,12 +850,15 @@ is NaN. Each row group holds one channel.
 Checks: SFF-819
 Input: the Parquet of G3; a copy of it with the columns `frame_number` and `run_id` as int64.
 Pass: pyarrow 26.0.0, polars 2.0.0, DuckDB 2.0.0 and hyparquet 1.25.6 with hyparquet-compressors
-1.1.2 (pinned) read every value bit-exactly. The reader of this package reads the int64 copy. It
+1.1.2 (pinned) read every value bit-exactly: for each of the four readers, the SHA-256 of the values
+that it reads is the SHA-256 in the truth file of G3. The truth file holds the SHA-256 of the raw
+values that the generator meant to write to the Parquet ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 4). The reader of this package reads the int64 copy. It
 gives the same values as for the Parquet of G3, and it does not give the reason `bad_schema`.
 
 **SFT-748** Writer: the row rules
 Checks: SFF-822, SFF-827, SFF-828, SFF-831
-Input: the Parquet of G3; a Parquet from G12 (the two rows with equal fitted times).
+Input: the Parquet of G3; the Parquet of G12 (the two rows with equal fitted times), committed as
+fixed bytes ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 5).
 Pass: every row rule of parts/parquet-descriptor.md holds. `frame_number` of each camera row is the
 position of its frame. The capture times equal the strict player times of the sidecars divided by
 10^9: each is the float64 nearest to s / 10^9. The group time of each frame is the mean of the
@@ -851,7 +869,8 @@ have times that differ by 1 ns. A point that was not detected has null
 
 **SFT-749** Writer: 2D and 3D spaces
 Checks: SFF-829, SFF-830
-Input: G3 with a rotated camera (`display_rotation` 90); freemocap processing of one camera of G1.
+Input: G3, whose camera 1 has `display_rotation` 90 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 3); freemocap
+processing of one camera of G1.
 Pass: the 2D points of the rotated camera are in stored-JPEG pixels, and its image reference has the
 stored width and height. The 3D reference frame is `calibrated_world` with the Blender basis, in mm.
 The take with one camera uses the reference frame `camera_plane`, in pixels (external: freemocap).
@@ -996,13 +1015,15 @@ file as its `name`. It gives no `extra_files`. The sidecar of the other `take_uu
 
 **SFT-762** Reader: takes and counts
 Checks: SFF-866, SFF-869, SFF-870, SFF-871
-Input: G9; a folder with two takes; G3 with a camera missing; G3 with a third camera pair of the same
+Input: G9; G11; a folder with two takes; G3 with a camera missing; G3 with a third camera pair of the same
 take; G3 with two cameras that have one label;
 G3 with sidecars that disagree on `clock`.
 Pass: each take is reported. Two takes give `multiple_takes`. The missing camera gives `incomplete` and
 `incomplete_take`. The third camera pair gives `extra_files`. One label gives `duplicate_label`. The
 disagreement gives `take_fact_mismatch`,
-and the values of `group_position` 0 are used.
+and the values of `group_position` 0 are used. In each case of G11, the `invalid` sidecar is not
+in the take-level checks: the result has no `take_fact_mismatch` and no `summary_stale` from it
+([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 2).
 
 **SFT-763** Reader: link checks
 Checks: SFF-720, SFF-824, SFF-872, SFF-873, SFF-874
@@ -1014,7 +1035,10 @@ SFF-872, with `detail` null. Each vector of G9 gives `mismatch` in its check, an
 state `finished`, when the take has two or more of them: for G5 and G6, the reader does not
 evaluate it. The check `files` tests each file name of a Parquet camera source in the media
 folder. The Parquet with a wrong `recording_id` is `invalid` in `folder_files`, with
-`take_fact_mismatch`. A part whose file is absent or `invalid` is not evaluated. The key 0 camera
+`take_fact_mismatch`. In the case `take_uuid` of G9, the processing info JSON with the other
+`take_uuid` is `present` in `folder_files`, and `take_uuid` is `mismatch` ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 4).
+The check `dimensions` compares only `width` and `height` of the image reference frames of the
+Parquet with the camera files ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 6). A part whose file is absent or `invalid` is not evaluated. The key 0 camera
 has the label `cam<N>` and is linked by label, with
 `camera_key_zero`.
 
@@ -1022,7 +1046,9 @@ has the label `cam<N>` and is linked by label, with
 
 **SFT-764** Reader: legacy recognition
 Checks: SFF-875, SFF-876, SFF-877, SFF-878, SFF-879
-Input: G15.
+Input: G15; copies of G15, changed at test time: the case `v1i` with
+`use_triangulate_outlier_rejection` moved into a nested object of `recording_parameters.json`, and
+the case `v0_0_x` with the files of the case `v1a` added.
 Pass: each folder has `folder_state` `legacy`, and the family, the release range, `ambiguous`,
 `eras` and the
 warnings of the committed result. A folder whose matched rows are in one chain has the range of its
@@ -1036,7 +1062,8 @@ files only has the
 family `unknown`, with `release_range` null, `ambiguous` false and empty `eras` and `warnings`.
 `legacy.calibration` is null for `pre_v1` and for `unknown`. In each legacy folder, `takes` is
 `[]`, and `other_files` lists each file of the root and of `synchronized_videos/`, not of their
-subfolders.
+subfolders. The copy of `v1i` with the nested key has the result of `v1i`. The copy of `v0_0_x`
+with the files of `v1a` has the family `v1` ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 1).
 
 **SFT-765** Reader: calibration lookup in v1 folders
 Checks: SFF-880
@@ -1061,7 +1088,9 @@ Checks: SFF-884
 Input: G16; copies of G16, changed at test time, with these files in the manifest: an NPZ file
 with one member with an object `descr` and one other member that is not an NPY file; a file with
 the suffix `.npz` that is not a ZIP file; an NPZ file with a `.npy` member with no NPY header; an
-NPY file with no NPY header.
+NPY file with no NPY header; a copy of G16 in a temporary folder whose pickle the test makes at run
+time. That pickle creates a marker file when a program loads it. The committed pickle of G16 stays
+harmless ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 1).
 Pass: the reader does not load the pickle or the object array. The pickle is in `other_files` as
 `invalid` with `code_in_file`. The reader reads only the header of the NPY, and its `folder_files`
 item is `invalid` with
@@ -1070,7 +1099,7 @@ member whose name ends in `.npy`. The NPZ file with the object `descr` is `inval
 `code_in_file`. The file that is not a ZIP file, the NPZ file with the member with no NPY header
 and the NPY file with no NPY header are `invalid` with `bad_schema`. The checks of the NPY and NPZ
 files are tests of the scope `full` only: for the scope `player`, each of these items is
-`not_checked`. No code from the files runs (a canary file is not created).
+`not_checked`. No code from the files runs: the marker file is not created.
 
 ### The reader result (section 23)
 
@@ -1082,7 +1111,8 @@ time, with an empty file (0 bytes) at the path of an annotated video and its man
 Pass: each result is valid JSON in the canonical form of RFC 8785, with each member of SFF-885.
 The states follow the order of SFF-886, and each code is from SFF-887. The sort orders are
 those of SFF-890. Each `name` and `path` is relative to the take folder, with `/`. A code is at most
-one time in each `warnings` array. The file of G12 with the flag `encode_skip` in a usable row has
+one time in each `warnings` array. The `folder_files` item of `calibration.file` has the role
+`calibration` ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 3). The file of G12 with the flag `encode_skip` in a usable row has
 the file warning `encode_skip`. Each camera file with the flag `gap` in a usable row (camera 1 of
 G1, camera 0 of G12) has the file warning `gap`. A camera file with no such row does not have it.
 The empty folder has `folder_state` `empty`. The folder with one
@@ -1108,7 +1138,8 @@ Parquet, a journal, an NPY file or an NPZ file that exists is `not_checked`, wit
 The checks `take_uuid`, `camera_key`, `rotation` and `files` have only the parts that need no TOML,
 Parquet or journal. The take warnings `stale_processing_info`, `calibration_mismatch` and
 `realtime_run` are absent. The Parquet alone is `not_in_format` in `other_files`, with no
-`orphan_file`. For the `v1` case, `family` and `calibration` are those of the `full` result,
+`orphan_file`, and the folder has `folder_state` `unreadable`, as in the `full` result
+([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 10). For the `v1` case, `family` and `calibration` are those of the `full` result,
 `release_range` is `["v1.0.25","v1.8.2"]`, `ambiguous` is true, `eras` is `[]`, and `warnings` has
 the four warnings of SFF-879. Each other member of the `player` result equals the `full` result. A
 vector of G9 that is only in the TOML, the Parquet or the journal is a test of the scope `full`

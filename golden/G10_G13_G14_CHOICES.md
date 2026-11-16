@@ -1,6 +1,11 @@
 # Choices made for G10, G13 and G14 that the spec does not give
 
-**Status: proposed. The user did not review this list.** An agent made each choice.
+**Accepted by the user on 2026-11-16 as conventions of the golden folders**
+([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
+rule of the format only where the spec states it. Decisions of the same day replaced items 40, 42
+and 43 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)). Each of these
+items gives its decision. Item 44 is open. The TOML item of each result of G14 and of
+`higher_minor` has the role `calibration` (G03_CHOICES.md item 28).
 
 The folders are G13 (a realtime take after the fold), G14 (a calibration and its copies) and G10
 (the version vectors) of [SPEC.md Appendix A](../spec/SPEC.md#appendix-a-golden-folders). The scripts
@@ -8,7 +13,7 @@ are `tools/goldgen/g13.py`, `tools/goldgen/g14.py` and `tools/goldgen/g10.py`. T
 `tools/tests/test_g10_g13_g14.py`. The conventions of [G01_CHOICES.md](G01_CHOICES.md), of
 [G03_CHOICES.md](G03_CHOICES.md) and of [CAPTURE_VECTORS_CHOICES.md](CAPTURE_VECTORS_CHOICES.md)
 apply. This list does not repeat them. Each item gives the gap, the choice and, where useful, the
-alternative. Section 4 lists the spec gaps that the user must decide.
+alternative. Section 4 lists the spec gaps that the agent found.
 
 ## 1. G13: the case `take`
 
@@ -177,12 +182,14 @@ alternative. Section 4 lists the spec gaps that the user must decide.
 
 ## 4. Spec gaps, contradictions and ambiguities
 
-The user must decide each item.
+The user accepted the choice of each item as a convention of the golden folders, except item 44,
+which is open. Items 40, 42 and 43 have a decision.
 
 40. **`unsupported_version` and the link parts** (SFF-872). The rule says that a reader does not
     evaluate a part when a file is "absent, is `invalid`, or is a file that the scope does not
     read". It does not name `unsupported_version`. G10 treats an `unsupported_version` file as an
-    `invalid` file.
+    `invalid` file. Decision ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)):
+    the link checks of a file with an unknown major version are skipped as for an `invalid` file.
 41. **The header of an unknown `major`** (SFF-708, SFF-885, SFF-889). The reader puts a file in the
     `files` of its take when it can read its `take_uuid`, and it gives `camera_key` and
     `camera_label` "when their form is correct". A reader that does not know the `major` cannot know
@@ -190,14 +197,17 @@ The user must decide each item.
     `other_files`, and the take is `incomplete`.
 42. **`reason` of `unsupported_version`** (SFF-886, SFF-887). No reason code applies. G10 gives
     null. `test_golden_files.py` asks for null for each state other than `invalid` and `damaged`.
+    Decision (ADR-XR63): `reason` is null.
 43. **`prerelease` on a refused file** (SFF-891, Appendix A). A reader that does not know the
     `major` cannot read `format_prerelease`. G10 follows Appendix A ("each file of each case")
-    and gives the warning. Alternative: `[]`.
-44. **The coverage of the stage `timing`** (SFF-834, SFF-841). `frames_processed` counts the frames
+    and gives the warning. Decision (ADR-XR63): the file still gets the warning `prerelease` when it
+    has the field. Each refused file of G10 has `format_prerelease` 1, so it has the warning.
+44. **OPEN. The coverage of the stage `timing`** (SFF-834, SFF-841). `frames_processed` counts the frames
     with data records of a channel of the stage. A journal has no `TIMESTAMPS` channel. So the
     literal rule gives the stage `timing` of a realtime run `frames_processed` 0, `skips`
     `{"no_record": 12}` and the latencies null. G13 follows the literal rule. Alternative: the run
-    has no provenance for `timing`, or `coverage` null for it.
+    has no provenance for `timing`, or `coverage` null for it. The user did not decide this item on
+    2026-11-16 ([open-work.md](../decisions/open-work.md)).
 45. **A run with no stored geometry** (SFF-837). The rule compares the geometry of a run with the
     TOML. It does not say what a run with `camera_geometry` `{}` gives. G14 gives no
     `calibration_mismatch`.
@@ -216,7 +226,7 @@ The user must decide each item.
 
 ## 5. Limits of this work
 
-51. **Shared files.** `golden/README.md` still says "Only G1 exists". `folder_common.add_processing`
+51. **Shared files.** `golden/README.md` said "Only G1 exists"; it now lists each folder. `folder_common.add_processing`
     always writes a TOML, so `g13.py` updates the manifest itself. The shared writers read the
     version fields from globals of `common.py`. `g10.py` changes the globals for one block. A
     parameter of the shared writers is the better fix. This work does not change these files.

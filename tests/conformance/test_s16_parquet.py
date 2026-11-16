@@ -29,33 +29,34 @@ def test_sft_746_schema_descriptor_and_encoding(golden_or_skip, name):
 
 
 @pytest.mark.parametrize("other", ["pyarrow", "polars", "duckdb", "hyparquet"])
-def test_sft_747_other_parquet_readers(golden_or_skip, other):
+def test_sft_747_other_parquet_readers(golden_or_skip, truth, other):
     """SFT-747 Reader: other Parquet readers, on the Parquet of G3. Checks: SFF-819.
 
-    pyarrow wrote the golden file, so its values are the reference. Each other reader must give the
-    same bits. A reader that is not installed is skipped.
+    The truth file of G3 holds the SHA-256 of the values that the generator gave to the Parquet writer
+    (golden/README.md). Each reader must give values with that digest. A reader that is not installed
+    is skipped.
     """
-    parquet = checks.one(golden_or_skip("G03"), "*_data.parquet")
-    pa, pq = checks.arrow()
-    want = checks.pyarrow_bits(parquet)
+    facts = truth("G03", "take")["parquet"]
+    parquet = golden_or_skip("G03") / facts["name"]
     if other == "pyarrow":
+        pa, _ = checks.arrow()
         assert pa.__version__ == PINNED["pyarrow"]
-        assert len(want) == pq.ParquetFile(parquet).metadata.num_rows > 0
-        return
-    if other == "hyparquet":
+        rows = checks.pyarrow_rows(parquet)
+    elif other == "hyparquet":
         versions = {name: checks.node_package_version(name) for name in ("hyparquet", "hyparquet-compressors")}
         if shutil.which("node") is None or None in versions.values():
             pytest.skip("hyparquet and hyparquet-compressors are not installed in js/node_modules, or node is absent")
         assert versions == {name: PINNED[name] for name in versions}
-        assert checks.hyparquet_bits(parquet) == want
-        return
-    module = pytest.importorskip(other, reason=f"{other} is not in the dependency group `conformance`")
-    assert module.__version__ == PINNED[other]
-    if other == "polars":
-        rows = module.read_parquet(parquet).rows()
+        rows = checks.hyparquet_rows(parquet)
     else:
-        rows = module.connect().execute("select * from read_parquet(?)", [str(parquet)]).fetchall()
-    assert [[checks.bits(value) for value in row] for row in rows] == want
+        module = pytest.importorskip(other, reason=f"{other} is not in the dependency group `conformance`")
+        assert module.__version__ == PINNED[other]
+        if other == "polars":
+            rows = module.read_parquet(parquet).rows()
+        else:
+            rows = module.connect().execute("select * from read_parquet(?)", [str(parquet)]).fetchall()
+    assert len(rows) == facts["rows"] > 0
+    assert checks.values_sha256(rows) == facts["values_sha256"], "the reader gives each value bit-exactly"
 
 
 def test_sft_747_int64_copy(reader, variant, golden_or_skip):
@@ -76,44 +77,37 @@ def test_sft_748_row_rules(golden_or_skip):
         assert checks.time_faults(folder, int(run_id)) == []
 
 
-def test_sft_748_equal_fitted_times(golden_or_skip, tmp_path):
-    """SFT-748 Writer: a Parquet from G12, made with the functions of the golden generator. Checks: SFF-828.
+def test_sft_748_equal_fitted_times(golden_or_skip):
+    """SFT-748 Writer: the committed Parquet of G12 (golden/README.md). Checks: SFF-828.
 
-    The two frames of G12 with equal fitted times have times that differ by 1 ns.
+    The Parquet holds the capture times of the camera of G12 with two equal fitted times. The two
+    frames have times that differ by 1 ns.
     """
-    take = checks.the_take(checks.committed(golden_or_skip("G12")))
-    generator = checks.goldgen()
-    found = 0
-    for index, camera in enumerate(item for item in take["files"] if item["kind"] == "camera"):
-        player = [record[4] for record in camera["records"]]
-        equal = [k for k in range(1, len(player)) if player[k] == player[k - 1]]
-        if not equal:
-            continue
-        found += 1
-        strict = generator.strict_ns(player)
-        times = [generator.seconds(s) for s in strict]
-        channel = {
-            "sensor_group": "group", "source": f"camera:{camera['camera_label']}", "reference_frame": None,
-            "kind": "TIMESTAMPS", "names": ["capture"], "components": {"timestamp_s": "s"}, "stage": "timing",
-            "dtype": "float64",
-        }  # fmt: skip
-        described = {"runs": {"0": {"sensor_groups": {"group": {"sample_count": len(times)}}}}}
-        parquet = tmp_path / f"camera{index}.parquet"
-        generator.write_parquet(parquet, described, [(0, channel, times, lambda frame, n, c, times=times: times[frame])])
-        rows = checks.rows_of(parquet)
-        for k in equal:
-            assert strict[k] - strict[k - 1] == 1
-            assert rows[k]["timestamp_s"] == rows[k]["value_f64"] == strict[k] / 10**9
-            assert rows[k - 1]["timestamp_s"] == strict[k - 1] / 10**9 != rows[k]["timestamp_s"]
-    assert found, "a camera of G12 has two rows with equal fitted times"
+    folder = golden_or_skip("G12")
+    take = checks.the_take(checks.committed(folder))
+    rows = checks.rows_of(folder.with_name("equal_fitted_times.parquet"))
+    (camera,) = [item for item in take["files"] if f"camera:{item['camera_label']}" == rows[0]["source"]]
+    player = [record[4] for record in camera["records"]]
+    strict = checks.strict_ns(player)
+    equal = [k for k in range(1, len(player)) if player[k] == player[k - 1]]
+    assert equal, "the camera has two rows with equal fitted times"
+    assert [row["frame_number"] for row in rows] == list(range(len(player)))
+    for k, row in enumerate(rows):
+        assert (row["channel"], row["name"], row["component"]) == ("TIMESTAMPS", "capture", "timestamp_s")
+        assert row["timestamp_s"] == row["value_f64"] == strict[k] / 10**9  # SFF-828
+    for k in equal:
+        assert strict[k] - strict[k - 1] == 1 and rows[k - 1]["timestamp_s"] != rows[k]["timestamp_s"]
 
 
 def test_sft_749_2d_and_3d_spaces(golden_or_skip):
     """SFT-749 Writer: 2D and 3D spaces, on G3. Checks: SFF-829, SFF-830.
 
-    The take with one camera (`camera_plane`) is external: freemocap.
+    Camera 1 of G3 has `display_rotation` 90. The take with one camera (`camera_plane`) is external: freemocap.
     """
-    assert checks.spaces_faults(golden_or_skip("G03")) == []
+    folder = golden_or_skip("G03")
+    rotations = [checks.header(folder / camera["timing"])["display_rotation"] for camera in checks.manifest(folder)["cameras"]]
+    assert "90" in rotations, "G3 has a rotated camera"
+    assert checks.spaces_faults(folder) == []
 
 
 def test_sft_750_camera_sources_and_skeletons(golden_or_skip):

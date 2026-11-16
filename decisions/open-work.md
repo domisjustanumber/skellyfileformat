@@ -19,32 +19,20 @@ task. Delete an item when its work is done. The PR that closes an item records t
   cases, with two expected results for each case (the scopes `full` and `player`).
   [ADR-QH61](entries/QH61-spec-v2-details-part-15.md) item 46 gives the tests that this repository
   runs.
-- **Points that the user did not decide on 2026-11-16** (the review of parts 9 to 15).
-  - The value of `format_prerelease` after the user sends the draft to external review. It is 1
-    until then (SFF-710, [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 20).
 - **Points that the camera identity review leaves open** ([ADR-70VP](entries/70VP-camera-identity-forms-and-remembered-keys.md)). The user must decide each.
-  - The detail of a usable serial (SFF-752, provisional). The research code
-    (`camera_identity.py`) proposes the placeholder list, the characters 0x21 to 0x7F with no `,`,
-    and no serial of one repeated character. The user saw only the three conditions.
-  - The `device` member that is the "model name from the OS": `model` or `os_name`.
-  - The key of a camera whose computed key is the key of a remembered camera, when the user says
-    that it is a new camera. The research proposes form 4.
+  - Q104: the `device` member that is the "model name from the OS": `model` or `os_name`.
   - SFT-717: `device.serial` can be not null and not usable for a reason that the file does not
     show. The test then cannot find the form of a `computed` key.
-  - Does a reader check `key_origin`?
-- **Complete section 18.3** ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 23). G3
-  holds no export, and SFT-743 has no golden part, until these points are decided: one inventory
+- **Complete section 18.3** ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 23).
+  Exports are not in gate 2, and section 18.3 is provisional
+  ([ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 12). G3 holds no export,
+  and SFT-743 has no golden part, until the freemocap exporter is ported and these points are
+  decided: one inventory
   for the tall and the wide exports; the snapshot members `revision` and `selection`;
   `float_precision` for float32; the bytes of the NPZ; the texts of the notebook and of the
   READMEs; `<file>` of `calibration_copies/`; and `exported_at` in a golden file. The entry lists
   the facts in which the freemocap code does not agree with section 18.3.
 - **Points that the details of parts 9 to 15 leave open.** The user must decide each of them.
-  - The `source` of the warning `camera_gap` that a repair adds to the manifest (SFF-727, SFF-793).
-  - A folder that holds only a TOML, a Parquet or a journal of this format: for the scope `player`
-    the file has no mark (SFF-892). Is `folder_state` then `unreadable`, as for `full`, or `legacy`
-    (SFF-875, SFF-888)?
-  - `README.md` says that `format_prerelease` is "N for the Nth prerelease revision". SFF-710 now
-    says 1 for each internal draft. The README needs the same rule.
   - SFT-763 takes G5 and G6 as inputs for the row-count part of `frames`. Appendix A does not say
     which folder files G5 and G6 hold.
 - **Open points of [ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md).**
@@ -56,11 +44,16 @@ task. Delete an item when its work is done. The PR that closes an item records t
     [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md). The [Rules](README.md#rules) can need an
     entry that supersedes them.
 - **Points that the accepted details of 2026-11-16 leave open.** The user must decide each of them.
-  - The `role` of the `folder_files` item of `calibration.file`: the manifest roles have no role for
-    the calibration TOML.
   - The place and the reason of a timing sidecar alone whose `take_uuid` the reader cannot read.
-  - The place of a folder file that the manifest lists and that holds another `take_uuid`:
-    `folder_files` with a `take_uuid` mismatch, or `other_files` (SFF-889).
+  - Q94: the coverage of the stage `timing` of a realtime run (SFF-834).
+  - The details of [ADR-W5AK](entries/W5AK-details-for-the-decisions-q83-to-q111.md) (proposed).
+    The spec holds them now, except its item 10.
+- **Q108: the order of the steps of a repair** (decided 2026-11-16, not in the spec). The user
+  decided: for each pair, cut the media file, then the sidecar, then append the fit lines and
+  `# end`; then write the manifest. The case `interrupted_repair` of G06 does not agree
+  (Appendix A; `golden/CAPTURE_VECTORS_CHOICES.md` item 6): its four sidecars are `unfinished`,
+  because its repair did each step for all pairs first. One pair after the other gives two
+  `repaired` cameras and an audio pair that is not cut. The user must change the case or the order.
 - **Absorb the accepted entries into the spec.** The check of 2026-11-16 absorbed 16 entries. Each
   entry of this list stays Active: no absorb document states the rule of its line, or a later entry
   (in brackets) changed the rule and no entry supersedes the old text (the [Rules](README.md#rules)).
@@ -92,7 +85,8 @@ task. Delete an item when its work is done. The PR that closes an item records t
     "only after `state` is `finished`" ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2).
   - [ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md) item 14: the scope of the JavaScript reader ([ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 21).
 - **Provisional parts of spec draft v2.** Close each of them before v2.0.0:
-  - SFF-752: the source and the text form of `port_path` and `os_device_id` on each OS are not
+  - SFF-752 (Q107, [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 11): the
+    source and the text form of `port_path` and `os_device_id` on each OS are not
     decided ([ADR-70VP](entries/70VP-camera-identity-forms-and-remembered-keys.md) item 1). They wait for these tests on Windows, Linux and macOS: a reboot, a replug
     to the same port, a move to another port, and two identical cameras. No test ran on Linux or
     macOS;
@@ -182,7 +176,11 @@ task. Delete an item when its work is done. The PR that closes an item records t
   the user name a camera, and imports remembered cameras from a take folder. freemocap binds a
   calibration by `camera_key`. From [ADR-94YQ](entries/94YQ-golden-g1-review-decisions.md) item 6: freemocap must run the calibration geometry
   check before the question about cameras that the OS cannot tell apart, and list the most likely
-  candidates first.
+  candidates first. From [ADR-B6WH](entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md): the
+  repair of skellycam and freemocap cuts a camera pair to equal rows and blocks, cuts a sidecar at
+  its first bad row, appends nothing to a media file and writes its own name as the `source` of
+  `camera_gap`. From [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md): skellycam
+  gives an assigned key to a new camera with the key of a remembered camera.
 - **Permalinks to the skellycam evidence.** The new entries cite skellycam `dom/research` files as
   plain paths. Many of them are not committed yet. Change them to full-SHA permalinks after that
   branch is committed and pushed.

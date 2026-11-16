@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import struct
 from pathlib import Path
 
 from goldgen import common
@@ -120,22 +121,48 @@ def write_parquet(path: Path, descriptor: dict, channels: list[tuple]) -> None:
         use_dictionary=[name for name, kind, _ in COLUMNS if kind == "string"],
     )  # fmt: skip
     with writer:
-        for run_id, channel, times, value in channels:
-            sample_count = descriptor["runs"][str(run_id)]["sensor_groups"][channel["sensor_group"]]["sample_count"]
-            assert len(times) == sample_count  # row rule 3
-            column = "value_f64" if channel["dtype"] == "float64" else "value"  # SFF-820
-            rows = [
-                {
-                    "timestamp_s": time, "sensor_group": channel["sensor_group"], "frame_number": frame,
-                    "source": channel["source"], "reference_frame": channel["reference_frame"],
-                    "channel": channel["kind"], "name": name, "component": component,
-                    "value": None, "value_f64": None, "units": units, "run_id": run_id,
-                } | {column: value(frame, n, c)}
-                for frame, time in enumerate(times)
-                for n, name in enumerate(channel["names"])
-                for c, (component, units) in enumerate(channel["components"].items())
-            ]  # fmt: skip
+        for rows in parquet_rows(descriptor, channels):
             writer.write_table(pa.Table.from_pylist(rows, schema=schema))
+
+
+def parquet_rows(descriptor: dict, channels: list[tuple]):
+    """The rows that `write_parquet` writes: one list of row dicts for each item of `channels`."""
+    for run_id, channel, times, value in channels:
+        sample_count = descriptor["runs"][str(run_id)]["sensor_groups"][channel["sensor_group"]]["sample_count"]
+        assert len(times) == sample_count  # row rule 3
+        column = "value_f64" if channel["dtype"] == "float64" else "value"  # SFF-820
+        yield [
+            {
+                "timestamp_s": time, "sensor_group": channel["sensor_group"], "frame_number": frame,
+                "source": channel["source"], "reference_frame": channel["reference_frame"],
+                "channel": channel["kind"], "name": name, "component": component,
+                "value": None, "value_f64": None, "units": units, "run_id": run_id,
+            } | {column: value(frame, n, c)}
+            for frame, time in enumerate(times)
+            for n, name in enumerate(channel["names"])
+            for c, (component, units) in enumerate(channel["components"].items())
+        ]  # fmt: skip
+
+
+def values_sha256(rows) -> str:
+    """The digest of the values of the rows, in file order, as golden/README.md defines it."""
+    digest = hashlib.sha256()
+    for row in rows:
+        for name, kind, _ in COLUMNS:
+            value = row[name]
+            if value is None:
+                digest.update(b"\x00")
+                continue
+            if kind == "string":
+                data = value.encode()
+                data = struct.pack("<I", len(data)) + data
+            elif kind == "float32":
+                data = struct.pack("<f", value)
+                assert struct.unpack("<f", data)[0] == value, "the value is exact in float32"
+            else:
+                data = struct.pack("<d" if kind == "float64" else "<q", value)
+            digest.update(b"\x01" + data)
+    return digest.hexdigest()
 
 
 # ---------------------------------------------------------------- processing info JSON (section 14)
@@ -226,8 +253,8 @@ def add_processing(folder: Path, facts: dict, toml: bytes, toml_facts: dict, des
             }
         )
     (folder / "recording_manifest.json").write_bytes(common.file_json(manifest))
-    # The role of the TOML item is null: the manifest has no role for `calibration.file` (SFF-885).
-    folder_files = [(toml_path, None), *((item["path"], item["role"]) for item in manifest["files"])]
+    # The TOML that `calibration.file` names has the role `calibration` (SFF-885).
+    folder_files = [(toml_path, "calibration"), *((item["path"], item["role"]) for item in manifest["files"])]
     return facts | {"folder_files": folder_files}
 
 

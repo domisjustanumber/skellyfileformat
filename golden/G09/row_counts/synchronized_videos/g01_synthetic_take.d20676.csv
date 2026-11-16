@@ -14,7 +14,7 @@
 # camera_key=d206761ad952f62f
 # camera_label=d20676
 # nominal_rate=30/1
-# display_rotation=0
+# display_rotation=90
 frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
 0,500,37133500,,0,443,731,79013fa7
 1,501,70571479,,0,1181,861,b731ff67

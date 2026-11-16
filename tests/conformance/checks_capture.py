@@ -1142,8 +1142,8 @@ def check_audio_pair(m4a_path: Path) -> Mp4:
     silent = [size for size, flag in zip(sizes, flags) if flag & SILENCE]
     assert [int(end[key]) for key in ("rows", "samples", "gaps", "silence_samples")] == [len(firsts), sum(sizes), len(silent), sum(silent)]
     assert all(flag & ~(OVERFLOW | SILENCE) == 0 for flag in flags)
-    # The bitrate is in the range of the settings (SFF-762: 128 or 256 kbit/s, VBR). The band is a test tolerance:
-    # the click signal of the tests gives about 0.72 of the target on the golden files.
+    # The bitrate is 0.5 to 1.2 times the setting of SFF-762 (128 kbit/s for each channel, VBR): the tolerance
+    # of the Pass text of SFT-720. The click signal of the tests gives about 0.72 of the target on the golden files.
     target = 128 * mp4.channels
     kbits = len(m4a_path.read_bytes()) * 8 / (sum(sizes) / 48000) / 1000
     assert 0.5 * target <= kbits <= 1.2 * target, f"the bitrate {kbits:.0f} kbit/s is near {target} kbit/s (SFF-762)"
@@ -1391,8 +1391,9 @@ def check_repaired_files(folder: Path, before: Path) -> None:
     """SFT-733: the sidecars and the audio file of a repaired take, against the files before the repair.
 
     Each byte before the cut is unchanged. Each sidecar has a fit, a repair line and an `# end` line.
-    The audio file is cut after its last complete fragment. The camera file is not in this check:
-    its check is provisional (SFF-797).
+    A video sidecar keeps only the rows whose frame has a complete block in the old camera file. The
+    audio file is cut after its last complete fragment, with no `mfra` box. The repaired camera file
+    is not in this check: its check is provisional (SFF-797).
     """
     sidecars = media_files(folder, ".csv")
     assert sidecars
@@ -1403,11 +1404,13 @@ def check_repaired_files(folder: Path, before: Path) -> None:
         assert len(repair_lines) == 1 and REPAIR_LINE.fullmatch(repair_lines[0]), "the repair line has its three keys, in order"
         assert any(line.startswith("# fit ") for line in new.footer) and new.repaired, "a fit, a repair line and an `# end` line"
         (repair,) = new.lines("repair")
-        cut = len(old.data) - int(repair["cut_bytes"])
-        assert cut == old.rows_end, "the sidecar is cut after the last complete row with a correct CRC (SFF-795)"
-        assert new.data[:cut] == old.data[:cut], "each byte before the cut is unchanged (SFF-794)"
         media = path.with_suffix(".m4a" if new.kind == "audio" else ".mkv")
         old_media, new_media = (before / MEDIA / media.name).read_bytes(), media.read_bytes()
+        # The cut is at the first bad row (SFF-795). A camera pair keeps only the frames with a row and a block (SFF-797).
+        kept = len(old.rows) if new.kind == "audio" else min(len(old.rows), len(parse_mkv(old_media).blocks))
+        cut = old.rows_end - sum(len(line.encode()) + 1 for line in old.row_lines[kept : len(old.rows)])
+        assert len(new.rows) == kept and len(old.data) - int(repair["cut_bytes"]) == cut, "the sidecar is cut at the right row"
+        assert new.data[:cut] == old.data[:cut], "each byte before the cut is unchanged (SFF-794)"
         media_cut = len(old_media) - int(repair["media_cut_bytes"])
         assert new_media[:media_cut] == old_media[:media_cut], "each byte of the media file before the cut is unchanged"
         if new.kind == "audio":
@@ -1415,7 +1418,7 @@ def check_repaired_files(folder: Path, before: Path) -> None:
             # The new file has no torn box, and the old complete fragments are the first ones. The kinds are those of SFF-760.
             kinds = boxes(new_media, 0, len(new_media))
             assert kinds[-1][2] == len(new_media), "the repaired audio file has no incomplete box"
-            assert re.fullmatch(rb"ftypmoov(moofmdat)*(mfra)?", b"".join(kind for kind, _, _ in kinds)), "the repaired audio file keeps its box order"
+            assert re.fullmatch(rb"ftypmoov(moofmdat)*", b"".join(kind for kind, _, _ in kinds)), "the repaired audio file keeps its box order and gets no `mfra` box"
             assert len(parse_mp4(new_media).fragments) == len(parse_mp4(old_media).fragments), "no complete fragment is lost, and none is added"
 
 

@@ -172,7 +172,7 @@
         "user_name": null,
         "model": "Synthetic Camera Model 1",
         "stored_px": "64x48",
-        "display_rotation": 0,
+        "display_rotation": 90,
         "nominal_fps": 30,
         "gaps": 1,
         "filled": 0,

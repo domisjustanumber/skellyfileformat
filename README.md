@@ -63,6 +63,10 @@ legacy folders stays in skellycam and freemocap.
   added field: the timing sidecar holds the fields for its media file
   ([ADR-E45D](decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)).
   - `format_prerelease` is 0 for a released format. For a draft, the spec gives its value (SFF-710).
+    The value is 1 until the draft goes to external review. From then on, each revised draft that
+    goes to the reviewers adds 1. A reader treats each value above 0 in the same way. The readers of
+    this package give the warning `prerelease`
+    ([ADR-2MQE](decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 8).
   - A reader must refuse a file with a `major` that it does not know.
   - A reader must read a file with a higher `minor` of a `major` that it knows, and skip the fields
     that it does not know.

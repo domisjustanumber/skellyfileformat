@@ -40,6 +40,9 @@ These entries are `accepted` or `evidence`.
 | [70VP](entries/70VP-camera-identity-forms-and-remembered-keys.md) | Camera identity: serial, port, OS device or assigned form; remembered key after the user confirms; `key_origin`; `user_name` is metadata only | accepted |
 | [94YQ](entries/94YQ-golden-g1-review-decisions.md) | G1 review: file warning `gap`; `DefaultDuration` rounded down; G1 choices are the golden conventions; freemocap suggests camera matches from calibration | accepted |
 | [W389](entries/W389-format-rules-from-the-golden-conventions.md) | Format rules from G1: privacy list in byte order; no line end after a result; unknown elements and boxes ignored; key order in the capture info JSON | accepted |
+| [B6WH](entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) | Repair: rows = blocks in a camera pair; cut at the first bad row; no normal end of a media file; `camera_gap` source; `rows` of an unfinished file | accepted |
+| [XR63](entries/XR63-reader-rules-of-the-golden-review.md) | Reader rules: legacy keys at any depth; refused sidecars out of take checks; role `calibration`; `dimensions`; unknown major; open descriptor members | accepted |
+| [2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) | Test wording; golden conventions; `format_prerelease` after external review; usable serial frozen; assigned key for a new camera; exports provisional | accepted |
 
 ### Proposed
 
@@ -48,6 +51,7 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
+| [W5AK](entries/W5AK-details-for-the-decisions-q83-to-q111.md) | Details for Q83 to Q111: kept frames of a repair, rebuild roles, `key_origin` check, `player` marks of a folder with no take | `spec` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

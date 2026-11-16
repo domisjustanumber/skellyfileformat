@@ -164,7 +164,8 @@ def test_sft_733_repair(writer, reader, golden_or_skip, variant, vector):
         new = c.check_manifest(folder)  # the summary has the values of the repaired files
         assert new["state"] == "finished" and new["writer"] == REPAIR_WRITER
         for sidecar in c.sidecars_by_position(folder):
-            gap = {"code": "camera_gap", "camera_key": sidecar.header["camera_key"]}
+            # `source` is the program that ran the repair (SFF-793): REPAIR_WRITER is skellycam.
+            gap = {"code": "camera_gap", "source": "skellycam", "camera_key": sidecar.header["camera_key"]}
             has = any(gap.items() <= item.items() for item in new["warnings"])
             assert has == (int(sidecar.lines("end")[0]["gaps"]) > 0), "`camera_gap` for a repaired video sidecar with gaps"
         assert all(item in new["warnings"] for item in old["warnings"])
@@ -212,13 +213,19 @@ def test_sft_733_check_on_golden(golden_or_skip):
 @pytest.mark.provisional("desk test DT-R1 (SFF-797)")
 @pytest.mark.parametrize("case", G5_CASES)
 def test_sft_733_camera_file_provisional(writer, golden_or_skip, variant, case):
-    """SFT-733, the provisional check: the repaired camera file keeps each complete block. Checks: SFF-797."""
+    """SFT-733, the provisional check: the repaired camera file. Checks: SFF-794, SFF-797.
+
+    The file keeps the complete blocks that have a row in the repaired sidecar, and no other block, so
+    rows = blocks. It is the old file cut after the last of these blocks: the repair writes no normal end.
+    """
     original, folder = golden_or_skip("G05", case), variant("G05", case)
     _repair(writer, folder)
     for path in c.media_files(folder, ".mkv"):
         old, new = (original / c.MEDIA / path.name).read_bytes(), path.read_bytes()
-        payloads = [[data[b.offset : b.offset + b.size] for b in c.parse_mkv(data).blocks] for data in (old, new)]
-        assert payloads[0] == payloads[1]
+        rows = len(c.read_sidecar(path.with_suffix(".csv")).rows)
+        blocks = c.parse_mkv(old).blocks
+        assert 0 < rows <= len(blocks) and new == old[: blocks[rows - 1].end], "the file is cut after the block of its last row"
+        assert len(c.parse_mkv(new).blocks) == rows
 
 
 @pytest.mark.external("user")

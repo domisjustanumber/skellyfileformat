@@ -8,6 +8,8 @@ Four cameras with 12 frames each, and audio of 0.4 s of silence:
 - camera 3: the flag `encode_skip` in row 0, and the flag `repeat` in row 7, so rows 6 and 7 have
   equal fitted times;
 - audio: a `period_fs` that 10^6 does not divide, so SFF-779 rounds down.
+
+Beside the case, `equal_fitted_times.parquet` holds the capture times of camera 3 (SFT-748).
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from goldgen import capture_cases, common
+from goldgen import folder_common as fc
 
 TAKE = {
     "rec": "g12_synthetic_take",
@@ -28,6 +31,7 @@ TAKE = {
 FRAMES = 12
 AUDIO_T0_NS, AUDIO_PERIOD_FS = 12_345_678, 20_833_333_333
 BLOCK_SAMPLES, BLOCKS = 4800, 4
+EQUAL_TIMES_CAMERA, EQUAL_TIMES_PARQUET = 3, "equal_fitted_times.parquet"
 
 
 def cameras() -> list[dict]:
@@ -76,3 +80,16 @@ def build(out: Path) -> None:
     files, facts = capture_cases.finished_take(TAKE, cameras(), audio())
     capture_cases.write_files(out / "take", files)
     capture_cases.write_results(out, "take", facts)
+
+    # The Parquet of SFT-748, beside the case: the capture TIMESTAMPS of camera 3, whose rows 6 and 7
+    # have equal fitted times. The strict times differ by 1 ns (SFF-782, SFF-828).
+    item = facts["files"][EQUAL_TIMES_CAMERA]
+    times = [fc.seconds(ns) for ns in fc.strict_ns([record[4] for record in item["records"]])]
+    group = fc.sensor_group_name([item["camera_key"]])
+    channel = {
+        "sensor_group": group, "source": f"camera:{item['camera_label']}", "reference_frame": None,
+        "kind": "TIMESTAMPS", "names": ["capture"], "components": {"timestamp_s": "s"}, "stage": "timing",
+        "dtype": "float64",
+    }  # fmt: skip
+    descriptor = {"runs": {"0": {"sensor_groups": {group: {"sample_count": len(times)}}}}}  # only what the vector needs
+    fc.write_parquet(out / EQUAL_TIMES_PARQUET, descriptor, [(0, channel, times, lambda frame, n, c: times[frame])])

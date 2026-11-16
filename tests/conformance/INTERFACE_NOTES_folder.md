@@ -71,8 +71,7 @@ implementation:
 | SFT-740 | "ignores the second TOML" | The test asserts that `links` and `folder_files` are those of the committed result. It does not assert the place of the second TOML in the result (see section 3). |
 | SFT-746 | "the codec is ZSTD at level 3" | A Parquet file does not hold the level. The test asserts the codec only. |
 | SFT-746 | "the writer rules of each model and of its nested types" | The check does not have the rules of `SuperquadricContours` that need the compiled volume: "the x distance between the eyes fits in the volume", and the two rules of `nose`. The part does not give their formulas. |
-| SFT-747 | "pyarrow reads every value bit-exactly" | pyarrow wrote the golden file, and the repository has no other reference of the values. The test asserts the pinned version and the number of rows, and uses the pyarrow values as the reference for the other readers. |
-| SFT-749 | "G3 with a rotated camera (`display_rotation` 90)" | No camera of G3 has `display_rotation` 90 (section 3). The check runs on G3 as it is: each image reference has the size of the stored frames (PyAV), each 2D channel is in pixels, and `calibrated_world` has the Blender basis and mm. |
+| SFT-747 | "read every value bit-exactly" | The reference is the member `parquet` of `golden/G03/take.truth.json`: the SHA-256 of the values that the generator gave to the Parquet writer ([golden/README.md](../../golden/README.md)). The test computes the digest from the values of each reader, pyarrow too, with its own code (`checks_folder.values_sha256`), and compares the number of rows. |
 | SFT-751 (golden part) | The posthoc run, the repair, the manifest with `state` `recording` | They need a run of freemocap. |
 | SFT-752 | "no counts" | The test asserts that the take has only the members of SFF-885 and that the result holds no text of the note. The comparison with the committed result is in SFT-768. |
 | SFT-753 | "No other file holds them" | No rule tells how to find ChArUco corners in an unknown file. No assertion. |
@@ -100,9 +99,9 @@ Parts that were not run at gate 2:
 
 ## 3. Contradictions and gaps
 
-1. **SFT-749 and Appendix A.** SFT-749 names "G3 with a rotated camera (`display_rotation` 90)".
-   Appendix A and G3 give no camera of G3 a rotation. Only G4 has rotated cameras, and G4 has no
-   Parquet.
+1. **SFT-749 and Appendix A.** Closed on 2026-11-16: camera 1 of G3 has `display_rotation` 90
+   ([ADR-2MQE](../../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 3). The test
+   checks that G3 has the rotated camera, and that each 2D value is inside the stored frame.
 2. **`records` of a refused file.** SFF-885 says that an `invalid` item has `rows`, `torn_bytes`
    and `fit` null. It does not give `records`. The committed results of G11 have `records` null.
    `result_faults` accepts null and an array.
@@ -110,8 +109,11 @@ Parts that were not run at gate 2:
    (SFF-875), and it holds no `take_uuid`. No rule gives its place in the result when a take
    exists and the manifest does not name it: `other_files` as `not_in_format`, or as `invalid`
    with `take_fact_mismatch` and `orphan_file` (SFF-889).
-4. **SFT-767 and G16.** The Pass text says "a canary file is not created". The pickle of G16 runs
-   no code (G16_CHOICES.md item 3), so G16 alone cannot show it. The test adds its own files.
+4. **SFT-767 and G16.** Closed on 2026-11-16
+   ([ADR-2MQE](../../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 1). The
+   pickle of G16 runs no code (G16_CHOICES.md item 3). The test makes, at run time, a pickle and an
+   NPZ member that create a marker file if a program loads them, and it asserts that no marker
+   file exists.
 5. **SFT-751, the stages of a realtime run.** SFF-834 gives `coverage` "for one sensor group and
    stage". It does not say which stages of a realtime run have a stage provenance. `fold_faults`
    checks each stage that the run has, also a stage with no journal channel (for example `timing`),

@@ -91,7 +91,7 @@ def build(out: Path) -> None:
     manifest["calibration"] = {"calibration_uuid": CALIBRATION_UUID, "file": toml_path, "sha256": common.sha256_hex(data)}
     manifest["summary"]["calibration"] = toml_facts  # SFF-728
     manifest_path.write_bytes(common.file_json(manifest))
-    write_results(out, "mocap_take", facts | {"folder_files": [(toml_path, None), (facts["info_path"], "capture_info")]})
+    write_results(out, "mocap_take", facts | {"folder_files": [(toml_path, "calibration"),(facts["info_path"], "capture_info")]})
 
     # The library of SFF-812: the library copy, and `last_successful_camera_calibration.toml`.
     (out / "library").mkdir()

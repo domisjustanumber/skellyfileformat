@@ -33,11 +33,6 @@ frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
 14,1015,1537952403,1533447065,0,12725,909,d504e435
 15,1016,1638057332,1633455184,0,13657,893,f2e65881
 16,1017,1738162261,1733463303,0,14557,751,6288e3be
-17,1018,1838267190,1833471422,0,15315,870,8f0125e9
-18,1019,1938372119,1933479541,0,16192,879,0dd2cb62
-19,1020,2038477048,2033487660,0,17078,879,1d63937d
-20,1021,2137581974,2133495779,0,17980,874,64950f4f
-21,1022,2237686903,2233503898,0,18861,878,94edc6cb
 # fit fitter=goldgen-truth fitter_version=1.0.0 fitter_params={}
-# fit_segment pos_first=0 pos_last=21 t0_ns=33483200 period_ps=100000200000
-# repair cut_bytes=0 media_cut_bytes=107 repair_writer=skellyfileformat-goldgen 1.0.0
+# fit_segment pos_first=0 pos_last=16 t0_ns=33483200 period_ps=100000200000
+# repair cut_bytes=255 media_cut_bytes=107 repair_writer=skellyfileformat-goldgen 1.0.0

@@ -104,6 +104,23 @@ def test_strict_and_group_times():
     assert folder_common.sensor_group_name(["b", "a"]) == "camera_group:" + hashlib.sha256(b"a|b").hexdigest()[:6]
 
 
+def test_values_sha256_encoding():
+    """The digest of golden/README.md for one row, from bytes written by hand."""
+    row = dict.fromkeys(name for name, _, _ in SCHEMA) | {
+        "timestamp_s": 0.5, "sensor_group": "g", "frame_number": 1, "value": 0.25, "run_id": -1,
+    }  # fmt: skip
+    data = bytes.fromhex(
+        "01" "000000000000e03f"  # timestamp_s
+        "01" "01000000" "67"  # sensor_group
+        "01" "0100000000000000"  # frame_number
+        "00" "00" "00" "00" "00"  # source, reference_frame, channel, name, component
+        "01" "0000803e"  # value
+        "00" "00"  # value_f64, units
+        "01" "ffffffffffffffff"  # run_id
+    )
+    assert folder_common.values_sha256([row]) == hashlib.sha256(data).hexdigest()
+
+
 def test_calibration_toml_text():
     camera = {"camera_label": "cam0", "index": 0, "size": [2, 1], "controls_at_calibration": {"gain": 3}}
     text = folder_common.calibration_toml({"writer": "w", "aligned": False, "cost": 0.5}, {"squares_x": 5}, [camera])
@@ -117,7 +134,7 @@ def test_calibration_toml_text():
 def test_expected_result_scopes():
     facts = {
         "take_uuid": "u", "recording_name": "r", "files": [], "info_path": "r_info.json",
-        "folder_files": [("r_info.json", "capture_info"), ("r_data.parquet", "tracking"), ("r_camera_calibration.toml", None)],
+        "folder_files": [("r_info.json", "capture_info"), ("r_data.parquet", "tracking"), ("r_camera_calibration.toml", "calibration")],
     }  # fmt: skip
     full, player = (folder_common.expected_result(facts, scope)["takes"][0] for scope in ("full", "player"))
     assert [item["path"] for item in full["folder_files"]] == ["r_camera_calibration.toml", "r_data.parquet", "r_info.json"]
@@ -140,8 +157,13 @@ def test_take_is_the_take_of_g01_with_more_folder_files():
     g01, g03 = sums(GOLDEN / "G01"), sums(G03)
     new = {f"take/{rec()}{suffix}" for suffix in ("_camera_calibration.toml", "_data.parquet", "_recording_info.json")}
     assert set(g03) - set(g01) == new and set(g01) <= set(g03)
-    assert {name for name in g01 if g01[name] != g03[name]} == {"take/recording_manifest.json"}
-    assert (G03 / "take.truth.json").read_bytes() == (GOLDEN / "G01" / "take.truth.json").read_bytes()
+    rotated = f"take/{manifest()['cameras'][1]['timing']}"
+    assert {name for name in g01 if g01[name] != g03[name]} == {"take/recording_manifest.json", rotated}
+    # Camera 1 has `display_rotation` 90 (SFT-749). A header line has no CRC, so no other line changes.
+    old, now = ((folder / rotated).read_bytes().split(b"\n") for folder in (GOLDEN / "G01", G03))
+    assert [(a, b) for a, b in zip(old, now, strict=True) if a != b] == [(b"# display_rotation=0", b"# display_rotation=90")]
+    truth = load(G03 / "take.truth.json")
+    assert truth | {"parquet": None} == load(GOLDEN / "G01" / "take.truth.json") | {"parquet": None}
     assert load(G03 / "take.full.json")["takes"][0]["files"] == load(GOLDEN / "G01" / "take.full.json")["takes"][0]["files"]
     assert not (CASE / "exports").exists() and not (CASE / "tracker_schema.json").exists()  # Appendix A, SFF-832
 
@@ -171,7 +193,10 @@ def test_manifest_lists_the_folder_files():
     }
     changed = {"cameras", "calibration", "files", "summary"}
     assert {key for key in m if m[key] != g01[key]} == changed  # so SFF-881 adds no privacy field
-    assert {key for key in m["summary"] if m["summary"][key] != g01["summary"][key]} == {"calibration", "processing_runs"}
+    assert {key for key in m["summary"] if m["summary"][key] != g01["summary"][key]} == {"calibration", "processing_runs", "cameras"}
+    # The summary of camera 1 differs only in `display_rotation` (SFF-728).
+    assert [c["display_rotation"] for c in m["summary"]["cameras"]] == [0, 90]
+    assert [c | {"display_rotation": 0} for c in m["summary"]["cameras"]] == g01["summary"]["cameras"]
 
 
 def test_manifest_summary_runs_agree_with_the_descriptor():
@@ -507,8 +532,25 @@ def test_row_rules():
             undetected += x is None
             assert x is None or (0 <= x < 64 and 0 <= y < 48)  # SFF-829
     assert undetected > 0
+    # SFT-749: the rotated camera has 2D values in stored-JPEG pixels. The upright picture is 48 wide.
+    rotated = manifest()["cameras"][1]["camera_label"]
+    assert read_sidecar(CASE / manifest()["cameras"][1]["timing"])[0]["display_rotation"] == "90"
+    xs = [s[2] for key, samples in trajectories.items() if key[2] == f"camera:{rotated}:image" and key[5] == "x" for s in samples]
+    assert max(x for x in xs if x is not None) >= 48
     raw = [s[2] for key, samples in trajectories.items() if key[3] == "RAW_KEYPOINTS_3D" for s in samples]
     assert None in raw and any(v is not None for v in raw), "a missing 3D sample is a row with a null value"
+
+
+def test_truth_digest_of_the_parquet_values():
+    """SFT-747: the digest of golden/README.md, from the values that pyarrow reads, equals the truth file."""
+    truth = load(G03 / "take.truth.json")["parquet"]
+    table = rows()
+    assert truth["name"] == parquet_path().name and truth["rows"] == len(table)
+    assert folder_common.values_sha256(table) == truth["values_sha256"]
+    # The digest sees a change of one bit.
+    changed = [dict(row) for row in table]
+    changed[0]["timestamp_s"] = math.nextafter(changed[0]["timestamp_s"], 1.0)
+    assert folder_common.values_sha256(changed) != truth["values_sha256"]
 
 
 def test_times_are_the_strict_player_times():
@@ -538,7 +580,7 @@ def test_results_agree_with_the_files():
     assert (take["state"], take["manifest"], take["warnings"], take["may_contain_private_data"]) == ("complete", "present", [], True)
 
     # SFF-885: one item for each `files` item of the manifest and one for `calibration.file`.
-    roles = {item["path"]: item["role"] for item in m["files"]} | {m["calibration"]["file"]: None}
+    roles = {item["path"]: item["role"] for item in m["files"]} | {m["calibration"]["file"]: "calibration"}
     root_files = {p.name for p in CASE.iterdir() if p.is_file()} - {"recording_manifest.json"}
     assert set(roles) == root_files
     assert take["folder_files"] == [

@@ -1,6 +1,10 @@
 # Choices made for G2, G4, G5, G6, G11 and G12 that the spec does not give
 
-**Status: not reviewed.** An agent made each choice. The user must review them.
+**Accepted by the user on 2026-11-16 as conventions of the golden folders**
+([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
+rule of the format only where the spec states it. A decision of the same day replaced items 2, 3
+and 4 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md)). Each of
+these items gives its decision. Item 6 is open.
 
 This file is for the six golden folders that `tools/goldgen/capture_cases.py` makes: G02, G04, G05,
 G06, G11 and G12. Most choices apply to more than one folder, so the folders have one file.
@@ -13,47 +17,43 @@ G05 and G06 are **provisional**
 ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 6). They wait for
 the desk tests DT-R1 and DT5.
 
-## 1. Contradictions and points that the user must decide
+## 1. Contradictions and points that the user decided
 
 1. **`reason` of a `damaged` file.** SFF-746 and SFT-716 say that a row with a wrong CRC makes the
-   file `damaged` with the reason `crc_mismatch`. `tools/tests/test_golden_files.py` (line 115) says
-   that `reason` is not null only for the state `invalid`. The two do not agree. Choice: the result
-   of camera 2 of G05 has `state` `damaged` and `reason` `crc_mismatch`, as the spec says. So the
-   generic test fails for the four result files of G05. Alternative: `reason` null for `damaged`,
-   and a change of SFF-746 and SFT-716.
-2. **A repaired pair can have different numbers of rows and blocks.** SFF-795 cuts a sidecar after
-   the last complete row with a correct CRC. SFF-797 keeps each complete block. Neither looks at the
-   other file of the pair. In G06 `repaired`, camera 0 has 22 rows and 17 blocks, camera 1 has 21
-   rows and 15 blocks, and camera 2 has 9 rows and 20 blocks. SFF-759 refuses such a pair only when
-   the sidecar is finished. No requirement says how a reader reads a repaired pair with different
-   counts. Choice: the generator applies SFF-795 and SFF-797 as they are written. The reader result
-   reads a repaired camera file by SFF-740, because its muxer never closed it: `rows` counts the CSV
-   rows, and `records` holds only the frames with a row and a complete block (17, 15 and 9).
-   Alternative: the repair also cuts the rows that have no block and the blocks that have no row,
-   so that each repaired pair has equal counts. That alternative needs a change of SFF-795 and
-   SFF-797.
-3. **The repaired camera file gets no normal end.** SFF-794 says that a repair appends what a normal
-   end writes. The normal end of the pinned muxer writes the Cues and then changes the SeekHead, the
-   Duration and the Segment size at the start of the file. That breaks "a repair never changes a
-   byte before its cut". Choice: the repaired camera file is the crashed file, cut after its last
-   complete block. Nothing is appended. When the cut is in a Cluster, the size of that Cluster still
-   goes past the end of the file. SFF-797 is provisional (DT-R1).
-4. **The repaired audio file gets no `mfra` box.** SFF-794 says "appends what a normal end writes",
-   and the normal end writes an `mfra` box (SFF-764). SFF-796 names only the cut. Choice: the
-   repaired audio file is the crashed file, cut after its last complete fragment. Alternative:
-   append an `mfra` box.
+   file `damaged` with the reason `crc_mismatch`. Choice: the result of camera 2 of G05 has `state`
+   `damaged` and `reason` `crc_mismatch`, as the spec says. `tools/tests/test_golden_files.py`
+   accepts a reason for the states `invalid` and `damaged`.
+2. **A repair makes each camera pair equal.** Decision
+   ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1 and
+   4): the repair cuts a sidecar at its first bad row (a row that is not complete or that has a
+   wrong CRC). It cuts the sidecar and the camera file back to the frames that have a complete row
+   and a complete block. So after the repair, rows = blocks. In G06, camera 0 keeps 17 frames (22
+   rows, 17 blocks), camera 1 keeps 15 (21 rows and a torn row, 15 blocks) and camera 2 keeps 9 (9
+   good rows, 20 blocks). Before this decision, the generator cut each file on its own, and the
+   pairs of G06 `repaired` had 22/17, 21/15 and 9/20 rows and blocks. That did not agree with
+   SFF-759. The audio pair has no such rule: its sidecar keeps its 21 rows (item 5).
+3. **The repaired camera file gets no normal end.** Decision (ADR-B6WH item 3): the repair writes
+   no Cues and does not write the SeekHead again, because these writes change bytes before the cut.
+   The repaired camera file is the crashed file, cut after the block of its last kept row. Nothing
+   is appended. When the cut is in a Cluster, the size of that Cluster still goes past the end of
+   the file. SFF-797 is provisional (DT-R1).
+4. **The repaired audio file gets no `mfra` box.** Decision (ADR-B6WH item 3): the repaired audio
+   file is the crashed file, cut after its last complete fragment. A reader accepts the file.
 5. **A sidecar with more samples than its audio file.** The muxer holds the open fragment in memory,
    so the crashed audio file holds less audio than the 21 rows of its sidecar (100,800 samples).
    SFF-795 keeps each row. So the repaired sidecar has `samples=100800`, and the repaired file holds
    one fragment. SFF-785 gives the usable length. The manifest summary has `duration_s` 2.1, from
    the `# end` line (SFF-728).
-6. **`interrupted_repair` needs a repair that works in steps across the files.** Appendix A says
-   that each sidecar of the case is `unfinished`. A repair that finishes one pair before it starts
-   the next cannot leave this state: the pairs before the stop are `repaired`, and camera 2 is still
-   `damaged`. Choice: the repair cuts each media file and each sidecar, then writes the fit lines of
-   each sidecar, then the `# repair` lines, then the `# end` lines, then the manifest. It stopped in
-   the write of the `# repair` line of camera 2. The spec gives no order inside "the media files and
-   their sidecars" (SFF-793).
+6. **`interrupted_repair` needs a repair that works in steps across the files. OPEN.** Appendix A
+   says that each sidecar of the case is `unfinished`. A repair that finishes one pair before it
+   starts the next cannot leave this state: the pairs before the stop are `repaired`, and camera 2
+   is still `damaged`. Choice: the repair cuts each media file and each sidecar (with the cuts of
+   item 2), then writes the fit lines of each sidecar, then the `# repair` lines, then the `# end`
+   lines, then the manifest. It stopped in the write of the `# repair` line of camera 2. On
+   2026-11-16, the user decided the order "for each pair, cut the media file, then cut the sidecar,
+   then append the fit lines and `# end`; the manifest is last". That order does not agree with
+   this case and with Appendix A. The user must decide which one changes
+   ([open-work.md](../decisions/open-work.md)). Until then, G06 keeps this case.
 7. **SFT-768 and the `gap` warning of G12.** SFT-768 names camera 0 as the only camera of G12 with
    the warning `gap`. A frame that the encoder lost makes a jump of the source frame number, and so
    the flag `gap` on the same row (SFF-756). Choice: the `encode_skip` row of camera 3 is row 0,
@@ -76,16 +76,17 @@ the desk tests DT-R1 and DT5.
     refuses. So G11 has no `summary_stale` (cases `rate_0_1`, `rate_2_20_plus_1`, `rotation_45`,
     `bad_label`) and no `take_fact_mismatch` (case `unknown_clock`: `clock` is a take key). The
     parts of the link checks that need that sidecar are not evaluated (SFF-872). `take_uuid`,
-    `camera_key` and `rotation` are `ok` from their other parts. Alternative: the reader compares
-    the header values of a refused sidecar.
+    `camera_key` and `rotation` are `ok` from their other parts. The user decided the same rule on
+    2026-11-16: a refused sidecar causes no `summary_stale` and no `take_fact_mismatch`
+    ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)).
 12. **"Usable rows" for the file warnings** (SFF-887). Choice: the rows that SFF-746 lets the reader
     use, also a row whose block is not complete. In each folder here, the flagged rows have complete
     blocks, so the two readings give the same result.
 13. **`player_ns` of a `damaged` file** (SFF-781). The file has no `# end` line, so it has no fit
     that the reader uses: `fit` false, `missing_fit` and the arrival time, as for `unfinished`.
 14. **`torn_bytes` needs a walk** (SFF-791). "After its last complete block" counts blocks, not rows.
-    Camera 2 of G05 and G06 has 20 complete blocks and 9 usable rows. Its media part is 0. A reader
-    that finds blocks only from the CSV offsets gets another number.
+    Camera 2 of G05 has 20 complete blocks and 9 usable rows. Its media part is 0. A reader that
+    finds blocks only from the CSV offsets gets another number.
 15. **Take state of a crashed take** (SFF-869). Each crashed, damaged or repaired pair counts as a
     file. So each take of G05 and G06 is `complete` with `warnings` `[]`.
 
@@ -201,6 +202,12 @@ the desk tests DT-R1 and DT5.
     source frame number of row 6 and the flag `repeat` (8), so d is equal. Alternative: a second
     segment that starts at the last fitted time of the first. The JPEG of row 7 is not a copy of the
     JPEG of row 6.
+45. **The Parquet of SFT-748** ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md)
+    item 5). Choice: `G12/equal_fitted_times.parquet`, beside the case, so that the reader result of
+    the take does not change. It holds one channel: `TIMESTAMPS` `capture` of camera 3, in the
+    sensor group of that camera alone, with the 12 strict player times of SFF-782 in seconds
+    (SFF-828). Its descriptor holds only `runs.0.sensor_groups`, because the vector needs only the
+    times. Alternative: a full descriptor, or the Parquet in the take, which changes the result.
 
 ## 9. What the pinned tools cannot do exactly
 
@@ -232,13 +239,15 @@ TOML, SFF-872). Each take is `complete` (SFF-869), with `manifest` `present` (SF
   (SFF-784, SFF-779). `frames` is `not_checked` in the two scopes: no file is `finished` (SFF-872).
 - **G06 `repaired`**: each file `repaired`: a `# repair` line and a last `# end` line (SFF-795).
   `torn_bytes` 0 (SFF-791). `fit` true and `player_ns` from the fit lines (SFF-781, SFF-777).
-  `rows` 22, 21, 9 and 21; `records` 17, 15, 9 and 21 (item 2). Camera 0 has `gap`. No
-  `folder_warnings` (item 33). `frames` is `not_checked`: a `repaired` file is not in the row-count
-  part (SFF-872).
+  `rows` and `records` 17, 15, 9 and 21: each camera pair has equal rows and blocks (item 2).
+  Camera 0 has `gap`. No `folder_warnings` (item 33). `frames` is `not_checked`: a `repaired` file
+  is not in the row-count part (SFF-872).
 - **G06 `interrupted_repair`**: each file `unfinished`, `fit` false, `missing_fit`, also with fit
-  lines (SFF-747, SFF-798). `player_ns` = `arrival_ns`; audio `fitted_ns` from the fit of the
-  reader, as in G05. `torn_bytes`: 20 for camera 2, the torn footer line (SFF-746); 0 for each
-  other file, because each media file is cut. `folder_warnings` `["stray_tmp"]`.
+  lines (SFF-747, SFF-798). `rows` and `records` 17, 15, 9 and 21, from the cuts of item 2.
+  `player_ns` = `arrival_ns`; audio `fitted_ns` from the fit of the reader, as in G05.
+  `torn_bytes`: 20 for camera 2, the torn footer line (SFF-746); 0 for each other file, because
+  each media file is cut. `folder_warnings` `["stray_tmp"]`. The step order of this case is open
+  (item 6).
 - **G11, each case**: camera 1 is `invalid`, with `rows`, `torn_bytes`, `fit` and `records` null
   (SFF-885, item 8) and `["prerelease"]` (item 9). The reason: `leading_zero`, `plus_sign` and
   `row_integer_2_53`, `bad_metadata` (SFF-701); `rate_0_1` and `rate_2_20_plus_1`, `bad_rate`
@@ -252,4 +261,5 @@ TOML, SFF-872). Each take is `complete` (SFF-869), with `manifest` `present` (SF
   (SFF-777). Camera 2: `fit` false, `missing_fit`, `player_ns` = `arrival_ns` (SFF-781, SFF-885).
   Camera 3: `["encode_skip","prerelease"]` (SFF-887); records 6 and 7 have the same `player_ns`,
   because `records` hold p and not the strict time (SFF-782). Audio: `fitted_ns` by SFF-779.
-  `frames` is `ok` for `full` and `not_checked` for `player`.
+  `frames` is `ok` for `full` and `not_checked` for `player`. In `equal_fitted_times.parquet`, the
+  times of rows 6 and 7 differ by 1 ns (item 45).

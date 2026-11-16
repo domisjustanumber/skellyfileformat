@@ -1,6 +1,9 @@
 # Choices made for G16 that the spec does not give
 
-**Status: proposed. The user did not review this list.**
+**Accepted by the user on 2026-11-16 as conventions of the golden folders**
+([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
+rule of the format only where the spec states it. A decision of the same day settled item 1 of
+"Texts that must change" (ADR-2MQE item 1). The committed pickle stays harmless.
 
 G16 holds the files that could run code, of
 [SPEC.md Appendix A](../spec/SPEC.md#appendix-a-golden-folders) and SFF-884.
@@ -88,7 +91,10 @@ The `player` result differs from the `full` result only in the NPY item and in t
    committed pickle is harmless, so a canary check on G16 proves nothing. Proposed text: "The
    reader does not unpickle a file: the test replaces the unpickle functions with functions that
    fail." Alternative: the test makes a pickle with a canary at test time, in a temporary copy of
-   G16. A file whose load runs code must not be in the repository.
+   G16. A file whose load runs code must not be in the repository. Decision (ADR-2MQE item 1): the
+   alternative. The test makes, at run time in a temporary folder, a pickle that creates a marker
+   file if a program loads it, and it passes when no marker file is created.
+   `tests/conformance/test_s22_privacy.py` does this.
 2. **Appendix A, row G16:** add "The pickle and the object array hold plain values: a load of
    them runs no code."
 3. **SFF-884:** it does not say which role and which path an NPY file "that the manifest lists"
