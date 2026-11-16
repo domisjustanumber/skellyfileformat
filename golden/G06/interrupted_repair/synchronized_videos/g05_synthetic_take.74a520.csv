@@ -1,0 +1,30 @@
+# skellyfileformat=video_timing
+# format_version=2.0
+# format_prerelease=1
+# writer=skellyfileformat-goldgen 1.0.0
+# take_uuid=00000000000040008000000000000005
+# take_start_host_ns=1000000000000
+# take_start_utc_ns=946684800000000000
+# utc_offset_min=0
+# clock=windows_qpc
+# clock_hz=10000000
+# group_size=3
+# audio_count=1
+# group_position=2
+# camera_key=74a520c84ed0ef00
+# camera_label=74a520
+# nominal_rate=10/1
+# display_rotation=0
+frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
+0,2000,37250000,,0,443,733,68ab973d
+1,2001,137354829,,0,1183,855,2e60c589
+2,2002,237459658,,0,2045,855,4c7363f1
+3,2003,337564487,,0,2907,858,ce99647d
+4,2004,437669316,,0,3772,844,871e865d
+5,2005,537774145,,0,4639,861,70fc7964
+6,2006,637878974,,0,5507,852,36385651
+7,2007,737983803,,0,6366,854,0e6f46be
+8,2008,838088632,,0,7227,730,06580c38
+# fit fitter=goldgen-truth fitter_version=1.0.0 fitter_params={}
+# fit_segment pos_first=0 pos_last=8 t0_ns=33250000 period_ps=100000100000
+# repair cut_bytes=5

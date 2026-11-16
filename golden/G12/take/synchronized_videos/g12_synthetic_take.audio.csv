@@ -1,0 +1,25 @@
+# skellyfileformat=audio_timing
+# format_version=2.0
+# format_prerelease=1
+# writer=skellyfileformat-goldgen 1.0.0
+# take_uuid=00000000000040008000000000000012
+# take_start_host_ns=1000000000000
+# take_start_utc_ns=946684800000000000
+# utc_offset_min=0
+# clock=windows_qpc
+# clock_hz=10000000
+# group_size=4
+# audio_count=1
+# sample_rate=48000
+# channels=1
+# codec=opus
+# file_sample_offset=0
+# audio_latency_ns=
+block,first_sample,n_samples,host_ns,adc_ns,flags,crc32
+0,0,4800,114345677,12344678,0,ff44f47a
+1,4800,4800,214353596,112344708,0,afebdf31
+2,9600,4800,314361515,212344739,0,48691b51
+3,14400,4800,414369434,312344770,0,e96856f7
+# fit fitter=goldgen-truth fitter_version=1.0.0 fitter_params={}
+# fit_segment row_first=0 row_last=3 n0=0 t0_ns=12345678 period_fs=20833333333
+# end rows=4 samples=19200 gaps=0 silence_samples=0

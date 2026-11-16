@@ -112,7 +112,7 @@ def test_result_members_codes_and_orders(path):
                 "warnings", "records",
             }, "the committed results hold `records`"  # fmt: skip
             assert item["state"] in FILE_STATES - {"not_in_format"} and item["reason"] in REASONS
-            assert (item["reason"] is not None) == (item["state"] == "invalid")
+            assert (item["reason"] is not None) == (item["state"] in ("invalid", "damaged")), "SFF-746, SFF-886"
             assert warnings_ok(item["warnings"], FILE_WARNINGS)
             assert "\\" not in item["name"] and not item["name"].startswith("/")
             if item["state"] in {"invalid", "unsupported_version"}:

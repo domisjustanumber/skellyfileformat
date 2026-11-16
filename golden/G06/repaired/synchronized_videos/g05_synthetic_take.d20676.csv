@@ -1,0 +1,43 @@
+# skellyfileformat=video_timing
+# format_version=2.0
+# format_prerelease=1
+# writer=skellyfileformat-goldgen 1.0.0
+# take_uuid=00000000000040008000000000000005
+# take_start_host_ns=1000000000000
+# take_start_utc_ns=946684800000000000
+# utc_offset_min=0
+# clock=windows_qpc
+# clock_hz=10000000
+# group_size=3
+# audio_count=1
+# group_position=1
+# camera_key=d206761ad952f62f
+# camera_label=d20676
+# nominal_rate=10/1
+# display_rotation=0
+frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
+0,500,37133500,,0,443,731,79013fa7
+1,501,137237979,,0,1181,861,9fe1d7c1
+2,502,237342458,,0,2049,862,a2a2ef13
+3,503,337446937,,0,2918,859,9aee40ef
+4,504,437551416,,0,3784,847,82572920
+5,505,537655895,,0,4654,856,63930176
+6,506,637760374,,0,5517,860,30a959d0
+7,507,737864853,,0,6384,859,e52a5599
+8,508,837969332,,0,7250,730,d5c9b76d
+9,509,938073811,,0,7987,873,0fb57c00
+10,510,1037178287,,0,8883,882,2c9c898c
+11,511,1137282766,,0,9772,882,383f1f2f
+12,512,1237387245,,0,10661,881,3d4521d4
+13,513,1337491724,,0,11549,884,db856a48
+14,514,1437596203,,0,12440,884,e7e0f56f
+15,515,1537700682,,0,13347,872,4ea64b1d
+16,516,1637805161,,0,14226,731,8d539f78
+17,517,1737909640,,0,14964,861,430004fd
+18,518,1838014119,,0,15832,862,323ac08f
+19,519,1938118598,,0,16701,859,22df9125
+20,520,2037223074,,0,17583,847,06e38a45
+# fit fitter=goldgen-truth fitter_version=1.0.0 fitter_params={}
+# fit_segment pos_first=0 pos_last=20 t0_ns=33133500 period_ps=99999750000
+# repair cut_bytes=37 media_cut_bytes=123 repair_writer=skellyfileformat-goldgen 1.0.0
+# end rows=21 gaps=0 filled=0 encode_skips=0
