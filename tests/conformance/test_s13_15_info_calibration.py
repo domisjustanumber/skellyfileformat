@@ -131,16 +131,21 @@ def test_sft_739_golden_part(golden_or_skip):
 
 @pytest.mark.parametrize("case", ["second_toml", "calibration_hash", "calibration_uuid", "by_key_and_index", "no_manifest"])
 def test_sft_740_finding_and_linking_the_calibration(reader, variant, golden_or_skip, case):
-    """SFT-740 Reader: finding and linking the calibration. Checks: SFF-814, SFF-815."""
+    """SFT-740 Reader: finding and linking the calibration. Checks: SFF-814, SFF-815, SFF-889."""
     if case == "second_toml":  # a take with a second TOML in its root
         folder = variant("G14", "mocap_take")
         first = folder / checks.manifest(folder)["calibration"]["file"]
         toml = tomllib.loads(first.read_text(encoding="utf-8"))
         toml["metadata"]["calibration_uuid"] = "0" * 12 + "4" + "0" * 3 + "8" + "f" * 15  # another UUID version 4
         (folder / "second_camera_calibration.toml").write_bytes(checks.toml_text(toml).encode())
-        take = checks.the_take(checks.read(reader, folder))
+        result = checks.read(reader, folder)
+        take = checks.the_take(result)
         want = checks.the_take(checks.committed(golden_or_skip("G14", "mocap_take")))
         assert take["links"] == want["links"] and take["folder_files"] == want["folder_files"]
+        # Its name has the `<rec>` of no take (ADR-158N item 13).
+        item = checks.named(result["other_files"], "second_camera_calibration.toml")
+        assert (item["state"], item["reason"]) == ("invalid", "take_fact_mismatch")
+        assert result["folder_warnings"].count("orphan_file") == 1
     elif case in ("calibration_hash", "calibration_uuid"):  # G9
         take = checks.the_take(checks.read(reader, golden_or_skip("G09", case)))
         assert checks.link(take, "hashes" if case == "calibration_hash" else "calibration") == "mismatch"

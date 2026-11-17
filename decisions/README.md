@@ -47,6 +47,7 @@ These entries are `accepted` or `evidence`.
 | [E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) | Camera match by vendor and product ID, else `model`; repair each step for the whole take; SFT-717 forms; sidecar with no `take_uuid`; G5 and G6 files | accepted |
 | [H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) | Optional `filtering`, `camera_assignment`; absent and null model members; points wait for `sfn26` and 18.3; old audio not corrected; consolidation after gate 2 | accepted |
 | [1P4N](entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md) | Realtime `timing` stays `realtime`; hit = a frame with a good record of its group; lowest latency per frame; event stages; latency fixed at the fold | accepted |
+| [158N](entries/158N-details-for-the-decisions-of-round-3.md) | Camera match null test, prompt; repair step 3; interrupted repair stays `recording`; no-`take_uuid` sidecar; "has a default"; `timing` coverage; orphan file | accepted |
 
 ### Proposed
 
@@ -55,7 +56,7 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
-| [158N](entries/158N-details-for-the-decisions-of-round-3.md) | Details for Q94, Q104 to Q130: camera match null test, repair step 3, reason of a sidecar with no `take_uuid`, "has a default", `timing` coverage, tests | `spec` | proposed |
+| [783H](entries/783H-text-corrections-of-the-second-golden-review.md) | Text corrections of golden review 2: SFT-703 version cases, "good" in `frames_processed`, SFT-748 on G12, SFT-763 `recording_id`, two choice files | `spec` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

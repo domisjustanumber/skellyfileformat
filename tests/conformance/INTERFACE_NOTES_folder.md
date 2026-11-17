@@ -121,10 +121,10 @@ Parts that were not run at gate 2:
 2. **`records` of a refused file.** SFF-885 says that an `invalid` item has `rows`, `torn_bytes`
    and `fit` null. It does not give `records`. The committed results of G11 have `records` null.
    `result_faults` accepts null and an array.
-3. **SFT-740, the second TOML.** A TOML with `[metadata].calibration_uuid` is a file of this format
-   (SFF-875), and it holds no `take_uuid`. No rule gives its place in the result when a take
-   exists and the manifest does not name it: `other_files` as `not_in_format`, or as `invalid`
-   with `take_fact_mismatch` and `orphan_file` (SFF-889).
+3. **SFT-740, the second TOML.** Closed on 2026-11-16: the TOML `second_camera_calibration.toml`
+   has the `<rec>` of no take, so it is `invalid` in `other_files` with `take_fact_mismatch`, and
+   the folder has `orphan_file` (SFF-889,
+   [ADR-158N](../../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 13).
 4. **SFT-767 and G16.** Closed on 2026-11-16
    ([ADR-2MQE](../../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 1). The
    pickle of G16 runs no code (G16_CHOICES.md item 3). The test makes, at run time, a pickle and an

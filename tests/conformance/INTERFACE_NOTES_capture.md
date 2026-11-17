@@ -117,6 +117,10 @@ A write of a whole file with any other event (for example `write` of the manifes
 - SFT-733 checks on G6 `interrupted_repair` that each media file has the bytes of G6 `repaired` and
   that each sidecar has the rows of G6 `repaired`: the repair stopped after the cuts
   ([ADR-E68K](../../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3).
+- SFT-733, the repair that stopped in the `# end` pass: a copy of G6 `repaired` with the manifest
+  of `interrupted_repair`, and with no `# end` line in the last sidecar in the order of the file
+  names (camera `e40ba1`)
+  ([ADR-158N](../../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 12).
 - The Opus encoder, PyAV and Pillow come from the `conformance` dependency group. A test that needs
   PyAV or Pillow is skipped when it is missing.
 

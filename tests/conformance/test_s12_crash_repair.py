@@ -137,7 +137,19 @@ VECTORS_733 = [
     "no_manifest",
     "interrupted_repair_reads",
     "repair_of_interrupted_repair",
+    "stopped_in_end_pass",
 ]
+
+
+def _stopped_in_end_pass(variant) -> Path:
+    """A copy of G6 `repaired` with the manifest of `interrupted_repair` and no `# end` line in its last sidecar."""
+    folder = variant("G06", "repaired")
+    (folder / c.MANIFEST).write_bytes((GOLDEN / "G06" / "interrupted_repair" / c.MANIFEST).read_bytes())
+    last = c.media_files(folder, ".csv")[-1]
+    kept, end = last.read_bytes().rstrip(b"\n").rsplit(b"\n", 1)
+    assert end.startswith(b"# end "), "the last line of a repaired sidecar is its `# end` line"
+    last.write_bytes(kept + b"\n")
+    return folder
 
 
 @pytest.mark.parametrize("vector", VECTORS_733)
@@ -197,6 +209,16 @@ def test_sft_733_repair(writer, reader, golden_or_skip, variant, vector):
         for item in take["files"]:
             assert item["state"] == "unfinished" and item["fit"] is False and "missing_fit" in item["warnings"]
         assert c.load_json(folder / c.MANIFEST)["state"] == "recording", "`state` of the manifest is `recording`"
+    elif vector == "stopped_in_end_pass":  # some sidecars repaired, the others unfinished (ADR-158N item 12)
+        first, second = variant("G05", "audio_torn_fragment"), _stopped_in_end_pass(variant)
+        last = c.media_files(second, ".csv")[-1].name
+        states = {Path(item["name"]).with_suffix(".csv").name: item["state"] for item in c.only_take(c.read(reader, second))["files"]}
+        assert states == {name: "unfinished" if name == last else "repaired" for name in states}
+        assert c.load_json(second / c.MANIFEST)["state"] == "recording"
+        _repair(writer, first)
+        _repair(writer, second)
+        files = [{name: c.strip_cut_bytes((folder / name).read_bytes()) for name in c.snapshot(folder) if not name.endswith(".tmp")} for folder in (first, second)]
+        assert files[0] == files[1], "a new repair finishes the rest: the files of the repair of G5, except for the two cut counts"
     else:
         first, second = variant("G05", "audio_torn_fragment"), variant("G06", "interrupted_repair")
         _repair(writer, first)

@@ -4,7 +4,9 @@
 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
 rule of the format only where the spec states it. Decisions of the same day replaced items 40, 42
 and 43 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)). Each of these
-items gives its decision. Item 44 is open. The TOML item of each result of G14 and of
+items gives its decision. Item 44 has the decision of
+[ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)
+([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 5). The TOML item of each result of G14 and of
 `higher_minor` has the role `calibration` (G03_CHOICES.md item 28).
 
 The folders are G13 (a realtime take after the fold), G14 (a calibration and its copies) and G10
@@ -83,7 +85,8 @@ alternative. Section 4 lists the spec gaps that the agent found.
     (83 ms). So the stage `observations` has `p50` 26.5 ms and `p99` 83.0 ms (19 latencies). The
     stage `timing` has `p50` 26.5 ms and `p99` 34.3 ms (11 latencies, one for each frame, item 44).
     The late record makes the two methods give different values: a fold that takes each record
-    for `timing` gives `p99` 83.0 ms.
+    for `timing` gives `p99` 83.0 ms. The user accepted the late record
+    ([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 11).
 13. The fold writes the `TIMESTAMPS` rows from the sidecars (SFF-844, SFF-828). Choice: the run has
     the 2 capture `TIMESTAMPS` channels and the group `TIMESTAMPS` channel, as in G3, and the stage
     provenances `timing` and `observations`. Each has `origin` `realtime` and a `coverage` object
@@ -186,8 +189,9 @@ alternative. Section 4 lists the spec gaps that the agent found.
 
 ## 4. Spec gaps, contradictions and ambiguities
 
-The user accepted the choice of each item as a convention of the golden folders, except item 44,
-which is open. Items 40, 42 and 43 have a decision.
+The user accepted the choice of each item as a convention of the golden folders. Items 40, 42, 43
+and 44 have a decision
+([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 5).
 
 40. **`unsupported_version` and the link parts** (SFF-872). The rule says that a reader does not
     evaluate a part when a file is "absent, is `invalid`, or is a file that the scope does not

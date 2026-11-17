@@ -271,7 +271,9 @@ The rules of `RecordedModel` and of its nested types are of two kinds
   a member that its row lets the writer omit when null. A writer still writes these members as this
   part says
   ([ADR-H2HQ](../../decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md)
-  item 2). Each
+  item 2). A member has a default only when its row gives one. So `tags` and `angle_names` stay
+  required ([ADR-158N](../../decisions/entries/158N-details-for-the-decisions-of-round-3.md)
+  item 5). Each
   member has the JSON type of the column "Type", with the number of items that the column gives. A
   closed type has no other member. An "integer" is a JSON number with no fraction in its value: `1`
   and `1.0` pass. A "float" is each JSON number: `0` passes for `position`. A text is a JSON

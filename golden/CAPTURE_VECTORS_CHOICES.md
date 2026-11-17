@@ -56,9 +56,12 @@ the desk tests DT-R1 and DT5.
    which replaces the order "one pair before the next"): a repair does each step for the
    whole take before it starts the next step. (1) It cuts every media file. (2) It cuts every
    sidecar. (3) It writes the fit lines and the `# end` line to every sidecar. (4) It writes the
-   manifest. So an interrupted repair leaves the whole take unfinished, never half repaired.
+   manifest. An interrupted repair leaves the manifest in the state `recording`. A repair that
+   stops in step 3 can leave some sidecars `repaired` and the others `unfinished`
+   ([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 12).
    `interrupted_repair` is a repair that stopped in step 3. In step 3, the repair writes the fit
-   lines of each sidecar, then the `# repair` lines, then the `# end` lines (SFT-733). It stopped in
+   lines of each sidecar, then the `# repair` lines, then the `# end` lines (SFT-733,
+   [ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 3). It stopped in
    the write of the `# repair` line of camera 2. So each sidecar is `unfinished`, as Appendix A says.
    The bytes of the case did not change. `test_sft_733_check_on_golden` checks that each media file
    and each sidecar of the case has its cut. The trace of SFT-733 shows only that each media file

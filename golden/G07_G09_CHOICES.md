@@ -138,7 +138,11 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
     the key with its last hexadecimal character changed. The first 6 characters stay, so the
     `camera_label` of the config stays correct (SFF-720). The order of the keys stays
     ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) item 4). The
-    paths of the `privacy` list of the manifest get the new key (SFF-881). Alternative: a
+    paths of the `privacy` list of the manifest get the new key (SFF-881). The changed key keeps
+    `key_origin` `computed`, and it is not the hash of its `device` values. A reader does not check
+    this (SFF-803), so the case has one fault for a reader
+    ([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 6).
+    Alternative: a
     camera table of the TOML or a camera source of the Parquet with another key. These need a
     rule that the spec does not give (items 27 and 28).
 12. **`frame_range`.** Choice: the Parquet has one frame more than the camera files: 91 frames,

@@ -369,11 +369,16 @@ and JS.
 
 **SFT-703** Writer and reader: version fields and rules
 Checks: SFF-707, SFF-708, SFF-709, SFF-710, SFF-711, SFF-712, SFF-714, SFF-891
-Input: G10; the output of each writer, with an export and a BVH.
-Pass: each file that SFF-707 names has `format_version` 2.0, a `format_prerelease` and a `writer`:
+Input: G1; G3; G10; the committed results of each golden case; the output of each writer, with an
+export and a BVH.
+Pass: in the output of each writer, in G1, in G3 and in the case `prerelease_0` of G10, each file
+that SFF-707 names has `format_version` 2.0, a `format_prerelease` and a `writer`:
 the manifest, each timing sidecar, both info JSONs, the calibration TOML, the Parquet descriptor and
-the journal header. The export inventory and the BVH metadata JSON also have them (external:
-freemocap, Blender addon). Before v2.0.0, `format_prerelease` is 1 in each file (SFF-710). No camera file and no audio file
+the journal header. The other cases of G10 hold a file with a higher `minor` or an unknown `major`
+([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 1).
+The export inventory and the BVH metadata JSON also have them (external:
+freemocap, Blender addon). Before v2.0.0, `format_prerelease` is 1 in each file of a writer, of G1
+and of G3, and 0 in each file of `prerelease_0` (SFF-710). No camera file and no audio file
 holds one of these three fields. The version and the writer string of a device pair are those of its
 timing sidecar. A file with an
 unknown `major` is `unsupported_version`, not legacy. A folder file with an unknown `major` has the
@@ -387,8 +392,10 @@ counts in `records`, and the reader uses no value of it. The TOML and journal ve
 the scope `full` only. SFF-714 has no case in version 2.0, because each field has minor 0. The
 first minor version that adds a field adds the vector. The Python and JS readers of this package
 read a file with `format_prerelease` > 0 and give it the file warning `prerelease` (SFF-891). Each
-file of each golden case has this warning. The only exception is the case `prerelease_0` of G10:
-no file of it has the warning. No other file of SPEC.md section 18 holds one of the three fields
+file of each golden case that holds `format_prerelease` has this warning. The only exception is the
+case `prerelease_0` of G10: no file of it has the warning. A file that does not hold
+`format_prerelease` does not have the warning (SPEC.md Appendix A,
+[ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 1). No other file of SPEC.md section 18 holds one of the three fields
 (external: freemocap, Blender addon).
 
 **SFT-704** Reader: the writer string and container versions do not change the result
@@ -691,7 +698,9 @@ ignored. `torn_bytes` is 0 for each pair of G1 and for each pair of `repaired` o
 
 **SFT-733** Writer: repair
 Checks: SFF-793, SFF-794, SFF-795, SFF-796, SFF-797, SFF-798
-Input: G5; G6; a start-up of skellycam and of freemocap with G5, one time with a user who agrees
+Input: G5; G6; a copy of `repaired` of G6, changed at test time, with the manifest of
+`interrupted_repair` and with no `# end` line in one sidecar (a repair that stopped in the `# end`
+pass); a start-up of skellycam and of freemocap with G5, one time with a user who agrees
 and one time with a user who does not agree.
 Pass: the program asks the user the question of SFF-793 before it repairs, also at start-up
 (external: user).
@@ -707,7 +716,8 @@ reader accepts the two files ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-
 The repair does each step of SFF-793 for the whole take before the next step: it cuts each media
 file, then cuts each sidecar, then appends the fit lines, the `# repair` lines and the `# end`
 lines in that order, each to each sidecar, then writes the manifest, while it holds `.processing.lock`
-([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3). In the manifest, `writer` is the writer string of the program that did the
+([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3,
+[ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 3). In the manifest, `writer` is the writer string of the program that did the
 repair, the summary has the values of the repaired files, and `warnings` has `camera_gap` for a
 repaired video sidecar with `gaps` more than 0, with the `source` of the program that did the repair
 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 5). No other member changes. A copy of G5 with no
@@ -716,7 +726,12 @@ is `recording`, and each sidecar is `unfinished`, with `fit` false and `missing_
 has fit lines and a `# repair` line.
 The repair line has `cut_bytes`, `media_cut_bytes` and `repair_writer`, in this order.
 The audio file is cut after its last complete fragment and is not remuxed. A repair of
-the interrupted repair gives the same files, except for `cut_bytes` and `media_cut_bytes`. The check
+the interrupted repair gives the same files, except for `cut_bytes` and `media_cut_bytes`. In the
+copy that stopped in the `# end` pass, the reader reports `unfinished` for the sidecar with no
+`# end` line and `repaired` for each other sidecar, and `state` of the manifest is `recording`. A
+repair of that copy gives the same files as the repair of G5, except for `cut_bytes` and
+`media_cut_bytes`
+([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 12). The check
 of the repaired camera
 file (its first n blocks are kept, SFF-795) is provisional: it waits for desk test DT-R1 (SFF-797). The checks
 of the sidecars and the audio file do not wait.
@@ -780,10 +795,13 @@ bytes. The motion-capture take holds a byte-identical copy, and its manifest has
 entry, and the copy of the old take does not change. After each kill, each TOML is complete.
 
 **SFT-740** Reader: finding and linking the calibration
-Checks: SFF-814, SFF-815
+Checks: SFF-814, SFF-815, SFF-889
 Input: G14; G9 (a calibration hash mismatch and a `calibration_uuid` mismatch); a take with a second
 TOML in its root; G7 (the copy with no manifest).
-Pass: the reader uses the TOML of the manifest and ignores the second TOML. A hash or ID mismatch is a
+Pass: the reader uses the TOML of the manifest and ignores the second TOML. The second TOML
+`second_camera_calibration.toml` has the `<rec>` of no take: it is in `other_files` as `invalid`
+with `take_fact_mismatch`, and the folder has `orphan_file`
+([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 13). A hash or ID mismatch is a
 `mismatch` of the links. The camera tables are linked by `camera_key`, in order of `index`. With no
 manifest, the reader uses `<rec>_camera_calibration.toml`.
 
@@ -867,8 +885,11 @@ gives the same values as for the Parquet of G3, and it does not give the reason 
 Checks: SFF-822, SFF-827, SFF-828, SFF-831
 Input: the Parquet of G3; the Parquet of G12 (the two rows with equal fitted times), committed as
 fixed bytes ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 5).
-Pass: every row rule of parts/parquet-descriptor.md holds. `frame_number` of each camera row is the
-position of its frame. The capture times equal the strict player times of the sidecars divided by
+Pass: every row rule of parts/parquet-descriptor.md holds on the Parquet of G3. The Parquet of G12
+declares no channel, so the test checks only the time rules on it: each row is a `TIMESTAMPS` row
+of `capture` with the component `timestamp_s`, and its value is its `timestamp_s`
+([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 3).
+`frame_number` of each camera row is the position of its frame. The capture times equal the strict player times of the sidecars divided by
 10^9: each is the float64 nearest to s / 10^9. The group time of each frame is the mean of the
 strict camera times, rounded half up to the nanosecond: m = ⌊(2 × S + n) / (2 × n)⌋ ns, and the
 group `timestamp_s` is the float64 nearest to m / 10^9 (SFF-828). The two frames of G12
@@ -1056,7 +1077,8 @@ in the take-level checks: the result has no `take_fact_mismatch` and no `summary
 Checks: SFF-720, SFF-824, SFF-872, SFF-873, SFF-874
 Input: G3; G9; G3 with one `camera_key` 0; G5; G6.
 Pass: G3 has each link `ok`. `links` holds each check one time, in the order of the table of
-SFF-872, with `detail` null. Each vector of G9 gives `mismatch` in its check, and the stale
+SFF-872, with `detail` null. Each vector of G9 other than `recording_id` gives `mismatch` in its
+check ([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 4), and the stale
 `parquet_sha256` gives `stale_processing_info`. The camera files with different numbers of rows give
 `mismatch` in `frames`. The row-count part of `frames` compares only the camera files with the
 state `finished`, when the take has two or more of them: for G5 and G6, the reader does not

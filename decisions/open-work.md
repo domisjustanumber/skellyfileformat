@@ -34,16 +34,20 @@ task. Delete an item when its work is done. The PR that closes an item records t
   them first). It changes one rule of [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md)
   and [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md), so the [Rules](README.md#rules) can need
   an entry that supersedes them.
-- **Points that the accepted details of 2026-11-16 leave open.** The user must decide each of them.
-  - The details of [ADR-158N](entries/158N-details-for-the-decisions-of-round-3.md) (proposed).
-    The spec holds them now.
-  - SFF-793: a repair that stops between two `# end` writes of step 3 leaves some sidecars
-    `repaired` and others `unfinished`.
-    [ADR-E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3 says "never half
-    repaired". No rule covers this short window. The manifest `state` stays `recording`.
-  - SFF-889: in a folder with a take, a folder file of this format that no manifest lists and whose
-    fixed name has no `<rec>` of a take has no state. The rule "with no take" applies only when the
-    folder has no take ([ADR-W5AK](entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 5).
+- **Points that the second review of the golden results leaves open.** The user must decide each
+  of them. The text corrections of
+  [ADR-783H](entries/783H-text-corrections-of-the-second-golden-review.md) (proposed) are in the
+  spec now.
+  - GAP-1 (SFF-869, SFF-885): does a pair with a refused sidecar count as a camera file (G10
+    `unknown_major_sidecar`, G11: yes)? Does the sidecar keep `camera_key` and `camera_label`?
+  - GAP-2 (SFF-800, SFF-887): a 2.0 capture info JSON with the forbidden member `rotation` in a
+    camera config: `present` with `rotation` `mismatch` (G9 `rotation_in_configs`), or `invalid`?
+  - GAP-3 (SFF-885, SFF-891): does an `invalid` file get `prerelease` (G9 `recording_id`, G11:
+    yes)? Is its `records` null (G11) or `[]`?
+  - GAP-6 (SFF-785, SFF-885): G6 keeps audio rows whose `fitted_ns` is past the usable length in
+    `records`, and `duration_s` 2.1 s for 0.99 s of audio. SFF-885 limits only camera `records`.
+  - GAP-7 (SFF-721, SFF-718): SFF-721 says that a reader lists no other subfolder, but the legacy
+    reads of G15 look into `SyncedVideos/`, `timestamps/` and `output_data/raw_data/`.
 - **Absorb the accepted entries into the spec.** The check of 2026-11-16 absorbed 16 entries. Each
   entry of this list stays Active: no absorb document states the rule of its line, or a later entry
   (in brackets) changed the rule and no entry supersedes the old text (the [Rules](README.md#rules)).
@@ -76,6 +80,8 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - [ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) items 6c and 8: "one part for each pair of files" ([ADR-0WTH](entries/0WTH-spec-v2-details-part-12.md) item 31); the fold
     "only after `state` is `finished`" ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2).
   - [ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md) item 14: the scope of the JavaScript reader ([ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 21).
+  - [ADR-E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3: "never half repaired"; [ADR-W5AK](entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 5:
+    "only when the folder has no take" ([ADR-158N](entries/158N-details-for-the-decisions-of-round-3.md) items 12 and 13).
 - **Provisional parts of spec draft v2.** Close each of them before v2.0.0:
   - SFF-752 (Q107, [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 11): the
     source and the text form of `port_path` and `os_device_id` on each OS are not

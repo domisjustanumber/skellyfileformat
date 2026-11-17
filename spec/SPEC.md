@@ -1030,9 +1030,11 @@ and a remembered camera that is not connected is a candidate. A remembered camer
 when its `vendor_id` and its `product_id` are equal to those of the connected camera and are not
 null. When one of these values is null, in either camera, a remembered camera is a candidate when
 its `model` is equal to that of the connected camera. The capture program never compares `os_name`
-([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 1). It
+([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 1,
+[ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 1). It
 asks if the device is that camera. The prompt shows the live preview of the connected camera, and
-`user_name`, `camera_label` and `model` of each candidate. When the user agrees, the camera keeps
+`user_name`, `camera_label` and `model` of each candidate
+([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 2). When the user agrees, the camera keeps
 the remembered `camera_key`. When two or more candidates fit, the user selects one of them, or says
 that it is a new camera.
 When freemocap runs and a calibration applies, freemocap first checks from the calibration where
@@ -1361,16 +1363,21 @@ when the user agrees
 A repair does each step for the whole take before the next step: (1) it cuts each media file;
 (2) it cuts each sidecar; (3) it appends the footer lines of SFF-795: first the fit lines to each
 sidecar, then the `# repair` line to each sidecar, then the `# end` line to each sidecar; (4) it
-writes the manifest. So an interrupted repair leaves the whole take unfinished, not half repaired. The case
-`interrupted_repair` of G6 holds this state (SFF-798,
-[ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3). After
+writes the manifest
+([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3,
+[ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 3). An
+interrupted repair leaves the manifest in the state `recording`. A repair that stops in step 3 can
+leave some sidecars `repaired` and the others `unfinished`. The program asks the question again,
+and a new repair finishes the rest (SFF-798,
+[ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 12). The case
+`interrupted_repair` of G6 stopped in the `# repair` pass of step 3: each of its sidecars is
+`unfinished`. After
 the manifest, freemocap folds a left-over journal (SFF-844). So the fold uses the fit of the
 repaired sidecars. In step 4, the program that did the repair writes the manifest while it
 holds `.processing.lock` (SFF-789). It sets `state` to `finished` and `writer` to its writer
 string. It computes the summary again (SFF-728). It adds the warning `camera_gap` for a repaired
 video sidecar with `gaps` more than 0. The `source` of that warning is the program that did the
-repair: `skellycam` or `freemocap` ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 5). It changes no other member. A repair that stops before its
-end leaves `state` `recording`. When the take has no manifest that a reader uses (SFF-867), the
+repair: `skellycam` or `freemocap` ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 5). It changes no other member. When the take has no manifest that a reader uses (SFF-867), the
 repair writes no manifest
 ([ADR-YYE3](../decisions/entries/YYE3-spec-v2-details-part-11.md) item 26a).
 
@@ -1410,9 +1417,12 @@ camera file keeps its first n blocks (SFF-795). Each of them is a complete block
 after block n − 1, changes no byte before its cut and appends nothing (SFF-794,
 [ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 1).
 
-**SFF-798** (writer) A repair that stops before its end leaves an unfinished file. A new
-repair starts again from the same cut and gives the same result, except for `cut_bytes` and
-`media_cut_bytes`. A reader reports a sidecar of an interrupted repair as `unfinished`, with `fit`
+**SFF-798** (writer) A repair that stops before its end leaves the manifest in the state
+`recording`, and it can leave unfinished files. When it stops in step 3 of SFF-793, some sidecars can be
+`repaired` and the others `unfinished`
+([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 12). A new
+repair starts again from the same cut, finishes the rest and gives the same result, except for
+`cut_bytes` and `media_cut_bytes`. A reader reports a sidecar of an interrupted repair as `unfinished`, with `fit`
 false and the warning `missing_fit`, also when the sidecar has fit lines (SFF-747).
 
 **SFF-799** (reader) A reader never creates, moves, renames or changes a file of the take
@@ -1780,7 +1790,9 @@ the fold takes from the timing sidecars (SFF-844)
 items 1 and 6). The latency of a result is `processed_ns` of its journal
 record minus the group time of the frame (SFF-828). `p50` and `p99` are nearest-rank percentiles.
 `events` is an array of the event objects of the journal that name this stage, in journal order
-([ADR-W6HV](../decisions/entries/W6HV-spec-v2-details-part-3.md)). A posthoc run has `origin` =
+([ADR-W6HV](../decisions/entries/W6HV-spec-v2-details-part-3.md)). So `events` of the stage
+`timing` holds the events that name `timing`
+([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 9). A posthoc run has `origin` =
 `posthoc` and `coverage` null. A skipped frame of a realtime run has `x`, `y` and `visibility` all
 null. A realtime run has no checkpoints. The values of `coverage`, for one sensor group and stage,
 are these ([ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item 38c,
@@ -1788,11 +1800,14 @@ are these ([ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item
 [ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)):
 
 - `frames_in_take` is `sample_count` of the sensor group.
-- `frames_processed` is the number of frames with one or more data records of a channel of the
-  group and stage.
+- `frames_processed` is the number of frames with one or more good data records (SFF-843) of a
+  channel of the group and stage
+  ([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 2).
 - For the stage `timing`, `frames_processed` is the number of frames with one or more good data
   records (SFF-843) of any channel of the group: the frames that the realtime pipeline handled. A
-  channel of the group is a channel that the journal header declares with that `sensor_group`. Each
+  channel of the group is a channel that the journal header declares with that `sensor_group`. A
+  rejected record and a cut record are not good
+  ([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 7). Each
   frame has a time. This count is about the realtime pipeline, not about the `TIMESTAMPS` rows.
 - `skips` is `{"no_record": frames_in_take − frames_processed}`: the journal holds no reason.
 - `journal_crc_rejects` is `rejected_records` of the journal at the time of the fold (SFF-843). It
@@ -1801,7 +1816,9 @@ are these ([ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item
 - The latency of a data record that counts in SFF-845 is `processed_ns` − m, where m is the group
   time of SFF-828 in nanoseconds, from the times of the frames at the time of the fold (SFF-844).
   For the stage `timing`, there is one latency for each frame of `frames_processed`: the lowest
-  latency of the records of that frame, of all channels of the group, that count in SFF-845. For k
+  latency of the records of that frame, of all channels of the group, that count in SFF-845: for
+  one channel and frame, only the last record in file order
+  ([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 8). For k
   latencies in increasing order, `p50` is latency ⌈0.5 × k⌉
   and `p99` is latency ⌈0.99 × k⌉, counted from 1, each as the float64 nearest to ns / 10^6. Each
   is null when k is 0. A later rewrite of the times (SFF-833) does not change `latency_ms`
@@ -2121,7 +2138,8 @@ is the path of the sidecar: `other_files` lists files that exist
 ([ADR-0WTH](../decisions/entries/0WTH-spec-v2-details-part-12.md) item 33). A timing sidecar
 alone whose `take_uuid` the reader cannot read is in `other_files`, with the state `invalid` and
 the reason of SFF-748: `missing_metadata` when the header has no `take_uuid`, else `bad_metadata`
-([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 5). For
+([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 5,
+[ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 4). For
 each of these files, the reader gives the folder warning `orphan_file`
 ([ADR-Q4BK](../decisions/entries/Q4BK-spec-v2-details-part-4.md)).
 
@@ -2476,8 +2494,11 @@ take: the take whose manifest lists it, or the take whose `<rec>` its fixed name
 that holds another `take_uuid` than its take stays in the `folder_files` of its take, with the state
 `present`. The link check `take_uuid` is then `mismatch` (SFF-872)
 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 4,
-[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 5). Other files are in `other_files`. When the folder has no take, a folder file of this format is in
-`other_files` with the state `invalid` and the reason `take_fact_mismatch`. Each file of this format
+[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 5). Other files are in `other_files`. A folder file of this format that has no take is in
+`other_files` with the state `invalid` and the reason `take_fact_mismatch`: in a folder with no
+take, and in a folder with a take when no manifest lists the file and its name has the `<rec>`
+of no take
+([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 13). Each file of this format
 that is alone gives the folder warning `orphan_file` (SFF-865)
 ([ADR-Q4BK](../decisions/entries/Q4BK-spec-v2-details-part-4.md)). The manifest is never in
 `folder_files`: SFF-867 gives its place.
