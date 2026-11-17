@@ -824,7 +824,8 @@ tests these exact names in the root: `<rec>_info.json`, `<rec>_recording_info.js
 ([ADR-0XX2](../decisions/entries/0XX2-spec-v2-details-part-5.md)). The `role` of each file that it
 finds comes from its fixed name: `capture_info`, `processing_info`, `calibration`, `tracking`,
 `realtime_journal` and `blend`, in the order of the names above
-([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 5). The scan does not
+([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 5,
+[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 4). The scan does not
 find the files of the other subfolders (SFF-721). Each rebuild gives the take
 warning `manifest_missing`, also when the take member `manifest` is `invalid` (SFF-867). The
 reader does not write a manifest.
@@ -1025,10 +1026,15 @@ capture program gives the camera an assigned key (form 4), with `key_origin` `as
 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 10).
 
 The capture program asks the user in this case: a connected camera matches no remembered camera,
-and its vendor ID and its model name from the operating system are equal to those of a remembered
-camera that is not connected. It asks if the device is that camera. When the user agrees, the
-camera keeps the remembered `camera_key`. When two or more remembered cameras fit, the user selects
-one from a list of them (by `user_name` and `camera_label`), or says that it is a new camera.
+and a remembered camera that is not connected is a candidate. A remembered camera is a candidate
+when its `vendor_id` and its `product_id` are equal to those of the connected camera and are not
+null. When one of these values is null, in either camera, a remembered camera is a candidate when
+its `model` is equal to that of the connected camera. The capture program never compares `os_name`
+([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 1). It
+asks if the device is that camera. The prompt shows the live preview of the connected camera, and
+`user_name`, `camera_label` and `model` of each candidate. When the user agrees, the camera keeps
+the remembered `camera_key`. When two or more candidates fit, the user selects one of them, or says
+that it is a new camera.
 When freemocap runs and a calibration applies, freemocap first checks from the calibration where
 the cameras are. Then it asks, with the most likely cameras first. skellycam alone does not make
 this check: it asks with no suggestion
@@ -1045,6 +1051,8 @@ The known placeholders, compared in lower case, are `0`, `00`, `000`, `0000`, `0
 `12345678`, `123456`, `0123456789abcdef`, `sn0001`, `sn12345678`, `none`, `null`, `default`,
 `serial`, `unknown`, `n/a`, `na`, `123` and `200901010001`. This list does not change in major
 version 2 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 9).
+When `device.serial` is not null and the writer does not use it for the key, the file records no
+reason ([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 4).
 
 (provisional: the identifier tests on Windows, Linux and macOS) The source of `port_path` is:
 on Windows, `DEVPKEY_Device_LocationPaths[0]`; on Linux, the PCI address of the controller, the USB
@@ -1061,7 +1069,9 @@ is multi-camera frame k. The finished camera files of one take have the same num
 ([ADR-W6HV](../decisions/entries/W6HV-spec-v2-details-part-3.md)). A camera file has at most 2^31
 frames. When the camera files that a reader reads have different numbers of usable frames
 (SFF-740), the multi-camera frames are the frames from 0 to the smallest number of usable frames
-minus 1. For a finished or a repaired camera file, the number of usable frames is `rows` (SFF-885).
+minus 1. For a finished or a repaired camera file, the number of usable frames is `rows` (SFF-885):
+each row of a repaired camera file is a usable frame
+([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 3).
 For an unfinished camera file, it counts only the usable rows that have a complete block
 ([ADR-0WTH](../decisions/entries/0WTH-spec-v2-details-part-12.md) item 32,
 [ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2).
@@ -1093,9 +1103,11 @@ rows with the `gap` flag, `filled` the number with the `filled` flag, and `encod
 of rows with the `encode_skip` flag. A repair computes each count from the rows
 ([ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)).
 
-**SFF-759** (reader) The number of rows of a finished video sidecar is the number of blocks of its
-camera file. On a mismatch, a reader refuses the pair (state `invalid`, reason `bad_metadata`).
-After a repair, the two numbers are also equal (SFF-795, [ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 1).
+**SFF-759** (reader) The number of rows of a finished or a repaired video sidecar is the number of
+blocks of its camera file. On a mismatch, a reader refuses the pair (state `invalid`, reason
+`bad_metadata`). A repair makes the two numbers equal (SFF-795,
+[ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 1,
+[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 10).
 
 ## 9. Audio file
 
@@ -1346,9 +1358,14 @@ is left over in a take whose manifest already has `state` `finished`. It folds t
 when the user agrees
 ([ADR-1HH0](../decisions/entries/1HH0-lock-startup-repair-and-reader-model-check.md),
 [ADR-JB3A](../decisions/entries/JB3A-repair-state-question-and-skellycam-lock.md)).
-The order of a repair is: the media files and their sidecars, then the manifest, then the fold of a
-left-over journal (SFF-844). So the fold uses the fit of the repaired sidecars. When the repair of
-the media files and the sidecars ends, the program that did the repair writes the manifest while it
+A repair does each step for the whole take before the next step: (1) it cuts each media file;
+(2) it cuts each sidecar; (3) it appends the footer lines of SFF-795: first the fit lines to each
+sidecar, then the `# repair` line to each sidecar, then the `# end` line to each sidecar; (4) it
+writes the manifest. So an interrupted repair leaves the whole take unfinished, not half repaired. The case
+`interrupted_repair` of G6 holds this state (SFF-798,
+[ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3). After
+the manifest, freemocap folds a left-over journal (SFF-844). So the fold uses the fit of the
+repaired sidecars. In step 4, the program that did the repair writes the manifest while it
 holds `.processing.lock` (SFF-789). It sets `state` to `finished` and `writer` to its writer
 string. It computes the summary again (SFF-728). It adds the warning `camera_gap` for a repaired
 video sidecar with `gaps` more than 0. The `source` of that warning is the program that did the
@@ -1362,7 +1379,8 @@ device pair after the last record that it keeps (SFF-795 to SFF-797). Then it ap
 lines of SFF-795 to the sidecar. It appends nothing to the media file. A repaired camera file has no
 normal end: the repair writes no Cues and does not write the SeekHead again. A repaired audio file
 has no `mfra` box. These writes would change bytes before the cut. A reader accepts a repaired
-camera file with no normal end, and reads it as SFF-740 gives for an unfinished camera file. A
+camera file with no normal end, and reads it as SFF-740 gives for an unfinished camera file: with no index and no normal end
+([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 1). A
 reader accepts a repaired audio file with no `mfra` box ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 3).
 
 **SFF-795** (writer) The repair of a timing sidecar cuts the sidecar at its first bad row: a row
@@ -1372,7 +1390,8 @@ it keeps the first n rows of a video sidecar and the first n blocks of its camer
 n is the smaller of two numbers: the number of rows before the first bad row (each row, when no row
 is bad), and the number of complete blocks.
 A repaired video sidecar has as many rows as its camera file has blocks (SFF-759)
-([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1 and 4). The repair computes the fit from the kept rows and appends the fit lines, the line
+([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1 and 4,
+[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 2). The repair computes the fit from the kept rows and appends the fit lines, the line
 `# repair cut_bytes=<n> media_cut_bytes=<m> repair_writer=<writer string>`, and the `# end` line.
 `cut_bytes` is for the sidecar, and `media_cut_bytes` is for the media file. `repair_writer` is the
 last key of the line (SFF-745). A reader reports a sidecar as `repaired` only when it has a
@@ -1421,7 +1440,7 @@ A camera config has these members:
 | `camera_label` | The label (a link for people; `camera_key` is the link key) |
 | `user_name` | The name that the user gave the camera: null, or a text of 1 to 128 bytes of UTF-8 with no control character |
 | `key_origin` | The origin of `camera_key` (SFF-752): `"computed"` (the key is the hash of form 1, 2 or 3, built from the `device` values of this file), `"confirmed_by_user"` (a remembered key that the camera has because the user confirmed the camera, in this session or an earlier one) or `"assigned"` (form 4, made in this session, confirmed by nobody). null when `camera_key` is 0. |
-| `device` | `model` (the model text of the device), `os_name` (the device name of the OS), `vendor_id` and `product_id` (4 lowercase hexadecimal characters, or null), `serial` (or null), `port_path` (or null), `os_device_id` (a text, or null: the persistent identifier of the OS, SFF-752), `backend` (for example `media_foundation`, `v4l2`, `avfoundation`) and `os_index` (the OS index at capture, or null) |
+| `device` | `model` (the product text that the camera reports about itself: the USB product string), `os_name` (the name that the capture API lists for the camera) ([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 2), `vendor_id` and `product_id` (4 lowercase hexadecimal characters, or null), `serial` (or null), `port_path` (or null), `os_device_id` (a text, or null: the persistent identifier of the OS, SFF-752), `backend` (for example `media_foundation`, `v4l2`, `avfoundation`) and `os_index` (the OS index at capture, or null) |
 | `requested` | `width`, `height` and `framerate` (a number, or `"camera_default"`), `capture_format` (`MJPG` or `YUYV`) and `exposure_mode` (`auto`, `manual` or `recommend`) |
 | `controls` | An object of the control values that the writer read back at the take start. Each key is a control name with its unit (SFF-802). Each value is `{"value": <number or null>, "auto": <true, false or null>}`. A writer MUST write the keys in the order of the list of SFF-802 ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) item 4). |
 | `exposure_step` | The result of the exposure step, or null: `selected_exposure_us`, `method` and `samples` (an array of `{exposure_us, mean_luma}`) |
@@ -1447,7 +1466,8 @@ device has. It writes null for a value that it could not read.
 
 **SFF-803** (reader) A reader links a camera config to its camera only by its key (`camera_key`).
 A reader checks only that `key_origin` is one of its three values, or null when `camera_key` is 0.
-Another value makes the capture info JSON `invalid`, with the reason `bad_schema`. A reader never
+Another value makes the capture info JSON `invalid`, with the reason `bad_schema`
+([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 7). A reader never
 computes a key again from the `device` values ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 9).
 
 ## 14. Processing info JSON
@@ -1745,33 +1765,52 @@ the times of a realtime run: `timestamp_s` of its rows and the values of its `TI
 does this when it next opens the take and finds that a timing sidecar has a `# repair` line and a
 fit that the run did not use. It changes nothing else of a realtime run
 ([ADR-E45D](../decisions/entries/E45D-spec-draft-v2-corrections-after-review.md),
-[ADR-72QQ](../decisions/entries/72QQ-spec-v2-details-part-8.md)).
+[ADR-72QQ](../decisions/entries/72QQ-spec-v2-details-part-8.md)). So `latency_ms` of each
+`coverage` keeps the value of the fold (SFF-834)
+([ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)
+item 7).
 
 **SFF-834** (writer) A run from the realtime journal (section 17) has, in the stage provenance
 of each sensor group, `origin` = `realtime` and a `coverage` object: `frames_in_take`,
 `frames_processed`, `skips` (an object of counts by reason), `journal_crc_rejects`, `clean_close`,
-`latency_ms` (`p50`, `p99`) and `events`. The latency of a result is `processed_ns` of its journal
+`latency_ms` (`p50`, `p99`) and `events`. `origin` = `realtime` means that the run was folded from
+the journal. Each stage of such a run has `origin` = `realtime`, also the stage `timing`, whose rows
+the fold takes from the timing sidecars (SFF-844)
+([ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)
+items 1 and 6). The latency of a result is `processed_ns` of its journal
 record minus the group time of the frame (SFF-828). `p50` and `p99` are nearest-rank percentiles.
 `events` is an array of the event objects of the journal that name this stage, in journal order
 ([ADR-W6HV](../decisions/entries/W6HV-spec-v2-details-part-3.md)). A posthoc run has `origin` =
 `posthoc` and `coverage` null. A skipped frame of a realtime run has `x`, `y` and `visibility` all
 null. A realtime run has no checkpoints. The values of `coverage`, for one sensor group and stage,
 are these ([ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item 38c,
-[ADR-N6KY](../decisions/entries/N6KY-spec-v2-details-part-14.md) item 42):
+[ADR-N6KY](../decisions/entries/N6KY-spec-v2-details-part-14.md) item 42; for the stage `timing`,
+[ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)):
 
 - `frames_in_take` is `sample_count` of the sensor group.
 - `frames_processed` is the number of frames with one or more data records of a channel of the
   group and stage.
+- For the stage `timing`, `frames_processed` is the number of frames with one or more good data
+  records (SFF-843) of any channel of the group: the frames that the realtime pipeline handled. A
+  channel of the group is a channel that the journal header declares with that `sensor_group`. Each
+  frame has a time. This count is about the realtime pipeline, not about the `TIMESTAMPS` rows.
 - `skips` is `{"no_record": frames_in_take − frames_processed}`: the journal holds no reason.
 - `journal_crc_rejects` is `rejected_records` of the journal at the time of the fold (SFF-843). It
   also counts a record with a wrong `length`.
 - `clean_close` is true when the journal has a good end record.
 - The latency of a data record that counts in SFF-845 is `processed_ns` − m, where m is the group
-  time of SFF-828 in nanoseconds. For k latencies in increasing order, `p50` is latency ⌈0.5 × k⌉
+  time of SFF-828 in nanoseconds, from the times of the frames at the time of the fold (SFF-844).
+  For the stage `timing`, there is one latency for each frame of `frames_processed`: the lowest
+  latency of the records of that frame, of all channels of the group, that count in SFF-845. For k
+  latencies in increasing order, `p50` is latency ⌈0.5 × k⌉
   and `p99` is latency ⌈0.99 × k⌉, counted from 1, each as the float64 nearest to ns / 10^6. Each
-  is null when k is 0.
+  is null when k is 0. A later rewrite of the times (SFF-833) does not change `latency_ms`
+  ([ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)
+  item 7).
 - An event has `time_ns` (an integer JSON number: the host-clock time of the change, relative to
   the take start), `stage` (a processing stage), `parameter` (a text) and `value` (a JSON value).
+  The `stage` of an event is `timing` or the `stage` of a channel that the journal header declares.
+  The fold fails on each other event (SFF-844).
 
 **SFF-835** (reader) A reader gives the take warning `realtime_run` one time when a run has a stage
 provenance with `origin` = `realtime`. The reader result holds only the code. The text "Realtime
@@ -1820,7 +1859,7 @@ Record types:
 |---|---|---|
 | 1 | header | UTF-8 JSON (SFF-702): `skellyfileformat` (`"realtime_journal"`), `format_version`, `format_prerelease`, `writer`, `take_uuid`, `origin` (`"realtime"`) and `channels`: an array of channel declarations, each with `channel_index` and the members of a Parquet channel (section 16) |
 | 2 | data | `channel_index` (`u16`), `frame_number` (`i32`, the Parquet `frame_number` of SFF-827), `processed_ns` (`i64`, the host-clock time at which the pipeline finished the result, relative to the take start), `n` (`u32`, the number of names), `k` (`u32`, the number of components), then n × k `f32` values in name order, then component order |
-| 3 | event | UTF-8 JSON: a parameter change, with `time_ns`, `stage`, `parameter` and `value` (SFF-834) |
+| 3 | event | UTF-8 JSON: a parameter change, with `time_ns`, `stage`, `parameter` and `value` (SFF-834). `stage` is `timing` or the `stage` of a channel of the header (SFF-844) |
 | 4 | end | UTF-8 JSON: `data_records` (the number of data records that the writer wrote) and `clean_close` (`true`) |
 
 **SFF-839** (writer) The first record of a journal is the header record. A writer writes the
@@ -1882,11 +1921,16 @@ with `origin` = `realtime` and its coverage block (section 16). freemocap starts
 journal as part of a repair that the user agreed to (SFF-793,
 [ADR-1HH0](../decisions/entries/1HH0-lock-startup-repair-and-reader-model-check.md)).
 The fold writes each event record into
-`coverage.events` of the stage that the event names, for each sensor group (SFF-834). The fold takes
+`coverage.events` of the stage that the event names, for each sensor group that has a stage
+provenance of that stage (SFF-834). The fold fails when an event names a stage that is not `timing`
+and not the `stage` of a channel of the header. Then freemocap keeps the journal (SFF-845)
+([ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)
+item 5). The fold takes
 `timestamp_s` of each
 row and the value of each `TIMESTAMPS` row from the timing sidecars of the take (SFF-828), not from
 the journal. The fold uses the player times that the sidecars give at the time of the fold. For a
-sidecar with no fit, for example after a crash, that time is the arrival time (SFF-781). A later
+sidecar with no fit, for example after a crash, that time is the arrival time (SFF-781). The
+latency of `coverage` also uses these times (SFF-834). A later
 repair adds a fit to the sidecar, and freemocap then rewrites the times of the run (SFF-833).
 
 **SFF-845** (writer) freemocap deletes the journal only after it has read the new Parquet run
@@ -2074,8 +2118,11 @@ with a `take_uuid` that the reader can read, is in the `files` of its take when 
 `missing_media`. It does not count as a camera file or an audio file in SFF-869. When no such take
 exists, the item is in `other_files`, with the same state and reason. In `other_files`, its `name`
 is the path of the sidecar: `other_files` lists files that exist
-([ADR-0WTH](../decisions/entries/0WTH-spec-v2-details-part-12.md) item 33). For each of these
-files, the reader gives the folder warning `orphan_file`
+([ADR-0WTH](../decisions/entries/0WTH-spec-v2-details-part-12.md) item 33). A timing sidecar
+alone whose `take_uuid` the reader cannot read is in `other_files`, with the state `invalid` and
+the reason of SFF-748: `missing_metadata` when the header has no `take_uuid`, else `bad_metadata`
+([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 5). For
+each of these files, the reader gives the folder warning `orphan_file`
 ([ADR-Q4BK](../decisions/entries/Q4BK-spec-v2-details-part-4.md)).
 
 **SFF-866** (reader) A reader groups the device pairs by `take_uuid`. A take exists for each
@@ -2425,9 +2472,11 @@ this format is `unreadable` in the two scopes (SFF-892, [ADR-XR63](../decisions/
 
 **SFF-889** (reader) A file of this format (SFF-875) whose `take_uuid` a reader can read is in
 the `files` of its take, also when it is `invalid`. A folder file is in the `folder_files` of its
-take. A folder file that holds another `take_uuid` than its take is in the `folder_files` of its
-take, with the state `present`. The link check `take_uuid` is then `mismatch` (SFF-872)
-([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 4). Other files are in `other_files`. A folder file of this format with no take is in
+take: the take whose manifest lists it, or the take whose `<rec>` its fixed name has. A folder file
+that holds another `take_uuid` than its take stays in the `folder_files` of its take, with the state
+`present`. The link check `take_uuid` is then `mismatch` (SFF-872)
+([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 4,
+[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 5). Other files are in `other_files`. When the folder has no take, a folder file of this format is in
 `other_files` with the state `invalid` and the reason `take_fact_mismatch`. Each file of this format
 that is alone gives the folder warning `orphan_file` (SFF-865)
 ([ADR-Q4BK](../decisions/entries/Q4BK-spec-v2-details-part-4.md)). The manifest is never in
@@ -2444,7 +2493,8 @@ same way. Another reader MAY refuse it as
 `unsupported_version`
 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 8). A file with
 the state `unsupported_version` also gets the warning `prerelease` when the reader can read its
-`format_prerelease` and the value is above 0 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 7). The manifest is not an item of the result (SFF-889), so its
+`format_prerelease` and the value is above 0 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 7,
+[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 6). The manifest is not an item of the result (SFF-889), so its
 `format_prerelease` gives no warning: each other file of the take has the warning
 ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 3).
 
@@ -2468,8 +2518,11 @@ of a folder is the `full` result of that folder with only these changes:
   device pair. A TOML, a Parquet or a journal that is in no `folder_files` list is `not_in_format`
   in `other_files`, with no `orphan_file`. The only exception is `folder_state`: when the folder
   has no take, the reader also looks for the mark of SFF-875 in each TOML, Parquet and journal of
-  the root. It reads only the part of the file that holds the mark. So a folder that holds only
-  one of these files of this format is `unreadable`, as for the scope `full` (SFF-888).
+  the root. It reads only the part of the file that holds the mark: the `[metadata]` table of a
+  TOML, the key-value metadata of a Parquet footer and the header of a journal
+  ([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 8). So a
+  folder that holds only one of these files of this format is `unreadable`, as for the scope
+  `full` (SFF-888).
 - `legacy`: `family` and `calibration` do not change. For `v1`, the reader reads no era signal. It
   reports as when no row matches (SFF-878): `release_range` `["v1.0.25","v1.8.2"]`, `ambiguous`
   true, `eras` `[]` and the four warnings of SFF-879.
@@ -2485,8 +2538,10 @@ the scope `player` and the JavaScript reader give the same bytes for the same fo
 **SFF-893** (reader) This requirement belongs to section 16. The reader of this package checks the
 structure of each `RecordedModel` of the descriptor and of its nested types, as
 parts/parquet-descriptor.md section "Structure rules and writer rules" gives it: each member is
-present, except a member that its row lets the writer omit; each member has its JSON type; and a
-closed type has no other member. For this check, an "integer" is a JSON number with no fraction in
+present, except a member that its row lets the writer omit and a member whose row gives a default;
+a member that its row lets the writer omit when null can also be null
+([ADR-H2HQ](../decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 2);
+each member has its JSON type; and a closed type has no other member. For this check, an "integer" is a JSON number with no fraction in
 its value (`1` and `1.0` pass), a "float" is each JSON number, and a text is a JSON string
 ([ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item 39). A structure fault makes the `folder_files` item of the Parquet
 `invalid`, with the reason `bad_schema`. In version 2.0, the reader does not check a writer rule of
@@ -2511,8 +2566,8 @@ in the case `confirmed_key` of G1
 | G2 | G1 with stereo audio | 9, 10 |
 | G3 | A processed take: G1 plus the processing info JSON, a calibration TOML and a Parquet with 2D and 3D. Camera 1 has `display_rotation` 90, the input of SFT-749 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 3). It holds no export: no file in `exports/` and no manifest item with the role `export`. The Parquet has a model with connection pairs and a model with no connection pair | 14 to 16 |
 | G4 | A rotated camera: `display_rotation` 0, 90, 180 and 270, with coloured corner markers and the expected upright corner colours | 6, 8 |
-| G5 | A crashed take: unfinished camera files and sidecars (a clean cut, a torn row of 37 bytes, a row with a wrong CRC), an unfinished audio file (a clean kill and a torn fragment), a `.tmp` manifest and the old manifest | 12 |
-| G6 | G5 after repair, and G5 with an interrupted repair | 12 |
+| G5 | A crashed take: unfinished camera files and sidecars (a clean cut, a torn row of 37 bytes, a row with a wrong CRC), an unfinished audio file (a clean kill and a torn fragment), a `.tmp` manifest and the old manifest. Besides the device pairs, each case holds the manifest and the capture info JSON, and no Parquet and no TOML ([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 6) | 12 |
+| G6 | G5 after repair, and G5 with an interrupted repair. Besides the device pairs, each case holds the manifest and the capture info JSON, and no Parquet and no TOML | 12 |
 | G7 | Two copies of G3: one with its manifest deleted, and one whose manifest has another `take_uuid` | 5, 20 |
 | G8 | A renamed take folder: a copy of G3 in a folder with another name | 4, 16, 20 |
 | G9 | Mismatch vectors: `take_uuid`, `camera_key`, a Parquet frame range, finished camera files with different numbers of rows, image dimensions, a rotation in `camera_configs`, an unresolved file name, a stale `parquet_sha256`, a calibration hash, a `calibration_uuid`, a Parquet with a wrong `recording_id` | 16, 20 |

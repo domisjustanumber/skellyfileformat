@@ -87,7 +87,12 @@ be rules of the format: the user must decide ([open-work.md](../decisions/open-w
     info JSON has `["prerelease"]`. Alternative: a take warning. Confirmed: SFF-891 now states it
     ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 3).
 21. The open point "Does a reader check `key_origin`?" applies to `confirmed_key`. Choice: the
-    reader does not check it, so the check `camera_key` is `ok` in the two cases.
+    reader does not compute the key from the `device` values, so the check `camera_key` is `ok` in
+    the two cases. Decision
+    ([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 7): a `key_origin` outside the
+    three values makes the capture info JSON `invalid` with `bad_schema`, and null is allowed only
+    when `camera_key` is 0. Each value of G1 is one of the three values, so the results do not
+    change.
 22. SFF-872 does not say in words if the row-count part of `frames` alone makes the check `ok`
     when the take has no Parquet. Choice: yes. So `frames` is `ok` for the scope `full` and
     `not_checked` for the scope `player`, and this is the only difference between the two

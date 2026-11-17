@@ -178,6 +178,13 @@ def test_sft_733_repair(writer, reader, golden_or_skip, variant, vector):
         replaced = max(i for i, event in enumerate(events) if event == ("replace", c.MANIFEST))
         written = [i for i, (_, path) in enumerate(events) if path.startswith(c.MEDIA + "/")]
         assert written and all(i < replaced for i in written), "the repair calls the trace for its media files and sidecars, before the manifest"
+        # The repair cuts every media file before it writes a sidecar (ADR-E68K item 3).
+        # The trace does not show a cut and an append of a sidecar as two kinds, so the order of
+        # steps 2 and 3 is checked only on G6 `interrupted_repair` (test_sft_733_check_on_golden).
+        changes = [(i, path) for i, (event, path) in enumerate(events) if path.startswith(c.MEDIA + "/") and event not in ("read", "fsync")]
+        media = [i for i, path in changes if not path.endswith(".csv")]
+        sidecars = [i for i, path in changes if path.endswith(".csv")]
+        assert media and sidecars and max(media) < min(sidecars), "each media file is cut before the first write to a sidecar"
     elif vector == "no_manifest":
         folder = variant("G05", "audio_torn_fragment")
         (folder / c.MANIFEST).unlink()
@@ -208,6 +215,13 @@ def test_sft_733_check_on_golden(golden_or_skip):
     for path in c.media_files(interrupted, ".csv"):
         assert not c.read_sidecar(path).finished, "each sidecar of the interrupted repair has no `# end` line last"
     assert any(b"# repair " in path.read_bytes() for path in c.media_files(interrupted, ".csv"))
+    # A repair cuts every media file, then every sidecar, then writes the footer lines (ADR-E68K
+    # item 3). The repair stopped in the footer lines, so each cut is done.
+    for path in c.media_files(interrupted, ".mkv") + c.media_files(interrupted, ".m4a"):
+        assert path.read_bytes() == (repaired / c.MEDIA / path.name).read_bytes(), f"{path.name} is cut"
+    for path in c.media_files(interrupted, ".csv"):
+        cut, done = c.read_sidecar(path), c.read_sidecar(repaired / c.MEDIA / path.name)
+        assert cut.data[: cut.rows_end] == done.data[: done.rows_end], f"{path.name} is cut"
 
 
 @pytest.mark.provisional("desk test DT-R1 (SFF-797)")

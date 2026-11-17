@@ -203,13 +203,23 @@ def _number_forms(model):
     model["skeleton"]["landmarks"][0]["position"][0] = 0  # `0` for a value of a `position`
 
 
+def _default_and_null(model):
+    # ADR-H2HQ item 2: a reader accepts these two, a writer does not write them.
+    del model["anchor_segment_name"]  # its row gives a default
+    model["skeleton"]["segments"][0]["observation_frame"] = None  # its row says "omitted when null"
+
+
 @pytest.mark.parametrize(
     ("change", "state", "reason"),
     [
         (_missing_member, "invalid", "bad_schema"), (_wrong_type, "invalid", "bad_schema"),
         (_unknown_member, "invalid", "bad_schema"), (_writer_rule, "present", None), (_number_forms, "present", None),
+        (_default_and_null, "present", None),
     ],
-    ids=["missing_member", "wrong_json_type", "unknown_member", "writer_rule_only", "integer_1.0_and_position_0"],
+    ids=[
+        "missing_member", "wrong_json_type", "unknown_member", "writer_rule_only", "integer_1.0_and_position_0",
+        "default_absent_and_omitted_null",
+    ],
 )  # fmt: skip
 def test_sft_770_structure_of_a_model(reader, variant, golden_or_skip, change, state, reason):
     """SFT-770 Reader: the structure of a model in the descriptor. Checks: SFF-893. A test of the scope `full` only."""
@@ -223,7 +233,7 @@ def test_sft_770_structure_of_a_model(reader, variant, golden_or_skip, change, s
     parquet = checks.rewrite_parquet(folder, change_model)
     after = checks.descriptor(parquet)
     assert after != before or change is _number_forms, "the copy has a changed descriptor"
-    faults = checks.descriptor_structure_faults(after)
+    faults = checks.descriptor_structure_faults(after, reader=True)
     assert bool(faults) == (state == "invalid"), "the copy has the structure fault that the test wants, and no other"
     item = checks.folder_file(checks.the_take(checks.read(reader, folder)), "_data.parquet")
     assert (item["state"], item["reason"]) == (state, reason)

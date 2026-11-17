@@ -71,10 +71,11 @@ def build(out: Path) -> None:
     capture_cases.write_files(out / "repaired", files)
     capture_cases.write_results(out, "repaired", capture_cases.take_facts(g05.TAKE, items), truth=truth([{}] * 4))
 
-    # `interrupted_repair`: the repair cut each file and wrote the fit lines of each sidecar. It stopped
-    # in the write of the `# repair` line of camera 2. It wrote no `# end` line and no manifest.
-    # OPEN: the user decided on 2026-11-16 that a repair finishes one pair before the next. That order
-    # cannot leave each sidecar `unfinished` (Appendix A). CAPTURE_VECTORS_CHOICES.md item 6 keeps this case.
+    # `interrupted_repair`: a repair does each step for the whole take before the next step: it cuts every
+    # media file, then every sidecar, then writes the footer lines of every sidecar, then the manifest
+    # (ADR-E68K item 3). This repair cut each file and wrote the fit lines of
+    # each sidecar. It stopped in the write of the `# repair` line of camera 2. It wrote no `# end` line
+    # and no manifest, so each sidecar is `unfinished` (CAPTURE_VECTORS_CHOICES.md item 6).
     files = dict(crashed["files"])
     tails = [r["repair_line"] for r in repairs[:2]] + [repairs[2]["repair_line"][:TORN_REPAIR_LINE_BYTES], b""]
     items = []

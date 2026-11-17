@@ -214,8 +214,10 @@ components are those of the channel. Static channels have no rows.
 | `camera_assignment` | An open JSON object. freemocap writes `{status, source_to_calibration, fitness, error_units}`; `error_units` is `pixels_at_1000_pixel_image_diagonal` |
 | `stage_provenance` | `StageProvenanceSet` |
 
-`filtering` and `camera_assignment` are open: a reader checks only that each is a JSON object, until
-freemocap defines them ([ADR-XR63](../../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 8).
+`filtering` and `camera_assignment` are optional and open: a writer can omit each of them. A reader
+checks that each is a JSON object only when it is present, until freemocap defines them
+([ADR-XR63](../../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 8,
+[ADR-H2HQ](../../decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 1).
 
 ### `StageProvenanceSet` (closed)
 
@@ -235,8 +237,8 @@ freemocap defines them ([ADR-XR63](../../decisions/entries/XR63-reader-rules-of-
 | `limitations` | array of text | Default `[]` |
 | `base_run_id` | integer or null | 0 or more; given with `base_descriptor_signature` |
 | `base_descriptor_signature` | text or null | |
-| `origin` | `realtime` or `posthoc` | **v2** |
-| `coverage` | object or null | **v2.** SPEC.md SFF-834 gives each member and its value, also the member `events` |
+| `origin` | `realtime` or `posthoc` | **v2.** `realtime` means that the run was folded from the realtime journal (SPEC.md section 17). Each stage of such a run is `realtime`, also `timing` ([ADR-1P4N](../../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)). A posthoc run is `posthoc` |
+| `coverage` | object or null | **v2.** SPEC.md SFF-834 gives each member and its value, also the member `events`, and the values of the stage `timing`. null when `origin` is `posthoc` |
 
 ## `RecordedModel` (closed)
 
@@ -264,7 +266,12 @@ The section "Nested types of `RecordedModel`" gives the nested types.
 The rules of `RecordedModel` and of its nested types are of two kinds
 ([ADR-W5JC](../../decisions/entries/W5JC-nested-model-types-in-the-descriptor-part.md)).
 
-- **Structure.** Each member is present, except a member that its row lets the writer omit. Each
+- **Structure.** Each member is present, except a member that its row lets the writer omit. The
+  reader also accepts a member that is absent when its row gives a default, and the value null for
+  a member that its row lets the writer omit when null. A writer still writes these members as this
+  part says
+  ([ADR-H2HQ](../../decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md)
+  item 2). Each
   member has the JSON type of the column "Type", with the number of items that the column gives. A
   closed type has no other member. An "integer" is a JSON number with no fraction in its value: `1`
   and `1.0` pass. A "float" is each JSON number: `0` passes for `position`. A text is a JSON

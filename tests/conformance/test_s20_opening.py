@@ -32,9 +32,16 @@ def _third_sidecar(folder: Path, name: str, with_media: bool) -> Path:
     return sidecar
 
 
-@pytest.mark.parametrize("case", ["sidecar_of_the_take", "sidecar_of_another_take"])
+UNREADABLE_UUID = {"no_take_uuid_key": "missing_metadata", "take_uuid_wrong_form": "bad_metadata"}
+
+
+@pytest.mark.parametrize("case", ["sidecar_of_the_take", "sidecar_of_another_take", *UNREADABLE_UUID])
 def test_sft_761_device_pairs_and_orphan_files(reader, variant, case):
-    """SFT-761 Reader: device pairs and orphan files. Checks: SFF-864, SFF-865."""
+    """SFT-761 Reader: device pairs and orphan files. Checks: SFF-864, SFF-865.
+
+    The two sidecars whose `take_uuid` the reader cannot read follow ADR-E68K
+    item 5: `invalid` in `other_files` with the reason of SFF-748, and `orphan_file`.
+    """
     folder = variant("G03")
     rec = checks.manifest(folder)["recording_name"]
     if case == "sidecar_of_the_take":
@@ -48,10 +55,12 @@ def test_sft_761_device_pairs_and_orphan_files(reader, variant, case):
         assert "extra_files" not in take["warnings"]
     else:
         sidecar = _third_sidecar(folder, f"other.{OTHER_LABEL}", with_media=False)
-        checks.set_header(sidecar, "take_uuid", OTHER_UUID)
+        checks.set_header(sidecar, "take_uuid", OTHER_UUID if case == "sidecar_of_another_take" else "nothex")
+        if case == "no_take_uuid_key":
+            sidecar.write_bytes(sidecar.read_bytes().replace(b"# take_uuid=nothex\n", b""))
         result = checks.read(reader, folder)
         item = checks.named(result["other_files"], f"{MEDIA}/{sidecar.name}")  # the path of the sidecar
-        assert (item["state"], item["reason"]) == ("invalid", "missing_media")
+        assert (item["state"], item["reason"]) == ("invalid", UNREADABLE_UUID.get(case, "missing_media"))
     assert result["folder_warnings"].count("orphan_file") == 1
 
 

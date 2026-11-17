@@ -39,6 +39,7 @@ SKIPPED = {(1, 4), (0, 9), (1, 9)}  # (channel_index, frame) with no data record
 REJECTED = (0, 6)  # the data record with a wrong CRC
 HOLE_AFTER, HOLE_BYTES = 8, 4096  # the zero hole follows the records of this frame
 TORN, TORN_BYTES = (1, FRAMES - 1), 20  # the last record, cut after 20 bytes
+SLOW, SLOW_NS = (0, 10), 50_000_000  # a late record: the lowest latency of its frame comes from channel 1
 UNDETECTED = (0, 2, 1)  # (channel_index, frame, name index): x and y missing, visibility 0 (SFF-831)
 EVENT_VALUE = {"time_ns": 150_000_000, "stage": "observations", "parameter": "min_visibility", "value": 0.5}
 RECORDED_AT = {"timing": "2000-01-01T00:01:00Z", "observations": "2000-01-01T00:01:01Z"}
@@ -191,7 +192,7 @@ def journal(channels: list[dict], group_ns: list[int], format_version: str, unkn
         "format_prerelease": common.FORMAT_PRERELEASE, "writer": common.WRITER, "take_uuid": TAKE["take_uuid"],
         "origin": "realtime", "channels": [{"channel_index": i} | ch for i, ch in enumerate(channels)],
     }  # fmt: skip
-    data, good, rejected, latencies, folded = b"", [], [], [], {}
+    data, good, rejected, latencies, folded = b"", [], [], {}, {}
 
     def add(chunk: bytes, is_good: bool = True) -> None:
         nonlocal data
@@ -207,7 +208,7 @@ def journal(channels: list[dict], group_ns: list[int], format_version: str, unkn
         for c in range(len(channels)):
             if (c, frame) in SKIPPED:
                 continue
-            processed_ns = group_ns[frame] + 20_000_000 + 1_300_000 * frame + 250_000 * c
+            processed_ns = group_ns[frame] + 20_000_000 + 1_300_000 * frame + 250_000 * c + SLOW_NS * ((c, frame) == SLOW)
             items = values(c, frame)
             chunk = record(DATA, struct.pack("<HiqII", c, frame, processed_ns, len(NAMES), len(PIXEL)) + b"".join(map(f32, items)))
             assert len(chunk) == 12 + 1 + 22 + 4 * len(items)  # SFF-840
@@ -219,7 +220,7 @@ def journal(channels: list[dict], group_ns: list[int], format_version: str, unkn
             else:
                 add(chunk)
                 folded[c, frame] = items
-                latencies.append(processed_ns - group_ns[frame])  # SFF-834
+                latencies[c, frame] = processed_ns - group_ns[frame]  # SFF-834
         if frame == HOLE_AFTER:
             hole = len(data)
             data += bytes(HOLE_BYTES)
@@ -227,7 +228,7 @@ def journal(channels: list[dict], group_ns: list[int], format_version: str, unkn
     # SFF-845: each channel in order of `channel_index`, each frame in order, the values of the record.
     digest = b"".join(f32(v) for key in sorted(folded) for v in folded[key])
     return {
-        "bytes": data, "folded": folded, "latencies": sorted(latencies),
+        "bytes": data, "folded": folded, "latencies": latencies,
         "counts": {"records": len(good), "rejected_records": len(rejected), "torn_bytes": len(data) - torn},
         "truth": {
             "good_offsets": good, "rejected_offsets": rejected, "hole": [hole, HOLE_BYTES], "torn_tail": torn,
@@ -237,15 +238,23 @@ def journal(channels: list[dict], group_ns: list[int], format_version: str, unkn
 
 
 def coverage(channels: list[dict], stage: str, frames: int, scan: dict) -> dict:
-    """The `coverage` of SFF-834 for the one sensor group and one stage."""
-    indexes = {i for i, ch in enumerate(channels) if ch["stage"] == stage}
-    processed = len({frame for c, frame in scan["folded"] if c in indexes})
-    latencies = scan["latencies"] if indexes else []
+    """The `coverage` of SFF-834 for the one sensor group and one stage.
+
+    For the stage `timing`, a frame counts when it has a good data record of any channel of the
+    group, and its latency is the lowest latency of those records (ADR-1P4N).
+    """
+    indexes = {i for i, ch in enumerate(channels) if stage == "timing" or ch["stage"] == stage}
+    keys = [key for key in scan["latencies"] if key[0] in indexes]
+    processed = {frame for _, frame in keys}
+    if stage == "timing":
+        latencies = sorted(min(scan["latencies"][c, f] for c, f in keys if f == frame) for frame in processed)
+    else:
+        latencies = sorted(scan["latencies"][key] for key in keys)
     k = len(latencies)
     return {
         "frames_in_take": frames,
-        "frames_processed": processed,
-        "skips": {"no_record": frames - processed},
+        "frames_processed": len(processed),
+        "skips": {"no_record": frames - len(processed)},
         "journal_crc_rejects": scan["counts"]["rejected_records"],
         "clean_close": False,  # the journal has no end record
         "latency_ms": {  # nearest rank, counted from 1; null when k is 0

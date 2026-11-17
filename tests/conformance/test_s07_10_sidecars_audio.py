@@ -186,13 +186,16 @@ def test_sft_718_rate_rotation_and_label(reader, golden_or_skip, truth, case, re
             assert all(abs(a - b) <= 40 for a, b in zip(found, want)), f"{camera['name']}: the {corner} corner"
 
 
-def test_sft_719_rows_against_blocks(reader, variant):
+@pytest.mark.parametrize("source", [("G01", "take"), ("G06", "repaired")], ids=["finished", "repaired"])
+def test_sft_719_rows_against_blocks(reader, variant, source):
     """SFT-719 Reader: rows against blocks. Checks: SFF-759.
 
-    The input is a copy of G1 in which the sidecar of camera 0 has one row more than the camera file
-    has blocks. The row, the fit segment and the `# end` line are correct in all other points.
+    The input is a copy of G1 (a finished pair) or of G6 `repaired` (a repaired pair) in which the
+    sidecar of camera 0 has one row more than the camera file has blocks. The row, the fit segment and
+    the `# end` line are correct in all other points. A reader refuses a repaired pair as it refuses a
+    finished pair (ADR-W5AK item 10).
     """
-    folder = variant("G01")
+    folder = variant(*source)
     video = c.load_json(folder / c.MANIFEST)["cameras"][0]["video"]
     path = c.sidecar_path(folder, video)
     sidecar = c.read_sidecar(path)

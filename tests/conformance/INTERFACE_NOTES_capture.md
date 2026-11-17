@@ -84,7 +84,7 @@ are text. `path` is relative to the take folder, with `/`. The tests use these e
 | `replace` | `recording_manifest.json` or `<rec>_info.json` | A whole file is replaced in one rename. A writer calls it for each whole-file write. A `replace` of a path that is not in the list of the test fails the test. | SFT-708, SFT-730, SFT-733 |
 | `write` and `flush` | `synchronized_videos/<rec>.audio.m4a` | A write to the audio file, and the flush after it. Each `write` must have a `flush` as the next audio event. | SFT-720 |
 | `fsync` | a live file | The writer forces a live file to disk. At least one such event must exist. | SFT-730 (provisional) |
-| any event | `synchronized_videos/...` | `repair_take` calls the trace for its writes to media files and sidecars. At least one such event must exist. All of them come before the `replace` of the manifest. A `replace` of a media path or a sidecar is allowed, and the lock check ignores it. | SFT-733 |
+| any event | `synchronized_videos/...` | `repair_take` calls the trace for its writes to media files and sidecars. At least one such event must exist for a media file and for a sidecar. All of them come before the `replace` of the manifest. Each event of a media file, other than `read` and `fsync`, comes before each such event of a sidecar: the repair cuts every media file before it changes a sidecar ([ADR-E68K](../../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3). A `replace` of a media path or a sidecar is allowed, and the lock check ignores it. | SFT-733 |
 
 A write of a whole file with any other event (for example `write` of the manifest path) fails
 `check_whole_writes_hold_lock`. The event names are assumed by the tests, not decided.
@@ -106,6 +106,17 @@ A write of a whole file with any other event (for example `write` of the manifes
   kills the child, so each of the 50 kill points is exact. After each kill, the test calls `repair_take`
   on the killed folder (the next writer). A repair of a take with no frame must work. Assumed by the
   tests, not decided.
+- SFT-717 accepts a `computed` key that is the hash of any of the forms 1, 2 and 3 of SFF-752 that
+  the `device` values of the capture info JSON can build. The file records no reason when a writer
+  does not use a serial
+  ([ADR-E68K](../../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 4).
+- SFT-719 makes two inputs at test time: a copy of G1 (a finished pair) and a copy of G6 `repaired`
+  (a repaired pair). In each, the sidecar of camera 0 gets one row more than its camera file has
+  blocks. Each pair is `invalid` with `bad_metadata`
+  ([ADR-W5AK](../../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 10).
+- SFT-733 checks on G6 `interrupted_repair` that each media file has the bytes of G6 `repaired` and
+  that each sidecar has the rows of G6 `repaired`: the repair stopped after the cuts
+  ([ADR-E68K](../../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3).
 - The Opus encoder, PyAV and Pillow come from the `conformance` dependency group. A test that needs
   PyAV or Pillow is skipped when it is missing.
 

@@ -6,7 +6,7 @@
   "take_uuid": "00000000000040008000000000000013",
   "processed": {
     "schema_version": 1,
-    "parquet_sha256": "5566cebf7cc73cdf4c339880b6d2da64e7b3c6db2936918bc420b453c87702ab",
+    "parquet_sha256": "92a69187ba9235072b7d97ff5347cab12d5215b1fe39dac160321924d98aba17",
     "recording_id": "g13_synthetic_take",
     "parquet": "g13_synthetic_take_data.parquet",
     "selected_run_id": 0,

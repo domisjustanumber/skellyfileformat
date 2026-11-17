@@ -1071,16 +1071,16 @@ def check_sidecar_common(path: Path) -> Sidecar:
 # ---------------------------------------------------------------- SFT-717: the video sidecar
 
 
-def identity_key(device: dict) -> str:
-    """`camera_key` of the first of the forms 1, 2 and 3 of SFF-752 that applies."""
+def identity_keys(device: dict) -> set[str]:
+    """The `camera_key` of each of the forms 1, 2 and 3 of SFF-752 that the `device` values can build.
+
+    The file records no reason when a writer does not use a serial, so SFT-717 accepts each of these
+    forms (ADR-E68K item 4).
+    """
     start = f"{device['vendor_id'] or '0000'}:{device['product_id'] or '0000'}"
-    if device["serial"] is not None:
-        identity = f"{start}:serial:{device['serial']}"
-    elif device["port_path"] is not None:
-        identity = f"{start}:port:{device['port_path']}"
-    else:
-        identity = f"{start}:device:{device['os_device_id']}"
-    return hashlib.sha256(identity.encode("utf-8")).digest()[:8].hex()
+    forms = {"serial": device["serial"], "port": device["port_path"], "device": device["os_device_id"]}
+    identities = [f"{start}:{form}:{value}" for form, value in forms.items() if value is not None]
+    return {hashlib.sha256(identity.encode("utf-8")).digest()[:8].hex() for identity in identities}
 
 
 def check_video_sidecars(folder: Path, capture: bool = True) -> list[Sidecar]:
@@ -1099,7 +1099,7 @@ def check_video_sidecars(folder: Path, capture: bool = True) -> list[Sidecar]:
             assert key != "0", "`camera_key` is not 0 for skellycam"
             config = configs[key]
             if config["key_origin"] == "computed":
-                assert key == identity_key(config["device"]), "a computed key is the hash of the identity string"
+                assert key in identity_keys(config["device"]), "a computed key is the hash of the identity string of form 1, 2 or 3"
             else:
                 assert config["key_origin"] in ("confirmed_by_user", "assigned") and HEX16.fullmatch(key) and int(key, 16)
         assert sidecar.integers("frame") == list(range(len(sidecar.rows))), "the rows count from 0"

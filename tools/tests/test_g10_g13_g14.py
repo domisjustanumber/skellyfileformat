@@ -159,7 +159,9 @@ def test_fold_check_and_parquet_run(folder, case, version):
     assert [c for c in run["channels"] if c["kind"] != "TIMESTAMPS"] == channels
     assert run["checkpoints"] == [] and m["summary"]["processing_runs"][0]["origin"] == "realtime"
 
-    # SFF-834: the coverage of each stage, from the journal.
+    # SFF-834: the coverage of each stage, from the journal. m is the group time at the fold
+    # (ADR-1P4N). No camera file is repaired, so the rows still hold it.
+    assert all(f["state"] != "repaired" for f in take(folder / f"{case}.full.json")["files"])
     (group,) = run["sensor_groups"]
     frames = run["sensor_groups"][group]["sample_count"]
     times = {}
@@ -167,11 +169,16 @@ def test_fold_check_and_parquet_run(folder, case, version):
         if row["channel"] == "TIMESTAMPS" and row["name"] == "synchronized":
             times[row["frame_number"]] = round(row["value_f64"] * 10**9)
     for stage, provenance in run["processing"][group]["stage_provenance"]["stages"].items():
-        indexes = {i for i, c in enumerate(channels) if c["stage"] == stage}
+        # The stage `timing`: the records of each channel of the group, and the lowest latency of each frame.
+        indexes = {i for i, c in enumerate(channels) if stage in ("timing", c["stage"])}
         keys = [key for key in values if key[0] in indexes]
-        latencies = sorted(values[key][0] - times[key[1]] for key in keys)
-        k = len(latencies)
         processed = len({frame for _, frame in keys})
+        latency = {key: values[key][0] - times[key[1]] for key in keys}
+        if stage == "timing":
+            latencies = sorted(min(ns for (_, f), ns in latency.items() if f == frame) for frame in {f for _, f in keys})
+        else:
+            latencies = sorted(latency.values())
+        k = len(latencies)
         assert provenance["origin"] == "realtime"
         assert provenance["coverage"] == {
             "frames_in_take": frames, "frames_processed": processed, "skips": {"no_record": frames - processed},
@@ -182,7 +189,14 @@ def test_fold_check_and_parquet_run(folder, case, version):
             },
             "events": [json.loads(p) for _, kind, p in scan(data)["good"] if kind == 3 and json.loads(p)["stage"] == stage],
         }  # fmt: skip
-    assert run["processing"][group]["stage_provenance"]["stages"]["observations"]["coverage"]["skips"]["no_record"] > 0
+    stages = run["processing"][group]["stage_provenance"]["stages"]
+    assert stages["observations"]["coverage"]["skips"]["no_record"] > 0
+    # The hand values (G10_G13_G14_CHOICES.md items 12 and 44). The late record of frame 10 makes the
+    # lowest latency of each frame differ from the latency of each record.
+    assert stages["timing"]["coverage"]["frames_processed"] == 11
+    assert (stages["timing"]["coverage"]["latency_ms"], stages["observations"]["coverage"]["latency_ms"]) == (
+        {"p50": 26.5, "p99": 34.3}, {"p50": 26.5, "p99": 83.0},
+    )  # fmt: skip
 
     # The rows of the fold: the journal values, null for NaN, and all null for a skipped frame (row rule 7).
     for row in rows(parquet):

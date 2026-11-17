@@ -79,12 +79,16 @@ alternative. Section 4 lists the spec gaps that the agent found.
     `visibility`, so each float32 is exact. `body.q` of channel 0 on frame 2 was not detected: `x`
     and `y` are NaN (null in the Parquet), and `visibility` is 0 (SFF-831, SFF-841).
 12. `processed_ns` is free. Choice: m + 20 ms + 1.3 ms × frame + 0.25 ms × `channel_index`, where m
-    is the group time of SFF-828. So `p50` is 26.5 ms and `p99` is 34.3 ms (19 latencies).
+    is the group time of SFF-828. The record of channel 0 on frame 10 is 50 ms later than this
+    (83 ms). So the stage `observations` has `p50` 26.5 ms and `p99` 83.0 ms (19 latencies). The
+    stage `timing` has `p50` 26.5 ms and `p99` 34.3 ms (11 latencies, one for each frame, item 44).
+    The late record makes the two methods give different values: a fold that takes each record
+    for `timing` gives `p99` 83.0 ms.
 13. The fold writes the `TIMESTAMPS` rows from the sidecars (SFF-844, SFF-828). Choice: the run has
     the 2 capture `TIMESTAMPS` channels and the group `TIMESTAMPS` channel, as in G3, and the stage
     provenances `timing` and `observations`. Each has `origin` `realtime` and a `coverage` object
-    (SFF-834: "in the stage provenance of each sensor group"). Item 44 gives the coverage of
-    `timing`.
+    (SFF-834: "in the stage provenance of each sensor group"). The stage `timing` keeps `origin`
+    `realtime`: `realtime` means that the run was folded from the journal ([ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)). Item 44 gives the coverage of `timing`.
 14. A frame of a channel with no good data record is a skipped frame. Its `x`, `y` and `visibility`
     are null (SFF-834, row rule 7). The frame of the rejected record is such a frame.
 15. The provenance values are free. Choice: the values of G3, with `attempt_id`
@@ -201,13 +205,20 @@ which is open. Items 40, 42 and 43 have a decision.
 43. **`prerelease` on a refused file** (SFF-891, Appendix A). A reader that does not know the
     `major` cannot read `format_prerelease`. G10 follows Appendix A ("each file of each case")
     and gives the warning. Decision (ADR-XR63): the file still gets the warning `prerelease` when it
-    has the field. Each refused file of G10 has `format_prerelease` 1, so it has the warning.
-44. **OPEN. The coverage of the stage `timing`** (SFF-834, SFF-841). `frames_processed` counts the frames
-    with data records of a channel of the stage. A journal has no `TIMESTAMPS` channel. So the
-    literal rule gives the stage `timing` of a realtime run `frames_processed` 0, `skips`
-    `{"no_record": 12}` and the latencies null. G13 follows the literal rule. Alternative: the run
-    has no provenance for `timing`, or `coverage` null for it. The user did not decide this item on
-    2026-11-16 ([open-work.md](../decisions/open-work.md)).
+    has the field. [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md)
+    item 6 makes this exact: the file gets the
+    warning only when the reader can read `format_prerelease` and the value is above 0. G10 reads the
+    header as in version 2.0 (item 41), and each refused file of G10 has `format_prerelease` 1, so it
+    has the warning.
+44. **The coverage of the stage `timing`** (SFF-834, SFF-841). A journal has no `TIMESTAMPS`
+    channel, so the rule for the other stages gives `timing` 0 frames. Decision ([ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)): a frame is a `timing` hit when it has a good data record of any channel
+    of its sensor group. The count is about the realtime pipeline. Each frame has a time.
+    There is one latency for each hit: the lowest latency of the records of that frame that count
+    in SFF-845. m is the group time at the time of the fold. A later repair does not change
+    `latency_ms`. G13: `frames_processed` 11 of 12 (frame 9 has no record), `skips`
+    `{"no_record": 1}`, `p50` 26.5 ms, `p99` 34.3 ms and `events` `[]`. These are the values that
+    the reviewer computed by hand. The unknown record of G10 `higher_minor_journal` (type 200) is not
+    a data record, so it is not a hit. That case has the same coverage as G13.
 45. **A run with no stored geometry** (SFF-837). The rule compares the geometry of a run with the
     TOML. It does not say what a run with `camera_geometry` `{}` gives. G14 gives no
     `calibration_mismatch`.

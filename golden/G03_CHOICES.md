@@ -161,7 +161,9 @@ four link checks of the table.
     manifest summary needs it (`origin` and `recorded_at`, SFF-728). Decision
     ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): `filtering` and
     `camera_assignment` are open JSON objects, and a reader checks only that each is an object,
-    until freemocap defines them. The decision does not make them required, so G3 keeps the choice.
+    until freemocap defines them. [ADR-H2HQ](../decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md)
+    item 1 makes them optional: a
+    reader checks that each is an object only when it is present. So G3 keeps the choice.
 20. The values of a `StageProvenance` are free. Choice: four stages (`timing`, `observations`,
     `triangulation`, `filtering`), each with `attempt_id` `g03-synthetic-attempt`,
     `effective_settings` `{}`, `default_settings` null, `input_signatures`

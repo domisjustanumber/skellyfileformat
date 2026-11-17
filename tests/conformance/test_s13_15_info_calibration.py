@@ -57,6 +57,24 @@ def test_sft_736_camera_configs_by_key(reader, variant, expected):
     assert checks.canonical(result) == expected("G03", "take", "full")
 
 
+@pytest.mark.parametrize("key_origin", ["remembered", None], ids=["remembered", "null_with_a_key"])
+def test_sft_736_bad_key_origin(reader, variant, key_origin):
+    """SFT-736 Reader: a `key_origin` outside the three values, and null with a `camera_key` that is not 0.
+
+    Checks: SFF-803. G3 with one camera config changed at test time (ADR-XR63 item 9; ADR-W5AK
+    item 7).
+    """
+    folder = variant("G03")
+    info_path = checks.capture_info(folder)
+    info = checks.load_json(info_path)
+    key, config = next(iter(info["camera_configs"].items()))
+    assert key != "0"
+    config["key_origin"] = key_origin
+    checks.write_json(info_path, info)
+    item = checks.folder_file(checks.the_take(checks.read(reader, folder)), info_path.name)
+    assert (item["state"], item["reason"]) == ("invalid", "bad_schema")
+
+
 @pytest.mark.external("freemocap")
 def test_sft_737_processing_info_json():
     """SFT-737 (external: freemocap) Writer: the processing info JSON. Checks: SFF-804, SFF-805."""

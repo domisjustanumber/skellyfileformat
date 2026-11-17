@@ -935,8 +935,9 @@ def mp(spec):
     return ("map", spec)
 
 
-def closed(members: dict, omit: tuple = ()):
-    return ("closed", members, frozenset(omit))
+def closed(members: dict, omit: tuple = (), defaults: tuple = ()):
+    """`omit`: the members that a writer omits when empty or null. `defaults`: the members whose row gives a default."""
+    return ("closed", members, frozenset(omit), frozenset(defaults))
 
 
 def either(*specs):
@@ -951,16 +952,19 @@ _MATERIAL = closed({"color": TXT, "opacity": FLT})
 _CHANNEL = closed({
     "sensor_group": TXT, "source": TXT, "reference_frame": opt(TXT), "kind": TXT, "names": arr(TXT),
     "components": mp(TXT), "stage": TXT, "dtype": TXT,
-})  # fmt: skip
+}, defaults=("dtype",))  # fmt: skip
 _CONTOURS = closed({
     **dict.fromkeys(("segment", "crown", "chin", "left_ear", "right_ear", "left_eye", "right_eye"), TXT),
     "vertical_exponent": FLT, "horizontal_exponent": FLT, "posterior_depth": FLT, "samples": INT, "nose": opt(TXT),
     "line_material": opt(_MATERIAL), "shell_material": opt(_MATERIAL), "side_material": opt(_MATERIAL),
-})  # fmt: skip
+}, defaults=(
+    "vertical_exponent", "horizontal_exponent", "posterior_depth", "samples", "nose", "line_material", "shell_material",
+    "side_material",
+))  # fmt: skip
 _PRESENTATION = closed({
     "contours": arr(_CONTOURS), "excluded_origin_edges": arr(arr(TXT, 2)), "excluded_bones": arr(TXT),
     "connection_materials": arr(closed({"group": TXT, "material": _MATERIAL})),
-})  # fmt: skip
+}, defaults=("contours", "excluded_origin_edges", "excluded_bones", "connection_materials"))  # fmt: skip
 _SKELETON = closed({
     "name": TXT,
     "landmarks": arr(closed({"name": TXT, "definition": TXT, "position": arr(FLT, 3), "segment": TXT, "aliases": arr(TXT)})),
@@ -970,7 +974,7 @@ _SKELETON = closed({
     }, omit=("observation_frame",))),
     "joints": arr(closed({
         "name": TXT, "parent": TXT, "child": TXT, "connect_at": TXT, "joint_type": TXT,
-        "convention": closed({"sequence": TXT, "angle_names": arr(TXT, 3), "zero_offsets": arr(FLT, 3)}),
+        "convention": closed({"sequence": TXT, "angle_names": arr(TXT, 3), "zero_offsets": arr(FLT, 3)}, defaults=("zero_offsets",)),
     })),
     "chains": arr(closed({"name": TXT, "segments": arr(TXT), "joints": arr(TXT)})),
     "landmark_groups": arr(closed({"name": TXT, "landmark_names": arr(TXT), "tags": arr(TXT)})),
@@ -997,15 +1001,15 @@ MODEL = closed({
     "center_of_mass": closed({"definitions": mp(closed({
         "name": TXT, "proximal": TXT, "distal": TXT, "weights": arr(closed({"landmark": TXT, "weight": FLT})),
         "sided": BOOL,
-    }))}),
+    }, defaults=("sided",)))}),
     "segment_masses": mp(FLT), "scale_reference_name": TXT, "anchor_segment_name": opt(TXT),
     "object_geometry": opt(_GEOMETRY), "tracker_stage_path": opt(arr(TXT)),
-}, omit=("tracker_connections", "object_geometry", "tracker_stage_path"))  # fmt: skip
+}, omit=("tracker_connections", "object_geometry", "tracker_stage_path"), defaults=("anchor_segment_name",))  # fmt: skip
 _PROVENANCE = closed({
     "attempt_id": TXT, "recorded_at": TXT, "effective_settings": OBJ, "default_settings": opt(OBJ),
     "input_signatures": mp(TXT), "software": OBJ, "output_sources": arr(TXT), "limitations": arr(TXT),
     "base_run_id": opt(INT), "base_descriptor_signature": opt(TXT), "origin": TXT, "coverage": opt(OBJ),
-})  # fmt: skip
+}, defaults=("limitations",))  # fmt: skip
 _RUN = closed({
     "calibration_updates": mp(closed({
         "calibration_uuid_before": TXT, "calibration_uuid_after": TXT, "transformations": arr(OBJ),
@@ -1016,16 +1020,16 @@ _RUN = closed({
     })),
     "camera_geometry": mp(arr(closed({
         "id": TXT, "camera_key": TXT, "index": INT, "image_size": arr(INT, 2),
-        "intrinsics": closed(dict.fromkeys(("fx", "fy", "cx", "cy", "k1", "k2", "p1", "p2"), FLT)),
+        "intrinsics": closed(dict.fromkeys(("fx", "fy", "cx", "cy", "k1", "k2", "p1", "p2"), FLT), defaults=("k1", "k2", "p1", "p2")),
         "extrinsics": closed({"quaternion_wxyz": arr(FLT, 4), "translation": arr(FLT, 3)}),
         "world_position": arr(FLT, 3), "world_orientation": arr(arr(FLT, 3), 3),
-    }))),
+    }, defaults=("world_position", "world_orientation")))),
     "sensor_groups": mp(closed({"clock_description": TXT, "sample_count": INT})),
     "sources": mp(closed({"kind": TXT, "definition": OBJ})),
     "reference_frames": mp(OBJ), "models": mp(MODEL), "processing": mp(OBJ), "channels": arr(_CHANNEL),
     "static_channels": arr(closed({"channel": _CHANNEL, "values": mp(mp(FLT))})),
     "checkpoints": arr(closed({"sensor_group": TXT, "stage": TXT, "signature": TXT})),
-})  # fmt: skip
+}, defaults=("calibration_updates", "scale_fits", "camera_geometry", "static_channels", "checkpoints"))  # fmt: skip
 RECORDING = closed({
     "schema_version": INT, "format_version": TXT, "format_prerelease": INT, "writer": TXT, "take_uuid": TXT,
     "recording_id": TXT, "recording_info": OBJ, "runs": mp(_RUN),
@@ -1042,8 +1046,12 @@ def _number(value) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
-def structure_faults(value, spec, path: str = "$") -> list[str]:
-    """The structure faults of a JSON value against a type of the part ("Structure rules and writer rules")."""
+def structure_faults(value, spec, path: str = "$", reader: bool = False) -> list[str]:
+    """The structure faults of a JSON value against a type of the part ("Structure rules and writer rules").
+
+    With `reader`, a member whose row gives a default can be absent, and a member that a writer omits
+    can be null (ADR-H2HQ item 2). Else the check is the one of a writer.
+    """
     if isinstance(spec, str):
         good = {
             TXT: isinstance(value, str), INT: _number(value) and float(value).is_integer(), FLT: _number(value),
@@ -1052,43 +1060,45 @@ def structure_faults(value, spec, path: str = "$") -> list[str]:
         return [] if good else [f"{path}: not {spec}"]
     kind = spec[0]
     if kind == "null":
-        return [] if value is None else structure_faults(value, spec[1], path)
+        return [] if value is None else structure_faults(value, spec[1], path, reader)
     if kind == "either":
-        return [] if any(not structure_faults(value, part, path) for part in spec[1]) else [f"{path}: no allowed type"]
+        return [] if any(not structure_faults(value, part, path, reader) for part in spec[1]) else [f"{path}: no allowed type"]
     if kind == "array":
         if not isinstance(value, list) or (spec[2] is not None and len(value) != spec[2]):
             return [f"{path}: not an array" + (f" of {spec[2]} items" if spec[2] else "")]
-        return [fault for index, item in enumerate(value) for fault in structure_faults(item, spec[1], f"{path}[{index}]")]
+        return [fault for index, item in enumerate(value) for fault in structure_faults(item, spec[1], f"{path}[{index}]", reader)]
     if not isinstance(value, dict):
         return [f"{path}: not an object"]
     if kind == "map":
-        return [fault for key, item in value.items() for fault in structure_faults(item, spec[1], f"{path}.{key}")]
+        return [fault for key, item in value.items() for fault in structure_faults(item, spec[1], f"{path}.{key}", reader)]
     members, omit = spec[1], spec[2]
-    faults = [f"{path}: the member {name} is missing" for name in members if name not in value and name not in omit]
+    may_lack = omit | spec[3] if reader else omit
+    faults = [f"{path}: the member {name} is missing" for name in members if name not in value and name not in may_lack]
     faults += [f"{path}: the unknown member {name}" for name in value if name not in members]
     for name, part in members.items():
-        if name in value:
-            faults += structure_faults(value[name], part, f"{path}.{name}")
+        # Of the omitted members, only an array (`tracker_connections`) is "omitted when empty", not "when null".
+        if name in value and not (reader and name in omit and value[name] is None and part[0] != "array"):
+            faults += structure_faults(value[name], part, f"{path}.{name}", reader)
     return faults
 
 
-def descriptor_structure_faults(described: dict) -> list[str]:
+def descriptor_structure_faults(described: dict, reader: bool = False) -> list[str]:
     """The structure faults of a whole descriptor: the root, each run, and the objects that depend on a name."""
-    faults = structure_faults(described, RECORDING)
+    faults = structure_faults(described, RECORDING, reader=reader)
     for run_id, run in described.get("runs", {}).items():
         if not isinstance(run, dict):
             continue
         at = f"$.runs.{run_id}"
         for name, source in run.get("sources", {}).items():
             if isinstance(source, dict) and source.get("kind") == "camera":
-                faults += structure_faults(source.get("definition"), _CAMERA_SOURCE, f"{at}.sources.{name}.definition")
+                faults += structure_faults(source.get("definition"), _CAMERA_SOURCE, f"{at}.sources.{name}.definition", reader)
         for name, frame in run.get("reference_frames", {}).items():
             if re.fullmatch(r"camera:[^:]+:image", name):
-                faults += structure_faults(frame, _IMAGE_FRAME, f"{at}.reference_frames.{name}")
+                faults += structure_faults(frame, _IMAGE_FRAME, f"{at}.reference_frames.{name}", reader)
         for group, processing in run.get("processing", {}).items():
             if isinstance(processing, dict) and "stage_provenance" in processing:
                 where = f"{at}.processing.{group}.stage_provenance"
-                faults += structure_faults(processing["stage_provenance"], _PROVENANCE_SET, where)
+                faults += structure_faults(processing["stage_provenance"], _PROVENANCE_SET, where, reader)
     return faults
 
 
@@ -1447,12 +1457,17 @@ def fold_faults(folder: Path) -> list[str]:
     faults = []
     if any(set(event) != {"time_ns", "stage", "parameter", "value"} for event in events):
         faults.append("an event does not have time_ns, stage, parameter and value")
+    if any(event.get("stage") not in {"timing"} | {c["stage"] for c in channels.values()} for event in events):
+        faults.append("an event names a stage that is not timing and not the stage of a channel: the fold must fail")
     runs = realtime_runs(described)
     if not runs:
         return ["no run has the origin realtime"]
+    # The latency uses m at the time of the fold. After a repair the files hold only the new times,
+    # so the check does not compare `latency_ms` of a repaired take (ADR-1P4N).
+    repaired = any(item["state"] == "repaired" for take in committed(folder)["takes"] for item in take["files"])
     for run_id in runs:
         run = described["runs"][run_id]
-        _, groups = group_times(folder, described, int(run_id))
+        _, groups = group_times(folder, described, int(run_id))  # the sidecar times of the committed result, not the rows
         if run["checkpoints"] != []:
             faults.append(f"run {run_id}: a realtime run has checkpoints")
         for group, processing in run["processing"].items():
@@ -1462,17 +1477,25 @@ def fold_faults(folder: Path) -> list[str]:
                 if provenance["origin"] != "realtime" or not isinstance(coverage, dict):
                     faults.append(f"{at}: the origin is not realtime, or coverage is not an object")
                     continue
-                mine = {i for i, c in channels.items() if (c["sensor_group"], c["stage"]) == (group, stage)}
+                # The stage `timing` counts the records of each channel of the group (Q94).
+                mine = {i for i, c in channels.items() if c["sensor_group"] == group and stage in ("timing", c["stage"])}
                 records = [record for (index, _), record in counted.items() if index in mine]
                 in_take = run["sensor_groups"][group]["sample_count"]
                 processed = len({record[1] for record in data_records(scan) if record[0] in mine})
                 latencies = [record[2] - groups[group][record[1]] for record in records] if group in groups else []
+                if stage == "timing":  # one latency for each frame: the lowest of its records (Q94)
+                    lowest: dict[int, int] = {}
+                    for record, latency in zip(records, latencies):
+                        lowest[record[1]] = min(latency, lowest.get(record[1], latency))
+                    latencies = list(lowest.values())
                 want = {
                     "frames_in_take": in_take, "frames_processed": processed, "skips": {"no_record": in_take - processed},
                     "journal_crc_rejects": scan["rejected_records"], "clean_close": scan["has_end"],
                     "latency_ms": {"p50": _percentile(latencies, 0.5), "p99": _percentile(latencies, 0.99)},
                     "events": [event for event in events if event.get("stage") == stage],
                 }  # fmt: skip
+                if repaired:
+                    del want["latency_ms"]
                 faults += [f"{at}: coverage.{member} is {coverage.get(member)}, not {value}" for member, value in want.items() if coverage.get(member) != value]
         by_key = {channel_key(channel): index for index, channel in channels.items()}
         frames_of: dict[int, set[int]] = {}

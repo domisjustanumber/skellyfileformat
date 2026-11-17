@@ -19,10 +19,6 @@ task. Delete an item when its work is done. The PR that closes an item records t
   cases, with two expected results for each case (the scopes `full` and `player`).
   [ADR-QH61](entries/QH61-spec-v2-details-part-15.md) item 46 gives the tests that this repository
   runs.
-- **Points that the camera identity review leaves open** ([ADR-70VP](entries/70VP-camera-identity-forms-and-remembered-keys.md)). The user must decide each.
-  - Q104: the `device` member that is the "model name from the OS": `model` or `os_name`.
-  - SFT-717: `device.serial` can be not null and not usable for a reason that the file does not
-    show. The test then cannot find the form of a `computed` key.
 - **Complete section 18.3** ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 23).
   Exports are not in gate 2, and section 18.3 is provisional
   ([ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 12). G3 holds no export,
@@ -31,33 +27,29 @@ task. Delete an item when its work is done. The PR that closes an item records t
   for the tall and the wide exports; the snapshot members `revision` and `selection`;
   `float_precision` for float32; the bytes of the NPZ; the texts of the notebook and of the
   READMEs; `<file>` of `calibration_copies/`; and `exported_at` in a golden file. The entry lists
-  the facts in which the freemocap code does not agree with section 18.3.
-- **Points that the details of parts 9 to 15 leave open.** The user must decide each of them.
-  - SFT-763 takes G5 and G6 as inputs for the row-count part of `frames`. Appendix A does not say
-    which folder files G5 and G6 hold.
-- **Open points of [ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md).**
-  [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) item 19 closed the other points. The user
-  must decide each of these. The spec holds the smallest text until then.
-  - Item 3: the place of the three members in the export inventory and in the BVH metadata JSON (the
-    spec lists them first).
-  - Item 3 changes one rule of [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md) and
-    [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md). The [Rules](README.md#rules) can need an
-    entry that supersedes them.
+  the facts in which the freemocap code does not agree with section 18.3. Item 3 of
+  [ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) waits with section 18.3
+  ([ADR-H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 4): the place
+  of the three version members in the export inventory and in the BVH metadata JSON (the spec lists
+  them first). It changes one rule of [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md)
+  and [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md), so the [Rules](README.md#rules) can need
+  an entry that supersedes them.
 - **Points that the accepted details of 2026-11-16 leave open.** The user must decide each of them.
-  - The place and the reason of a timing sidecar alone whose `take_uuid` the reader cannot read.
-  - Q94: the coverage of the stage `timing` of a realtime run (SFF-834).
-  - The details of [ADR-W5AK](entries/W5AK-details-for-the-decisions-q83-to-q111.md) (proposed).
-    The spec holds them now, except its item 10.
-- **Q108: the order of the steps of a repair** (decided 2026-11-16, not in the spec). The user
-  decided: for each pair, cut the media file, then the sidecar, then append the fit lines and
-  `# end`; then write the manifest. The case `interrupted_repair` of G06 does not agree
-  (Appendix A; `golden/CAPTURE_VECTORS_CHOICES.md` item 6): its four sidecars are `unfinished`,
-  because its repair did each step for all pairs first. One pair after the other gives two
-  `repaired` cameras and an audio pair that is not cut. The user must change the case or the order.
+  - The details of [ADR-158N](entries/158N-details-for-the-decisions-of-round-3.md) (proposed).
+    The spec holds them now.
+  - SFF-793: a repair that stops between two `# end` writes of step 3 leaves some sidecars
+    `repaired` and others `unfinished`.
+    [ADR-E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3 says "never half
+    repaired". No rule covers this short window. The manifest `state` stays `recording`.
+  - SFF-889: in a folder with a take, a folder file of this format that no manifest lists and whose
+    fixed name has no `<rec>` of a take has no state. The rule "with no take" applies only when the
+    folder has no take ([ADR-W5AK](entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 5).
 - **Absorb the accepted entries into the spec.** The check of 2026-11-16 absorbed 16 entries. Each
   entry of this list stays Active: no absorb document states the rule of its line, or a later entry
   (in brackets) changed the rule and no entry supersedes the old text (the [Rules](README.md#rules)).
-  Write the rule in its absorb document, or supersede the entry. Then absorb the entry.
+  Write the rule in its absorb document, or supersede the entry. Then absorb the entry. Do this
+  after the gate 2 review, with one consolidation entry
+  ([ADR-H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 6).
   - [ADR-0001](entries/0001-decision-log-agents-md-and-private-data.md) item 2: git tracks only `.claude/skills/` of `.claude/`.
   - [ADR-2C9V](entries/2C9V-whole-take-folder-scope-and-package.md) items 4, 5 and 7: `RECORDING_CONTRACT.md`, `skellyfileformat[write]`, the frame label.
   - [ADR-5XNA](entries/5XNA-folder-layout-names-and-manifest.md) item 8: "by their fixed suffix" ([ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) item 6a: exact names); the offer of a
@@ -108,8 +100,9 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - G5 and G6: the stand-in for the killed camera file waits for desk tests DT-R1 and DT5
     ([ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) item 6).
 - **Open points of the model types of the Parquet descriptor**
-  ([ADR-W5JC](entries/W5JC-nested-model-types-in-the-descriptor-part.md)). The user must decide
-  each of them. The entry does not decide them.
+  ([ADR-W5JC](entries/W5JC-nested-model-types-in-the-descriptor-part.md)). They wait for the
+  freemocap `sfn26` port. The spec keeps its text until then
+  ([ADR-H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 3).
   - `tracker_connections`: no code of freemocap `sfn26` checks that each name is in
     `tracker_keypoint_names` (SFF-832).
   - `tracker_connections` has the mark **v2**. `object_geometry` and `tracker_stage_path` have only
@@ -121,11 +114,8 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - `sequence` of `EulerConvention`: the code also accepts upper-case letters. The part says `x`,
     `y` or `z`.
   - A mapping entry of `TrackerMappingSnapshot`: the code loads an object with any members.
-  - Members that the code accepts when they are absent (`tags`, `sided`, `angle_names`,
-    `zero_offsets`, `anchor_segment_name`, and each member of the presentation types that has a
-    default): the part says that a writer writes them. Must the reader refuse a file without them?
-  - A member that is "omitted when null": does the reader accept it with the value null? The code
-    accepts null.
+  - The code also accepts the absence of `tags` and `angle_names`. Their rows give no default, so
+    the reader refuses a file without them ([ADR-158N](entries/158N-details-for-the-decisions-of-round-3.md) item 5).
   - freemocap `sfn26` names skellyforge and skellytracker by branch, with no commit. The `sfn26`
     form of the types has no pin.
   - No class checked a whole model with the `sfn26` and **v2** members. The example of the part has
@@ -180,14 +170,21 @@ task. Delete an item when its work is done. The PR that closes an item records t
   repair of skellycam and freemocap cuts a camera pair to equal rows and blocks, cuts a sidecar at
   its first bad row, appends nothing to a media file and writes its own name as the `source` of
   `camera_gap`. From [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md): skellycam
-  gives an assigned key to a new camera with the key of a remembered camera.
+  gives an assigned key to a new camera with the key of a remembered camera. From
+  [ADR-E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) and
+  [ADR-H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md): skellycam finds
+  the candidates of a remembered camera by SFF-752; the repair does each step for the whole take;
+  the legacy playback of skellycam does not correct the early audio of old recordings and shows a
+  note that it can lead by up to about 74 ms.
 - **Permalinks to the skellycam evidence.** The new entries cite skellycam `dom/research` files as
   plain paths. Many of them are not committed yet. Change them to full-SHA permalinks after that
   branch is committed and pushed.
-- **S10b: correct the audio start of old recordings?** The audio of old skellycam recordings is
-  9–74 ms early. The user must decide if playback corrects it
-  ([ADR-CZQ9](entries/CZQ9-read-old-write-new-and-legacy-recognition.md)). skellycam does the legacy
-  playback, so the result goes into a skellycam entry. Delete this item when that entry exists.
 - **Cross-platform test tools.** At the end of this work, draft minimal one-off scripts that a
   person runs by hand on Linux and macOS (camera identity, clocks, golden bytes, the lock, capture
   and repair). The list is in skellycam `research/CAPTURE_AND_RECORDING_PLAN.md`, section 4.1.
+- **Idea for a later minor version (no decision).** A journal record type `frame`
+  (`frame_number`, `processed_ns`): "the pipeline took this frame"
+  ([ADR-1P4N](entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)).
+- **Side note (no decision): stale input signatures.** The posthoc code of freemocap puts a
+  signature of the times into the input signatures of each stage. If the fold copies that, a repair
+  that rewrites the times of a realtime run leaves those signatures stale. No rule covers it.

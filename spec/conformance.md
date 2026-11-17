@@ -539,8 +539,11 @@ Input: the output of skellycam for G1 (the cases `take` and `confirmed_key`: a c
 remembered key that the user confirmed) and of the converter for an old recording; a skellycam run
 with a forced failure of the JPEG encoder; a source that gives one source frame number two times.
 Pass: the take keys are equal in each sidecar. `camera_key` is not 0 for skellycam. When
-`key_origin` of the camera config is `computed`, `camera_key` is the hash of the identity string of
-form 1, 2 or 3 of SFF-752, built from the `device` values of the capture info JSON. When
+`key_origin` of the camera config is `computed`, `camera_key` is equal to the hash of the identity
+string of one of the forms 1 to 3 of SFF-752, built from the `device` values of the capture info
+JSON. The test computes each of these forms that the values give, because the file records no
+reason when the writer does not use a serial that is not null
+([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 4). When
 `key_origin` is `confirmed_by_user` or `assigned`, `camera_key` is 16 lowercase hexadecimal
 characters and is not 0: the test does not compute it. The confirmed camera has the remembered key
 and `confirmed_by_user`. A new camera whose computed key is the key of a remembered camera, and
@@ -564,8 +567,11 @@ of G4.
 
 **SFT-719** Reader: rows against blocks
 Checks: SFF-759
-Input: a finished pair whose sidecar has one row more than the camera file has blocks.
-Pass: the pair is `invalid` with `bad_metadata`.
+Input: a finished pair whose sidecar has one row more than the camera file has blocks; a pair of
+`repaired` of G6 whose sidecar has one row more than the camera file has blocks, changed at test
+time.
+Pass: each pair is `invalid` with `bad_metadata`
+([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 10).
 
 **SFT-720** Writer: the audio file and its sidecar
 Checks: SFF-760, SFF-761, SFF-762, SFF-764, SFF-767, SFF-768, SFF-769, SFF-770
@@ -698,8 +704,10 @@ unchanged, each sidecar has a fit, a repair line and an `# end` line, and the re
 many rows as its camera file has blocks. The repair appends nothing to a media file: the repaired
 camera file has no Cues and no new SeekHead, and the repaired audio file has no `mfra` box. The
 reader accepts the two files ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1, 3 and 4). `state` of the manifest is `finished`, and no manifest has another value of `state`.
-The repair writes the manifest after the media files and the sidecars, while it holds
-`.processing.lock`. In the manifest, `writer` is the writer string of the program that did the
+The repair does each step of SFF-793 for the whole take before the next step: it cuts each media
+file, then cuts each sidecar, then appends the fit lines, the `# repair` lines and the `# end`
+lines in that order, each to each sidecar, then writes the manifest, while it holds `.processing.lock`
+([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3). In the manifest, `writer` is the writer string of the program that did the
 repair, the summary has the values of the repaired files, and `warnings` has `camera_gap` for a
 repaired video sidecar with `gaps` more than 0, with the `source` of the program that did the repair
 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 5). No other member changes. A copy of G5 with no
@@ -892,17 +900,27 @@ with no connection pair omits `tracker_connections`. No
 Checks: SFF-833, SFF-834, SFF-844
 Input: G13, then a posthoc run on it; a fold of G13 with unfinished timing sidecars (no fit), then a
 repair of the sidecars, then freemocap opens the take; a take whose manifest has `state`
-`recording`.
+`recording`; a journal, made at test time, with two records of one frame at different latencies in
+two channels of one group; a copy of the G13 journal, made at test time, with an event that names
+a stage that is not `timing` and not the `stage` of a channel of the header
+([ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)).
 Golden part: G13.
-Pass: the fold gives a run with `origin` `realtime`, a `coverage` object and no checkpoints. In
+Pass: the fold gives a run with `origin` `realtime` in each stage, also `timing`, a `coverage`
+object and no checkpoints. In
 `coverage`, `frames_in_take` is `sample_count`, `frames_processed` is the number of frames with one
-or more data records, `skips` is `{"no_record": frames_in_take − frames_processed}`,
+or more data records of a channel of the group and stage, `skips` is
+`{"no_record": frames_in_take − frames_processed}`,
 `journal_crc_rejects` is `rejected_records` of the journal, and `clean_close` is true only when
-the journal has a good end record. Each event has `time_ns`, `stage`, `parameter` and `value`. Each
+the journal has a good end record. For the stage `timing`, `frames_processed` is the number of
+frames with one or more good data records of any channel of the group: 11 of 12 in G13. Each event
+has `time_ns`, `stage`, `parameter` and `value`. Each
 event record of the journal is in `coverage.events` of the stage that it names, for each sensor
-group, in journal order. `latency_ms` has the nearest-rank percentiles of `processed_ns` minus the
-group time m of SFF-828: `p50` is latency ⌈0.5 × k⌉ and `p99` is latency ⌈0.99 × k⌉ of the k
-latencies in increasing order, in milliseconds. Skipped
+group that has that stage, in journal order. `latency_ms` has the nearest-rank percentiles of
+`processed_ns` minus the group time m of SFF-828 at the time of the fold: `p50` is latency
+⌈0.5 × k⌉ and `p99` is latency ⌈0.99 × k⌉ of the k latencies in increasing order, in milliseconds.
+For the stage `timing`, k is `frames_processed` and each latency is the lowest latency of a frame:
+the journal with two records of one frame gives the lower of the two. The fold of the copy with
+the bad event fails, and freemocap keeps the journal. Skipped
 frames have null `x`, `y` and `visibility`. `timestamp_s` of each row of the realtime run and the
 value of each of its `TIMESTAMPS` rows equal the player times that the timing sidecars give at the
 time of the fold. With no fit, these are the arrival times. The posthoc run gets
@@ -910,6 +928,9 @@ a new `run_id`, and the realtime run is unchanged, byte for byte in its rows. Af
 freemocap opens the take, finds the `# repair` line and the new fit, and rewrites the times of the
 realtime run: they equal the fitted times of the repaired sidecars. Only `timestamp_s` and the
 values of the `TIMESTAMPS` rows of the realtime run differ: each other value of the run is unchanged.
+So `latency_ms` of each `coverage` has the values of the fold. The test takes the expected latency
+from the times at the time of the fold. It does not compute the latency again from the rewritten
+rows.
 With no agreement of the user to a repair (SFF-793), freemocap does not start the fold while
 `state` is `recording`.
 
@@ -1007,11 +1028,17 @@ Pass: the folder holds device pairs with `clock` `synthetic` and a manifest. The
 **SFT-761** Reader: device pairs and orphan files
 Checks: SFF-864, SFF-865
 Input: G3 with an extra `.mkv` with no sidecar, and a sidecar of the take with no media file; G3
-with a sidecar of another `take_uuid` with no media file.
+with a sidecar of another `take_uuid` with no media file; G3 with a sidecar with no media file and
+no `take_uuid` key, and one with no media file and a `take_uuid` in a wrong form, changed at test
+time.
 Pass: the extra `.mkv` is in `other_files` as `not_in_format`. The sidecar of the take is in the
 `files` of the take as `invalid`, with the reason `missing_media` and the path of the missing media
 file as its `name`. It gives no `extra_files`. The sidecar of the other `take_uuid` is in
-`other_files`, with the same state and reason. Its `name` there is the path of the sidecar. `folder_warnings` has `orphan_file` one time.
+`other_files`, with the same state and reason. Its `name` there is the path of the sidecar. The
+sidecar with no `take_uuid` key is in `other_files` as `invalid` with `missing_metadata`, and the
+sidecar with the wrong form as `invalid` with `bad_metadata`
+([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 5).
+`folder_warnings` has `orphan_file` one time.
 
 **SFT-762** Reader: takes and counts
 Checks: SFF-866, SFF-869, SFF-870, SFF-871
@@ -1150,11 +1177,15 @@ only.
 **SFT-770** Reader: the structure of a model in the descriptor
 Checks: SFF-893
 Input: four copies of the Parquet of G3. The test makes them at test time, with a changed
-descriptor: one with a missing member of a model; one with a member of a wrong JSON type; one with
-an unknown member in a closed type; and one that breaks only a writer rule, for example a joint
-whose `child` names no segment. A fifth copy has `1.0` for an integer member and `0` for a value
-of a `position`.
+descriptor: one with a missing member of a model, whose row gives no default; one with a member of
+a wrong JSON type; one with an unknown member in a closed type; and one that breaks only a writer
+rule, for example a joint whose `child` names no segment. A fifth copy has `1.0` for an integer
+member and `0` for a value of a `position`. A sixth copy has no `anchor_segment_name` (its row
+gives a default) and has `observation_frame` null in one segment (its row says "omitted when
+null").
 Pass: this is a test of the scope `full` only (SFF-892). For each of the first three copies, the
 `folder_files` item of the Parquet is `invalid`, with the reason `bad_schema`. The reader does not
 refuse the fourth copy: its item is `present`, as for G3. The fifth copy is also `present`: an
-"integer" is a JSON number with no fraction in its value, and a "float" is each JSON number.
+"integer" is a JSON number with no fraction in its value, and a "float" is each JSON number. The
+sixth copy is also `present`
+([ADR-H2HQ](../decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 2).

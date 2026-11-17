@@ -106,7 +106,9 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
    `tracking` for `<rec>_data.parquet`, and `calibration` for `<rec>_camera_calibration.toml`
    (G03_CHOICES.md item 28). So the `folder_files` of G7 are those of G3. Decision
    ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): when the reader
-   rebuilds a missing manifest, the role of a folder file comes from its fixed file name.
+   rebuilds a missing manifest, the role of a folder file comes from its fixed file name. [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md)
+   item 4 confirms that the TOML gets `calibration`. The two results
+   of `no_manifest` have it.
 6. SFF-883 gives `may_contain_private_data` for a `missing` manifest, and not for an `invalid`
    manifest. Choice: the rule of a missing manifest, because the reader does not use an invalid
    manifest (SFF-867). The take has camera files, so the value is true. The `privacy` list of the
@@ -202,7 +204,10 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
     contradicts SFT-763 ("each vector of G9 gives `mismatch`"). The choice of item 10 (`present`,
     `mismatch`) follows SFT-763. Decision
     ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): a folder file with
-    another `take_uuid` is `present`, and the check `take_uuid` is `mismatch`, as G9 has it.
+    another `take_uuid` is `present`, and the check `take_uuid` is `mismatch`, as G9 has it. [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md)
+    item 5 adds: the file stays with the take that lists it, or
+    whose `<rec>` its fixed name has. The rule "a folder file with no take" applies only when the
+    folder has no take.
 27. **SFF-872, `frames` and `dimensions`: the link of a Parquet camera source to its camera
     file.** The spec does not say how a reader links a camera source to its camera file: by
     `camera_key`, by `camera_label` (the source name `camera:<label>`) or by `video_filename`. G9

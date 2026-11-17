@@ -3,8 +3,10 @@
 **Accepted by the user on 2026-11-16 as conventions of the golden folders**
 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
 rule of the format only where the spec states it. A decision of the same day replaced items 2, 3
-and 4 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md)). Each of
-these items gives its decision. Item 6 is open.
+and 4 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md)). [ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3
+decided item 6, and [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md)
+items 1, 2, 3 and 10 confirmed items 2, 3 and 5. Each
+of these items gives its decision. No item is open.
 
 This file is for the six golden folders that `tools/goldgen/capture_cases.py` makes: G02, G04, G05,
 G06, G11 and G12. Most choices apply to more than one folder, so the folders have one file.
@@ -31,12 +33,17 @@ the desk tests DT-R1 and DT5.
    rows, 17 blocks), camera 1 keeps 15 (21 rows and a torn row, 15 blocks) and camera 2 keeps 9 (9
    good rows, 20 blocks). Before this decision, the generator cut each file on its own, and the
    pairs of G06 `repaired` had 22/17, 21/15 and 9/20 rows and blocks. That did not agree with
-   SFF-759. The audio pair has no such rule: its sidecar keeps its 21 rows (item 5).
+   SFF-759. The audio pair has no such rule: its sidecar keeps its 21 rows (item 5). [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md)
+   item 2 confirms this: n is the smaller of "rows before the first bad row" and "complete blocks",
+   and both files are cut to n. The audio repair does not change. A reader refuses a repaired camera
+   pair whose rows and blocks differ, as it refuses a finished pair (ADR-W5AK item 10). SFT-719 makes that vector at test time from a copy of G06 `repaired`.
 3. **The repaired camera file gets no normal end.** Decision (ADR-B6WH item 3): the repair writes
    no Cues and does not write the SeekHead again, because these writes change bytes before the cut.
    The repaired camera file is the crashed file, cut after the block of its last kept row. Nothing
    is appended. When the cut is in a Cluster, the size of that Cluster still goes past the end of
-   the file. SFF-797 is provisional (DT-R1).
+   the file. SFF-797 is provisional (DT-R1). A reader reads a repaired camera file as it reads an
+   unfinished one, and all its rows are usable frames
+   ([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) items 1 and 3).
 4. **The repaired audio file gets no `mfra` box.** Decision (ADR-B6WH item 3): the repaired audio
    file is the crashed file, cut after its last complete fragment. A reader accepts the file.
 5. **A sidecar with more samples than its audio file.** The muxer holds the open fragment in memory,
@@ -44,16 +51,18 @@ the desk tests DT-R1 and DT5.
    SFF-795 keeps each row. So the repaired sidecar has `samples=100800`, and the repaired file holds
    one fragment. SFF-785 gives the usable length. The manifest summary has `duration_s` 2.1, from
    the `# end` line (SFF-728).
-6. **`interrupted_repair` needs a repair that works in steps across the files. OPEN.** Appendix A
-   says that each sidecar of the case is `unfinished`. A repair that finishes one pair before it
-   starts the next cannot leave this state: the pairs before the stop are `repaired`, and camera 2
-   is still `damaged`. Choice: the repair cuts each media file and each sidecar (with the cuts of
-   item 2), then writes the fit lines of each sidecar, then the `# repair` lines, then the `# end`
-   lines, then the manifest. It stopped in the write of the `# repair` line of camera 2. On
-   2026-11-16, the user decided the order "for each pair, cut the media file, then cut the sidecar,
-   then append the fit lines and `# end`; the manifest is last". That order does not agree with
-   this case and with Appendix A. The user must decide which one changes
-   ([open-work.md](../decisions/open-work.md)). Until then, G06 keeps this case.
+6. **The steps of a repair and `interrupted_repair`.** Decision
+   ([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3,
+   which replaces the order "one pair before the next"): a repair does each step for the
+   whole take before it starts the next step. (1) It cuts every media file. (2) It cuts every
+   sidecar. (3) It writes the fit lines and the `# end` line to every sidecar. (4) It writes the
+   manifest. So an interrupted repair leaves the whole take unfinished, never half repaired.
+   `interrupted_repair` is a repair that stopped in step 3. In step 3, the repair writes the fit
+   lines of each sidecar, then the `# repair` lines, then the `# end` lines (SFT-733). It stopped in
+   the write of the `# repair` line of camera 2. So each sidecar is `unfinished`, as Appendix A says.
+   The bytes of the case did not change. `test_sft_733_check_on_golden` checks that each media file
+   and each sidecar of the case has its cut. The trace of SFT-733 shows only that each media file
+   is cut before the first write to a sidecar.
 7. **SFT-768 and the `gap` warning of G12.** SFT-768 names camera 0 as the only camera of G12 with
    the warning `gap`. A frame that the encoder lost makes a jump of the source frame number, and so
    the flag `gap` on the same row (SFF-756). Choice: the `encode_skip` row of camera 3 is row 0,
@@ -157,7 +166,10 @@ the desk tests DT-R1 and DT5.
     null in `duration_s`, `stored_px`, `gaps` and `filled` (SFF-724, SFF-728). The capture info JSON
     is present (SFF-801). `recording_manifest.json.tmp` holds the first half of the bytes of the old
     manifest: a write that the crash stopped. It is not valid JSON. Alternative: a complete new
-    manifest. The take has no `.processing.lock` file.
+    manifest. The take has no `.processing.lock` file. Besides the device pairs and the `.tmp` file,
+    each case of G05 and G06 holds only the manifest and the capture info JSON, and no Parquet and
+    no TOML ([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md)
+    item 6).
 29. `take.truth.json` of each case holds, for each file, `complete_blocks` or `complete_fragments`,
     `sidecar_torn_bytes` and `media_torn_bytes`, and for audio the fit of the reader (`reader_fit`,
     SFF-784, for SFT-729).
@@ -246,8 +258,8 @@ TOML, SFF-872). Each take is `complete` (SFF-869), with `manifest` `present` (SF
   lines (SFF-747, SFF-798). `rows` and `records` 17, 15, 9 and 21, from the cuts of item 2.
   `player_ns` = `arrival_ns`; audio `fitted_ns` from the fit of the reader, as in G05.
   `torn_bytes`: 20 for camera 2, the torn footer line (SFF-746); 0 for each other file, because
-  each media file is cut. `folder_warnings` `["stray_tmp"]`. The step order of this case is open
-  (item 6).
+  each media file is cut. `folder_warnings` `["stray_tmp"]`. The repair stopped in step 3 of the
+  decided order (item 6).
 - **G11, each case**: camera 1 is `invalid`, with `rows`, `torn_bytes`, `fit` and `records` null
   (SFF-885, item 8) and `["prerelease"]` (item 9). The reason: `leading_zero`, `plus_sign` and
   `row_integer_2_53`, `bad_metadata` (SFF-701); `rate_0_1` and `rate_2_20_plus_1`, `bad_rate`

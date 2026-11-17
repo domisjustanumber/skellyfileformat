@@ -38,6 +38,18 @@ Test inputs that a test makes ("G3 with X"), and the choices in them:
 - SFT-761 and SFT-762: the extra sidecar is a copy of the sidecar of camera 1 with `camera_key`
   `abcdef0123456789`, `camera_label` `abcdef` and `group_position` 2. The other take has the
   `take_uuid` `0000000000004000800000000000ffff`. The clock vector writes `linux_monotonic`.
+- SFT-736: the `key_origin` vectors change the first camera config of the capture info JSON of G3:
+  `"remembered"`, and null with a `camera_key` that is not 0. Each is `invalid` with `bad_schema`
+  ([ADR-W5AK](../../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 7).
+- SFT-761: the two sidecars whose `take_uuid` the reader cannot read are copies of the third
+  sidecar of the case `sidecar_of_another_take`: one with no `take_uuid` line (`missing_metadata`),
+  and one with `# take_uuid=nothex` (`bad_metadata`). Each reason is from SFF-748. Each sidecar is
+  `invalid` in `other_files`, with `orphan_file`
+  ([ADR-E68K](../../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 5).
+- SFT-769: the folders with one file alone hold the TOML of G3, the Parquet of G3 or the journal of
+  G13. Each is `unreadable` in the scopes `full` and `player` and for the JS reader. In the scope
+  `player`, the item is `not_in_format`, with no `orphan_file`
+  ([ADR-W5AK](../../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 8). The test does not assert the item of the scope `full`.
 - SFT-765: the four folders are copies of the case `v1a` of G15 with the folder name `old_session`.
   Each TOML that the test adds holds only `[cam_0]` with a zero `rotation`.
 - SFT-767: the test adds its files to a copy of G16 with the role `export` and `sha256` null. It
@@ -48,7 +60,9 @@ Test inputs that a test makes ("G3 with X"), and the choices in them:
 - SFT-770: the test changes the first model that has a joint. The copies are: `detector_type`
   deleted; `scale_reference_name` = 5; `skeleton.x_unknown` = 1; `child` of the first joint =
   `no_such_segment`; `handedness` of the first segment frame as `1.0` and the first `position`
-  value of the first landmark as `0`.
+  value of the first landmark as `0`; `anchor_segment_name` deleted and `observation_frame` of the
+  first segment null
+  ([ADR-H2HQ](../../decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 2).
 
 Checks that are not in a Pass text but that the tests add, each on committed files and with no
 implementation:
@@ -57,7 +71,9 @@ implementation:
   `<case>.full.json` and `<case>.player.json`.
 - `test_sft_769_committed_results` applies the `player` rules of SFT-769 to each committed pair.
 - SFT-770 checks its own copies with the structure check of `checks_folder.py`, so that a copy has
-  the fault that the test wants.
+  the fault that the test wants. It uses the reader mode of the check: a member whose row gives a
+  default can be absent, and a member that a writer omits can be null. SFT-746 uses the writer
+  mode, in which each member whose row gives a default must be present.
 
 ## 2. Pass sentences with no assertion, or with a weaker assertion
 
@@ -116,8 +132,12 @@ Parts that were not run at gate 2:
    file exists.
 5. **SFT-751, the stages of a realtime run.** SFF-834 gives `coverage` "for one sensor group and
    stage". It does not say which stages of a realtime run have a stage provenance. `fold_faults`
-   checks each stage that the run has, also a stage with no journal channel (for example `timing`),
-   for which the rule gives `frames_processed` 0.
+   checks each stage that the run has. For the stage `timing`, it counts the records of each channel
+   of the group and takes the lowest latency of each frame ([ADR-1P4N](../../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)).
+   m comes from the sidecar times in the committed reader result, not from the rows of the run. When a camera file of the
+   committed result has the state `repaired`, the files do not hold m at the time of the fold. Then
+   `fold_faults` does not compare `latency_ms`. The run of freemocap in SFT-751 checks that a repair
+   does not change it.
 6. **SFT-761, the sidecar "of the take with no media file".** The text does not say if the sidecar
    is a third sidecar or the sidecar of a deleted camera file. The test adds a third sidecar,
    because the Pass text says "It gives no `extra_files`".

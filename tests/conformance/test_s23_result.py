@@ -113,14 +113,26 @@ def test_sft_769_scope_player(reader, js_reader, golden_or_skip, expected, name,
         assert checks.scope_faults(json.loads(full), json.loads(player)) == [], case
 
 
-@pytest.mark.parametrize("kind", ["player", "js"])
-def test_sft_769_parquet_alone(reader, js_reader, golden_or_skip, tmp_path, kind):
-    """SFT-769 Reader: a folder with only the Parquet of G3, for the scope `player`. Checks: SFF-892."""
-    parquet = checks.one(golden_or_skip("G03"), "*_data.parquet")
-    shutil.copy(parquet, tmp_path / parquet.name)
+@pytest.mark.parametrize("kind", KINDS)
+@pytest.mark.parametrize(
+    ("source", "pattern"),
+    [("G03", "*_camera_calibration.toml"), ("G03", "*_data.parquet"), ("G13", "*_realtime_journal.bin")],
+    ids=["toml", "parquet", "journal"],
+)
+def test_sft_769_folder_file_alone(reader, js_reader, golden_or_skip, tmp_path, source, pattern, kind):
+    """SFT-769 Reader: a folder with only one TOML, Parquet or journal of this format. Checks: SFF-892.
+
+    The folder is `unreadable` in the two scopes (ADR-XR63 item 10). For the scope `player`, the reader
+    reads only the mark of the file, and the item is `not_in_format` with no `orphan_file` (ADR-W5AK
+    item 8).
+    """
+    alone = checks.one(golden_or_skip(source), pattern)
+    shutil.copy(alone, tmp_path / alone.name)
     result = json.loads(checks.read_bytes(kind, reader, js_reader, tmp_path))
-    item = checks.named(result["other_files"], parquet.name)
-    assert item["state"] == "not_in_format" and "orphan_file" not in result["folder_warnings"]
+    assert result["folder_state"] == "unreadable"
+    if _scope(kind) == "player":
+        item = checks.named(result["other_files"], alone.name)
+        assert item["state"] == "not_in_format" and "orphan_file" not in result["folder_warnings"]
 
 
 @pytest.mark.parametrize(("name", "case"), CASES)
