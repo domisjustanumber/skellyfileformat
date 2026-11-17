@@ -75,7 +75,7 @@ The bytes of a float are the bytes of the value as the file stores it, so `-0.0`
 
 ## How to make and check the files
 
-The reference platform is Windows x86-64 with Python 3.13.13 and the dependency group `golden` of
+The reference platform is Windows x86-64 with Python 3.13.18 and the dependency group `golden` of
 `pyproject.toml`: av 19.0.2 (FFmpeg 9.0.2, libopus 1.6.1), pillow 13.0.0, numpy 2.4.6 and pyarrow 26.0.0. On another platform,
 the encoders can give other bytes.
 

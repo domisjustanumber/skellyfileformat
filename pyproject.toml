@@ -5,7 +5,7 @@ version = "0.0.0"
 description = "File format of skellycam and skellysync recordings: the take folder, with MJPEG in MKV and Opus in fragmented MP4, each with a CSV timing sidecar"
 readme = "README.md"
 license = "Apache-2.0"
-requires-python = "==3.13.13"
+requires-python = "==3.13.18"
 dependencies = []
 
 [dependency-groups]
