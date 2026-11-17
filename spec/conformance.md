@@ -1254,8 +1254,8 @@ Checks: SFF-866, SFF-869, SFF-870, SFF-871
 Input: G9; G11; a folder with two takes; G3 with a camera missing; G3 with a third camera pair of the same
 take; G3 with a third camera pair of the same take whose sidecar is `invalid`; G3 with an audio
 sidecar of an unknown `major`; G3 with two cameras that have one label;
-G3 with sidecars that disagree on `clock`; a copy of G1 with each of these changes of G3; a copy of
-G1 with two takes.
+G3 with sidecars that disagree on `clock`; G3 with sidecars that disagree on `group_size`; a copy of
+G1 with each of these changes of G3; a copy of G1 with two takes.
 Pass: each take is reported. Two takes give `multiple_takes`. The missing camera gives `incomplete` and
 `incomplete_take`. The third camera pair gives `extra_files`, also when its sidecar is `invalid`.
 With the audio sidecar of an unknown `major`, the take is `complete`, with no `incomplete_take`,

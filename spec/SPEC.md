@@ -958,7 +958,10 @@ use its fit lines: a reader uses the fit lines only of a finished or repaired si
 
 **SFF-748** (reader) A reader refuses a timing sidecar (state `invalid`) whose header lacks a
 key that its kind requires (reason `missing_metadata`), or has a value in a wrong form (reason
-`bad_metadata`).
+`bad_metadata`). The range of `group_position` (0 to `group_size` − 1 in the header table of
+section 8) is not a form check: a reader reads a sidecar with a `group_position` at or above
+`group_size` normally, and the count of SFF-869 reports the extra file (`extra_files`)
+([ADR-QDF0](../decisions/entries/QDF0-label-form-and-group-position-range.md)).
 
 ## 8. Video timing sidecar
 
@@ -1087,7 +1090,9 @@ is the `AVCaptureDevice.uniqueID` on macOS, or the device instance ID on Windows
 form of the two values is not decided.
 
 **SFF-753** (reader) A reader refuses a sidecar whose `camera_label` does not have the form
-of SFF-720 (reason `bad_label`).
+of SFF-720 (reason `bad_label`). The form is the pattern only, 6 to 8 lowercase hexadecimal
+characters or `cam<N>`, so a reader does not refuse a label that is not the start of the
+`camera_key` of its own camera ([ADR-QDF0](../decisions/entries/QDF0-label-form-and-group-position-range.md)).
 
 **SFF-754** (writer) There is one row for each frame of the camera file, in position order.
 `frame` is 0 in the first row and increases by 1 in each row. Row k of each video sidecar of a take
