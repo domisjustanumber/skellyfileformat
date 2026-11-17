@@ -30,6 +30,9 @@ TAKE = {
 # frames give the offsets of blocks 0 to 24. No file of the take holds more than 22 rows or 20 blocks.
 MUXED = 26
 AUDIO_BLOCKS = 21  # 2.1 s: the muxer gave two fragments of 1 s to its output
+# ADR-3GWN, ADR-SM53 item 4: ns added to `adc_ns` of rows that are after the cut of `records` in both cases (19 and 9
+# blocks), so the reader fit from all rows (SFF-784) differs from a fit from the rows of `records`.
+AUDIO_JITTER_NS = {19: -25_000, 20: 40_000}
 TORN_ROW_BYTES = 37
 # For each camera: the rows that the writer wrote, and the end of the camera file. `in_block` k is a
 # cut 100 bytes into the JPEG of block k. Without it, the file ends after block 19, the end of a Cluster.
@@ -56,9 +59,9 @@ def cameras() -> list[dict]:
 
 
 def audio() -> dict:
-    """The first 2.1 s of the audio of G1."""
+    """The first 2.1 s of the audio of G1, with the jitter of `AUDIO_JITTER_NS`."""
     whole = g01.audio()
-    rows = whole["rows"][:AUDIO_BLOCKS]
+    rows = [(*row[:3], row[3] + AUDIO_JITTER_NS.get(b, 0)) for b, row in enumerate(whole["rows"][:AUDIO_BLOCKS])]
     samples = sum(n for _, n, _, _ in rows)
     return whole | {"rows": rows, "click_samples": [n for n in whole["click_samples"] if n + 48 <= samples]}
 

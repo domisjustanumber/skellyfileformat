@@ -51,6 +51,7 @@ These entries are `accepted` or `evidence`.
 | [783H](entries/783H-text-corrections-of-the-second-golden-review.md) | Golden review 2 text fixes: SFT-703, SFT-748, SFT-763, `frames_processed`, choice files; refused audio pair; `records` null; whole audio blocks; legacy dirs | accepted |
 | [7JJJ](entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md) | Supersedes W5AK: repair keeps min(rows, blocks) frames; audio repair cut to whole blocks; refused header values need the correct form; W5AK rules | accepted |
 | [64ER](entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md) | 2.0 form for an unknown major; reader audio fit from all usable rows; refused pair counts only, not take checks | accepted |
+| [3GWN](entries/3GWN-jitter-in-the-g5-audio-rows-after-the-cut.md) | G5 audio jitter after the cut: a fit from the kept rows only gives other `fitted_ns` | accepted |
 
 ### Proposed
 
@@ -59,7 +60,7 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
-| [SM53](entries/SM53-choices-for-the-decisions-of-round-7.md) | Round 7 choice: `held_samples` and `complete_blocks` in the G5 truth | `golden` | proposed |
+| [SM53](entries/SM53-choices-for-the-decisions-of-round-7.md) | Choices: `held_samples` and `complete_blocks` in the G5 truth; G5 audio jitter | `golden` | proposed |
 | [0HS2](entries/0HS2-wording-of-the-audio-repair-and-the-audio-records.md) | Wording: samples of the kept rows; usable rows; every sample in a complete fragment; audio repair steps; incomplete `mdat` | `spec` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,

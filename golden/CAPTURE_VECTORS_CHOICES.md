@@ -13,10 +13,12 @@ item 2 replaced item 5 on 2026-11-17, and
 [ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 9 gave the
 audio `records` of G05 and G06. Each of these items gives its decision.
 [ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md)
-item 2 decided item 46 on 2026-11-17. The audio members `held_samples` and `complete_blocks` of
+item 2 decided item 46 on 2026-11-17, and
+[ADR-3GWN](../decisions/entries/3GWN-jitter-in-the-g5-audio-rows-after-the-cut.md) decided the
+jitter of item 47. The audio members `held_samples` and `complete_blocks` of
 item 29 are a proposed choice
-([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 3). No other
-item is open.
+([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 3), and so are
+the values of the jitter of item 47 (ADR-SM53 item 4). No other item is open.
 
 This file is for the six golden folders that `tools/goldgen/capture_cases.py` makes: G02, G04, G05,
 G06, G11 and G12. Most choices apply to more than one folder, so the folders have one file.
@@ -179,7 +181,7 @@ the desk tests DT-R1 and DT5.
     (the cut is in the CRC field). Camera 2: 22 complete rows. Row 9 has a wrong CRC: its CRC field
     is the correct CRC with the lowest bit changed. Audio: 21 rows of 4,800 samples and a clean end.
     No sidecar has a footer line.
-27. Audio. The audio is the first 2.1 s of the audio of G1. The copy before `close()` holds `ftyp`,
+27. Audio. The audio is the first 2.1 s of the audio of G1, with the jitter of item 47. The copy before `close()` holds `ftyp`,
     `moov` and two complete fragments. `audio_clean_kill` is that copy. `audio_torn_fragment` is
     that copy, cut in the middle of the `mdat` of the second fragment: its `moof` is complete. The
     two cases differ only in this file.
@@ -197,6 +199,15 @@ the desk tests DT-R1 and DT5.
     the number of blocks whose every sample is in a complete fragment (SFF-792): 95,688 and 19 in
     `audio_clean_kill` (two fragments, 96,000 samples, minus the pre-skip of 312), 47,688 and 9 in
     `audio_torn_fragment`.
+47. **The jitter of the audio rows after the cut.** Decision
+    ([ADR-3GWN](../decisions/entries/3GWN-jitter-in-the-g5-audio-rows-after-the-cut.md)): the rows
+    whose block is not in `records` get a jitter of `adc_ns`, so that a fit from only the rows in
+    `records` gives other `fitted_ns` than the fit of item 46. Choice (ADR-SM53 item 4, proposed):
+    −25,000 ns in row 19 and +40,000 ns in row 20. These rows are after the cut in both cases. The
+    `period_fs` of `reader_fit` is 20833773125. A fit from only the rows in `records` has
+    20833356458, and its `fitted_ns` are up to 36,001 ns early in `audio_clean_kill` and up to
+    16,001 ns early in `audio_torn_fragment`. No byte of G06 changes: its audio sidecars keep only
+    rows 0 to 8.
 
 ## 6. G06
 
@@ -280,8 +291,8 @@ TOML, SFF-872). Each take is `complete` (SFF-869), with `manifest` `present` (SF
   row and the rows after it are complete lines); audio, 0 in `audio_clean_kill` and 0 + 5,870 in
   `audio_torn_fragment` (SFF-792). `fit` false, `missing_fit` and `player_ns` = `arrival_ns` for
   each camera (SFF-781). Camera 0 has `gap` (SFF-887). For audio, `fit` false and `missing_fit`,
-  and `fitted_ns` is from the fit of the reader: `t0_ns` 12344678, `period_fs` 20833356458
-  (SFF-784, SFF-779). `frames` is `not_checked` in the two scopes: no file is `finished` (SFF-872).
+  and `fitted_ns` is from the fit of the reader: `t0_ns` 12344678, `period_fs` 20833773125
+  (SFF-784, SFF-779, item 47). `frames` is `not_checked` in the two scopes: no file is `finished` (SFF-872).
 - **G06 `repaired`**: each file `repaired`: a `# repair` line and a last `# end` line (SFF-795).
   `torn_bytes` 0 (SFF-791). `fit` true and `player_ns` from the fit lines (SFF-781, SFF-777).
   `rows` and `records` 17, 15, 9 and 9: each camera pair has equal rows and blocks (item 2), and
@@ -290,7 +301,8 @@ TOML, SFF-872). Each take is `complete` (SFF-869), with `manifest` `present` (SF
   is not in the row-count part (SFF-872).
 - **G06 `interrupted_repair`**: each file `unfinished`, `fit` false, `missing_fit`, also with fit
   lines (SFF-747, SFF-798). `rows` and `records` 17, 15, 9 and 9, from the cuts of items 2 and 5.
-  `player_ns` = `arrival_ns`; audio `fitted_ns` from the fit of the reader, as in G05.
+  `player_ns` = `arrival_ns`; audio `fitted_ns` from the fit of the reader of its 9 rows
+  (SFF-784): `period_fs` 20833356458, not the value of G05 (item 47).
   `torn_bytes`: 20 for camera 2, the torn footer line (SFF-746); 0 for each other file, because
   each media file is cut. `folder_warnings` `["stray_tmp"]`. The repair stopped in step 3 of the
   decided order (item 6).

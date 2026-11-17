@@ -34,11 +34,10 @@ task. Delete an item when its work is done. The PR that closes an item records t
   them first). It changes one rule of [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md)
   and [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md), so the [Rules](README.md#rules) can need
   an entry that supersedes them.
-- **Proposed choices and wording.** The user must accept or change the choice of
+- **Proposed choices and wording.** The user must accept or change the choices of
   [ADR-SM53](entries/SM53-choices-for-the-decisions-of-round-7.md) (proposed): the new members of
-  the G5 truth files. The user must also accept or change each text correction of
+  the G5 truth files and the values of the G5 audio jitter. The user must also accept or change each text correction of
   [ADR-0HS2](entries/0HS2-wording-of-the-audio-repair-and-the-audio-records.md) (proposed).
-- **Idea (no decision): G5 audio jitter.** The G5 audio `adc_ns` values are exactly linear, so the golden results cannot tell a fit from all rows from a fit from the kept blocks; jitter in the rows after the cut would.
 - **Absorb the accepted entries into the spec.** The check of 2026-11-16 absorbed 16 entries. Each
   entry of this list stays Active: no absorb document states the rule of its line, or a later entry
   (in brackets) changed the rule and no entry supersedes the old text (the [Rules](README.md#rules)).

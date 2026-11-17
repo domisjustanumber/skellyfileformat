@@ -272,6 +272,19 @@ def test_g05_audio_fit_of_the_reader():
         assert take["files"][-1]["records"] == expected[:whole], "only the blocks in the complete fragments (SFF-792)"
 
 
+def test_g05_audio_fit_from_kept_rows_differs():
+    """ADR-3GWN: a fit from only the rows in `records` gives other `fitted_ns` than SFF-784."""
+    for case in ("audio_clean_kill", "audio_torn_fragment"):
+        take = take_of("G05", case)
+        sidecar = (GOLDEN / "G05" / case / take["files"][-1]["name"]).with_suffix(".csv").read_bytes()
+        records = take["files"][-1]["records"]
+        rows = [[int(f) for f in row.split(b",")[:6]] for row in split_sidecar(sidecar)[1]][: len(records)]
+        (_, n_a, _, _, t_a, _), (_, n_b, _, _, t_b, _) = rows[0], rows[-1]
+        period_fs = (t_b - t_a) * 10**6 // (n_b - n_a)
+        wrong = [t_a + (row[1] - n_a) * period_fs // 10**6 for row in rows]
+        assert max(abs(w - r[4]) for w, r in zip(wrong, records)) > 10_000
+
+
 def test_g06_repair_changes_no_byte_before_its_cut():
     before = files_of(GOLDEN / "G05" / "audio_torn_fragment")
     for case in ("repaired", "interrupted_repair"):
