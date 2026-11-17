@@ -75,12 +75,16 @@ Fix the failures of one root cause in one PR.
   3. Write the runnable tests and the golden files. The tests fail, because there is no
      implementation yet.
   4. Stop. The user reviews them (gate 2).
-  5. Write the implementation. It is complete when its tests pass.
+  5. Write the implementation. It is complete when its tests pass. Write the Python reader first,
+     then the Python writer, then the JavaScript reader
+     ([ADR-Z641](decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 4).
 - Do not write implementation code for a part before the user approves gate 2 for that part.
-- The gate 2 approval of spec draft v2 covers each conformance test and the golden folders G1 to
-  G16. It does not cover the exports (SPEC.md section 18.3), the skellysync folders and G17, or the
-  provisional points that wait for a desk test or a hardware test. For these, write only the
-  provisional behaviour that the spec gives now
+- The gate 2 approval of spec draft v2 covers each conformance test that this repository runs and
+  the golden folders G1 to G16. This includes each test that uses an `exports/` folder only as
+  input, for example to check that a reader ignores it. The approval does not cover a test of the
+  content of an export file. That test waits with SPEC.md section 18.3. The approval also does not
+  cover the skellysync folders and G17, or the provisional points that wait for a desk test or a
+  hardware test. For these, write only the provisional behaviour that the spec gives now
   ([ADR-Z641](decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 2).
 - A bug fix needs a test that fails before the fix.
 - Each requirement in `spec/SPEC.md` has an ID `SFF-NNN`. Each test in `spec/conformance.md` has

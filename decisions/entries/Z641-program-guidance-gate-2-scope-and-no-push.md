@@ -5,7 +5,7 @@
 [`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
 [`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q161, Q163 and Q164 of
-round 9; "agree to all")).
+round 9, and Q166 and Q167 of round 10; "agree to all")).
 
 ## Decision
 
@@ -25,14 +25,19 @@ The user accepted these items. Each item gives its question number.
      not apply to it.
 
    ADR-G9ER links these two headings in place of the text.
-2. **The scope of a gate 2 approval (Q163).** The gate 2 approval of spec draft v2 covers each
-   conformance test and the golden folders G1 to G16. It does not cover the exports (section 18.3),
-   the skellysync folders and G17, or the provisional points that wait for a desk test or a
-   hardware test. For these, the implementation writes only the provisional behaviour that the spec
-   gives now. On 2026-11-17, the user had not approved gate 2.
+2. **The scope of a gate 2 approval (Q163, Q166).** The gate 2 approval of spec draft v2 covers
+   each conformance test that this repository runs and the golden folders G1 to G16. This includes
+   each test that uses an `exports/` folder only as input, for example to check that a reader
+   ignores it (Q166). The approval does not cover a test of the content of an export file. That
+   test waits with section 18.3. The approval also does not cover the skellysync folders and G17,
+   or the provisional points that wait for a desk test or a hardware test. For these, the
+   implementation writes only the provisional behaviour that the spec gives now. On 2026-11-17, the
+   user had not approved gate 2.
 3. **No push before gate 2 (Q164).** skellyfileformat is not pushed before the user approves
    gate 2. This agreement ends at the approval, so the gate 2 item of
    [open-work.md](../open-work.md) states it.
+4. **The order of implementation (Q167).** After the gate 2 approval, the implementation starts
+   with the Python reader. The Python writer is next. The JavaScript reader is last.
 
 ## Reason
 
@@ -43,6 +48,10 @@ The user accepted these items. Each item gives its question number.
   approval. So `AGENTS.md` states the scope.
 - Item 3: each correction from the gate 2 review can then change the entries in place, because an
   entry that is not pushed can change in each part ([Rules](../README.md#rules)).
+- Item 4: the tests check the reader directly against the golden folders. The tests check the
+  writer when the reader reads back the files that the writer writes. The JavaScript reader must
+  give the same bytes as the Python reader. Step 5 of the gate order in section 4 of `AGENTS.md`
+  states the order.
 
 ## Consequences
 
