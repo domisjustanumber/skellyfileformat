@@ -18,7 +18,6 @@ These entries are `accepted` or `evidence`.
 
 | # | Decision | Status |
 |---|----------|--------|
-| [FB8P](entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) | Refused pair counts; `rotation` member; `invalid` file; interrupted audio `records`; legacy subfolders | accepted |
 | [G9ER](entries/G9ER-consolidation-of-the-pushed-entries.md) | Consolidation: supersedes 3D33, 5XNA, 92TM, 9DV4, G1YG, KW3G, N6HS, P76Y, Q9X2, VPD9; kept rules by link; three rules as text | accepted |
 
 ### Proposed
@@ -29,7 +28,7 @@ These entries wait for a decision of the user. Section is the section or area of
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
 | [SM53](entries/SM53-choices-for-the-decisions-of-round-7.md) | Choices: `held_samples` and `complete_blocks` in the G5 truth; G5 audio jitter | `golden` | proposed |
-| [0HS2](entries/0HS2-wording-of-the-audio-repair-and-the-audio-records.md) | Wording: samples of the kept rows; usable rows; every sample in a complete fragment; audio repair steps; incomplete `mdat` | `spec` | proposed |
+| [0HS2](entries/0HS2-wording-of-the-audio-repair-and-the-audio-records.md) | Wording: samples of the kept rows; every sample in a complete fragment; audio repair steps; incomplete `mdat`; item 2 moved to FB8P | `spec` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

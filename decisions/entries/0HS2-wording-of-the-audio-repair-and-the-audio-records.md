@@ -1,18 +1,21 @@
 # 0HS2 — Wording of the audio repair and the audio records
 
 **Status:** proposed, 2026-11-17 (agent; text corrections from an independent review of the spec
-after round 8).
+after round 8). Item 2 was accepted, 2026-11-17 (user; "accept 0HS2 item 2"), and moved to
+[ADR-FB8P](FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)
+item 4.
 
 ## Decision
 
-The user did not decide these corrections. An agent applied them. No rule changes, and no golden
-byte changes. The user must accept or change each of them.
+The user did not decide items 1, 3, 4 and 5. An agent applied them. No rule changes, and no golden
+byte changes. The user must accept or change each of them. Item 2 is in ADR-FB8P item 4 now.
 
 1. **The audio that a repair keeps (SFF-728, SFF-795, SFF-796).** "Count only the audio that the
    repair keeps" had two readings: the 47,688 samples that the cut audio file holds, or the
    43,200 samples of the kept rows. The golden `repaired` of G6 has 0.9 s, the sum of `n_samples`
    of the kept rows (SFF-769). The text now says "the samples of the kept rows".
-2. **`rows` of an unfinished audio file (SFF-792, SFT-732).** The text said that `rows` "counts each
+2. **`rows` of an unfinished audio file (SFF-792, SFT-732). Moved to ADR-FB8P item 4 (accepted
+   by the user on 2026-11-17).** The text said that `rows` "counts each
    complete row (SFF-746)". In SFF-746, a complete row can have a wrong CRC. The text now uses the
    words of section 23 and SFF-740: each row that SFF-746 lets the reader use.
 3. **The term "has a complete fragment" (SFF-792, SFF-795, SFF-796, section 23).** The defined test

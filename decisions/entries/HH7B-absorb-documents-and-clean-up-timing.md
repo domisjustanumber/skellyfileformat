@@ -3,20 +3,22 @@
 **Status:** absorbed into
 [`decisions/README.md#rules`](../README.md#rules),
 [`spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap`](../../spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap),
-2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q154 to Q156 of the
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q154 to Q157 of the
 clean-up of the decision log; commit to main)).
 
 ## Decision
 
-The user accepted these rules ("agree to all"). Each item gives its question number.
+The user accepted these rules ("agree to all", and "Q157 - yes" for the detail of item 1). Each
+item gives its question number.
 
 1. **The golden documents are absorb documents (Q154).** `golden/README.md` and the files
    `golden/*_CHOICES.md` are absorb documents. They state the conventions of the golden folders.
    [`AGENTS.md`](../../AGENTS.md#4-project-rules) already requires an entry for a change of a
    golden file.
-   - Agent detail, not put to the user (corrected on 2026-11-17): the Rules also list the
-     normative parts `spec/parts/*.md` of `spec/SPEC.md` as absorb documents, because `SPEC.md`
-     makes them normative and entries link into them. The user must confirm this detail.
+   - The normative parts (Q157): the Rules also list the normative parts `spec/parts/*.md` of
+     `spec/SPEC.md` as absorb documents, because `SPEC.md` makes them normative and entries link
+     into them. An agent added this detail. The user confirmed it on 2026-11-17 ("Q157 - yes";
+     corrected on 2026-11-17).
 2. **The time of the clean-up (Q155).** The absorb pass and the consolidation entry of
    [ADR-H2HQ](H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 6 are done now,
    before the gate 2 review and before any push. This replaces the time of Q129 ("after the gate 2

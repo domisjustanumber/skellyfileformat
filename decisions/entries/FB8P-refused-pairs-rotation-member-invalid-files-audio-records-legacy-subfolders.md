@@ -1,7 +1,12 @@
 # FB8P — A refused camera pair, a `rotation` member in the capture info JSON, an `invalid` file, the `records` of an interrupted audio file, the legacy subfolders
 
-**Status:** accepted, 2026-11-16 (user; questions Q139 to Q143 of round 6 of the review of the
-golden folders).
+**Status:** absorbed into
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; questions Q139 to Q143 of round 6 of
+the review of the golden folders; commit to main)).
 
 ## Decision
 
@@ -19,7 +24,11 @@ The user accepted these rules. Each item gives its question number.
 3. **An `invalid` file (Q141).** An `invalid` file has the warning `prerelease` when the reader can
    read `format_prerelease` and the value is above 0 (SFF-891). It has `records` null, not `[]` (SFF-885;
    [ADR-783H](783H-text-corrections-of-the-second-golden-review.md) item 8, Q148, corrected on 2026-11-17).
-4. **An interrupted audio file (Q142).** `rows` counts the complete rows. `records` holds only the
+4. **An interrupted audio file (Q142).** `rows` counts each row that SFF-746 lets the reader use
+   (SFF-792; the words of section 23 and SFF-740). In SFF-746, a complete row can have a wrong
+   CRC, so "the complete rows" was not correct. This is the text of
+   [ADR-0HS2](0HS2-wording-of-the-audio-repair-and-the-audio-records.md) item 2, which the user
+   accepted on 2026-11-17 (corrected on 2026-11-17). `records` holds only the
    blocks whose every sample is in a complete fragment ([ADR-783H](783H-text-corrections-of-the-second-golden-review.md) item 9, Q145;
    corrected on 2026-11-17). This is the rule of an unfinished camera file (SFF-740,
    [ADR-B6WH](B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2).

@@ -35,18 +35,16 @@ task. Delete an item when its work is done. The PR that closes an item records t
   rules of ADR-9DV4 and ADR-VPD9 now.
 - **Proposed choices and wording.** The user must accept or change the choices of
   [ADR-SM53](entries/SM53-choices-for-the-decisions-of-round-7.md) (proposed): the new members of
-  the G5 truth files and the values of the G5 audio jitter. The user must also accept or change each text correction of
-  [ADR-0HS2](entries/0HS2-wording-of-the-audio-repair-and-the-audio-records.md) (proposed).
-- **Entries that stay Active after the absorb pass of 2026-11-17.**
+  the G5 truth files and the values of the G5 audio jitter. The user must also accept or change the
+  text corrections 1, 3, 4 and 5 of
+  [ADR-0HS2](entries/0HS2-wording-of-the-audio-repair-and-the-audio-records.md) (proposed). The
+  user accepted item 2 on 2026-11-17. It is in
   [ADR-FB8P](entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)
-  item 4 says that `rows` of an interrupted audio file counts the complete rows. The spec now says
-  "each row that SFF-746 lets the reader use", the text of ADR-0HS2 item 2 (proposed). Absorb
-  ADR-FB8P when the user decides that item. ADR-G9ER restates as text three rules that fit no absorb
-  document: ADR-VPD9 item 6 (the flag replaces the encoder-skip log message) and ADR-Q9X2 items 2
-  and 7.
-- **Confirm an absorb document.** The user must confirm the agent detail of
-  [ADR-HH7B](entries/HH7B-absorb-documents-and-clean-up-timing.md) item 1: the Rules list
-  `spec/parts/*.md` as absorb documents.
+  item 4 now.
+- **An entry that stays Active after the absorb pass of 2026-11-17.**
+  [ADR-G9ER](entries/G9ER-consolidation-of-the-pushed-entries.md) restates as text three rules that
+  fit no absorb document: ADR-VPD9 item 6 (the flag replaces the encoder-skip log message) and
+  ADR-Q9X2 items 2 and 7.
 - **Provisional parts of spec draft v2.** Close each of them before v2.0.0:
   - SFF-752 (Q107, [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 11): the
     source and the text form of `port_path` and `os_device_id` on each OS are not
