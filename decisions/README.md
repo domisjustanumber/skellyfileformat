@@ -40,17 +40,14 @@ These entries are `accepted` or `evidence`.
 | [70VP](entries/70VP-camera-identity-forms-and-remembered-keys.md) | Camera identity: serial, port, OS device or assigned form; remembered key after the user confirms; `key_origin`; `user_name` is metadata only | accepted |
 | [94YQ](entries/94YQ-golden-g1-review-decisions.md) | G1 review: file warning `gap`; `DefaultDuration` rounded down; G1 choices are the golden conventions; freemocap suggests camera matches from calibration | accepted |
 | [W389](entries/W389-format-rules-from-the-golden-conventions.md) | Format rules from G1: privacy list in byte order; no line end after a result; unknown elements and boxes ignored; key order in the capture info JSON | accepted |
-| [B6WH](entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) | Repair: rows = blocks in a camera pair; cut at the first bad row; no normal end of a media file; `camera_gap` source; `rows` of an unfinished file | accepted |
 | [XR63](entries/XR63-reader-rules-of-the-golden-review.md) | Reader rules: legacy keys at any depth; refused sidecars out of take checks; role `calibration`; `dimensions`; unknown major; open descriptor members | accepted |
 | [2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) | Test wording; golden conventions; `format_prerelease` after external review; usable serial frozen; assigned key for a new camera; exports provisional | accepted |
 | [E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) | Camera match by vendor and product ID, else `model`; repair each step for the whole take; SFT-717 forms; sidecar with no `take_uuid`; G5 and G6 files | accepted |
 | [H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) | Optional `filtering`, `camera_assignment`; absent and null model members; points wait for `sfn26` and 18.3; old audio not corrected; consolidation after gate 2 | accepted |
-| [1P4N](entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md) | Realtime `timing` stays `realtime`; hit = a frame with a good record of its group; lowest latency per frame; event stages; latency fixed at the fold | accepted |
 | [158N](entries/158N-details-for-the-decisions-of-round-3.md) | Camera match null test, prompt; repair step 3; interrupted repair stays `recording`; no-`take_uuid` sidecar; "has a default"; `timing` coverage; orphan file | accepted |
 | [FB8P](entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) | Refused pair counts; `rotation` member; `invalid` file; interrupted audio `records`; legacy subfolders | accepted |
 | [783H](entries/783H-text-corrections-of-the-second-golden-review.md) | Golden review 2 text fixes: SFT-703, SFT-748, SFT-763, `frames_processed`, choice files; refused audio pair; `records` null; whole audio blocks; legacy dirs | accepted |
 | [7JJJ](entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md) | Supersedes W5AK: repair keeps min(rows, blocks) frames; audio repair cut to whole blocks; refused header values need the correct form; W5AK rules | accepted |
-| [64ER](entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md) | 2.0 form for an unknown major; reader audio fit from all usable rows; refused pair counts only, not take checks | accepted |
 | [3GWN](entries/3GWN-jitter-in-the-g5-audio-rows-after-the-cut.md) | G5 audio jitter after the cut: a fit from the kept rows only gives other `fitted_ns` | accepted |
 
 ### Proposed
@@ -84,6 +81,9 @@ The open work is in [open-work.md](open-work.md).
   `citation repair`. Add these two lines only to an entry that is on `main`. A plain-text
   old path in a decided entry or a script stays, and means the same file at
   its new path.
+- An entry in a commit that is not pushed to a remote can change in that commit, in each part. Make
+  the correction and report it to the user. Do not write a new entry for it, and do not ask. The
+  four edits apply from the first push.
 - A decision that a document or code refers to must be in an entry. "This log" in an older entry or
   in the Rules means all logs.
 - An absorb document is one of these: the root or a nested `AGENTS.md`, the skills, `README.md`, `spec/SPEC.md`, `spec/conformance.md`, the Rules of this file with [template.md](template.md), and the docstring of a
@@ -91,6 +91,10 @@ The open work is in [open-work.md](open-work.md).
   documents together state all of its rules. Open work of the entry does not stop the absorb when
   `open-work.md` states that work in full. A link to the entry is not
   enough.
+- Absorb at landing. The commit group that writes or lands an entry, or that writes the rules of an
+  entry into the absorb documents, absorbs the entry in its last commit when the absorb documents
+  state all of its rules. This applies in each log, in each skill and without a skill. If an absorb
+  document does not state a rule, the entry stays `accepted`. Do not ask the user.
 - The status `absorbed into` has one link for each heading that states a rule of the entry. Link a
   heading one time, also when it states two or more rules. Link a file with no anchor only when the
   rule is not under a heading, for example in a tool docstring or a YAML file. When the status
@@ -101,7 +105,8 @@ The open work is in [open-work.md](open-work.md).
   a file link to heading links is a link repair.
 - The entry that supersedes an old entry restates each rule of the old entry that stays. A link can
   restate a rule. The link must go to a heading of an absorb document, and that heading must state
-  the rule. The commit that changes the text under such a heading cites its own entry next to the
+  the rule. Link the heading of each kept rule that a heading states. Write text only for a changed
+  rule and for a kept rule that no heading states. The commit that changes the text under such a heading cites its own entry next to the
   changed rule. That change does not supersede the entry that links the heading.
 - Only these status changes are allowed: `proposed` to `accepted` or `rejected`; `accepted` to
   `superseded by XXXX`, `absorbed into <path>#<anchor>` or `done`; `absorbed into <path>#<anchor>`

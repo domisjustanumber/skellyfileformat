@@ -1,7 +1,11 @@
 # B6WH — Repair: equal rows and blocks, the cut at the first bad row, no normal end of a media file
 
-**Status:** accepted, 2026-11-16 (user; questions Q83 to Q86 and Q109 of the review of the golden
-capture vectors).
+**Status:** absorbed into
+[`spec/SPEC.md#6-camera-files`](../../spec/SPEC.md#6-camera-files),
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; questions Q83 to
+Q86 and Q109 of the review of the golden capture vectors)).
 
 ## Decision
 

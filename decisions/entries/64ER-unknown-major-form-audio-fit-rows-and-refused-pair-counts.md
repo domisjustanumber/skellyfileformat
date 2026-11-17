@@ -1,7 +1,11 @@
 # 64ER — The form of an unknown major, the rows of the reader fit of an audio file, and the counts of a refused pair
 
-**Status:** accepted, 2026-11-17 (user; questions Q151 and Q152 of round 8 of the review of the
-golden folders, and the reading of Q147; commit to main).
+**Status:** absorbed into
+[`spec/SPEC.md#11-clocks-the-fit-and-reader-timing`](../../spec/SPEC.md#11-clocks-the-fit-and-reader-timing),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q151 and
+Q152 of round 8 of the review of the golden folders, and the reading of Q147; commit to main)).
 
 ## Decision
 

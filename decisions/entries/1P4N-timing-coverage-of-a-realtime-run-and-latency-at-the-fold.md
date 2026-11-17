@@ -1,7 +1,11 @@
 # 1P4N — The coverage of the stage `timing` of a realtime run, and the latency at the time of the fold
 
-**Status:** accepted, 2026-11-16 (user; questions Q94 and Q130 of round 4 of the review of the
-golden folders).
+**Status:** absorbed into
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
+[`spec/conformance.md#tracking-parquet-section-16`](../../spec/conformance.md#tracking-parquet-section-16),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; questions Q94 and
+Q130 of round 4 of the review of the golden folders)).
 
 ## Decision
 
