@@ -27,7 +27,7 @@ def test_sft_766_golden_part(golden_or_skip):
 
 
 def test_sft_766_writer_part(writer, tmp_path):
-    """SFT-766 Writer: the privacy list of the manifest that the package writer writes (a camera with a name, a serial and a port)."""
+    """SFT-766 Writer: the privacy list of the manifest that the writer of the test adapter writes (a camera with a name, a serial and a port)."""
     capture.record_take(writer, tmp_path / "take", audio=capture.microphone())
     assert checks.privacy_faults(tmp_path / "take") == []
 

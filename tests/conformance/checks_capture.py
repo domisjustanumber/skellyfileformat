@@ -2,9 +2,9 @@
 
 Each `check_*` function takes a folder or a file and asserts. It imports no implementation, so the same
 check runs on the output of the writer and on a golden folder. The parsers here are independent of the
-package: stdlib only. The decoders use PyAV and Pillow through `pytest.importorskip`.
+test adapter: stdlib only. The decoders use PyAV and Pillow through `pytest.importorskip`.
 
-The interfaces that these helpers and the tests expect from the package are in
+The interfaces that these helpers and the tests expect from the test adapter are in
 INTERFACE_NOTES_capture.md.
 """
 
@@ -115,7 +115,7 @@ def row_line(fields: list) -> str:
 
 @dataclass
 class Sidecar:
-    """A timing sidecar, read strictly (SFF-746), with no use of the package."""
+    """A timing sidecar, read strictly (SFF-746), with no use of the test adapter."""
 
     path: Path
     data: bytes

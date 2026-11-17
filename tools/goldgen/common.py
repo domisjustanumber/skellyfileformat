@@ -1,8 +1,8 @@
 """Shared code of the golden generator (decision G21H item 9).
 
 The generator writes the golden folders of spec/SPEC.md Appendix A from synthetic input. This module
-holds the parts that more than one golden folder uses. It is not the reader and not the writer of the
-package: it writes each file directly from the text of the spec, and it derives each expected reader
+holds the parts that more than one golden folder uses. It is not the reader and not the writer of an
+implementation: it writes each file directly from the text of the spec, and it derives each expected reader
 result from its own input, not from a read of the files.
 
 The media builders need the dependency group ``golden``. Each other function needs only the standard

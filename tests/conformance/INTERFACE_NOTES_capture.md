@@ -3,25 +3,28 @@
 These notes belong to the test files `test_s02_03_conventions.py`, `test_s04_05_folder_manifest.py`,
 `test_s06_camera.py`, `test_s07_10_sidecars_audio.py`, `test_s11_timing.py` and
 `test_s12_crash_repair.py`, and to `checks_capture.py` and `conftest.py`. They record what the tests
-assume of the future Python package and of the JavaScript reader. `INTERFACE_NOTES_folder.md` holds
+assume of the test adapter of an implementation: the Python adapter and the JavaScript adapter. `INTERFACE_NOTES_folder.md` holds
 the same for SFT-735 to SFT-770.
 The status of each choice is: proposed. The user did not review this file.
 
 [ADR-G21H](../../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) fixes only the
-names and the main arguments of the public interface. The column "Fixed by G21H" shows which part of
-each row it fixes. Each other part is "assumed by the tests, not decided".
+names and the main arguments of the interface. [ADR-YBT1](../../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) keeps them as the interface that a test adapter
+exposes, not as a product API. The column "Fixed by G21H" shows which part of each row they fix.
+Each other part is "assumed by the tests, not decided".
 
 ## 1. Names that the tests call
 
-The tests get the package from the fixtures `reader` and `writer` of `conftest.py`. Both fixtures give
-the top-level module `skellyfileformat`. The child process of SFT-730 also imports that module, so
-`TakeWriter` and `repair_take` must be attributes of it.
+The tests get the Python adapter from the fixtures `reader` and `writer` of `conftest.py`. Both
+fixtures give the module that the environment variable `SKELLYFILEFORMAT_ADAPTER` names. The child
+process of SFT-730 also imports that module, with the `sys.path` of the test process, so
+`TakeWriter` and `repair_take` must be attributes of it. The JavaScript adapter is the folder that
+`SKELLYFILEFORMAT_JS_ADAPTER` names. An agent chose this configuration ([ADR-K4Y1](../../decisions/entries/K4Y1-test-adapter-seam-choices.md), proposed).
 
 | Name | Signature and shape | Fixed by G21H | Test |
 |---|---|---|---|
 | `read_folder` | `read_folder(path, records=False, scope="full")`. `path` is a `pathlib.Path`. The tests pass `records` and `scope` as keywords. The tests never read the return value. They give it to `canonical_json`. | The name, `path`, `records` and the return value (the reader result of SPEC.md section 23). The `scope` argument is assumed by the tests, not decided. | SFT-701 to SFT-704, SFT-706, SFT-707, SFT-709, SFT-710, SFT-713, SFT-714, SFT-716 to SFT-719, SFT-725, SFT-727 to SFT-729, SFT-731 to SFT-734 |
 | `canonical_json` | `canonical_json(result) -> bytes`: the RFC 8785 bytes, with no line end. The tests parse these bytes with `json.loads`. | The name and the argument. The return type `bytes` is assumed by the tests, not decided. | The same tests as `read_folder` |
-| `js_reader` (fixture) | `js_reader(folder, records=False) -> bytes`: the standard output of `node js/bin/read-folder.mjs <folder> [--records]`. The test needs exit code 0. The output must be the `player` result. | The command and `<folder>`. The flag `--records`, and the rule that the command gives the scope `player`, are assumed by the tests, not decided. | SFT-702, SFT-703, SFT-727, SFT-729 |
+| `js_reader` (fixture) | `js_reader(folder, records=False) -> bytes`: the standard output of `node <JavaScript adapter>/bin/read-folder.mjs <folder> [--records]`. The test needs exit code 0. The output must be the `player` result. | The command (now the command of the JavaScript adapter) and `<folder>`. The flag `--records`, and the rule that the command gives the scope `player`, are assumed by the tests, not decided. | SFT-702, SFT-703, SFT-727, SFT-729 |
 | `TakeWriter` | `TakeWriter(folder, rec, cameras, audio, *, writer, trace=None, mode="capture")`. See section 2 for the arguments. The constructor returns after it writes the manifest (`state` `recording`) and the capture info JSON. | The name only. Each argument is assumed by the tests, not decided. | SFT-700, SFT-703, SFT-705, SFT-708, SFT-711, SFT-712, SFT-715, SFT-717, SFT-720, SFT-722, SFT-725, SFT-726, SFT-730 |
 | `TakeWriter.take_start_host_ns` | An `int`: the take start on the host clock, in ns. The tests read it after the constructor returns. | Assumed by the tests, not decided | SFT-708, SFT-712, SFT-717, SFT-722 |
 | `TakeWriter.write_frame` | `write_frame(index, data, host_ns, *, source_frame_number, sample_ns=None)`. `index` is the `group_position` of the camera. `data` is a `bytes` object: a JPEG, or a raw YUYV frame when the camera config has `capture_format` `YUYV`. `host_ns` is an absolute host time (the take start plus the row time). `sample_ns` is absolute too, or `None`. `source_frame_number` is an `int` or `None`. | The name only | SFT-700, SFT-708, SFT-711, SFT-712, SFT-717, SFT-722 |

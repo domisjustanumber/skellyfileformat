@@ -2,7 +2,7 @@
 
 It writes the calibration TOML (section 15), the tracking Parquet with its descriptor (section 16) and
 the processing info JSON (section 14), adds them to the manifest of a take of `common.write_take`,
-and gives the expected reader result of that take. It is not the writer of the package: each file
+and gives the expected reader result of that take. It is not the writer of an implementation: each file
 comes directly from the text of the spec.
 
 Only `write_parquet` needs the dependency group ``golden`` (pyarrow).

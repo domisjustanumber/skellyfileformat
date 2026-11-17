@@ -1,4 +1,4 @@
-"""The stage marks of tests/conformance/conftest.py agree with spec/conformance.md (decision CPM2).
+"""The stage marks of tests/conformance/conftest.py agree with spec/conformance.md (decisions CPM2 and YBT1).
 
 The section "The stage of each test" of conformance.md has two tables. The conftest holds the same
 facts as `STAGES`, `PARTS`, `GOLDEN_RULE` and `GOLDEN_STAGES`. This check compares them.

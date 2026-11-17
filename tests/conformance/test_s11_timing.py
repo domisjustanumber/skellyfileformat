@@ -109,7 +109,7 @@ def test_sft_727_fit_evaluation(reader, js_reader, golden_or_skip, variant, expe
 def test_sft_728_player_time_and_frame_shown(reader, golden_or_skip, target):
     """SFT-728 Reader: player time and the frame shown. Checks: SFF-781, SFF-782, SFF-783.
 
-    The fitted times are computed here from the fit lines of each sidecar, with no use of the package.
+    The fitted times are computed here from the fit lines of each sidecar, with no use of the test adapter.
     """
     name = target.split("/")[0]
     folder = golden_or_skip(*target.split("/"))
@@ -166,7 +166,7 @@ def test_sft_729_audio_mapping_and_length(reader, js_reader, golden_or_skip, var
     """SFT-729 Reader: audio mapping and length. Checks: SFF-784, SFF-785.
 
     The fit of the reader and the usable length are computed here from the golden files, with the
-    formulas of SFF-784 and SFF-785 and no use of the package. `reader_fit` of the truth file of G5
+    formulas of SFF-784 and SFF-785 and no use of the test adapter. `reader_fit` of the truth file of G5
     is the committed value.
     """
     vector, target, impl = (vector.split(":") + [""])[:3]

@@ -20,7 +20,7 @@ def test_sft_700_text_integers_json_ids_crcs(writer, tmp_path):
     """SFT-700 Writer: text files, integers, JSON, IDs and CRCs.
 
     Checks: SFF-700, SFF-701, SFF-702, SFF-703, SFF-704, SFF-705.
-    The package writer writes the files of a capture (G1). The golden check below covers G3.
+    The writer of the test adapter writes the files of a capture (G1). The golden check below covers G3.
     """
     folder = tmp_path / "take"
     sent = c.record_take(writer, folder, audio=c.microphone())

@@ -43,7 +43,7 @@ def test_sft_716_strict_reading(reader, golden_or_skip, variant, vector, case):
     """SFT-716 Reader: strict reading. Checks: SFF-746, SFF-747.
 
     The cameras of G5: 0 has a clean cut, 1 has a torn row of 37 bytes, 2 has a row with a wrong CRC.
-    `torn_bytes` is compared with the sum of SFF-791, from parsers that do not use the package.
+    `torn_bytes` is compared with the sum of SFF-791, from parsers that do not use the test adapter.
     """
     if vector == "cut_end_line":
         folder = variant("G01")

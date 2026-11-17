@@ -1,13 +1,15 @@
-"""Fixtures of the conformance tests (decision G21H, spec/conformance.md).
+"""Fixtures of the conformance tests (decision YBT1, spec/conformance.md, "The test adapter").
 
-This module imports no implementation at module level, so pytest can collect the tests before the
-package exists. A test that needs the package then fails with one line.
+The tests reach an implementation only through its test adapter. `SKELLYFILEFORMAT_ADAPTER` names
+the importable module of the Python adapter, and `SKELLYFILEFORMAT_JS_ADAPTER` the folder of the
+JavaScript adapter (decision K4Y1, proposed). This module imports no adapter at module level, so
+pytest can collect the tests with no adapter. A test that needs an adapter then fails with one line.
 """
 
 from __future__ import annotations
 
 import importlib
-import importlib.util
+import os
 import re
 import shutil
 import subprocess
@@ -16,48 +18,66 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-JS_COMMAND = ROOT / "js" / "bin" / "read-folder.mjs"
+ADAPTER = "SKELLYFILEFORMAT_ADAPTER"
+JS_ADAPTER = "SKELLYFILEFORMAT_JS_ADAPTER"
+NO_ADAPTER = (
+    f"no test adapter is configured: set {ADAPTER} to the importable module of the test adapter of an "
+    "implementation (spec/conformance.md, 'The test adapter')"
+)
+NO_JS_ADAPTER = (
+    f"no JavaScript test adapter is configured: set {JS_ADAPTER} to the folder that holds "
+    "`bin/read-folder.mjs` (spec/conformance.md, 'The test adapter')"
+)
 
 
-def _package():
-    if importlib.util.find_spec("skellyfileformat") is None:
-        pytest.fail("the package `skellyfileformat` does not exist: gate 2 has no implementation", pytrace=False)
-    return importlib.import_module("skellyfileformat")
+def adapter_name() -> str:
+    """The module name of the Python adapter. A test with no adapter fails with one line."""
+    name = os.environ.get(ADAPTER, "")
+    if not name:
+        pytest.fail(NO_ADAPTER, pytrace=False)
+    return name
+
+
+def js_command(folder: Path, records: bool = False) -> list[str]:
+    """The command of the JavaScript adapter for a folder. A test with no adapter or no `node` fails with one line."""
+    adapter = os.environ.get(JS_ADAPTER, "")
+    if not adapter:
+        pytest.fail(NO_JS_ADAPTER, pytrace=False)
+    script, node = Path(adapter) / "bin" / "read-folder.mjs", shutil.which("node")
+    if node is None or not script.is_file():
+        pytest.fail(f"the JavaScript adapter `{script}`, or `node`, does not exist", pytrace=False)
+    return [node, str(script), str(folder), *(["--records"] if records else [])]
 
 
 class _Lazy:
-    """The package, imported at the first use of an attribute.
+    """The Python adapter, imported at the first use of an attribute.
 
     So a test with no implementation fails in its body, with one line, and not with a fixture error.
     A test that first asks for a golden folder that is not built is skipped before that.
     """
 
     def __getattr__(self, name):
-        return getattr(_package(), name)
+        return getattr(importlib.import_module(adapter_name()), name)
 
 
 @pytest.fixture
 def reader():
-    """The Python reader: `read_folder`, `canonical_json` and the detail functions."""
+    """The reader of the Python adapter: `read_folder`, `canonical_json` and the detail functions."""
     return _Lazy()
 
 
 @pytest.fixture
 def writer():
-    """The Python writer: `TakeWriter`, `repair_take` and `release_check`."""
+    """The writer of the Python adapter: `TakeWriter`, `repair_take` and `release_check`."""
     return _Lazy()
 
 
 @pytest.fixture
 def js_reader():
-    """A function that runs the JavaScript reader on a folder and returns the bytes of its standard output."""
+    """A function that runs the JavaScript adapter on a folder and returns the bytes of its standard output."""
 
     def run(folder: Path, records: bool = False) -> bytes:
-        node = shutil.which("node")
-        if node is None or not JS_COMMAND.is_file():
-            pytest.fail("the JavaScript reader `js/bin/read-folder.mjs`, or `node`, does not exist", pytrace=False)
-        command = [node, str(JS_COMMAND), str(folder), *(["--records"] if records else [])]
-        return subprocess.run(command, capture_output=True, check=True).stdout  # noqa: S603
+        return subprocess.run(js_command(folder, records), capture_output=True, check=True).stdout  # noqa: S603
 
     return run
 
@@ -102,10 +122,11 @@ def pytest_collection_modifyitems(items):
             item.add_marker(pytest.mark.skip(reason=f"provisional: {mark.args[0]}"))
 
 
-# --- Stages (conformance.md, "The stage of each test"; decision CPM2) ---
+# --- Stages (conformance.md, "The stage of each test"; decisions CPM2 and YBT1) ---
+# A stage is a label for the program and the need that a test serves, not a build stage.
 # tools/tests/test_conformance_stages.py checks these three tables against conformance.md.
 
-# The stage of each test: the stage in which all of its parts pass.
+# The stage of each test: the latest stage of its parts.
 STAGES = {
     "700": "2", "701": "1a", "702": "1a", "703": "4", "704": "1a", "705": "2", "706": "2", "707": "2",
     "708": "2", "709": "2", "710": "2", "711": "1a", "712": "1a", "713": "1a", "714": "1a", "715": "1a",
@@ -118,7 +139,7 @@ STAGES = {
     "764": "1a", "765": "1a", "766": "2", "767": "1a", "768": "2", "769": "2", "770": "2",
 }  # fmt: skip
 
-# The parts of a test that pass in an earlier stage. A part is the function name after `test_sft_<NNN>_`,
+# The parts of a test that have an earlier stage. A part is the function name after `test_sft_<NNN>_`,
 # with `[<parameter ID>]` for one case. `*` matches any text.
 PARTS = {
     "700": {"1a": ["text_integers_json_ids_crcs", "check_on_golden[G01]"]},

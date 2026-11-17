@@ -12,22 +12,22 @@ dependencies = []
 dev = ["pytest==9.1.1", "pre-commit==4.6.2"]
 # The golden generator (tools/make_golden.py) and the cross-checks of its output.
 golden = ["av==19.0.2", "numpy==2.4.6", "pillow==13.0.0", "pyarrow==26.0.0"]
-# The failing run of gate 2 (AGENTS.md section 3). The tests decode with PyAV.
+# The conformance tests, run through the test adapter of an implementation (AGENTS.md section 3). The tests decode with PyAV.
 conformance = [{include-group = "golden"}]
 
 [tool.uv]
-# The doc tools only; there is no package code until gate 2 (AGENTS.md section 4).
+# The doc tools only; this repository is a spec and has no package code (AGENTS.md section 4).
 package = false
 # No resolution takes a release that is newer than this date (AGENTS.md section 4).
 exclude-newer = "2026-11-02T23:59:59Z"
 
 [tool.pytest.ini_options]
 testpaths = ["tools/tests"]
-# The stages of the conformance tests (spec/conformance.md, "The stage of each test").
+# The stages of the conformance tests: labels, not build stages (spec/conformance.md, "The stage of each test").
 markers = [
-    "stage1a: the test passes in stage 1a (skellycam recording and playback)",
-    "stage1b: the test passes in stage 1b (skellysync folders)",
-    "stage2: the test passes in stage 2 (realtime capture)",
-    "stage3: the test passes in stage 3 (posthoc capture)",
-    "stage4: the test passes in stage 4 (Blender)",
+    "stage1a: the test serves skellycam recording and playback",
+    "stage1b: the test serves the skellysync folders",
+    "stage2: the test serves the realtime capture",
+    "stage3: the test serves the posthoc capture",
+    "stage4: the test serves the Blender addon",
 ]

@@ -45,7 +45,7 @@ def test_sft_747_other_parquet_readers(golden_or_skip, truth, other):
     elif other == "hyparquet":
         versions = {name: checks.node_package_version(name) for name in ("hyparquet", "hyparquet-compressors")}
         if shutil.which("node") is None or None in versions.values():
-            pytest.skip("hyparquet and hyparquet-compressors are not installed in js/node_modules, or node is absent")
+            pytest.skip("hyparquet and hyparquet-compressors are not installed in node_modules of the JavaScript adapter, or node is absent")
         assert versions == {name: PINNED[name] for name in versions}
         rows = checks.hyparquet_rows(parquet)
     else:

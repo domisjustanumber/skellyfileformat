@@ -139,7 +139,7 @@ def _check_unfinished_camera_files(reader, folder, method: str) -> None:
     for item in cameras:
         data = (folder / item["name"]).read_bytes()
         sidecar = c.read_sidecar(c.sidecar_path(folder, item["name"]))
-        blocks = c.parse_mkv(data).blocks  # the complete blocks, by a walk that does not use the package
+        blocks = c.parse_mkv(data).blocks  # the complete blocks, by a walk that does not use the test adapter
         usable = min(len(sidecar.rows), len(blocks))
         assert item["rows"] == len(sidecar.rows), "`rows` is the number of usable CSV rows"
         assert [record[0] for record in item["records"]] == list(range(usable)), "`records` holds only the usable frames"

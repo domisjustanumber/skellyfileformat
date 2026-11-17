@@ -19,7 +19,7 @@ def _trace(events: list):
 
 @pytest.mark.parametrize("vector", ["plain", "labels_of_7", "labels_of_8", "camera_key_0", "file_of_another_take"])
 def test_sft_705_names_and_layout(writer, tmp_path, vector):
-    """SFT-705 (external: freemocap) Writer: names and layout. This is the part of the package writer.
+    """SFT-705 (external: freemocap) Writer: names and layout. This is the part of the writer of the test adapter.
 
     Checks: SFF-715, SFF-716, SFF-719, SFF-720, SFF-722.
     """
@@ -96,7 +96,7 @@ def test_sft_707_only_root_and_media_folder(reader, golden_or_skip, variant, bas
 
 
 def test_sft_708_manifest(writer, tmp_path):
-    """SFT-708 Writer: the manifest. This is the part of the package writer.
+    """SFT-708 Writer: the manifest. This is the part of the writer of the test adapter.
 
     Checks: SFF-723, SFF-724, SFF-725, SFF-726, SFF-727, SFF-728.
     """

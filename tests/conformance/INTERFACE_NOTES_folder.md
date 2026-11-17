@@ -11,7 +11,7 @@ The status of each choice is: proposed. The user did not review this file.
 |---|---|---|
 | `read_folder` | `read_folder(path, records=False, scope="full")`. `path` is a `pathlib.Path`. The tests pass `records` and `scope` as keywords. | All reader tests |
 | `canonical_json` | `canonical_json(result) -> bytes`: the RFC 8785 bytes, with no line end. The tests compare it with the bytes of `<case>.<scope>.json`. | SFT-768, SFT-769 |
-| `js_reader` (fixture) | `js_reader(folder, records=False) -> bytes`: the standard output of `node js/bin/read-folder.mjs <folder> [--records]`. | SFT-768, SFT-769 |
+| `js_reader` (fixture) | `js_reader(folder, records=False) -> bytes`: the standard output of `node <JavaScript adapter>/bin/read-folder.mjs <folder> [--records]`. | SFT-768, SFT-769 |
 | `run_details` | `run_details(folder) -> list[dict]`: one item for each run of the Parquet of the take, in order of `run_id`. Each item has `run_id` (int), `geometry` and `rows`. `geometry` is `"stored"` when the reader uses `camera_geometry` of the run, `"calibration"` when it uses the TOML, and `None` when the run has no camera geometry. `rows` is a list with one tuple for each Parquet row, in file order: `(timestamp_s, sensor_group, frame_number, source, reference_frame, channel, name, component, value, units)`. `value` is the Python float of the column that the `dtype` of the channel names, or `None`. `frame_number` is a Python int for an int32 file and for an int64 file. Two results compare with `==`. | SFT-747, SFT-754 |
 | `TakeWriter` | The test uses the interface of `INTERFACE_NOTES_capture.md`: `TakeWriter(folder, rec, cameras, audio, writer=..., trace=...)`, `take_start_host_ns`, `write_frame(index, jpeg, host_ns, source_frame_number=...)`, `close()`, and the trace events `("lock" or "unlock", ".processing.lock")` and `("replace", <file name>)`. SFT-735 needs: the capture info JSON exists and is complete directly after the constructor returns, and the trace shows two `replace` events for it, each between a `lock` and an `unlock`. | SFT-735 |
 | The result for `camera_key` 0 | `camera_key` of the `files` item is the text `"0"`. | SFT-763 |
@@ -106,7 +106,8 @@ implementation:
 Parts that were not run at gate 2:
 
 - The Node script of hyparquet in `checks_folder.HYPARQUET`: the packages are not installed. The
-  test looks for them in `js/node_modules`.
+  test looks for them in `node_modules` of the folder that `SKELLYFILEFORMAT_JS_ADAPTER` names
+  ([ADR-K4Y1](../../decisions/entries/K4Y1-test-adapter-seam-choices.md), proposed).
 - The parts with polars and DuckDB: the packages are not in a dependency group.
 - Each check on G07, G09, G13, G14 and G17, when the folder was not built: `fold_faults`,
   `journal_faults`, `journal_digest`, `parquet_digest`, `charuco_faults`, the journal copies of

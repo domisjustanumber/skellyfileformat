@@ -6,6 +6,7 @@ fixture, so it fails with one line until the implementation exists (decision G21
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -22,12 +23,14 @@ REPAIR_WRITER = "skellycam 2.0.1"
 # The child process of SFT-730. It records the take of `record_take` and writes one line after the
 # take starts and after each write call, then waits for one byte on standard input. The test sends the
 # byte for each step but the last one that it wants, and then kills the child: the kill point is exact.
+# The child imports the Python adapter of SKELLYFILEFORMAT_ADAPTER (conftest.py), with the sys.path of the
+# test process. The test runs the child only after the adapter worked in the test process.
 CHILD = """
-import sys
-sys.path.insert(0, sys.argv[2])
-import skellyfileformat
+import importlib, os, sys
+sys.path[:0] = sys.argv[2].split(os.pathsep)
+adapter = importlib.import_module(os.environ["SKELLYFILEFORMAT_ADAPTER"])
 import checks_capture as c
-c.record_take(skellyfileformat, c.Path(sys.argv[1]), audio=c.microphone(), after=lambda: (print("step", flush=True), sys.stdin.buffer.read(1)))
+c.record_take(adapter, c.Path(sys.argv[1]), audio=c.microphone(), after=lambda: (print("step", flush=True), sys.stdin.buffer.read(1)))
 """
 KILL_POINTS = 50  # the take has 1 + 2 * 12 + 25 = 50 steps before `close`
 
@@ -37,7 +40,7 @@ def _trace(events: list):
 
 
 def test_sft_730_whole_files_and_live_files(writer, tmp_path):
-    """SFT-730 Writer: whole files and live files. This is the part of the package writer.
+    """SFT-730 Writer: whole files and live files. This is the part of the writer of the test adapter.
 
     Checks: SFF-786, SFF-787, SFF-788, SFF-789.
     The check of the forced write to disk is provisional (test_sft_730_fsync_provisional).
@@ -55,7 +58,10 @@ def test_sft_730_whole_files_and_live_files(writer, tmp_path):
     for point in range(1, KILL_POINTS + 1):
         killed = tmp_path / f"killed_{point}"
         process = subprocess.Popen(  # noqa: S603
-            [sys.executable, "-c", CHILD, str(killed), str(HERE)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            [sys.executable, "-c", CHILD, str(killed), os.pathsep.join([str(HERE), *sys.path])],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
         try:
             for step in range(point):
@@ -107,7 +113,7 @@ def test_sft_731_stray_temporary_files(reader, golden_or_skip, case):
 def test_sft_732_unfinished_files(reader, golden_or_skip, target):
     """SFT-732 Reader: unfinished files. Checks: SFF-791, SFF-792.
 
-    `torn_bytes` is compared with the sum of SFF-791, from parsers that do not use the package.
+    `torn_bytes` is compared with the sum of SFF-791, from parsers that do not use the test adapter.
     """
     folder = golden_or_skip(*target.split("/"))
     take = c.only_take(c.read(reader, folder, records=True))

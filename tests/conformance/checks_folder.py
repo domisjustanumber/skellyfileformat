@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
 import shutil
 import struct
@@ -1601,10 +1602,17 @@ process.stdout.write(JSON.stringify(out));
 """
 
 
+def js_adapter() -> Path | None:
+    """The folder of the JavaScript adapter: `SKELLYFILEFORMAT_JS_ADAPTER` of conftest.py, or None."""
+    folder = os.environ.get("SKELLYFILEFORMAT_JS_ADAPTER", "")
+    return Path(folder) if folder else None
+
+
 def node_package_version(name: str) -> str | None:
-    """The installed version of a Node package under `js/`, or None when it is not installed."""
-    package = ROOT / "js" / "node_modules" / name / "package.json"
-    return load_json(package)["version"] if package.is_file() else None
+    """The installed version of a Node package of the JavaScript adapter, or None when it is not installed."""
+    folder = js_adapter()
+    package = folder / "node_modules" / name / "package.json" if folder else None
+    return load_json(package)["version"] if package and package.is_file() else None
 
 
 def hyparquet_rows(parquet: Path) -> list[list]:
@@ -1614,7 +1622,7 @@ def hyparquet_rows(parquet: Path) -> list[list]:
     """
     node = shutil.which("node")
     command = [node, "--input-type=module", "--eval", HYPARQUET, str(parquet)]
-    done = subprocess.run(command, capture_output=True, check=True, cwd=ROOT / "js")  # noqa: S603
+    done = subprocess.run(command, capture_output=True, check=True, cwd=js_adapter())  # noqa: S603
     floats = {name for name, kind, _ in COLUMNS if kind in ("float", "double")}
     return [
         [struct.unpack("<d", bytes.fromhex(v))[0] if name in floats and v is not None else v for v, (name, _, _) in zip(row, COLUMNS)]
