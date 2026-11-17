@@ -1,7 +1,17 @@
 # 0XX2 — Spec draft v2 details, part 5: legacy result, manifest rebuild, summary and manifest lock
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
-recommended option of each CHOICE).
+**Status:** absorbed into
+[`spec/SPEC.md#4-the-take-folder-layout-and-names`](../../spec/SPEC.md#4-the-take-folder-layout-and-names),
+[`spec/SPEC.md#5-the-recording-manifest`](../../spec/SPEC.md#5-the-recording-manifest),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#15-calibration-toml`](../../spec/SPEC.md#15-calibration-toml),
+[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative`](../../spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; review of the proposed details, each item, with the
+recommended option of each CHOICE)).
 
 ## Decision
 
@@ -17,7 +27,7 @@ option is the text of the item.
    - a. CHOICE. A row of the era table matches when each signal of the row is present. "as X" adds
      the signals of row X. The rows that say "as" make a chain. When the matched rows are in one
      chain, the reader reports the range of the last matched row, and `ambiguous` is false. When
-     they are in two chains, or no row matches, the reader reports from the lowest first release to
+     they are in two or more chains ([ADR-1HH0](1HH0-lock-startup-repair-and-reader-model-check.md) item 4; corrected on 2026-11-17), or no row matches, the reader reports from the lowest first release to
      the highest last release of the matched rows (v1.0.25 to v1.8.2 with no row), and `ambiguous`
      is true.
      Basis (1), [ADR-CZQ9](CZQ9-read-old-write-new-and-legacy-recognition.md) item 6, and (3).
@@ -35,12 +45,15 @@ option is the text of the item.
      [ADR-5XNA](5XNA-folder-layout-names-and-manifest.md) item 3, and (3).
    - b. SFF-814 gets the exception: in a rebuild, the reader uses `<rec>_camera_calibration.toml`.
      Basis (1), [ADR-5XNA](5XNA-folder-layout-names-and-manifest.md) item 8.
-   - c. A link check has one part for each pair of files that its rule compares. A part is not
-     evaluated when a file that it needs is absent, is `invalid`, or is not read by that reader. The
+   - c. A link check has one part for each file, or pair of files, that its rule tests. SFF-872
+     lists the parts ([ADR-0WTH](0WTH-spec-v2-details-part-12.md) item 31). A part is not evaluated when a file that it
+     needs is absent, is `invalid` or `unsupported_version` ([ADR-XR63](XR63-reader-rules-of-the-golden-review.md) item 7), or is a
+     file that the scope of the result does not read ([ADR-0JVZ](0JVZ-spec-v2-details-part-9.md) item 21). The
      state is `mismatch` when an evaluated part fails, `ok` when one or more parts are evaluated and
-     none fails, and `not_checked` when no part is evaluated. So, with no manifest, `calibration` is
-     `not_checked`, `hashes` has only its Parquet part and `files` has only its Parquet part.
-     Basis (3).
+     none fails, and `not_checked` when no part is evaluated. So, with no manifest, `calibration` and
+     `camera_key` are `not_checked`, `hashes` has only its Parquet part, `files` has only its
+     Parquet part and `rotation` has only its capture info part. Basis (3). (corrected on 2026-11-17:
+     the parts, the states `unsupported_version` and the scope.)
 
 7. **Manifest summary** (SFF-728, SFF-729; SFT-708, SFT-709).
    - Each camera has `exposure_us` (a number or null) in place of "the main control values".
@@ -56,7 +69,8 @@ option is the text of the item.
 8. **Two writers of the manifest** (SFF-724, SFF-725, SFF-789, SFF-844; SFT-708, SFT-730). CHOICE.
    - Each writer of the manifest, also skellycam, reads it, changes it and writes it while it holds
      `.processing.lock`. Each writer keeps the members and the items of the other owner. freemocap
-     starts the fold only after `state` is `finished`.
+     starts the fold only after `state` is `finished`. The one exception is the fold of a left-over
+     journal as part of a repair that the user agreed to ([ADR-1HH0](1HH0-lock-startup-repair-and-reader-model-check.md) item 2; corrected on 2026-11-17).
    - `.processing.lock` is an empty file. The lock is the file lock of the operating system on that
      file, not the existence of the file. A lock file that no process holds is not a lock, so no
      stale-lock rule is necessary. A reader ignores the file. Basis (2): freemocap at c27fc299,

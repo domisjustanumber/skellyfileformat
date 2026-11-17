@@ -16,6 +16,13 @@ conventions of the golden folders. They are not rules of the format
 the same day replaced some items: each list gives the decided rule for them. Each list marks the
 items that are still open. No reader exists, so each expected result comes from the spec text only.
 
+[ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) decided items 13
+(JSON white space and escapes), 14, 15 and 24 of [G01_CHOICES.md](G01_CHOICES.md). Items 14, 15 and
+24 are rules of the format (section 13, SFF-881, SFF-885). The white space of item 13 (the indent of
+2 spaces and the one LF at the end of a JSON file) is a convention of the golden folders only: a
+reader accepts each JSON white space (SFF-702, W389 item 5). The rest of item 13 is a convention of
+the golden folders, as each other item.
+
 ## Layout
 
 ```
@@ -158,7 +165,9 @@ G9 and the case `higher_minor` of G10 are copies of G3, so they also have the ro
 - [G01_CHOICES.md](G01_CHOICES.md) lists each value of G1 that the spec does not give. The user
   accepted the list as the conventions of the golden folders ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 5). The other golden
   folders copy them.
-- Items 13, 14, 15 and 24 of that list can be rules of the format. The user must decide
-  ([open-work.md](../decisions/open-work.md)).
+- G5 and G6 hold a stand-in for a killed camera file: a copy of the muxer output before `close()`
+  ([CAPTURE_VECTORS_CHOICES.md](CAPTURE_VECTORS_CHOICES.md) item 23). They are provisional until
+  desk tests DT-R1 and DT5
+  ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 6).
 - `byte_offset` and `byte_size` (SFF-757), `port_path` and `os_device_id` (SFF-752) and
   `audio_latency_ns` (SFF-771) are provisional in the spec.

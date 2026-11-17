@@ -1,11 +1,24 @@
 # 158N — Details of the decisions Q94 and Q104 to Q138: camera match, repair step 3 and an interrupted repair, sidecar with no `take_uuid`, "has a default", `timing` coverage, orphan folder file
 
-**Status:** accepted, 2026-11-16 (user; questions Q131 to Q138 of round 5 of the review of the
+**Status:** absorbed into
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules`](../../spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules),
+[`spec/conformance.md#timing-sidecars-sections-7-8-and-10`](../../spec/conformance.md#timing-sidecars-sections-7-8-and-10),
+[`spec/conformance.md#tracking-parquet-section-16`](../../spec/conformance.md#tracking-parquet-section-16),
+[`spec/conformance.md#opening-a-folder-section-20`](../../spec/conformance.md#opening-a-folder-section-20),
+[`spec/conformance.md#tracking-parquet-the-reader-and-the-models-section-16`](../../spec/conformance.md#tracking-parquet-the-reader-and-the-models-section-16),
+[`golden/G10_G13_G14_CHOICES.md#choices`](../../golden/G10_G13_G14_CHOICES.md#choices),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; questions Q131 to Q138 of round 5 of the review of the
 golden folders; commit to main; was proposed, 2026-11-16, with the details that applying
 [ADR-E68K](E68K-camera-match-repair-order-and-g5-g6-files.md),
 [ADR-H2HQ](H2HQ-descriptor-members-deferred-points-and-old-audio.md),
 [ADR-W5AK](W5AK-details-for-the-decisions-q83-to-q111.md) and
-[ADR-1P4N](1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md) to the spec needed).
+[ADR-1P4N](1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md) to the spec needed)).
 
 ## Decision
 

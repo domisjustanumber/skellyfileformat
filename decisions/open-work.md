@@ -31,47 +31,22 @@ task. Delete an item when its work is done. The PR that closes an item records t
   [ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) waits with section 18.3
   ([ADR-H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 4): the place
   of the three version members in the export inventory and in the BVH metadata JSON (the spec lists
-  them first). It changes one rule of [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md)
-  and [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md), so the [Rules](README.md#rules) can need
-  an entry that supersedes them.
+  them first). [ADR-G9ER](entries/G9ER-consolidation-of-the-pushed-entries.md) holds the version
+  rules of ADR-9DV4 and ADR-VPD9 now.
 - **Proposed choices and wording.** The user must accept or change the choices of
   [ADR-SM53](entries/SM53-choices-for-the-decisions-of-round-7.md) (proposed): the new members of
   the G5 truth files and the values of the G5 audio jitter. The user must also accept or change each text correction of
   [ADR-0HS2](entries/0HS2-wording-of-the-audio-repair-and-the-audio-records.md) (proposed).
-- **Absorb the accepted entries into the spec.** The check of 2026-11-16 absorbed 16 entries. Each
-  entry of this list stays Active: no absorb document states the rule of its line, or a later entry
-  (in brackets) changed the rule and no entry supersedes the old text (the [Rules](README.md#rules)).
-  Write the rule in its absorb document, or supersede the entry. Then absorb the entry. Do this
-  after the gate 2 review, with one consolidation entry
-  ([ADR-H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 6).
-  - [ADR-0001](entries/0001-decision-log-agents-md-and-private-data.md) item 2: git tracks only `.claude/skills/` of `.claude/`.
-  - [ADR-2C9V](entries/2C9V-whole-take-folder-scope-and-package.md) items 4, 5 and 7: `RECORDING_CONTRACT.md`, `skellyfileformat[write]`, the frame label.
-  - [ADR-5XNA](entries/5XNA-folder-layout-names-and-manifest.md) item 8: "by their fixed suffix" ([ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) item 6a: exact names); the offer of a
-    new manifest.
-  - [ADR-6RSB](entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md) item 5: "only in the MKV and the CSV".
-  - [ADR-92TM](entries/92TM-opus-audio-in-fragmented-mp4.md) items 1, 2 and 12: no FLAC, WAV or MCAP audio; libopus and the `av` pin;
-    Lichtblick. Item 10 ([ADR-0WTH](entries/0WTH-spec-v2-details-part-12.md) item 36).
-  - [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md) items 3 and 9: "N for the Nth prerelease revision" ([ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) item 3,
-    [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 20); the 2.x releases at the same time.
-  - [ADR-CZQ9](entries/CZQ9-read-old-write-new-and-legacy-recognition.md) items 1, 3 and 4: the skellycam and freemocap rules for old recordings.
-  - [ADR-G1YG](entries/G1YG-writing-crash-reading-and-repair.md) item 7: "a take that it owns" ([ADR-JB3A](entries/JB3A-repair-state-question-and-skellycam-lock.md) item 3).
-  - [ADR-KW3G](entries/KW3G-reader-result-for-the-folder.md) items 7 and 8: `folder_files`; a timing sidecar alone ([ADR-Q4BK](entries/Q4BK-spec-v2-details-part-4.md) item 4).
-  - [ADR-N6HS](entries/N6HS-info-jsons-and-calibration.md) items 2 and 3: the list of the homes; when a calibration changes.
-  - [ADR-P76Y](entries/P76Y-tracking-parquet.md) items 4 and 8: the display rotation; the realtime warning and badge
-    ([ADR-ATW0](entries/ATW0-spec-v2-details-part-6.md) item 11, [ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) item 5).
-  - [ADR-Q9X2](entries/Q9X2-realtime-tracking-journal.md) items 2 and 5: the journal node; the fold at start-up ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2).
-  - [ADR-T8PK](entries/T8PK-privacy-notice-and-no-code-in-files.md) item 3: the notice at an export or a share.
-  - [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md): item 2 ([ADR-E45D](entries/E45D-spec-draft-v2-corrections-after-review.md) item 3); item 6, the flag bits ([ADR-W6HV](entries/W6HV-spec-v2-details-part-3.md) item 2d); item
-    12, the repair line ([ADR-ATW0](entries/ATW0-spec-v2-details-part-6.md) item 13) and the lock ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 1).
-  - [ADR-3D33](entries/3D33-spec-draft-v2-details-folder-files.md) items 4 and 5: the TOML that the manifest names ([ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) item 6b);
-    `charuco_detector:<board>` ([ADR-6VRQ](entries/6VRQ-spec-v2-details-part-13.md) item 37).
-  - [ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md): item 2 ([ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 21); items 1, 4 to 6 and 10 wait for the gate 2 work.
-  - [ADR-Q4BK](entries/Q4BK-spec-v2-details-part-4.md) item 4d: a manifest with no `take_uuid` ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 25: `bad_schema`).
-  - [ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) items 6c and 8: "one part for each pair of files" ([ADR-0WTH](entries/0WTH-spec-v2-details-part-12.md) item 31); the fold
-    "only after `state` is `finished`" ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2).
-  - [ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md) item 14: the scope of the JavaScript reader ([ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 21).
-  - [ADR-E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3: "never half repaired"; [ADR-7JJJ](entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md) item 5:
-    "only when the folder has no take" ([ADR-158N](entries/158N-details-for-the-decisions-of-round-3.md) items 12 and 13).
+- **Entries that stay Active after the absorb pass of 2026-11-17.**
+  [ADR-FB8P](entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)
+  item 4 says that `rows` of an interrupted audio file counts the complete rows. The spec now says
+  "each row that SFF-746 lets the reader use", the text of ADR-0HS2 item 2 (proposed). Absorb
+  ADR-FB8P when the user decides that item. ADR-G9ER restates as text three rules that fit no absorb
+  document: ADR-VPD9 item 6 (the flag replaces the encoder-skip log message) and ADR-Q9X2 items 2
+  and 7.
+- **Confirm an absorb document.** The user must confirm the agent detail of
+  [ADR-HH7B](entries/HH7B-absorb-documents-and-clean-up-timing.md) item 1: the Rules list
+  `spec/parts/*.md` as absorb documents.
 - **Provisional parts of spec draft v2.** Close each of them before v2.0.0:
   - SFF-752 (Q107, [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 11): the
     source and the text form of `port_path` and `os_device_id` on each OS are not

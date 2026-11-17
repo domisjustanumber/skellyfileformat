@@ -1,6 +1,19 @@
 # 6RSB — Camera files: MJPEG in MKV with index timestamps, and one CSV timing sidecar
 
-**Status:** accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16).
+**Status:** absorbed into
+[`spec/SPEC.md#2-conventions`](../../spec/SPEC.md#2-conventions),
+[`spec/SPEC.md#4-the-take-folder-layout-and-names`](../../spec/SPEC.md#4-the-take-folder-layout-and-names),
+[`spec/SPEC.md#5-the-recording-manifest`](../../spec/SPEC.md#5-the-recording-manifest),
+[`spec/SPEC.md#6-camera-files`](../../spec/SPEC.md#6-camera-files),
+[`spec/SPEC.md#7-csv-timing-sidecars-common-rules`](../../spec/SPEC.md#7-csv-timing-sidecars-common-rules),
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#11-clocks-the-fit-and-reader-timing`](../../spec/SPEC.md#11-clocks-the-fit-and-reader-timing),
+[`spec/SPEC.md#13-capture-info-json`](../../spec/SPEC.md#13-capture-info-json),
+[`spec/SPEC.md#15-calibration-toml`](../../spec/SPEC.md#15-calibration-toml),
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#19-skellysync-folders`](../../spec/SPEC.md#19-skellysync-folders),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16)).
 
 ## Decision
 

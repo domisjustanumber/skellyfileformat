@@ -1,6 +1,7 @@
 # G1YG — Writing rules for the folder; crashed files read in place; repair only after the user agrees
 
-**Status:** accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16).
+**Status:** superseded by [G9ER](G9ER-consolidation-of-the-pushed-entries.md),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16)).
 
 ## Decision
 

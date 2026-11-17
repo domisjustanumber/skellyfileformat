@@ -8,8 +8,12 @@ The golden generator (`tools/goldgen/`) needed each of these values to write G1
 ([README.md](README.md)). The spec does not give them. Each item gives the gap, the choice and the
 alternative ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 5).
 Items 30 to 34 are points where the spec and the pinned tools, or two texts, did not agree. The same
-entry decided items 20, 22, 23 and 30: each of them gives its decision. Items 13, 14, 15 and 24 can
-be rules of the format: the user must decide ([open-work.md](../decisions/open-work.md)).
+entry decided items 20, 22, 23 and 30: each of them gives its decision.
+[ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) decided items 13,
+14, 15 and 24: items 14, 15 and 24 are rules of the format. Its item 5 makes the indent of 2 spaces
+and the one LF at the end (item 13) a convention of the golden folders only: a reader accepts each
+JSON white space. The rest
+of item 13 stays a convention of the golden folders, as each other item.
 
 1. Appendix A gives no `<rec>` for a golden take. Choice: `g01_synthetic_take`, the same in the
    two cases. Alternative: the case name.

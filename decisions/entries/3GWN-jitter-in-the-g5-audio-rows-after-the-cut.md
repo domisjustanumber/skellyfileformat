@@ -1,7 +1,10 @@
 # 3GWN — Jitter in the G5 audio rows after the cut
 
-**Status:** accepted, 2026-11-17 (user; question Q153 of the review of the golden folders; commit
-to main).
+**Status:** absorbed into
+[`golden/CAPTURE_VECTORS_CHOICES.md#5-g05`](../../golden/CAPTURE_VECTORS_CHOICES.md#5-g05),
+[`tools/tests/test_g_capture.py`](../../tools/tests/test_g_capture.py),
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; question Q153 of the review of the golden folders; commit
+to main)).
 
 ## Decision
 

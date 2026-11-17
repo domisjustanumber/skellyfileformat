@@ -1,6 +1,7 @@
 # 3D33 — Spec draft v2 details, part 2: folder files, opening a folder, legacy and the reader result
 
-**Status:** accepted, 2026-11-16 (user; gate 1 review of spec draft v2, item by item).
+**Status:** superseded by [G9ER](G9ER-consolidation-of-the-pushed-entries.md),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; gate 1 review of spec draft v2, item by item)).
 
 ## Decision
 

@@ -34,6 +34,9 @@ Other programs can implement the format from the spec alone.
 Load the skill that matches the task.
 If your agent does not support skills, read the file `.claude/skills/<skill>/SKILL.md`.
 The rules in this file also apply.
+Git tracks `.claude/skills/` and ignores the rest of `.claude/`.
+The root `AGENTS.md` and the `AGENTS.md` of each module are the only instruction files. Each
+`CLAUDE.md`, also in a module, holds only `@AGENTS.md`. Do not put instructions in a `CLAUDE.md`.
 
 This repository has no skills yet.
 
@@ -63,6 +66,9 @@ Fix the failures of one root cause in one PR.
 
 - `README.md`, `spec/SPEC.md` and `spec/conformance.md` are normative. Code must agree with them.
 - A change to a rule in a normative document needs a decision entry.
+- A change to a file of the take folder needs a change of the spec first. The owner of the
+  repository must approve it. The `RECORDING_CONTRACT.md` of freemocap points to the spec for the
+  folder ([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md) item 4).
 - Write the spec first. Do the work for each part of the format in this order:
   1. Write the spec text and the conformance test list.
   2. Stop. The user reviews them (gate 1).
@@ -123,7 +129,7 @@ full-SHA permalink when the entry is on the default branch of that repository
 ## 6. Git Rules
 
 - `plans/` is a local working folder. Git ignores it. Do not commit it. Do not cite or link to
-  `plans/`, or cite the content of a plan
+  `plans/`, or cite the content of a plan: its sections, its item numbers or its local PR labels
   ([ADR-0001](decisions/entries/0001-decision-log-agents-md-and-private-data.md)).
 - Do not push to a git remote without the approval of the user. One approval for a PR covers its
   push, its draft PR and its description.

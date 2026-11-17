@@ -512,8 +512,14 @@ For a file in a format of another project (`.blend`, MP4, NPY, NPZ, a notebook, 
 gives the name, the container and the codec, and the content mapping. It does not re-specify the
 outside format.
 
-Names, columns, keys and values that the decision entries do not fix are proposed in
-[ADR-VPD9](../decisions/entries/VPD9-spec-draft-v2-details.md). Gate 1 reviews them.
+The spec defines each file in full. It does not leave a part of a file to the code of the program
+that writes it ([ADR-2C9V](../decisions/entries/2C9V-whole-take-folder-scope-and-package.md) item 2).
+
+An agent proposed the details that the decisions of the user do not fix (names, columns, keys and
+values) in spec draft v2. The user accepted them at gate 1
+([ADR-VPD9](../decisions/entries/VPD9-spec-draft-v2-details.md),
+[ADR-3D33](../decisions/entries/3D33-spec-draft-v2-details-folder-files.md);
+[ADR-G9ER](../decisions/entries/G9ER-consolidation-of-the-pushed-entries.md) supersedes both).
 
 Terms:
 
@@ -564,6 +570,15 @@ Terms:
   `tools/check_spec_traceability.py` checks this.
 - ⌊a / b⌋ is integer division rounded down, for a ≥ 0 and b > 0.
 - A path in this spec is relative to the take folder and uses `/`.
+- Note (informative): the principle of this spec is one fact, one home. The home of a fact is the
+  file whose section states it. The other files hold `take_uuid` and `camera_key` as link keys. The
+  manifest `summary` is the one informative copy (SFF-728). The home of the stored resolution, the
+  actual frame rate and the frame counts (also the gaps and the fills) is the camera file and its
+  timing sidecar ([ADR-N6HS](../decisions/entries/N6HS-info-jsons-and-calibration.md) item 2,
+  [ADR-6RSB](../decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md) item 5). This note
+  adds no requirement. When a requirement names a copy of a fact in another file, that requirement
+  applies, for example the TOML `size` (SFF-808), the Parquet image reference (SFF-829),
+  `coverage.frames_in_take` (SFF-834) and each copy of `camera_label`.
 
 **SFF-700** (writer, reader) Each timing sidecar, JSON file and TOML file of this format, and each
 JSON record of the journal, is UTF-8 with no byte order mark and with LF line ends. The exports of
@@ -584,7 +599,9 @@ order that this spec lists them. A writer writes a JSON number with an integer v
 fraction and no exponent (`30`). It writes each other number in the shortest decimal form that reads
 back as the same float64, as RFC 8785 gives it (`29.97`)
 ([ADR-PVG8](../decisions/entries/PVG8-spec-v2-details-part-10.md) item 24a,
-[ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item 38d).
+[ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item 38d). A reader accepts each
+white space that RFC 8259 allows
+([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) item 5).
 
 **SFF-703** (writer, reader) The text form of a 16-byte ID (`take_uuid`, `calibration_uuid`) is 32
 lowercase hexadecimal characters, with no dashes. The ID is a random UUID version 4.
@@ -830,7 +847,8 @@ finds comes from its fixed name: `capture_info`, `processing_info`, `calibration
 [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 4). The scan does not
 find the files of the other subfolders (SFF-721). Each rebuild gives the take
 warning `manifest_missing`, also when the take member `manifest` is `invalid` (SFF-867). The
-reader does not write a manifest.
+reader does not write a manifest. A program can offer to write a new manifest
+([ADR-5XNA](../decisions/entries/5XNA-folder-layout-names-and-manifest.md) item 8).
 
 ## 6. Camera files
 
@@ -980,6 +998,10 @@ The columns are:
 
 The footer of a finished file has zero or more `# fit` and `# fit_segment` lines (section 11), then
 `# end rows=<R> gaps=<G> filled=<F> encode_skips=<E>`.
+
+The sidecar has no legacy column, for example `recording_frame_number` or
+`timestamp.from_recording_start.sec` ([ADR-VPD9](../decisions/entries/VPD9-spec-draft-v2-details.md)
+item 5).
 
 **SFF-749** (writer) The take keys (`take_uuid` to `audio_count`) have the same values in each
 timing sidecar of a take.
@@ -1550,6 +1572,13 @@ A calibration TOML is a TOML 1.0.0 file. It holds the camera geometry of one cam
 OpenCV pinhole model, P = K [R | t], where R and t map the world to the camera. The distortion model is
 Brown–Conrady with k1, k2, p1 and p2.
 
+One calibration serves each take of one camera setup. A user makes a new calibration when the setup
+changes: a camera moved, or a lens or the focus changed. A change of the geometry also gives a new
+`calibration_uuid` (SFF-810, [ADR-3D33](../decisions/entries/3D33-spec-draft-v2-details-folder-files.md)
+item 4). A calibration always comes from a take. The user can delete that take,
+but it is strongly advised to keep it
+([ADR-N6HS](../decisions/entries/N6HS-info-jsons-and-calibration.md) item 3).
+
 The file has one table `[metadata]` and one table for each camera:
 
 ```toml
@@ -1651,7 +1680,8 @@ map is the same for an aligned and an unaligned TOML. The names "forward, left, 
 
 **SFF-810** (writer) A new calibration gets a new `calibration_uuid`. A writer that changes the
 geometry of a calibration (an alignment or a transform) writes a new `calibration_uuid` and adds the
-change to `transformation_history` ([ADR-VPD9](../decisions/entries/VPD9-spec-draft-v2-details.md)).
+change to `transformation_history` ([ADR-VPD9](../decisions/entries/VPD9-spec-draft-v2-details.md),
+[ADR-3D33](../decisions/entries/3D33-spec-draft-v2-details-folder-files.md) item 4).
 A writer never changes a calibration TOML in place without a new `calibration_uuid`.
 
 **SFF-811** (writer) A take that uses a calibration holds a byte-identical copy of it as
@@ -1672,7 +1702,8 @@ calibration take, the library copy and `last_successful_camera_calibration.toml`
 manifest (`calibration.file`). It checks that the `calibration_uuid` of the TOML is the one of the
 manifest, and that its SHA-256 is the `sha256` of the manifest (section 20). It does not look for
 another TOML. The only exception is the manifest rebuild (SFF-731): the reader then uses
-`<rec>_camera_calibration.toml`.
+`<rec>_camera_calibration.toml` ([ADR-0XX2](../decisions/entries/0XX2-spec-v2-details-part-5.md)
+item 6b).
 
 **SFF-815** (reader) A reader links a camera table to its camera by `camera_key`. It reads the
 camera tables in the order of `index`, not of their keys.
@@ -1720,7 +1751,8 @@ LZ4_RAW or Brotli. A writer MAY use a dictionary on the string columns.
 **SFF-819** (reader) A reader of this file supports `BYTE_STREAM_SPLIT` on FLOAT and DOUBLE
 columns and ZSTD compression. A reader MUST also accept the Arrow type int64 in the columns
 `frame_number` and `run_id`. Files of an earlier writer have this type. A reader does not refuse
-such a file (reason `bad_schema`).
+such a file (reason `bad_schema`). Note: fastparquet 2026.9.0 cannot read these files
+([ADR-P76Y](../decisions/entries/P76Y-tracking-parquet.md) item 7).
 
 **SFF-820** (writer) Each channel declares `dtype`: `float32` (the default) or `float64`.
 `TIMESTAMPS` channels are `float64`. A row of a `float32` channel has its value in `value` and null in
@@ -1771,7 +1803,8 @@ rounds down also for a negative value. The group `timestamp_s` is the float64 ne
 
 **SFF-829** (writer) 2D values are pixels of the stored JPEG, in sensor orientation, before
 `display_rotation`. The `width` and `height` of each camera image reference are the width and height
-of the stored JPEG frames.
+of the stored JPEG frames. freemocap rotates the 2D values by `display_rotation` (SFF-751) to show
+them ([ADR-P76Y](../decisions/entries/P76Y-tracking-parquet.md) item 4).
 
 **SFF-830** (writer) 3D points of a take with two or more cameras are in millimetres in the
 reference frame `calibrated_world`, with the basis `blender_x_right_y_forward_z_up` (+X right, +Y
@@ -1805,7 +1838,8 @@ fit that the run did not use. It changes nothing else of a realtime run
 [ADR-72QQ](../decisions/entries/72QQ-spec-v2-details-part-8.md)). So `latency_ms` of each
 `coverage` keeps the value of the fold (SFF-834)
 ([ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)
-item 7).
+item 7). Within these rules, what posthoc processing does with a realtime run is the choice of
+freemocap ([ADR-P76Y](../decisions/entries/P76Y-tracking-parquet.md) item 8).
 
 **SFF-834** (writer) A run from the realtime journal (section 17) has, in the stage provenance
 of each sensor group, `origin` = `realtime` and a `coverage` object: `frames_in_take`,
@@ -1821,7 +1855,8 @@ record minus the group time of the frame (SFF-828). `p50` and `p99` are nearest-
 `timing` holds the events that name `timing`
 ([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 9). A posthoc run has `origin` =
 `posthoc` and `coverage` null. A skipped frame of a realtime run has `x`, `y` and `visibility` all
-null. A realtime run has no checkpoints. The values of `coverage`, for one sensor group and stage,
+null. A realtime run has no checkpoints, so posthoc processing never continues from realtime data
+([ADR-P76Y](../decisions/entries/P76Y-tracking-parquet.md) item 8). The values of `coverage`, for one sensor group and stage,
 are these ([ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item 38c,
 [ADR-N6KY](../decisions/entries/N6KY-spec-v2-details-part-14.md) item 42; for the stage `timing`,
 [ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)):
@@ -1859,9 +1894,10 @@ are these ([ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item
 **SFF-835** (reader) A reader gives the take warning `realtime_run` one time when a run has a stage
 provenance with `origin` = `realtime`. The reader result holds only the code. The text "Realtime
 run: N/M frames processed, causal filters, may contain dropped and extrapolated frames" is guidance
-for the program that shows the take. That program shows it for each camera sensor group, where N is
-`frames_processed` and M is `frames_in_take` of the `coverage` of the stage `observations`
-([ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)).
+for the program that shows the take: that program shows it for each camera sensor group, where N is
+`frames_processed` and M is `frames_in_take` of the `coverage` of the stage `observations`, and it
+shows a badge for the realtime run
+([ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md); the badge: [ADR-P76Y](../decisions/entries/P76Y-tracking-parquet.md) item 8).
 
 **SFF-836** (writer) The ChArUco observations of a calibration take are rows of the Parquet,
 with the channel kinds of parts/parquet-descriptor.md. They are not in a separate file. The source
@@ -1967,7 +2003,9 @@ journal as part of a repair that the user agreed to (SFF-793,
 The fold writes each event record into
 `coverage.events` of the stage that the event names, for each sensor group that has a stage
 provenance of that stage (SFF-834). The fold fails when an event names a stage that is not `timing`
-and not the `stage` of a channel of the header. Then freemocap keeps the journal (SFF-845)
+and not the `stage` of a channel of the header. A failed fold writes no run
+([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 9). Then
+freemocap keeps the journal (SFF-845)
 ([ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)
 item 5). The fold takes
 `timestamp_s` of each
@@ -2370,7 +2408,9 @@ lookup is only for `v1`: the member `calibration` is null for `pre_v1` and for `
 ## 22. Privacy and safety
 
 The rules of [ADR-T8PK](../decisions/entries/T8PK-privacy-notice-and-no-code-in-files.md) apply.
-Private data is allowed in any field.
+Private data is allowed in any field. This version gives no option to remove private data from the
+files. Guidance for programs: freemocap shows a privacy notice when the user exports or shares a
+take ([ADR-T8PK](../decisions/entries/T8PK-privacy-notice-and-no-code-in-files.md) items 3 and 4).
 
 **SFF-881** (writer) The manifest member `privacy` is an object with `fields` and
 `media_shows_people`. `fields` is an array, sorted by `file` and then by `field`, each in the order of its UTF-8 bytes
@@ -2714,4 +2754,10 @@ audio and video in sync to within 0.24 ms over a 60-minute take.
 - Do not use `decodeAudioData` for long files.
 - Find the fragments of the audio file by a walk of its `moof` boxes. Do not remux the file to plain
   MP4: a file with no `moof` cannot be indexed this way.
+- The audio file plays in standard players. Exact sync is judged in the skellycam player
+  ([ADR-92TM](../decisions/entries/92TM-opus-audio-in-fragmented-mp4.md) item 1).
 - VLC ignores the Opus pre-skip in MP4 and plays the audio about 6.5 ms late. This is accepted.
+- The player draws the frame label from the fields of the frame. The take holds no overlay, and
+  `.skov` is not part of the format (SFF-737, [ADR-2C9V](../decisions/entries/2C9V-whole-take-folder-scope-and-package.md) item 7).
+- Lichtblick is not a viewer of this format
+  ([ADR-92TM](../decisions/entries/92TM-opus-audio-in-fragmented-mp4.md) item 12).

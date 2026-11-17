@@ -1,6 +1,14 @@
 # 94YQ — Review of golden folder G1: file warning `gap`, `DefaultDuration`, G1 conventions, camera matching
 
-**Status:** accepted, 2026-11-16 (user; review of golden folder G1).
+**Status:** absorbed into
+[`spec/SPEC.md#6-camera-files`](../../spec/SPEC.md#6-camera-files),
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`golden/README.md#golden-folders`](../../golden/README.md#golden-folders),
+[`golden/G01_CHOICES.md#choices-made-for-g1-that-the-spec-does-not-give`](../../golden/G01_CHOICES.md#choices-made-for-g1-that-the-spec-does-not-give),
+[`tools/tests/test_goldgen.py`](../../tools/tests/test_goldgen.py),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; review of golden folder G1)).
 
 ## Decision
 
@@ -50,8 +58,8 @@ Each item has its reason.
   `gap`.
 - A writer that does not use FFmpeg must also round `DefaultDuration` down.
 - freemocap needs the code change that [open-work.md](../open-work.md) lists.
-- Four choices of G01_CHOICES.md (items 13, 14, 15 and 24) can be rules of the format. They stay
-  conventions of the golden folders until the user decides (open-work.md).
+- Four choices of G01_CHOICES.md (items 13, 14, 15 and 24) could be rules of the format.
+  [ADR-W389](W389-format-rules-from-the-golden-conventions.md) decided them (corrected on 2026-11-17).
 
 ## Evidence
 

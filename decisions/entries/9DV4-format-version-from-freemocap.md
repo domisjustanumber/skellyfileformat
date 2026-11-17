@@ -1,6 +1,7 @@
 # 9DV4 — Format version = the freemocap release that last changed the folder; written in each file
 
-**Status:** accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16).
+**Status:** superseded by [G9ER](G9ER-consolidation-of-the-pushed-entries.md),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16)).
 
 ## Decision
 

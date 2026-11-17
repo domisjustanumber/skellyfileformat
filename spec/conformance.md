@@ -27,6 +27,21 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 - In this repository, "skellycam" in an Input line is the package writer `TakeWriter` with
   synthetic input. "The converter" is `TakeWriter` in a conversion. The repair is `repair_take`
   ([ADR-QH61](../decisions/entries/QH61-spec-v2-details-part-15.md) item 46).
+- The runnable tests are in `tests/conformance/`. They call these names. The Python reader:
+  `read_folder(path, records=False, scope="full")` and `canonical_json(result)`. The JavaScript
+  reader: the command of SFF-892. The Python writer: `TakeWriter` (with `write_frame`,
+  `write_audio`, `add_warning` and `close`), `repair_take` and `release_check`. A fact that a test
+  needs and that the reader result does not hold comes from a detail function of the Python reader:
+  `camera_details`, `frame_spans`, `read_frame`, `position_at`, `audio_details`, `sample_time_ns`
+  or `run_details`. The result gets no member for it. The journal counts of SFF-885 are the
+  exception. The Python reader does not decode pixels or audio samples. It gives the stored bytes
+  and the timing, and a test decodes with PyAV
+  ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) items 2, 3 and 8).
+- The package writer writes only what a capture or a conversion needs: the camera files, the audio
+  file, the timing sidecars, the manifest, the capture info JSON and a repair. freemocap writes the
+  Parquet, the TOML, the journal, the exports and the processing info JSON. This repository tests
+  those files by checks on golden folders
+  ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 4).
 - A test, or a Pass sentence, is **external** when it needs a run of freemocap, a run of the
   Blender addon, capture hardware or an answer of a user. Its mark is `(external: <program>)`.
   `<program>` names what the test needs: `freemocap`, `Blender addon`, `Blender`, `skellycam` (the
@@ -510,7 +525,9 @@ The writer refuses the request for H.264 capture.
 **SFT-713** Reader: JPEG and block parsing
 Checks: SFF-738, SFF-739
 Input: a camera file with JPEGs with no JFIF, no DHT, trailing bytes and an EXIF orientation tag,
-and blocks with track numbers of 1 and 2 bytes.
+and blocks with track numbers of 1 and 2 bytes. The test makes the file at run time. It is not in a
+golden folder ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md)
+item 7).
 Pass: the reader finds each frame and returns its stored bytes: the bytes of its block payload. The
 reader does not decode them. The test decodes each frame with PyAV (pinned). The reader gives no
 rotation from the EXIF tag

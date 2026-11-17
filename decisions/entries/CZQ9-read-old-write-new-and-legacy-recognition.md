@@ -1,6 +1,13 @@
 # CZQ9 — Old recordings stay readable; new programs write only this format; the spec recognises legacy folders
 
-**Status:** accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16).
+**Status:** absorbed into
+[`README.md#scope-normative`](../../README.md#scope-normative),
+[`README.md#compatibility-promise-normative`](../../README.md#compatibility-promise-normative),
+[`spec/SPEC.md#6-camera-files`](../../spec/SPEC.md#6-camera-files),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative`](../../spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative),
+[`spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap`](../../spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16)).
 
 ## Decision
 

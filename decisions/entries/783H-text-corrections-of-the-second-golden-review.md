@@ -1,8 +1,19 @@
 # 783H — Text corrections from the second review of the golden results
 
-**Status:** accepted, 2026-11-17 (user; questions Q144, Q145, Q147, Q148 and Q150 of round 7 of the
+**Status:** absorbed into
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/conformance.md#conventions-and-versioning-sections-2-and-3`](../../spec/conformance.md#conventions-and-versioning-sections-2-and-3),
+[`spec/conformance.md#tracking-parquet-section-16`](../../spec/conformance.md#tracking-parquet-section-16),
+[`spec/conformance.md#opening-a-folder-section-20`](../../spec/conformance.md#opening-a-folder-section-20),
+[`golden/G07_G09_CHOICES.md#g9-the-files`](../../golden/G07_G09_CHOICES.md#g9-the-files),
+[`golden/G10_G13_G14_CHOICES.md#4-spec-gaps-contradictions-and-ambiguities`](../../golden/G10_G13_G14_CHOICES.md#4-spec-gaps-contradictions-and-ambiguities),
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q144, Q145, Q147, Q148 and Q150 of round 7 of the
 review of the golden folders; commit to main; was proposed, 2026-11-16, by an agent, from the
-second independent review of the golden expected results).
+second independent review of the golden expected results)).
 
 ## Decision
 
@@ -37,8 +48,9 @@ Each of them gives its question number.
    this (SFF-803), so the case has one fault for a reader.
 7. **A refused pair and the take (Q147; SFF-869, FB8P item 1).** A refused audio pair (`invalid` or
    `unsupported_version`) counts as a present file for the take state, the same as a refused
-   camera pair. A refused pair of either kind counts as a file of the take everywhere, also in the
-   check for `extra_files`.
+   camera pair. A refused pair of either kind counts as a file of the take wherever the reader counts
+   the files of the take: for the take state and for `extra_files`. A refused pair stays out of the
+   take-level checks ([ADR-64ER](64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md) item 3, Q147; corrected on 2026-11-17).
 8. **"No `records`" (Q148; SFF-885, FB8P item 3).** "No `records`" is `records` null, not an empty
    list. The same holds for a file with an unknown major version (`unsupported_version`). G9, G10
    `unknown_major_sidecar` and G11 have null.

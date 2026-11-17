@@ -1,7 +1,23 @@
 # DM9S — Spec draft v2 details, part 7: JavaScript scope, privacy, identity, ranges, smaller points
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
-recommended option of each CHOICE).
+**Status:** absorbed into
+[`spec/SPEC.md#2-conventions`](../../spec/SPEC.md#2-conventions),
+[`spec/SPEC.md#6-camera-files`](../../spec/SPEC.md#6-camera-files),
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#11-clocks-the-fit-and-reader-timing`](../../spec/SPEC.md#11-clocks-the-fit-and-reader-timing),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#14-processing-info-json`](../../spec/SPEC.md#14-processing-info-json),
+[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
+[`spec/SPEC.md#181-blender`](../../spec/SPEC.md#181-blender),
+[`spec/SPEC.md#183-exports`](../../spec/SPEC.md#183-exports),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#22-privacy-and-safety`](../../spec/SPEC.md#22-privacy-and-safety),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
+[`spec/SPEC.md#appendix-b-player-guidance-informative`](../../spec/SPEC.md#appendix-b-player-guidance-informative),
+[`spec/conformance.md#the-reader-result-section-23`](../../spec/conformance.md#the-reader-result-section-23),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; review of the proposed details, each item, with the
+recommended option of each CHOICE)).
 
 ## Decision
 
@@ -13,11 +29,13 @@ introduces (items 1 and 2, and the meaning of "Basis" and "CHOICE"). The other p
 each item of this part on 2026-11-16, with the recommended option of each CHOICE. The recommended
 option is the text of the item.
 
-14. **JavaScript reader scope** (SFF-892; SFT-768, SFT-769). CHOICE. With the parts of item 6c, the
-    JavaScript reader gives `not_checked` for `frames`, `dimensions`, `hashes` and `calibration`. It
-    evaluates `take_uuid`, `camera_key`, `rotation` and `files` on the files that it reads. The
-    byte-for-byte comparison leaves out a check that is `not_checked` in the JavaScript result. A
-    G9 vector that is only in the TOML, the Parquet or the journal is a Python test. Basis (3).
+14. **JavaScript reader scope** (SFF-892; SFT-768, SFT-769). CHOICE. The JavaScript reader gives
+    the result of the scope `player`. In it, `frames`, `dimensions`, `hashes` and `calibration` are
+    `not_checked`, and each other check has only the parts that need no TOML, Parquet or journal.
+    The Python reader with the scope `player` gives the same bytes. A G9 vector that is only in the
+    TOML, the Parquet or the journal is a test of the scope `full`. Basis (3). (corrected on 2026-11-17:
+    [ADR-0JVZ](0JVZ-spec-v2-details-part-9.md) item 21 replaced the comparison that left out each check that is
+    `not_checked` in the JavaScript result.)
 
 15. **Privacy and safety** (SFF-881, SFF-883, SFF-884; SFT-766, SFT-767; G16).
     - a. `media_shows_people` is true when the take has a camera file, an audio file or a Parquet.
@@ -25,9 +43,11 @@ option is the text of the item.
       [ADR-T8PK](T8PK-privacy-notice-and-no-code-in-files.md) item 2.
     - b. `fields` holds exactly these, when the file exists and the value is not null. Capture info
       JSON, for each camera: `user_name` (`user_entered_name`), `device/model` and `device/os_name`
-      (`device_name`), `device/serial` (`serial_number`), `device/port_path` (`device_path`); and
+      (`device_name`), `device/serial` (`serial_number`), `device/port_path` (`device_path`), `device/os_device_id` (`device_path`,
+      [ADR-70VP](70VP-camera-identity-forms-and-remembered-keys.md) item 1); and
       `/audio/device_name` (`device_name`). Each timing sidecar: `utc_offset_min` (`time_zone`).
-      Manifest: `/recording_name`, and each `user_name` and `model` of the summary. TOML:
+      Manifest: `/recording_name` and each `user_name` of the summary (`user_entered_name`), and
+      each `model` of the summary (`device_name`, [ADR-1HH0](1HH0-lock-startup-repair-and-reader-model-check.md) item 3; corrected on 2026-11-17). TOML:
       `metadata.alignment_recording_id` (`user_entered_name`). Basis (3).
     - c. CHOICE. A reader finds a pickle by the name suffix `.pkl` or `.pickle`, in any case, in the
       root and the media folder. It lists the file in `other_files` as `invalid`, with
@@ -35,8 +55,9 @@ option is the text of the item.
       An object `descr` makes the `folder_files` item `invalid`, with `code_in_file`. Basis (3).
 
 16. **Identity and ranges** (SFF-701, SFF-752, SFF-754, SFF-767; SFT-717, SFT-735; G11).
-    - a. CHOICE. The identity string is `<vendor_id>:<product_id>:serial:<serial>`, or
-      `<vendor_id>:<product_id>:port:<port_path>` when the device gives no serial. The four values
+    - a. CHOICE. The identity string is the first of the four forms of [ADR-70VP](70VP-camera-identity-forms-and-remembered-keys.md)
+      item 1 that applies: `serial`, `port`, `device` or `assigned` (SFF-752; corrected on 2026-11-17: the
+      two forms `serial` and `port` were replaced). The values
       are the texts of `device` in the capture info JSON, with `0000` for an ID that is null. The
       hash input is its UTF-8 bytes. Basis (1), [ADR-VPD9](VPD9-spec-draft-v2-details.md) item 4,
       and (3).

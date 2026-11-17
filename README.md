@@ -45,6 +45,12 @@ legacy folders stays in skellycam and freemocap.
   ([Versioning](#versioning-normative)).
 - A file with `format_prerelease` > 0 has no compatibility promise. A later reader can refuse it.
 - A writer writes only the latest format version.
+- A rule of the programs, not of the format (as in
+  [legacy-annex.md section 8](spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap)):
+  new skellycam, skellysync and freemocap write only this format. They write no legacy timestamp
+  CSV, no FLAC, WAV or MCAP audio and no burned-in overlay
+  ([ADR-CZQ9](decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md) item 2,
+  [ADR-92TM](decisions/entries/92TM-opus-audio-in-fragmented-mp4.md) item 1).
 
 ## Versioning (normative)
 
@@ -56,6 +62,9 @@ legacy folders stays in skellycam and freemocap.
   - A freemocap patch release does not change the format.
   - The skellyfileformat package and skellycam release at the same `major.minor` when the format
     changes.
+  - freemocap 2.x and skellycam 2.x are released at the same time. Until then, the 2.0.0
+    prereleases of skellycam can write prerelease files
+    ([ADR-9DV4](decisions/entries/9DV4-format-version-from-freemocap.md) item 9).
 - **Version fields.** Each file that the spec names in SFF-707 records the format version under which
   it was written: `format_version` (`major.minor`) and `format_prerelease`. `major`, `minor` and
   `format_prerelease` are unsigned integers that fit in 16 bits. The spec gives the place of the
@@ -87,6 +96,17 @@ legacy folders stays in skellycam and freemocap.
   conformance.md, and reads each golden folder in `golden/` to the expected result.
 - Each requirement has an ID `SFF-NNN`. Each test has an ID `SFT-NNN` and names the requirements
   that it checks.
+
+## Package
+
+The format code is in one shared package, skellyfileformat. It holds the spec, the conformance test
+list, the golden files, a Python reader and writer, and a JavaScript reader. The optional write
+layer `skellyfileformat[write]` holds the writer. The Python reference reader reads each file of the
+folder: the scope `full` of SFF-892. The JavaScript reader reads only what the skellycam player
+needs: the scope `player`. The writer encodes Opus with libopus through PyAV, at the version that
+the exact `av` pin gives (SFF-762, SFF-763)
+([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md) items 5 and 6,
+[ADR-92TM](decisions/entries/92TM-opus-audio-in-fragmented-mp4.md) item 2).
 
 ## Licenses
 

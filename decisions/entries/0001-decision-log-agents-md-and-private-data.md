@@ -1,6 +1,18 @@
 # 0001 — Decision log, `AGENTS.md`, `plans/` and private data
 
-**Status:** accepted, 2026-11-12 (user).
+**Status:** absorbed into
+[`AGENTS.md#1-purpose`](../../AGENTS.md#1-purpose),
+[`AGENTS.md#2-skills`](../../AGENTS.md#2-skills),
+[`AGENTS.md#5-decision-log`](../../AGENTS.md#5-decision-log),
+[`AGENTS.md#6-git-rules`](../../AGENTS.md#6-git-rules),
+[`AGENTS.md#8-private-data`](../../AGENTS.md#8-private-data),
+[`decisions/README.md#decision-log`](../README.md#decision-log),
+[`decisions/README.md#rules`](../README.md#rules),
+[`decisions/template.md#decision-log-entry-template`](../template.md#decision-log-entry-template),
+[`tools/check_decision_log.py`](../../tools/check_decision_log.py),
+[`tools/check_links.py`](../../tools/check_links.py),
+[`tools/check_private_data.py`](../../tools/check_private_data.py),
+2026-11-17 (commit to main; was accepted, 2026-11-12 (user)).
 
 ## Decision
 

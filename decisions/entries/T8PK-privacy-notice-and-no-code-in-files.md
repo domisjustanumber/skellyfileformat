@@ -1,6 +1,10 @@
 # T8PK — Private data is allowed and declared; no file runs code when it is read
 
-**Status:** accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16).
+**Status:** absorbed into
+[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
+[`spec/SPEC.md#181-blender`](../../spec/SPEC.md#181-blender),
+[`spec/SPEC.md#22-privacy-and-safety`](../../spec/SPEC.md#22-privacy-and-safety),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16)).
 
 ## Decision
 

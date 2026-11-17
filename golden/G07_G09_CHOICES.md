@@ -211,8 +211,10 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
     ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)): a folder file with
     another `take_uuid` is `present`, and the check `take_uuid` is `mismatch`, as G9 has it. [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md)
     item 5 adds: the file stays with the take that lists it, or
-    whose `<rec>` its fixed name has. The rule "a folder file with no take" applies only when the
-    folder has no take.
+    whose `<rec>` its fixed name has. The rule "a folder file with no take" applies in a folder with no
+    take, and in a folder with a take to a folder file that no manifest lists and whose name has
+    the `<rec>` of no take (SFF-889,
+    [ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 13).
 27. **SFF-872, `frames` and `dimensions`: the link of a Parquet camera source to its camera
     file.** The spec does not say how a reader links a camera source to its camera file: by
     `camera_key`, by `camera_label` (the source name `camera:<label>`) or by `video_filename`. G9

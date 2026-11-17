@@ -1,6 +1,16 @@
 # G21H — Gate 2: where the runnable tests live and what they call
 
-**Status:** accepted, 2026-11-16 (user; review of the spec after gate 1).
+**Status:** absorbed into
+[`AGENTS.md#1-purpose`](../../AGENTS.md#1-purpose),
+[`AGENTS.md#3-install-and-test`](../../AGENTS.md#3-install-and-test),
+[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
+[`spec/conformance.md#how-to-read-a-test`](../../spec/conformance.md#how-to-read-a-test),
+[`spec/conformance.md#camera-files-section-6`](../../spec/conformance.md#camera-files-section-6),
+[`golden/README.md#golden-folders`](../../golden/README.md#golden-folders),
+[`golden/README.md#layout`](../../golden/README.md#layout),
+[`golden/README.md#how-to-make-and-check-the-files`](../../golden/README.md#how-to-make-and-check-the-files),
+[`golden/README.md#provisional-parts`](../../golden/README.md#provisional-parts),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; review of the spec after gate 1)).
 
 ## Decision
 
@@ -8,9 +18,10 @@
    run. `uv run pytest` stays green. The failing run is
    `uv run --group conformance pytest tests/conformance`.
 2. **Interfaces.** The tests call:
-   - the Python reader: `read_folder(path, records=False)`, which returns the reader result of
+   - the Python reader: `read_folder(path, records=False, scope="full")`, which returns the reader result of
      SPEC.md section 23, and `canonical_json(result)`;
-   - the JavaScript reader: the command `node js/bin/read-folder.mjs <folder>`;
+   - the JavaScript reader: the command `node js/bin/read-folder.mjs <folder> [--records]` (the
+     `scope` argument and the switch: [ADR-0JVZ](0JVZ-spec-v2-details-part-9.md) item 21, corrected on 2026-11-17);
    - the Python writer: `TakeWriter` (with `write_frame`, `write_audio`, `add_warning` and `close`),
      `repair_take` and `release_check`.
 3. **Detail functions.** A fact that a test needs and that the reader result does not hold comes

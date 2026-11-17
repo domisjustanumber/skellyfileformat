@@ -1,7 +1,15 @@
 # XR63 — Reader rules from the review of the golden folders: legacy signals, refused sidecars, roles, link checks, open descriptor members
 
-**Status:** accepted, 2026-11-16 (user; questions Q87 to Q93, Q95, Q106 and Q110 of the review of
-the golden folders).
+**Status:** absorbed into
+[`spec/SPEC.md#5-the-recording-manifest`](../../spec/SPEC.md#5-the-recording-manifest),
+[`spec/SPEC.md#13-capture-info-json`](../../spec/SPEC.md#13-capture-info-json),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/parts/parquet-descriptor.md#processing`](../../spec/parts/parquet-descriptor.md#processing),
+[`spec/parts/parquet-descriptor.md#cameramodel-closed`](../../spec/parts/parquet-descriptor.md#cameramodel-closed),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; questions Q87 to Q93, Q95, Q106 and Q110 of the review of
+the golden folders)).
 
 ## Decision
 
@@ -22,11 +30,12 @@ The user accepted these rules. Each item gives its question number.
 6. **The link check `dimensions` (Q92).** The check compares the image reference of the Parquet
    (SFF-829) with the camera file, and nothing else (SFF-872).
 7. **A file with an unknown major version (Q93).** The reader skips its link checks, as for an
-   `invalid` file. Its `reason` is null. It still gets the warning `prerelease` when it has the
-   field (SFF-872, SFF-886, SFF-891).
+   `invalid` file. Its `reason` is null. It still gets the warning `prerelease` when the reader
+   can read the field and the value is above 0 (SFF-872, SFF-886, SFF-891; [ADR-7JJJ](7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
+   item 6, corrected on 2026-11-17).
 8. **Open descriptor members (Q95).** The descriptor members `filtering` and `camera_assignment`
-   are open JSON objects. A reader checks only that each is an object, until freemocap defines
-   them. The camera geometry of the descriptor is in the world of the calibration TOML
+   are optional, open JSON objects. A reader checks that each is an object only when it is
+   present, until freemocap defines them ([ADR-H2HQ](H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 1, Q121; corrected on 2026-11-17). The camera geometry of the descriptor is in the world of the calibration TOML
    (parts/parquet-descriptor.md, sections "Processing" and `CameraModel`).
 9. **`key_origin` (Q106).** A reader checks only that `key_origin` is one of the three values. A
    reader never computes a key again from the `device` values (SFF-803).

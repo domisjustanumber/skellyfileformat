@@ -1,7 +1,14 @@
-# H2HQ — Optional descriptor members, absent and null model members, the points that wait, the early audio of old skellycam recordings, the consolidation after gate 2
+# H2HQ — Optional descriptor members, absent and null model members, the points that wait, the early audio of old skellycam recordings, the consolidation
 
-**Status:** accepted, 2026-11-16 (user; questions Q121 and Q125 to Q129 of round 3 of the review
-of the golden folders).
+**Status:** absorbed into
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/parts/parquet-descriptor.md#processing`](../../spec/parts/parquet-descriptor.md#processing),
+[`spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules`](../../spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules),
+[`spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap`](../../spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap),
+[`golden/G03_CHOICES.md#the-descriptor`](../../golden/G03_CHOICES.md#the-descriptor),
+[`decisions/README.md#rules`](../README.md#rules),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; questions Q121 and Q125 to Q129 of round 3 of the review
+of the golden folders)).
 
 ## Decision
 
@@ -24,9 +31,12 @@ The user accepted these rules. Each item gives its question number.
    early audio (9 to 74 ms) of old skellycam recordings. Playback shows a note: the audio of
    recordings of that era can lead by up to about 74 ms. This is a skellycam playback
    rule. In skellyfileformat, it closes the open-work item S10b.
-6. **The consolidation (Q129).** One consolidation entry supersedes the changed lines of the
-   accepted entries that cannot be absorbed. Then these entries are absorbed. The consolidation
-   changes no rule. It is done after the gate 2 review, not before.
+6. **The consolidation (Q129).** One consolidation entry supersedes in full each accepted entry
+   that cannot be absorbed because a later entry changed one of its rules
+   ([ADR-G9ER](G9ER-consolidation-of-the-pushed-entries.md); corrected on 2026-11-17: the Rules
+   allow only a full supersession, so these entries are not absorbed). The consolidation changes
+   no rule. It is done now, before the gate 2 review and before any push
+   ([ADR-HH7B](HH7B-absorb-documents-and-clean-up-timing.md) item 2, Q155, which replaces the timing of Q129; corrected on 2026-11-17).
 
 ## Reason
 

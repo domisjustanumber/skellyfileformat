@@ -1,7 +1,19 @@
 # 2MQE — Test wording, golden conventions, `format_prerelease` after external review, the usable serial, exports out of gate 2
 
-**Status:** accepted, 2026-11-16 (user; questions Q97 to Q103, Q105, Q107 and Q111 of the review
-of the golden folders).
+**Status:** absorbed into
+[`README.md#versioning-normative`](../../README.md#versioning-normative),
+[`spec/SPEC.md#3-versioning`](../../spec/SPEC.md#3-versioning),
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#183-exports`](../../spec/SPEC.md#183-exports),
+[`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
+[`spec/SPEC.md#layout-and-cases`](../../spec/SPEC.md#layout-and-cases),
+[`spec/conformance.md#timing-sidecars-sections-7-8-and-10`](../../spec/conformance.md#timing-sidecars-sections-7-8-and-10),
+[`spec/conformance.md#tracking-parquet-section-16`](../../spec/conformance.md#tracking-parquet-section-16),
+[`spec/conformance.md#privacy-and-safety-section-22`](../../spec/conformance.md#privacy-and-safety-section-22),
+[`golden/README.md#golden-folders`](../../golden/README.md#golden-folders),
+[`golden/README.md#layout`](../../golden/README.md#layout),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; questions Q97 to Q103, Q105, Q107 and Q111 of the review
+of the golden folders)).
 
 ## Decision
 

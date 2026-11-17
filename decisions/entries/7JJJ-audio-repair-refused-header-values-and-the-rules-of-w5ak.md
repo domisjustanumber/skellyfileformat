@@ -1,13 +1,23 @@
 # 7JJJ — The repair of an audio pair, the header values of a refused sidecar, and the rules of W5AK that stay
 
-**Status:** accepted, 2026-11-17 (user; questions Q146 and Q149 of round 7 of the review of the
-golden folders; commit to main).
+**Status:** absorbed into
+[`spec/SPEC.md#5-the-recording-manifest`](../../spec/SPEC.md#5-the-recording-manifest),
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#13-capture-info-json`](../../spec/SPEC.md#13-capture-info-json),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/conformance.md#capture-info-processing-info-and-calibration-sections-13-to-15`](../../spec/conformance.md#capture-info-processing-info-and-calibration-sections-13-to-15),
+[`spec/conformance.md#opening-a-folder-section-20`](../../spec/conformance.md#opening-a-folder-section-20),
+[`spec/conformance.md#legacy-folders-section-21`](../../spec/conformance.md#legacy-folders-section-21),
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q146 and Q149 of round 7 of the review of the
+golden folders; commit to main)).
 
 ## Decision
 
 The user accepted items 2 and 11. Item 2 reverses Q113 in part. So this entry supersedes
 [ADR-W5AK](W5AK-details-for-the-decisions-q83-to-q111.md) in full. Items 1 to 10 keep the numbers of
-W5AK. Each of them except item 2 restates a rule of W5AK unchanged. Each item gives its question
+W5AK. Each of them except items 2 and 5 restates a rule of W5AK unchanged. Item 5 also holds the
+addition of [ADR-158N](158N-details-for-the-decisions-of-round-3.md) item 13 (corrected on 2026-11-17). Each item gives its question
 number.
 
 1. **How a reader reads a repaired camera file (Q115).** A reader reads a repaired camera file as
@@ -25,7 +35,9 @@ number.
    TOML gets the role `calibration` (SFF-731).
 5. **A folder file of another take (Q117).** A folder file that holds another `take_uuid` stays
    with the take that lists it, or with the take whose `<rec>` its fixed name has. The rule "a
-   folder file of this format with no take" applies only when the folder has no take (SFF-889).
+   folder file of this format with no take" applies in a folder with no take. In a folder with a
+   take, it applies to a folder file that no manifest lists and whose name has the `<rec>` of no
+   take (SFF-889; [ADR-158N](158N-details-for-the-decisions-of-round-3.md) item 13, Q133, corrected on 2026-11-17).
 6. **The warning `prerelease` of an `unsupported_version` file (Q118).** The file gets the warning
    `prerelease` only when the reader can read `format_prerelease` and the value is above 0
    (SFF-891).

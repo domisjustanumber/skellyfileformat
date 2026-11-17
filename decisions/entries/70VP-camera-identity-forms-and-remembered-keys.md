@@ -1,6 +1,10 @@
 # 70VP — Camera identity: four forms, remembered keys, `key_origin`, the user name
 
-**Status:** accepted, 2026-11-16 (user; review of the camera identity).
+**Status:** absorbed into
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#13-capture-info-json`](../../spec/SPEC.md#13-capture-info-json),
+[`spec/SPEC.md#22-privacy-and-safety`](../../spec/SPEC.md#22-privacy-and-safety),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; review of the camera identity)).
 
 ## Decision
 
@@ -24,12 +28,15 @@ rules of the two entries stay. SFF-752 holds the full text.
      attaches it to the camera again in a later session. It replaces each earlier draft of a last
      resort (an OS index, a session key).
    - A capture writer never refuses a camera for its identity, and never writes `camera_key` 0.
-2. **A forgiving match on load.** When a connected camera matches no remembered key, but its
-   vendor ID and model name from the OS match a remembered camera that is not connected, the
-   capture program asks the user if it is the same camera. When the user agrees, the camera keeps
-   the remembered `camera_key`. When several remembered cameras fit, the user selects one from a
-   list (by `user_name` and `camera_label`) or says that it is a new camera. Reason: a camera on
-   another port must not lose its key and its calibration.
+2. **A forgiving match on load.** When a connected camera matches no remembered key, but it is a
+   candidate for a remembered camera that is not connected, the capture program asks the user if it
+   is the same camera. A candidate has equal `vendor_id` and `product_id` that are not null, or,
+   when one of them is null in either camera, an equal `model`
+   ([ADR-E68K](E68K-camera-match-repair-order-and-g5-g6-files.md) item 1,
+   [ADR-158N](158N-details-for-the-decisions-of-round-3.md) item 1). When the user agrees, the
+   camera keeps the remembered `camera_key`. When several remembered cameras fit, the user selects
+   one from a list (by `user_name` and `camera_label`) or says that it is a new camera. Reason: a
+   camera on another port must not lose its key and its calibration.
 3. **Remembered key and `key_origin`.** A capture writer MAY write the remembered `camera_key` in
    place of the computed one, when the user confirmed that the device is that camera. The camera
    config gets `key_origin` after `user_name`: `"computed"` (the hash of form 1, 2 or 3, built from
@@ -41,8 +48,9 @@ rules of the two entries stay. SFF-752 holds the full text.
    remembered camera by its remembered location (serial, port path or OS device identifier), not
    by a new computation of the hash. When the computed key of a camera is equal to the key of a
    remembered camera that has another location, the capture program asks the user, as in item 2,
-   before it uses the key. Reason: a second identical camera on the old port of a moved camera
-   computes the key of the moved camera.
+   before it uses the key. When the user says no, the camera gets an assigned key (form 4).
+   Reason: a second identical camera on the old port of a moved camera computes the key of the
+   moved camera.
 5. **`user_name` is metadata only.** It is never part of a file name, of `camera_label` or of the
    identity string. It is null, or a text of 1 to 128 bytes of UTF-8 with no control character. A
    writer SHOULD NOT give two cameras of one take the same `user_name` that is not null. A reader
@@ -54,14 +62,12 @@ rules of the two entries stay. SFF-752 holds the full text.
    take. No file format for a rig is defined. Reason: each take holds `camera_key`, `user_name`,
    the model and `device`.
 
-**Not decided.** The spec marks these parts provisional, and [open-work.md](../open-work.md) lists
-them: the source and the text form of `port_path` and `os_device_id` on each OS, which no test on
-Linux or macOS supports; and the placeholder list and the character rule of a usable serial, which
-are a proposal from the research code.
+**Not decided** (provisional, [open-work.md](../open-work.md)): the source and the text form of
+`port_path` and `os_device_id` on each OS. No test on Linux or macOS supports them.
 
 ## Reason
 
-Each item has its reason. The capture library gives no serial number and no port path of the
+The capture library gives no serial number and no port path of the
 operating system.
 
 ## Consequences
@@ -73,8 +79,8 @@ operating system.
 ## Evidence
 
 skellycam `dom/research` (local, not committed):
-`research/skellycam_recording/docs/camera_identity_alternatives_20261116.md`,
-`research/skellycam_recording/docs/camera_user_labels_design_20261116.md` and
+`camera_identity_alternatives_20261116.md` and `camera_user_labels_design_20261116.md` in
+`research/skellycam_recording/docs/`, and
 `research/usb_cameras/naming/camera_identity.py` (`serial_is_usable`, `PLACEHOLDER_SERIALS`). Only
 the Windows code was run. No test did a reboot, a replug, a port move or two identical cameras.
 

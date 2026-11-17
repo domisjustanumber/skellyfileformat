@@ -1,7 +1,14 @@
 # Q4BK — Spec draft v2 details, part 4: reader result members and orphan files
 
-**Status:** accepted, 2026-11-16 (user; review of the proposed details, each item, with the
-recommended option of each CHOICE).
+**Status:** absorbed into
+[`spec/SPEC.md#5-the-recording-manifest`](../../spec/SPEC.md#5-the-recording-manifest),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#20-opening-a-folder`](../../spec/SPEC.md#20-opening-a-folder),
+[`spec/SPEC.md#181-blender`](../../spec/SPEC.md#181-blender),
+[`spec/SPEC.md#21-legacy-folders`](../../spec/SPEC.md#21-legacy-folders),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; review of the proposed details, each item, with the
+recommended option of each CHOICE)).
 
 ## Decision
 
@@ -58,7 +65,10 @@ option is the text of the item.
      state and reason.
      CHOICE: a new code cannot be avoided without a false reason.
    - d. A folder file of this format with no take is in `other_files` as `invalid`, with
-     `take_fact_mismatch`.
+     `take_fact_mismatch`. A manifest that no take uses and that holds no `take_uuid` has the reason
+     `bad_schema` and gives no `orphan_file` ([ADR-PVG8](PVG8-spec-v2-details-part-10.md) item 25). The rule also
+     applies in a folder with a take, to a folder file that no manifest lists and whose name has the
+     `<rec>` of no take ([ADR-158N](158N-details-for-the-decisions-of-round-3.md) item 13; corrected on 2026-11-17).
    - e. Each file of a to d that is alone gives `orphan_file`. SFF-889 gets the words of
      [ADR-KW3G](KW3G-reader-result-for-the-folder.md) item 7 again ("a file of this format").
      Basis (1), [ADR-KW3G](KW3G-reader-result-for-the-folder.md) item 7 and

@@ -18,37 +18,8 @@ These entries are `accepted` or `evidence`.
 
 | # | Decision | Status |
 |---|----------|--------|
-| [0001](entries/0001-decision-log-agents-md-and-private-data.md) | Decision log and its rules; `AGENTS.md` files hold the instructions; `plans/` is local; no private data | accepted |
-| [2C9V](entries/2C9V-whole-take-folder-scope-and-package.md) | The format is the whole take folder; every file fully specified, incl. other formats by content mapping; one package; JS reader for player needs | accepted |
-| [5XNA](entries/5XNA-folder-layout-names-and-manifest.md) | Folder layout and fixed names; folder renamable, files not; `<rec>` prefix; `recording_manifest.json` with links, warnings, privacy, summary | accepted |
-| [6RSB](entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md) | Camera files: MJPEG MKV with index timestamps; one CSV timing sidecar per file; `camera_key` link key; fit in the sidecar; player time | accepted |
-| [92TM](entries/92TM-opus-audio-in-fragmented-mp4.md) | Audio: Opus (libopus) in fragmented MP4 with 1 s fragments, one CSV sidecar; silence for gaps; fit for timing; crash read and clean-up rules | accepted |
-| [9DV4](entries/9DV4-format-version-from-freemocap.md) | Format version = major.minor of the freemocap release that last changed the folder; package and skellycam in step; version in each file | accepted |
-| [CZQ9](entries/CZQ9-read-old-write-new-and-legacy-recognition.md) | Old recordings stay readable; new programs write only this format; the spec recognises v1 folders by era; pre-v1 unsupported; legacy annex | accepted |
-| [G1YG](entries/G1YG-writing-crash-reading-and-repair.md) | Whole files via `.tmp` and replace; live files append and flush; crashed files read in place; repair only after the user agrees | accepted |
-| [KW3G](entries/KW3G-reader-result-for-the-folder.md) | One canonical reader result for the folder: file states, codes, folder files, link checks, private-data flag; the reader never writes | accepted |
-| [N6HS](entries/N6HS-info-jsons-and-calibration.md) | Two info JSONs, one writer each, no copied fields; one fact one home; calibration as a setup file with `calibration_uuid` and a copy per take | accepted |
-| [P76Y](entries/P76Y-tracking-parquet.md) | Tracking Parquet: 2D and 3D in one file; value f32 + value_f64; BYTE_STREAM_SPLIT, ZSTD 3; descriptor v2 links; realtime runs marked | accepted |
-| [Q9X2](entries/Q9X2-realtime-tracking-journal.md) | Realtime tracking: CRC-framed binary journal by its own freemocap node, folded into a Parquet run; deleted only after a verified fold | accepted |
-| [T8PK](entries/T8PK-privacy-notice-and-no-code-in-files.md) | Private data allowed in any field and declared in the manifest `privacy` list; no strip option yet; no file format that runs code | accepted |
-| [VPD9](entries/VPD9-spec-draft-v2-details.md) | Spec draft v2 details, part 1: structure, IDs, names, CSV dialect, columns, fit lines, clocks, media boxes, repair line, journal layout | accepted |
-| [3D33](entries/3D33-spec-draft-v2-details-folder-files.md) | Spec draft v2 details, part 2: manifest, info JSONs, TOML, Parquet v2 fields, Blender, exports, opening, legacy, privacy, result codes | accepted |
-| [G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) | Gate 2: tests in `tests/conformance/`; reader, writer and detail function names; writer scope; golden file rules | accepted |
-| [Q4BK](entries/Q4BK-spec-v2-details-part-4.md) | Spec draft v2 details, part 4 (items 3, 4): reader result members; "a file of this format"; orphan files, `missing_media` | accepted |
-| [0XX2](entries/0XX2-spec-v2-details-part-5.md) | Spec draft v2 details, part 5 (items 5 to 8): legacy result, manifest rebuild, link check parts, summary, manifest lock | accepted |
-| [DM9S](entries/DM9S-spec-v2-details-part-7.md) | Spec draft v2 details, part 7 (items 14 to 17): JavaScript scope, privacy list, pickles, identity string, ranges, exports | accepted |
-| [70VP](entries/70VP-camera-identity-forms-and-remembered-keys.md) | Camera identity: serial, port, OS device or assigned form; remembered key after the user confirms; `key_origin`; `user_name` is metadata only | accepted |
-| [94YQ](entries/94YQ-golden-g1-review-decisions.md) | G1 review: file warning `gap`; `DefaultDuration` rounded down; G1 choices are the golden conventions; freemocap suggests camera matches from calibration | accepted |
-| [W389](entries/W389-format-rules-from-the-golden-conventions.md) | Format rules from G1: privacy list in byte order; no line end after a result; unknown elements and boxes ignored; key order in the capture info JSON | accepted |
-| [XR63](entries/XR63-reader-rules-of-the-golden-review.md) | Reader rules: legacy keys at any depth; refused sidecars out of take checks; role `calibration`; `dimensions`; unknown major; open descriptor members | accepted |
-| [2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) | Test wording; golden conventions; `format_prerelease` after external review; usable serial frozen; assigned key for a new camera; exports provisional | accepted |
-| [E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) | Camera match by vendor and product ID, else `model`; repair each step for the whole take; SFT-717 forms; sidecar with no `take_uuid`; G5 and G6 files | accepted |
-| [H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) | Optional `filtering`, `camera_assignment`; absent and null model members; points wait for `sfn26` and 18.3; old audio not corrected; consolidation after gate 2 | accepted |
-| [158N](entries/158N-details-for-the-decisions-of-round-3.md) | Camera match null test, prompt; repair step 3; interrupted repair stays `recording`; no-`take_uuid` sidecar; "has a default"; `timing` coverage; orphan file | accepted |
 | [FB8P](entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) | Refused pair counts; `rotation` member; `invalid` file; interrupted audio `records`; legacy subfolders | accepted |
-| [783H](entries/783H-text-corrections-of-the-second-golden-review.md) | Golden review 2 text fixes: SFT-703, SFT-748, SFT-763, `frames_processed`, choice files; refused audio pair; `records` null; whole audio blocks; legacy dirs | accepted |
-| [7JJJ](entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md) | Supersedes W5AK: repair keeps min(rows, blocks) frames; audio repair cut to whole blocks; refused header values need the correct form; W5AK rules | accepted |
-| [3GWN](entries/3GWN-jitter-in-the-g5-audio-rows-after-the-cut.md) | G5 audio jitter after the cut: a fit from the kept rows only gives other `fitted_ns` | accepted |
+| [G9ER](entries/G9ER-consolidation-of-the-pushed-entries.md) | Consolidation: supersedes 3D33, 5XNA, 92TM, 9DV4, G1YG, KW3G, N6HS, P76Y, Q9X2, VPD9; kept rules by link; three rules as text | accepted |
 
 ### Proposed
 
@@ -86,7 +57,7 @@ The open work is in [open-work.md](open-work.md).
   four edits apply from the first push.
 - A decision that a document or code refers to must be in an entry. "This log" in an older entry or
   in the Rules means all logs.
-- An absorb document is one of these: the root or a nested `AGENTS.md`, the skills, `README.md`, `spec/SPEC.md`, `spec/conformance.md`, the Rules of this file with [template.md](template.md), and the docstring of a
+- An absorb document is one of these: the root or a nested `AGENTS.md`, the skills, `README.md`, `spec/SPEC.md` with its normative parts `spec/parts/*.md`, `spec/conformance.md`, `spec/legacy-annex.md`, `golden/README.md` and the files `golden/*_CHOICES.md` ([ADR-HH7B](entries/HH7B-absorb-documents-and-clean-up-timing.md)), the Rules of this file with [template.md](template.md), and the docstring of a
   tool in `tools/` for the rules that it checks. A test in `tools/tests/` is a tool here. An accepted entry is absorbed when the absorb
   documents together state all of its rules. Open work of the entry does not stop the absorb when
   `open-work.md` states that work in full. A link to the entry is not
