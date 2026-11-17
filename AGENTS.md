@@ -117,7 +117,8 @@ Fix the failures of one root cause in one PR.
     needs no work after stage 1.
   - In the scope `full`, the stage 1 reader stops with a clear "not in this version" error on a
     folder that holds a calibration TOML, a Parquet or a journal. Do not add a state to the format
-    for this. A legacy TOML is not a calibration TOML.
+    for this. The error applies only to a calibration TOML of this format (section 15). An
+    old-style calibration TOML in a legacy folder must not cause the error.
   - Stage 1 lists the calibration TOML but does not read it. It reads only what the scope `player`
     and the format mark need.
   - Stage 1 reads and validates the processing info JSON.

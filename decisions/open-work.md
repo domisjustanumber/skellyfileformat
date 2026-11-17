@@ -18,15 +18,15 @@ task. Delete an item when its work is done. The PR that closes an item records t
   and G16). [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 22 gives the layout and the
   cases, with two expected results for each case (the scopes `full` and `player`).
   [ADR-QH61](entries/QH61-spec-v2-details-part-15.md) item 46 gives the tests that this repository
-  runs. Do not push skellyfileformat before the user approves gate 2. Then each correction from the
-  review can change the entries in place
-  ([ADR-Z641](entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 3).
+  runs. Do not push skellyfileformat before the user approves gate 2 for stage 1. Until then, each
+  correction from the review can change the entries in place. The approval of stage 1 ends this
+  agreement. Ask the user before the first push. From that push on, an entry cannot be corrected in
+  place ([ADR-Z641](entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 3).
   The user approves gate 2 for each stage
   ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md)). The review now is the review of
   stage 1: the tests, the test parts and the golden results of stage 1a in
   [conformance.md](../spec/conformance.md#the-stage-of-each-test). SFT-760 and G17 of stage 1b
-  wait for the skellysync decisions. Not decided: whether the approval of stage 1 also ends the
-  agreement of no push.
+  wait for the skellysync decisions.
   [AGENTS.md](../AGENTS.md#4-project-rules) gives the stages and the scope of the approval.
 - **Two tests of the package in the staged build (for the start of stage 1).** These tests check
   the package while it is built in stages. They are not rules of the format. The user must review

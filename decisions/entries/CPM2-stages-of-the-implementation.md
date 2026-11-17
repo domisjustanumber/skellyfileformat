@@ -4,7 +4,7 @@
 [`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
 [`spec/conformance.md#the-stage-of-each-test`](../../spec/conformance.md#the-stage-of-each-test),
 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q168 to Q180 of rounds 11
-and 12)).
+and 12, and Q181 of round 13)).
 
 ## Decision
 
@@ -54,6 +54,10 @@ capture, 3 Posthoc capture, 4 Blender.
     at the gate of stage 2.
 13. **Code in NPY and NPZ files (Q180).** The check of `.npy` and `.npz` headers for code (SFF-884)
     is in stage 1.
+14. **A legacy calibration TOML (Q181).** The "not in this version" error of item 10 applies only
+    to a calibration file of this format (SPEC.md section 15). An old-style calibration TOML in a
+    legacy folder does not cause the error. The stage 1 reader reads a legacy folder in the scope
+    `full` (item 5, SFT-764).
 
 The stage of each test and each golden folder follows from these items. A table in
 `spec/conformance.md` gives it, and the tests get a pytest mark for each stage.
@@ -76,8 +80,6 @@ The stage of each test and each golden folder follows from these items. A table 
 ## Consequences
 
 - Many tests that run the scope `full` on G3 or on a copy of G3 move from stage 1 to stage 2.
-- Item 10 is about the files of this format. A legacy TOML is not a calibration TOML of section 15,
-  so the stage 1 reader reads a legacy folder in the scope `full` (item 5, SFT-764).
 - The two tests of the package in the staged build (the "not in this version" error and the
   refusal of the stage 1 repair) are not in `spec/conformance.md`. They are open work.
 

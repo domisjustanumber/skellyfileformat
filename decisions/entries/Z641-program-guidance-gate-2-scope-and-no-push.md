@@ -5,7 +5,7 @@
 [`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
 [`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q161, Q163 and Q164 of
-round 9, and Q166 and Q167 of round 10; "agree to all")).
+round 9, Q166 and Q167 of round 10, and Q182 of round 13; "agree to all")).
 
 ## Decision
 
@@ -35,9 +35,11 @@ The user accepted these items. Each item gives its question number.
    2026-11-17, the user had not approved gate 2 for a stage. (Corrected in place by [ADR-CPM2](CPM2-stages-of-the-implementation.md): the
    approval was for all tests and G1 to G16, and did not cover the skellysync folders and G17. They
    are stage 1b now.)
-3. **No push before gate 2 (Q164).** skellyfileformat is not pushed before the user approves
-   gate 2. This agreement ends at the approval, so the gate 2 item of
-   [open-work.md](../open-work.md) states it.
+3. **No push before gate 2 (Q164, Q182).** skellyfileformat is not pushed before the user approves
+   gate 2. The user's approval of stage 1 ends this agreement (Q182). The agent still asks the user
+   before the first push. From that push on, an entry cannot be corrected in place. The agreement
+   ends at the approval, so the gate 2 item of [open-work.md](../open-work.md) states it.
+   (Corrected in place by Q182: the item did not say which stage approval ends the agreement.)
 4. **The order of implementation (Q167).** In each stage, after the gate 2 approval of that stage,
    the implementation starts with the Python reader. The Python writer is next. The JavaScript
    reader is last. The JavaScript reader is built only in stage 1. (Corrected in place by [ADR-CPM2](CPM2-stages-of-the-implementation.md):
