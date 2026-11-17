@@ -88,9 +88,9 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 - SFT-707, SFT-709, SFT-736, SFT-744, SFT-761 and SFT-762 also run each of their inputs on a copy of
   G1, in stage 1a
   ([ADR-YT1F](../decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
-  item 3). Their Input lines name G3. A case on a copy of G1 has a parameter ID that starts with
-  `g1`. The cases on a copy of G3 stay in stage 2. The case `g9` of SFT-762 reads G9 and has no copy
-  of G1.
+  item 3). Their Input lines name these inputs on a copy of G1 (item 7). A case on a copy of G1 has
+  a parameter ID that starts with `g1`. The cases on a copy of G3 stay in stage 2. The case `g9` of
+  SFT-762 reads G9 and has no copy of G1.
 - SFT-711 is in stage 1a. Its external sentence (Blender, at the pinned version, counts the same
   number of frames in the camera file) is a check that a person runs by hand one time in stage 1a.
   It checks that Blender opens the video. It does not check the Blender addon
@@ -145,7 +145,7 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 | SFT-733 | 2 | 1a: `repair`, `check_on_golden`, `camera_file_provisional` |
 | SFT-734 | 2 | `<golden case>` |
 | SFT-735 | 1a | |
-| SFT-736 | 2 | 1a: `camera_configs_by_key[g1]`, `bad_key_origin[g1_*]` |
+| SFT-736 | 2 | 1a: `camera_configs_by_key[g1]`, `confirmed_key`, `bad_key_origin[g1_*]` |
 | SFT-737 | 3 | 1a: `golden_part`; 2: `golden_part_against_the_parquet` |
 | SFT-738 | 2 | |
 | SFT-739 | 2 | |
@@ -599,7 +599,8 @@ The reader opens no file by a glob pattern. The Parquet item is `present`: the r
 
 **SFT-707** Reader: only the root and the media folder are scanned
 Checks: SFF-721
-Input: G3 with a camera file and its sidecar copied into `exports/`.
+Input: G3 with a camera file and its sidecar copied into `exports/`; a copy of G1 with the same
+change.
 Pass: the copy is not in the result.
 
 **SFT-708** Writer: the manifest
@@ -626,7 +627,7 @@ the items of the other (external: freemocap). `summary` has the members and the 
 Checks: SFF-729, SFF-730
 Input: G3 with a `summary` whose `display_rotation` and `nominal_fps` differ from the sidecars; G3
 with a `summary` whose `gaps` differs from the `# end` line; G3 with a wrong `sha256` in a `files`
-item.
+item; a copy of G1 with each of these changes.
 Pass: the reader result uses the sidecar values and has the warning `summary_stale`, for the first
 two inputs. The wrong `sha256` of the `files` item changes nothing in the result.
 
@@ -947,7 +948,7 @@ Each control name is from SFF-802, and `audio` names the microphone.
 Checks: SFF-803
 Input: G3 with the camera configs in another order and with `camera_label` values swapped; the case
 `confirmed_key` of G1; G3 with the `key_origin` `"remembered"` in one camera config, changed at
-test time.
+test time; a copy of G1 with each of these changes of G3.
 Pass: each config is linked to the camera of its key. The case `confirmed_key` reads with no error:
 the reader does not compute the key from the `device` values. The capture info JSON with
 `"remembered"` is `invalid`, with `bad_schema` ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 9).
@@ -1037,8 +1038,8 @@ for the port of the freemocap exporter ([ADR-2MQE](../decisions/entries/2MQE-tes
 
 **SFT-744** Reader: hidden export files
 Checks: SFF-860
-Input: G3 with `exports/.staging-1/` and `exports/.publication.json`. The test makes the two
-hidden items at test time. It needs no export.
+Input: G3 with `exports/.staging-1/` and `exports/.publication.json`; a copy of G1 with the same
+two items. The test makes the hidden items at test time. It needs no export.
 Pass: they are not in the reader result.
 
 **SFT-745** (external: freemocap) Writer: logs
@@ -1238,7 +1239,7 @@ Checks: SFF-864, SFF-865
 Input: G3 with an extra `.mkv` with no sidecar, and a sidecar of the take with no media file; G3
 with a sidecar of another `take_uuid` with no media file; G3 with a sidecar with no media file and
 no `take_uuid` key, and one with no media file and a `take_uuid` in a wrong form, changed at test
-time.
+time; a copy of G1 with each of these changes.
 Pass: the extra `.mkv` is in `other_files` as `not_in_format`. The sidecar of the take is in the
 `files` of the take as `invalid`, with the reason `missing_media` and the path of the missing media
 file as its `name`. It gives no `extra_files`. The sidecar of the other `take_uuid` is in
@@ -1253,7 +1254,8 @@ Checks: SFF-866, SFF-869, SFF-870, SFF-871
 Input: G9; G11; a folder with two takes; G3 with a camera missing; G3 with a third camera pair of the same
 take; G3 with a third camera pair of the same take whose sidecar is `invalid`; G3 with an audio
 sidecar of an unknown `major`; G3 with two cameras that have one label;
-G3 with sidecars that disagree on `clock`.
+G3 with sidecars that disagree on `clock`; a copy of G1 with each of these changes of G3; a copy of
+G1 with two takes.
 Pass: each take is reported. Two takes give `multiple_takes`. The missing camera gives `incomplete` and
 `incomplete_take`. The third camera pair gives `extra_files`, also when its sidecar is `invalid`.
 With the audio sidecar of an unknown `major`, the take is `complete`, with no `incomplete_take`,

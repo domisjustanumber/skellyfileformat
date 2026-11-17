@@ -49,6 +49,12 @@ task. Delete an item when its work is done. The PR that closes an item records t
   the export inventory and the BVH metadata JSON: both hold `format_prerelease` (SFF-707) and no
   `skellyfileformat` member, and SFF-891 gives the warning `prerelease` to each file that holds
   `format_prerelease`. No golden case has either file, and no test checks it.
+- **Two points of the inputs of SFT-762 (for the user; found in the review of the cases on copies
+  of G1).** The tests do not change until the user decides them. The cases `one_label` (on G3 and
+  G1) give camera 1 the label of camera 0, which is not the form of SFF-720 for its key: does the
+  reader give `duplicate_label`, or refuse the sidecar with `bad_label` (SFF-753)? The third
+  sidecars of SFT-762 have `group_position` 2 and `group_size` 2: is a `group_position` out of the
+  range of `group_size` a wrong form, with `bad_metadata` (SFF-748)?
 - **Complete section 18.3** ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 23).
   Exports are not in gate 2, and section 18.3 is provisional
   ([ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 12). G3 holds no export,

@@ -142,7 +142,7 @@ PARTS = {
     "710": {"1a": ["missing_or_wrong_manifest[audio_only]"]},
     "730": {"1a": ["whole_files_and_live_files", "fsync_provisional"]},
     "733": {"1a": ["repair", "check_on_golden", "camera_file_provisional"]},
-    "736": {"1a": ["camera_configs_by_key[g1]", "bad_key_origin[g1_*]"]},
+    "736": {"1a": ["camera_configs_by_key[g1]", "confirmed_key", "bad_key_origin[g1_*]"]},
     "737": {"1a": ["golden_part"], "2": ["golden_part_against_the_parquet"]},
     "744": {"1a": ["hidden_export_files[g1]"]},
     "751": {"2": ["golden_part"]},

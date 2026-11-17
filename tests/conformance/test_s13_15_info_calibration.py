@@ -61,6 +61,17 @@ def test_sft_736_camera_configs_by_key(reader, variant, expected, base):
     assert checks.canonical(result) == expected(base, "take", "full")
 
 
+def test_sft_736_confirmed_key(reader, golden_or_skip):
+    """SFT-736 Reader: the case `confirmed_key` of G1. Checks: SFF-803.
+
+    The reader does not compute the key from the `device` values, so the case reads with no error.
+    """
+    folder = golden_or_skip("G01", "confirmed_key")
+    take = checks.the_take(checks.read(reader, folder))
+    assert checks.folder_file(take, checks.capture_info(folder).name)["state"] == "present"
+    assert checks.link(take, "camera_key") == "ok"
+
+
 @pytest.mark.parametrize(
     ("base", "key_origin"),
     [

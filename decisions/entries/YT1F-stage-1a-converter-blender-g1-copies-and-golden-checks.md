@@ -3,7 +3,8 @@
 **Status:** absorbed into
 [`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
 [`spec/conformance.md#the-stage-of-each-test`](../../spec/conformance.md#the-stage-of-each-test),
-2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q183 to Q186 of round 14)).
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q183 to Q186 of round 14
+and Q187 to Q189 of round 15)).
 
 ## Decision
 
@@ -27,6 +28,14 @@ The user accepted these items. Each item gives its question number. They add to 
    SFT-737) is in stage 1a (Q178, [ADR-CPM2](CPM2-stages-of-the-implementation.md) item 11). The
    checks of the Parquet, the calibration TOML and the journal stay in stage 2. The section "The
    stage of each test" of `spec/conformance.md` states the rule.
+5. **The split of SFT-737 (Q187).** `golden_part` of SFT-737 checks the processing info JSON alone,
+   in stage 1a. The comparison of that file with the Parquet is the test function
+   `golden_part_against_the_parquet`, in stage 2.
+6. **The check of the manifest of G3 (Q188).** `check_on_golden[G03/take]` of SFT-708 is in stage
+   1a, by item 4. It opens the manifest, the capture info JSON, the sidecars, the camera files and
+   the hashed bytes of the processing info JSON. It opens no TOML and no Parquet.
+7. **The Input lines (Q189).** The `Input:` line of each of the six tests of item 3 also names its
+   inputs on a copy of G1. This is a text addition only. The Pass text does not change.
 
 A fact that the user recorded (not a decision): the stage 1a reader needs a TOML parser. It reads
 the calibration TOML of a legacy folder (G15) to tell the legacy eras apart.
@@ -40,25 +49,21 @@ the calibration TOML of a legacy folder (G15) to tell the legacy eras apart.
 - Item 3: these are reader rules of stage 1a. Without the copies of G1, no stage 1a test checks
   them.
 - Item 4: a check with no reader inspects only files. The kind of file gives the stage.
+- Items 5 and 6: they apply item 4.
+- Item 7: an Input line names each input of its test.
 
 ## Consequences
 
 - The application of item 4 to each check:
-  - A check that inspects files of two stages has the later stage. `golden_part` of SFT-737 also
-    compared the processing info JSON with the Parquet. That part is now the test function
-    `golden_part_against_the_parquet`, in stage 2. `golden_part` checks the processing info JSON
-    alone, in stage 1a.
+  - A check that inspects files of two stages has the later stage (item 5).
   - A check of the name of a file inspects that file. Thus `golden_part` of SFT-705 (the names in
     G3, also of the TOML and the Parquet) stays in stage 2.
-  - The check of the manifest of G3 (`check_on_golden[G03/take]` of SFT-708) opens the manifest,
-    the capture info JSON, the sidecars, the camera files and the processing info JSON, and no TOML
-    or Parquet. It is in stage 1a. The check `check_on_golden[results]` of SFT-703 inspects the
-    committed results, so it is in stage 1a, as `committed_results` of SFT-768 and SFT-769.
+  - The check `check_on_golden[results]` of SFT-703 inspects the committed results, so it is in
+    stage 1a, as `committed_results` of SFT-768 and SFT-769.
 - The case `g9` of SFT-762 reads the golden cases of G9. It has no copy of G1, so 8 of its 9 cases
   have a copy of G1.
-- The rule "An `Input:` line names the inputs" of `spec/conformance.md` is not changed. The Input
-  lines of these tests name G3 only. The section "The stage of each test" names the inputs on a
-  copy of G1.
+- SFT-736 also gets the case `confirmed_key`, in stage 1a. It reads the case `confirmed_key` of G1,
+  which its Input line names.
 
 ## Open work
 
