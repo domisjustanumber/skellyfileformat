@@ -34,20 +34,10 @@ task. Delete an item when its work is done. The PR that closes an item records t
   them first). It changes one rule of [ADR-9DV4](entries/9DV4-format-version-from-freemocap.md)
   and [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md), so the [Rules](README.md#rules) can need
   an entry that supersedes them.
-- **Points that the second review of the golden results leaves open.** The user must decide each
-  of them. The text corrections of
-  [ADR-783H](entries/783H-text-corrections-of-the-second-golden-review.md) (proposed) are in the
-  spec now.
-  - GAP-1 (SFF-869, SFF-885): does a pair with a refused sidecar count as a camera file (G10
-    `unknown_major_sidecar`, G11: yes)? Does the sidecar keep `camera_key` and `camera_label`?
-  - GAP-2 (SFF-800, SFF-887): a 2.0 capture info JSON with the forbidden member `rotation` in a
-    camera config: `present` with `rotation` `mismatch` (G9 `rotation_in_configs`), or `invalid`?
-  - GAP-3 (SFF-885, SFF-891): does an `invalid` file get `prerelease` (G9 `recording_id`, G11:
-    yes)? Is its `records` null (G11) or `[]`?
-  - GAP-6 (SFF-785, SFF-885): G6 keeps audio rows whose `fitted_ns` is past the usable length in
-    `records`, and `duration_s` 2.1 s for 0.99 s of audio. SFF-885 limits only camera `records`.
-  - GAP-7 (SFF-721, SFF-718): SFF-721 says that a reader lists no other subfolder, but the legacy
-    reads of G15 look into `SyncedVideos/`, `timestamps/` and `output_data/raw_data/`.
+- **Choices of round 7 of the golden review.** The user must accept or change each choice of
+  [ADR-SM53](entries/SM53-choices-for-the-decisions-of-round-7.md) (proposed): the form of version
+  2.0 for an unknown `major`; the rows of the reader fit of an unfinished audio file (SFF-784 and
+  SFF-792); the new members of the G5 truth files.
 - **Absorb the accepted entries into the spec.** The check of 2026-11-16 absorbed 16 entries. Each
   entry of this list stays Active: no absorb document states the rule of its line, or a later entry
   (in brackets) changed the rule and no entry supersedes the old text (the [Rules](README.md#rules)).
@@ -80,7 +70,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - [ADR-0XX2](entries/0XX2-spec-v2-details-part-5.md) items 6c and 8: "one part for each pair of files" ([ADR-0WTH](entries/0WTH-spec-v2-details-part-12.md) item 31); the fold
     "only after `state` is `finished`" ([ADR-1HH0](entries/1HH0-lock-startup-repair-and-reader-model-check.md) item 2).
   - [ADR-DM9S](entries/DM9S-spec-v2-details-part-7.md) item 14: the scope of the JavaScript reader ([ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 21).
-  - [ADR-E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3: "never half repaired"; [ADR-W5AK](entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 5:
+  - [ADR-E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3: "never half repaired"; [ADR-7JJJ](entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md) item 5:
     "only when the folder has no take" ([ADR-158N](entries/158N-details-for-the-decisions-of-round-3.md) items 12 and 13).
 - **Provisional parts of spec draft v2.** Close each of them before v2.0.0:
   - SFF-752 (Q107, [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 11): the
@@ -175,7 +165,9 @@ task. Delete an item when its work is done. The PR that closes an item records t
   candidates first. From [ADR-B6WH](entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md): the
   repair of skellycam and freemocap cuts a camera pair to equal rows and blocks, cuts a sidecar at
   its first bad row, appends nothing to a media file and writes its own name as the `source` of
-  `camera_gap`. From [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md): skellycam
+  `camera_gap`. From [ADR-7JJJ](entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
+  item 2: the repair also cuts the audio sidecar to the blocks whose every sample is in the cut
+  audio file. From [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md): skellycam
   gives an assigned key to a new camera with the key of a remembered camera. From
   [ADR-E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) and
   [ADR-H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md): skellycam finds

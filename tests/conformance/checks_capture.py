@@ -590,6 +590,20 @@ def audio_usable_samples(media: Path) -> int:
     return min(sum(n for n in sidecar.integers("n_samples")), held)
 
 
+def audio_whole_blocks(media: Path) -> int:
+    """The number of first usable rows whose every sample is in a complete fragment (SFF-792).
+
+    Sample n of a row is decoded sample n − `file_sample_offset`, and decoded sample 0 is the first
+    sample after the pre-skip (SFF-766).
+    """
+    sidecar = read_sidecar(media.with_suffix(".csv"))
+    mp4 = parse_mp4(media.read_bytes())
+    held = sum(fragment["samples"] for fragment in mp4.fragments) - mp4.pre_skip
+    offset = int(sidecar.header["file_sample_offset"])
+    blocks = zip(sidecar.integers("first_sample"), sidecar.integers("n_samples"))
+    return next((count for count, (first, n) in enumerate(blocks) if first + n - offset > held), len(sidecar.rows))
+
+
 # ---------------------------------------------------------------- decoding (decision G21H item 8)
 
 
@@ -1391,7 +1405,8 @@ def check_repaired_files(folder: Path, before: Path) -> None:
     """SFT-733: the sidecars and the audio file of a repaired take, against the files before the repair.
 
     Each byte before the cut is unchanged. Each sidecar has a fit, a repair line and an `# end` line.
-    A video sidecar keeps only the rows whose frame has a complete block in the old camera file. The
+    A video sidecar keeps only the rows whose frame has a complete block in the old camera file. An
+    audio sidecar keeps only the rows whose every sample is in a complete fragment. The
     audio file is cut after its last complete fragment, with no `mfra` box. The repaired camera file
     is not in this check: its check is provisional (SFF-797).
     """
@@ -1407,7 +1422,11 @@ def check_repaired_files(folder: Path, before: Path) -> None:
         media = path.with_suffix(".m4a" if new.kind == "audio" else ".mkv")
         old_media, new_media = (before / MEDIA / media.name).read_bytes(), media.read_bytes()
         # The cut is at the first bad row (SFF-795). A camera pair keeps only the frames with a row and a block (SFF-797).
-        kept = len(old.rows) if new.kind == "audio" else min(len(old.rows), len(parse_mkv(old_media).blocks))
+        if new.kind == "audio":
+            # The sidecar keeps only the blocks whose every sample is in a complete fragment (SFF-795, ADR-7JJJ item 2).
+            kept = audio_whole_blocks(before / MEDIA / media.name)
+        else:
+            kept = min(len(old.rows), len(parse_mkv(old_media).blocks))
         cut = old.rows_end - sum(len(line.encode()) + 1 for line in old.row_lines[kept : len(old.rows)])
         assert len(new.rows) == kept and len(old.data) - int(repair["cut_bytes"]) == cut, "the sidecar is cut at the right row"
         assert new.data[:cut] == old.data[:cut], "each byte before the cut is unchanged (SFF-794)"

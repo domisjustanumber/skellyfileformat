@@ -73,6 +73,41 @@ def media_tail(kind: str, media: bytes, rows: list[bytes]) -> tuple[int, int]:
     return fragments, len(media) - end
 
 
+def _children(data: bytes) -> dict[bytes, bytes]:
+    found, at = {}, 0
+    while at + 8 <= len(data):
+        size, kind = struct.unpack(">I4s", data[at : at + 8])
+        found[kind], at = data[at + 8 : at + size], at + size
+    return found
+
+
+def held_samples(media: bytes) -> int:
+    """The samples of the complete fragments, minus the pre-skip of `dOps` (SFF-785)."""
+    dops = media.index(b"dOps")  # the one `dOps` box, in `moov`, before each fragment
+    pre_skip = struct.unpack(">H", media[dops + 6 : dops + 8])[0]
+    at, moof, held = 0, None, 0
+    while at + 8 <= len(media):
+        size, box = struct.unpack(">I4s", media[at : at + 8])
+        if at + size > len(media):
+            break
+        if box == b"moof":
+            moof = media[at + 8 : at + size]
+        elif box == b"mdat" and moof is not None:
+            parts = _children(_children(moof)[b"traf"])
+            # tfhd has the flags of SFF-760 and a default duration, so the duration is at offset 8.
+            held += int.from_bytes(parts[b"trun"][4:8], "big") * int.from_bytes(parts[b"tfhd"][8:12], "big")
+            moof = None
+        at += size
+    return held - pre_skip
+
+
+def whole_blocks(media: bytes, rows: list[bytes]) -> int:
+    """The first rows whose every sample is in a complete fragment (SFF-792). `file_sample_offset` is 0."""
+    held = held_samples(media)
+    fields = [[int(f) for f in row.split(b",")[1:3]] for row in rows]
+    return next((count for count, (first, n) in enumerate(fields) if first + n > held), len(rows))
+
+
 # ---------------------------------------------------------------- the generator against G1
 
 
@@ -179,7 +214,8 @@ def test_crashed_results_agree_with_the_files(folder, case):
         assert (item["state"], item["reason"]) == (state, "crc_mismatch" if state == "damaged" else None)
         assert item["rows"] == good
         assert item["torn_bytes"] == len(torn) + (0 if ended else tail)  # SFF-791
-        assert len(item["records"]) == (min(good, blocks) if item["kind"] == "camera" else good)  # SFF-740
+        whole = blocks if item["kind"] == "camera" else whole_blocks(media, rows[:good])
+        assert len(item["records"]) == min(good, whole)  # SFF-740, SFF-792
         assert item["fit"] is (state == "repaired") and ("missing_fit" in item["warnings"]) is (state != "repaired")
         if state == "repaired":
             assert tail == 0
@@ -229,7 +265,11 @@ def test_g05_audio_fit_of_the_reader():
         fit = {"row_first": 0, "row_last": last, "n0": n_a, "t0_ns": t_a, "period_fs": (t_b - t_a) * 10**6 // (n_b - n_a)}
         assert truth["audio"]["reader_fit"] == fit
         expected = [[*row[:4], t_a + (row[1] - n_a) * fit["period_fs"] // 10**6] for row in rows]  # SFF-779
-        assert take["files"][-1]["records"] == expected
+        media = (GOLDEN / "G05" / case / take["files"][-1]["name"]).read_bytes()
+        whole = truth["audio"]["complete_blocks"]
+        assert whole == len([row for row in rows if row[1] + row[2] <= held_samples(media)]) == {False: 19, True: 9}[case.endswith("torn_fragment")]
+        assert truth["audio"]["held_samples"] == held_samples(media)
+        assert take["files"][-1]["records"] == expected[:whole], "only the blocks in the complete fragments (SFF-792)"
 
 
 def test_g06_repair_changes_no_byte_before_its_cut():
@@ -275,7 +315,13 @@ def test_g06_manifest_after_the_repair():
         last_arrival_ns.append(int(rows[-1][2]))
     assert [(c["gaps"], c["filled"]) for c in new["summary"]["cameras"]] == [(int(e["gaps"]), 0) for e in ends]
     assert new["summary"]["duration_s"] == (max(last_arrival_ns) + 500_000) // 10**6 / 1000  # SFF-728
-    assert new["summary"]["audio"]["duration_s"] == 2.1
+    # SFF-728 and SFF-795: the `# end` line of the cut audio sidecar, 9 blocks of 4,800 samples.
+    audio = new["audio"]["timing"]
+    _, rows, footer = read_sidecar(GOLDEN / "G06" / "repaired" / audio)
+    media = (GOLDEN / "G06" / "repaired" / new["audio"]["audio"]).read_bytes()
+    assert len(rows) == 9 == len([row for row in rows if int(row[1]) + int(row[2]) <= held_samples(media)])
+    assert footer[-1] == "# end rows=9 samples=43200 gaps=0 silence_samples=0"
+    assert new["summary"]["audio"]["duration_s"] == 0.9
 
 
 # ---------------------------------------------------------------- G11

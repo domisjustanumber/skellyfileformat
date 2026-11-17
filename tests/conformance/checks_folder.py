@@ -227,7 +227,9 @@ def result_faults(raw: bytes) -> list[str]:
                 faults.append(f"{at}: rows or torn_bytes is not an integer")
             if not refused and not isinstance(item["fit"], bool):
                 faults.append(f"{at}: fit is not a boolean")
-            for record in item.get("records") or []:  # the golden results have `records` null for a refused file
+            if refused and item.get("records") is not None:
+                faults.append(f"{at}: a refused item has records that are not null")  # ADR-FB8P item 3, ADR-783H item 8
+            for record in item.get("records") or []:
                 if len(record) != 5 or any(value is not None and type(value) is not int for value in record):
                     faults.append(f"{at}: the record {record} does not have 5 integers or nulls")
                     break

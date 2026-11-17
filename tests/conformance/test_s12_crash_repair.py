@@ -120,6 +120,8 @@ def test_sft_732_unfinished_files(reader, golden_or_skip, target):
         assert item["state"] in ("unfinished", "damaged")
         assert item["rows"] == len(sidecar.rows), "the file reads to its last complete record"
         assert item["torn_bytes"] == c.torn_bytes_of_pair(folder / item["name"])
+        if item["kind"] == "audio":  # SFF-792: only the blocks whose every sample is in a complete fragment
+            assert len(item["records"]) == c.audio_whole_blocks(folder / item["name"]) < item["rows"]
     if target == "G05/audio_torn_fragment":
         audio = folder / c.audio_of(take)["name"]
         assert audio.stat().st_size > c.media_complete_end(audio), "the golden audio file has a torn fragment"

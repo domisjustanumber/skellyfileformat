@@ -118,12 +118,14 @@ def crashed_take(torn_audio: bool) -> dict:
     cut = second + moof_size + (second_end - second - moof_size) // 2 if torn_audio else second_end
     end = first_end if torn_audio else second_end
     files |= {pair["name"]: pair["before"][:cut], pair["timing"]: pair["head"] + b"".join(pair["lines"])}
-    items.append(capture_cases.item(pair, "unfinished", len(pair["rows"]), None, torn_bytes=cut - end))
-    fit = capture_cases.reader_audio_fit(pair["rows"])
+    held = capture_cases.held_samples(pair["before"][:cut])
+    whole = capture_cases.whole_blocks(pair["rows"], held)  # SFF-792: `records` holds only these blocks
+    items.append(capture_cases.item(pair, "unfinished", len(pair["rows"]), None, complete=whole, torn_bytes=cut - end))
+    fit = capture_cases.reader_audio_fit(pair["rows"])  # SFF-784: from the rows that the reader uses (SFF-746)
     truth = {
         "audio": {
-            "name": pair["name"], "complete_fragments": 1 if torn_audio else 2, "sidecar_torn_bytes": 0,
-            "media_torn_bytes": cut - end,
+            "name": pair["name"], "complete_fragments": 1 if torn_audio else 2, "held_samples": held,
+            "complete_blocks": whole, "sidecar_torn_bytes": 0, "media_torn_bytes": cut - end,
             "reader_fit": dict(zip(("row_first", "row_last", "n0", "t0_ns", "period_fs"), fit)),
         },
         "cameras": truth_cameras,

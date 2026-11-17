@@ -118,9 +118,11 @@ Parts that were not run at gate 2:
 1. **SFT-749 and Appendix A.** Closed on 2026-11-16: camera 1 of G3 has `display_rotation` 90
    ([ADR-2MQE](../../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 3). The test
    checks that G3 has the rotated camera, and that each 2D value is inside the stored frame.
-2. **`records` of a refused file.** SFF-885 says that an `invalid` item has `rows`, `torn_bytes`
-   and `fit` null. It does not give `records`. The committed results of G11 have `records` null.
-   `result_faults` accepts null and an array.
+2. **`records` of a refused file.** Closed on 2026-11-16: an `invalid` item has `records` null
+   (SFF-885, [ADR-FB8P](../../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)
+   item 3). Closed on 2026-11-17: an `unsupported_version` item also has `records` null
+   ([ADR-783H](../../decisions/entries/783H-text-corrections-of-the-second-golden-review.md)
+   item 8). `result_faults` asks for null for each refused item.
 3. **SFT-740, the second TOML.** Closed on 2026-11-16: the TOML `second_camera_calibration.toml`
    has the `<rec>` of no take, so it is `invalid` in `other_files` with `take_fact_mismatch`, and
    the folder has `orphan_file` (SFF-889,

@@ -64,6 +64,26 @@ def test_sft_761_device_pairs_and_orphan_files(reader, variant, case):
     assert result["folder_warnings"].count("orphan_file") == 1
 
 
+@pytest.mark.parametrize("case", ["third_camera_pair_refused", "audio_pair_refused"])
+def test_sft_762_refused_pairs_count(reader, variant, case):
+    """SFT-762, a refused pair counts as a file of the take (ADR-783H item 7). Checks: SFF-869."""
+    folder = variant("G03")
+    rec = checks.manifest(folder)["recording_name"]
+    if case == "third_camera_pair_refused":
+        checks.set_header(_third_sidecar(folder, f"{rec}.{OTHER_LABEL}", with_media=True), "display_rotation", "45")
+    else:
+        audio = folder / checks.manifest(folder)["audio"]["timing"]
+        checks.set_header(audio, "format_version", "3.0")  # an unknown `major`
+    take = checks.the_take(checks.read(reader, folder, records=True))
+    if case == "third_camera_pair_refused":
+        item = checks.named(take["files"], f"{MEDIA}/{rec}.{OTHER_LABEL}.mkv")
+        assert item["state"] == "invalid" and "extra_files" in take["warnings"]
+    else:
+        (item,) = [item for item in take["files"] if item["kind"] == "audio"]
+        assert item["state"] == "unsupported_version" and item["records"] is None, "`records` is null (ADR-783H item 8)"
+        assert take["state"] == "complete" and "incomplete_take" not in take["warnings"]
+
+
 @pytest.mark.parametrize("case", ["g9", "two_takes", "camera_missing", "third_camera_pair", "one_label", "clock_disagrees", "group_size_disagrees"])
 def test_sft_762_takes_and_counts(reader, variant, golden_or_skip, case):
     """SFT-762 Reader: takes and counts. Checks: SFF-866, SFF-869, SFF-870, SFF-871."""

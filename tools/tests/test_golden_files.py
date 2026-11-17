@@ -116,7 +116,8 @@ def test_result_members_codes_and_orders(path):
             assert warnings_ok(item["warnings"], FILE_WARNINGS)
             assert "\\" not in item["name"] and not item["name"].startswith("/")
             if item["state"] in {"invalid", "unsupported_version"}:
-                assert item["rows"] is item["torn_bytes"] is item["fit"] is None
+                # SFF-885: also `records` null, not [] (ADR-783H item 8).
+                assert item["rows"] is item["torn_bytes"] is item["fit"] is item["records"] is None
             else:
                 assert isinstance(item["rows"], int) and isinstance(item["torn_bytes"], int)
                 assert isinstance(item["fit"], bool)

@@ -384,7 +384,13 @@ timing sidecar. A file with an
 unknown `major` is `unsupported_version`, not legacy. A folder file with an unknown `major` has the
 state `unsupported_version` in `folder_files`. An item with the state `unsupported_version` has
 `reason` null and the warning `prerelease`, and the link checks evaluate no part that needs it
-([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 7). A file with a higher `minor` reads, and the
+([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 7). In
+`unknown_major_sidecar` of G10, the take is `complete`, and the camera item has the `camera_key`
+and the `camera_label` of the sidecar header, and `records` null. An item with the state `invalid`
+(G11, and the Parquet of `recording_id` of G9) has the warning `prerelease`, and its `records` is
+null, not `[]`
+([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) items 1 and 3,
+[ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 8). A file with a higher `minor` reads, and the
 unknown key, column and member are ignored. In `higher_minor` of G10, the reader also ignores the
 unknown key in `[metadata]` and in the camera table of the TOML, and the flag bit 7 (128) of the
 row of the video sidecar. In `higher_minor_journal` of G10, the good record of the unknown type 200
@@ -694,7 +700,13 @@ Pass: each unfinished file reads to its last complete record. `torn_bytes` of ea
 of SFF-791: the bytes of the last line of its sidecar when that line has no LF, plus the bytes of
 its media file after the last complete block
 or fragment when the last line of the sidecar is not an `# end` line. The torn audio fragment is
-ignored. `torn_bytes` is 0 for each pair of G1 and for each pair of `repaired` of G6.
+ignored. `torn_bytes` is 0 for each pair of G1 and for each pair of `repaired` of G6. For each
+unfinished audio file, `rows` counts each complete row, and `records` holds only the blocks whose
+every sample is in a complete fragment: the first 19 of 21 blocks in `audio_clean_kill` and the
+first 9 in `audio_torn_fragment`. A block that is only partly in the complete fragments is not in
+`records`
+([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 4,
+[ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 9).
 
 **SFT-733** Writer: repair
 Checks: SFF-793, SFF-794, SFF-795, SFF-796, SFF-797, SFF-798
@@ -710,7 +722,11 @@ the user agrees, and when the user does not agree, the SHA-256 of each file and 
 not change (external: user). Before a call of `repair_take`, the reader reads the files of G5 in place. After the repair, each byte before the cut is
 unchanged, each sidecar has a fit, a repair line and an `# end` line, and the reader reports
 `repaired`. Each sidecar keeps no row after its first bad row. Each repaired video sidecar has as
-many rows as its camera file has blocks. The repair appends nothing to a media file: the repaired
+many rows as its camera file has blocks. Each repaired audio sidecar keeps only the rows whose
+every sample is in a complete fragment of the cut audio file (9 rows for G5
+`audio_torn_fragment`), and the manifest `duration_s` of the audio is from its `# end` line
+([ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
+item 2). The repair appends nothing to a media file: the repaired
 camera file has no Cues and no new SeekHead, and the repaired audio file has no `mfra` box. The
 reader accepts the two files ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1, 3 and 4). `state` of the manifest is `finished`, and no manifest has another value of `state`.
 The repair does each step of SFF-793 for the whole take before the next step: it cuts each media
@@ -1064,14 +1080,21 @@ sidecar with the wrong form as `invalid` with `bad_metadata`
 **SFT-762** Reader: takes and counts
 Checks: SFF-866, SFF-869, SFF-870, SFF-871
 Input: G9; G11; a folder with two takes; G3 with a camera missing; G3 with a third camera pair of the same
-take; G3 with two cameras that have one label;
+take; G3 with a third camera pair of the same take whose sidecar is `invalid`; G3 with an audio
+sidecar of an unknown `major`; G3 with two cameras that have one label;
 G3 with sidecars that disagree on `clock`.
 Pass: each take is reported. Two takes give `multiple_takes`. The missing camera gives `incomplete` and
-`incomplete_take`. The third camera pair gives `extra_files`. One label gives `duplicate_label`. The
+`incomplete_take`. The third camera pair gives `extra_files`, also when its sidecar is `invalid`.
+With the audio sidecar of an unknown `major`, the take is `complete`, with no `incomplete_take`,
+and the audio item has `records` null
+([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) items 7
+and 8). One label gives `duplicate_label`. The
 disagreement gives `take_fact_mismatch`,
 and the values of `group_position` 0 are used. In each case of G11, the `invalid` sidecar is not
 in the take-level checks: the result has no `take_fact_mismatch` and no `summary_stale` from it
-([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 2).
+([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 2). Its pair
+counts as a present camera file, so the take is `complete`, with no `incomplete_take`
+([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 1).
 
 **SFT-763** Reader: link checks
 Checks: SFF-720, SFF-824, SFF-872, SFF-873, SFF-874
@@ -1086,6 +1109,8 @@ evaluate it. The check `files` tests each file name of a Parquet camera source i
 folder. The Parquet with a wrong `recording_id` is `invalid` in `folder_files`, with
 `take_fact_mismatch`. In the case `take_uuid` of G9, the processing info JSON with the other
 `take_uuid` is `present` in `folder_files`, and `take_uuid` is `mismatch` ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 4).
+In the case `rotation_in_configs` of G9, the capture info JSON is `present`, and `rotation` is
+`mismatch` ([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 2).
 The check `dimensions` compares only `width` and `height` of the image reference frames of the
 Parquet with the camera files ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 6). A part whose file is absent or `invalid` is not evaluated. The key 0 camera
 has the label `cam<N>` and is linked by label, with
@@ -1111,7 +1136,9 @@ files only has the
 family `unknown`, with `release_range` null, `ambiguous` false and empty `eras` and `warnings`.
 `legacy.calibration` is null for `pre_v1` and for `unknown`. In each legacy folder, `takes` is
 `[]`, and `other_files` lists each file of the root and of `synchronized_videos/`, not of their
-subfolders. The copy of `v1i` with the nested key has the result of `v1i`. The copy of `v0_0_x`
+subfolders. To recognise the folder, the reader reads only the root, `synchronized_videos/` and the
+subfolders that SFF-875 names
+([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 5). The copy of `v1i` with the nested key has the result of `v1i`. The copy of `v0_0_x`
 with the files of `v1a` has the family `v1` ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 1).
 
 **SFT-765** Reader: calibration lookup in v1 folders

@@ -226,7 +226,7 @@
       "file": "synchronized_videos/g05_synthetic_take.audio.m4a",
       "sample_rate": 48000,
       "channels": 1,
-      "duration_s": 2.1
+      "duration_s": 0.9
     },
     "calibration": null,
     "processing_runs": [],

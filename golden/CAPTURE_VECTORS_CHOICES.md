@@ -5,8 +5,15 @@
 rule of the format only where the spec states it. A decision of the same day replaced items 2, 3
 and 4 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md)). [ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3
 decided item 6, and [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md)
-items 1, 2, 3 and 10 confirmed items 2, 3 and 5. Each
-of these items gives its decision. No item is open.
+items 1, 2, 3 and 10 confirmed items 2, 3 and 5.
+[ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)
+decided items 8, 9 and 10.
+[ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
+item 2 replaced item 5 on 2026-11-17, and
+[ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 9 gave the
+audio `records` of G05 and G06. Each of these items gives its decision. Item 46 is a proposed
+choice ([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md)). No other
+item is open.
 
 This file is for the six golden folders that `tools/goldgen/capture_cases.py` makes: G02, G04, G05,
 G06, G11 and G12. Most choices apply to more than one folder, so the folders have one file.
@@ -33,9 +40,9 @@ the desk tests DT-R1 and DT5.
    rows, 17 blocks), camera 1 keeps 15 (21 rows and a torn row, 15 blocks) and camera 2 keeps 9 (9
    good rows, 20 blocks). Before this decision, the generator cut each file on its own, and the
    pairs of G06 `repaired` had 22/17, 21/15 and 9/20 rows and blocks. That did not agree with
-   SFF-759. The audio pair has no such rule: its sidecar keeps its 21 rows (item 5). [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md)
+   SFF-759. The audio pair has its own rule (item 5). [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md)
    item 2 confirms this: n is the smaller of "rows before the first bad row" and "complete blocks",
-   and both files are cut to n. The audio repair does not change. A reader refuses a repaired camera
+   and both files are cut to n. A reader refuses a repaired camera
    pair whose rows and blocks differ, as it refuses a finished pair (ADR-W5AK item 10). SFT-719 makes that vector at test time from a copy of G06 `repaired`.
 3. **The repaired camera file gets no normal end.** Decision (ADR-B6WH item 3): the repair writes
    no Cues and does not write the SeekHead again, because these writes change bytes before the cut.
@@ -48,9 +55,13 @@ the desk tests DT-R1 and DT5.
    file is the crashed file, cut after its last complete fragment. A reader accepts the file.
 5. **A sidecar with more samples than its audio file.** The muxer holds the open fragment in memory,
    so the crashed audio file holds less audio than the 21 rows of its sidecar (100,800 samples).
-   SFF-795 keeps each row. So the repaired sidecar has `samples=100800`, and the repaired file holds
-   one fragment. SFF-785 gives the usable length. The manifest summary has `duration_s` 2.1, from
-   the `# end` line (SFF-728).
+   Decision ([ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
+   item 2, which replaces "SFF-795 keeps each row"): the repair cuts the audio sidecar to the blocks
+   whose every sample is in a complete fragment of the cut file. The cut file holds one fragment of
+   50 packets of 960 samples: 48,000 samples, minus the pre-skip of 312, gives 47,688 samples. So
+   the repaired sidecar keeps 9 rows of 4,800 samples (43,200 samples, `samples=43200`), and the
+   manifest summary has `duration_s` 0.9, from the `# end` line (SFF-728). Before the decision, the
+   sidecar kept 21 rows and the summary had `duration_s` 2.1.
 6. **The steps of a repair and `interrupted_repair`.** Decision
    ([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3,
    which replaces the order "one pair before the next"): a repair does each step for the
@@ -76,13 +87,17 @@ the desk tests DT-R1 and DT5.
 
 8. **`records` of an `invalid` item** (SFF-885). The spec gives null for `rows`, `torn_bytes` and
    `fit`, and says nothing for `records`. Choice: null ("a member that does not apply is null").
-   Alternative: `[]`.
+   Alternative: `[]`. Decision
+   ([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)
+   item 3): an `invalid` item has no `records`.
 9. **`warnings` of an `invalid` item** (SFF-891, Appendix A). Choice: `["prerelease"]`, because
    Appendix A says that each file of each case has the warning. It has no `gap`: it has no usable
-   row. Alternative: `[]`.
+   row. Alternative: `[]`. Decision (ADR-FB8P item 3): the item has `prerelease` when the reader
+   can read `format_prerelease` and the value is above 0.
 10. **An `invalid` pair and the take** (SFF-869). SFF-865 takes only a sidecar with no media file out
     of the count of camera files. Choice: a pair with an `invalid` sidecar counts, so each take of
-    G11 is `complete`, with no `incomplete_take`. Alternative: `incomplete`.
+    G11 is `complete`, with no `incomplete_take`. Alternative: `incomplete`. Decision (ADR-FB8P
+    item 1): the pair counts for the take state, so the take stays `complete`.
 11. **An `invalid` sidecar and the take checks** (SFF-729, SFF-871, SFF-872). Choice: a reader takes
     only `take_uuid`, `group_position`, `camera_key` and `camera_label` from a sidecar that it
     refuses. So G11 has no `summary_stale` (cases `rate_0_1`, `rate_2_20_plus_1`, `rotation_45`,
@@ -175,7 +190,10 @@ the desk tests DT-R1 and DT5.
     item 6).
 29. `take.truth.json` of each case holds, for each file, `complete_blocks` or `complete_fragments`,
     `sidecar_torn_bytes` and `media_torn_bytes`, and for audio the fit of the reader (`reader_fit`,
-    SFF-784, for SFT-729).
+    SFF-784, for SFT-729). For audio, it also holds `held_samples` (SFF-785) and `complete_blocks`,
+    the number of blocks whose every sample is in a complete fragment (SFF-792): 95,688 and 19 in
+    `audio_clean_kill` (two fragments, 96,000 samples, minus the pre-skip of 312), 47,688 and 9 in
+    `audio_torn_fragment`.
 
 ## 6. G06
 
@@ -190,7 +208,13 @@ the desk tests DT-R1 and DT5.
     `repaired` has no `.tmp` file and no `stray_tmp`. `interrupted_repair` keeps the old manifest
     and the old `.tmp` file.
 34. In `interrupted_repair`, the torn `# repair` line of camera 2 has 20 bytes. Cameras 0 and 1 have
-    a complete `# repair` line. The audio sidecar has only the fit lines.
+    a complete `# repair` line. The audio sidecar has its 9 kept rows (item 5) and only the fit
+    lines.
+46. **The rows of the fit of the reader** (SFF-784, proposed:
+    [ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 2). In G05,
+    the reader computes its fit from the 21 rows that SFF-746 lets it use, also from the rows whose
+    block is not in `records`. So `reader_fit` of G05 did not change. Alternative: the fit from the
+    rows of `records` only.
 
 ## 7. G11
 
@@ -246,6 +270,8 @@ TOML, SFF-872). Each take is `complete` (SFF-869), with `manifest` `present` (SF
   are `unfinished`: no `# end` line (SFF-747). Camera 2 is `damaged` with `crc_mismatch`, and
   `rows` is 9: the read stops at row 9 (SFF-746). `rows` 22, 21 and 21 count the complete rows
   (SFF-746, SFF-885). `records` has 17, 15 and 9 frames: a row and a complete block (SFF-740).
+  The audio `records` has 19 blocks in `audio_clean_kill` and 9 in `audio_torn_fragment`: the
+  blocks whose every sample is in a complete fragment (SFF-792, item 29).
   `torn_bytes` (SFF-791): camera 0, 0 + 107; camera 1, 37 + 123 = 160; camera 2, 0 + 0 (the bad
   row and the rows after it are complete lines); audio, 0 in `audio_clean_kill` and 0 + 5,870 in
   `audio_torn_fragment` (SFF-792). `fit` false, `missing_fit` and `player_ns` = `arrival_ns` for
@@ -254,11 +280,12 @@ TOML, SFF-872). Each take is `complete` (SFF-869), with `manifest` `present` (SF
   (SFF-784, SFF-779). `frames` is `not_checked` in the two scopes: no file is `finished` (SFF-872).
 - **G06 `repaired`**: each file `repaired`: a `# repair` line and a last `# end` line (SFF-795).
   `torn_bytes` 0 (SFF-791). `fit` true and `player_ns` from the fit lines (SFF-781, SFF-777).
-  `rows` and `records` 17, 15, 9 and 21: each camera pair has equal rows and blocks (item 2).
+  `rows` and `records` 17, 15, 9 and 9: each camera pair has equal rows and blocks (item 2), and
+  the audio sidecar keeps only its whole blocks (item 5).
   Camera 0 has `gap`. No `folder_warnings` (item 33). `frames` is `not_checked`: a `repaired` file
   is not in the row-count part (SFF-872).
 - **G06 `interrupted_repair`**: each file `unfinished`, `fit` false, `missing_fit`, also with fit
-  lines (SFF-747, SFF-798). `rows` and `records` 17, 15, 9 and 21, from the cuts of item 2.
+  lines (SFF-747, SFF-798). `rows` and `records` 17, 15, 9 and 9, from the cuts of items 2 and 5.
   `player_ns` = `arrival_ns`; audio `fitted_ns` from the fit of the reader, as in G05.
   `torn_bytes`: 20 for camera 2, the torn footer line (SFF-746); 0 for each other file, because
   each media file is cut. `folder_warnings` `["stray_tmp"]`. The repair stopped in step 3 of the

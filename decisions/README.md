@@ -43,11 +43,13 @@ These entries are `accepted` or `evidence`.
 | [B6WH](entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) | Repair: rows = blocks in a camera pair; cut at the first bad row; no normal end of a media file; `camera_gap` source; `rows` of an unfinished file | accepted |
 | [XR63](entries/XR63-reader-rules-of-the-golden-review.md) | Reader rules: legacy keys at any depth; refused sidecars out of take checks; role `calibration`; `dimensions`; unknown major; open descriptor members | accepted |
 | [2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) | Test wording; golden conventions; `format_prerelease` after external review; usable serial frozen; assigned key for a new camera; exports provisional | accepted |
-| [W5AK](entries/W5AK-details-for-the-decisions-q83-to-q111.md) | Repair keeps n = min(rows, blocks) frames; repaired camera file read as unfinished; rebuild roles; take of a folder file; `key_origin` check; `player` marks | accepted |
 | [E68K](entries/E68K-camera-match-repair-order-and-g5-g6-files.md) | Camera match by vendor and product ID, else `model`; repair each step for the whole take; SFT-717 forms; sidecar with no `take_uuid`; G5 and G6 files | accepted |
 | [H2HQ](entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) | Optional `filtering`, `camera_assignment`; absent and null model members; points wait for `sfn26` and 18.3; old audio not corrected; consolidation after gate 2 | accepted |
 | [1P4N](entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md) | Realtime `timing` stays `realtime`; hit = a frame with a good record of its group; lowest latency per frame; event stages; latency fixed at the fold | accepted |
 | [158N](entries/158N-details-for-the-decisions-of-round-3.md) | Camera match null test, prompt; repair step 3; interrupted repair stays `recording`; no-`take_uuid` sidecar; "has a default"; `timing` coverage; orphan file | accepted |
+| [FB8P](entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) | Refused pair counts; `rotation` member; `invalid` file; interrupted audio `records`; legacy subfolders | accepted |
+| [783H](entries/783H-text-corrections-of-the-second-golden-review.md) | Golden review 2 text fixes: SFT-703, SFT-748, SFT-763, `frames_processed`, choice files; refused audio pair; `records` null; whole audio blocks; legacy dirs | accepted |
+| [7JJJ](entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md) | Supersedes W5AK: repair keeps min(rows, blocks) frames; audio repair cut to whole blocks; refused header values need the correct form; W5AK rules | accepted |
 
 ### Proposed
 
@@ -56,7 +58,7 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
-| [783H](entries/783H-text-corrections-of-the-second-golden-review.md) | Text corrections of golden review 2: SFT-703 version cases, "good" in `frames_processed`, SFT-748 on G12, SFT-763 `recording_id`, two choice files | `spec` | proposed |
+| [SM53](entries/SM53-choices-for-the-decisions-of-round-7.md) | Round 7 choices: 2.0 form for an unknown major; reader audio fit from all usable rows; `held_samples` and `complete_blocks` in the G5 truth | `golden` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

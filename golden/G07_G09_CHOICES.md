@@ -3,7 +3,8 @@
 **Accepted by the user on 2026-11-16 as conventions of the golden folders**
 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
 rule of the format only where the spec states it. Decisions of the same day replaced items 5, 26
-and 29 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)). Each of these
+and 29 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)), and items
+30 and 32 ([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)). Each of these
 items gives its decision. G3 now has a rotated camera (G03_CHOICES.md item 1), so each case of G7,
 G8 and G9 has it too.
 
@@ -230,13 +231,16 @@ paths), `hashes` (the manifest with the TOML) and `calibration`. So each of them
     ignores an unknown member only for a higher `minor`. So the spec does not say if a 2.0 capture
     info JSON with `rotation` is `invalid`. If it is `invalid`, SFF-872 does not evaluate the part,
     and the check `rotation` is `not_checked`, which contradicts SFT-763. Choice: the file is
-    `present`, and the part fails.
+    `present`, and the part fails. Decision
+    ([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)
+    item 2): the file stays `present`, and `rotation` is `mismatch`.
 31. **SFT-710 and SFF-892.** SFT-710 says that, with no manifest, "`hashes` and `files` have only
     their Parquet parts, and they are `ok`". It names no scope. For the scope `player`, SFF-892
     gives `not_checked` for the two checks. G7 follows SFF-892.
 32. **SFF-891: `prerelease` on an `invalid` file.** SFF-891 does not say if an `invalid` file keeps
     the warning `prerelease`. G11 keeps it for an `invalid` sidecar. G9 does the same for the
-    Parquet (item 22).
+    Parquet (item 22). Decision (ADR-FB8P item 3): an `invalid` file has `prerelease` when the
+    reader can read `format_prerelease` and the value is above 0.
 33. **SFF-883: an `invalid` manifest.** See item 6. The spec gives the rule only for a `missing`
     manifest.
 34. **Section 14: no reader rule for `recording_id` and `parquet` of the processing info JSON.**

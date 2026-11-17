@@ -3,7 +3,8 @@
 **Accepted by the user on 2026-11-16 as conventions of the golden folders**
 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
 rule of the format only where the spec states it. Decisions of the same day replaced items 40, 42
-and 43 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)). Each of these
+and 43 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md)), and item 41
+([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)). Each of these
 items gives its decision. Item 44 has the decision of
 [ADR-1P4N](../decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)
 ([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 5). The TOML item of each result of G14 and of
@@ -189,9 +190,10 @@ alternative. Section 4 lists the spec gaps that the agent found.
 
 ## 4. Spec gaps, contradictions and ambiguities
 
-The user accepted the choice of each item as a convention of the golden folders. Items 40, 42, 43
-and 44 have a decision
+The user accepted the choice of each item as a convention of the golden folders. Items 40 to 44
+have a decision
 ([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 5).
+Part of item 41 is proposed.
 
 40. **`unsupported_version` and the link parts** (SFF-872). The rule says that a reader does not
     evaluate a part when a file is "absent, is `invalid`, or is a file that the scope does not
@@ -202,7 +204,15 @@ and 44 have a decision
     `files` of its take when it can read its `take_uuid`, and it gives `camera_key` and
     `camera_label` "when their form is correct". A reader that does not know the `major` cannot know
     the form. G10 reads the header lines as in version 2.0. Alternative: the file is in
-    `other_files`, and the take is `incomplete`.
+    `other_files`, and the take is `incomplete`. Decision (ADR-FB8P item 1): the refused pair
+    counts for the take state, so the take stays `complete`. The result shows `camera_key` and
+    `camera_label` when the reader can read the header line. Decision of 2026-11-17
+    ([ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
+    item 11): only when the value also has the correct form. The form of version 2.0 for an unknown
+    `major` is a proposed choice
+    ([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 1). `records`
+    null of item 33 is decided
+    ([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 8).
 42. **`reason` of `unsupported_version`** (SFF-886, SFF-887). No reason code applies. G10 gives
     null. `test_golden_files.py` asks for null for each state other than `invalid` and `damaged`.
     Decision (ADR-XR63): `reason` is null.

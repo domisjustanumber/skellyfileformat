@@ -1,10 +1,11 @@
 # W5AK — Details of the decisions Q83 to Q111: kept frames of a repair, repaired files, rebuild roles, `key_origin`, `player` marks of a folder with no take
 
-**Status:** accepted, 2026-11-16 (user; questions Q112 to Q120 of round 3 of the review of the
-golden folders, and item 9; commit to main; was proposed, 2026-11-16, with the details that
+**Status:** superseded by [7JJJ](7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md),
+2026-11-17 (commit to main; was accepted, 2026-11-16 (user; questions Q112 to Q120 of round 3 of
+the review of the golden folders, and item 9; commit to main; was proposed, 2026-11-16, with the details that
 applying [ADR-B6WH](B6WH-repair-equal-pair-cut-and-no-normal-end.md),
 [ADR-XR63](XR63-reader-rules-of-the-golden-review.md) and
-[ADR-2MQE](2MQE-tests-prerelease-serial-and-exports.md) to the spec needed).
+[ADR-2MQE](2MQE-tests-prerelease-serial-and-exports.md) to the spec needed)).
 
 ## Decision
 

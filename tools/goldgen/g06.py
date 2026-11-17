@@ -3,7 +3,8 @@ the cases `repaired` and `interrupted_repair`.
 
 No repair tool exists, so this module applies the rules of SPEC.md section 12 (SFF-793 to SFF-798)
 to the bytes of G5. A repaired camera pair keeps only the frames with a complete row and a complete
-block, so its sidecar and its camera file have the same number of frames. PROVISIONAL, as G5 (decision G21H item 6): the repair of a camera file waits for
+block, so its sidecar and its camera file have the same number of frames. A repaired audio sidecar
+keeps only the blocks whose every sample is in a complete fragment (SFF-795). PROVISIONAL, as G5 (decision G21H item 6): the repair of a camera file waits for
 desk test DT-R1 (SFF-797).
 """
 
@@ -35,6 +36,8 @@ def repair(pair: dict, sidecar: bytes, media: bytes) -> dict:
         media_end = sum(blocks[rows - 1])
     else:
         media_end = capture_cases.complete_fragments(media)[-1][1]  # SFF-796
+        # SFF-795 (ADR-7JJJ item 2): the sidecar keeps only the blocks whose every sample is in the kept file.
+        rows = capture_cases.whole_blocks(pair["rows"][:rows], capture_cases.held_samples(media[:media_end]))
     at = ends[rows]
     assert sidecar[:at] == pair["head"] + b"".join(pair["lines"][:rows])
     # The fit of the repair is the line that made the rows, as each fit of the golden folders.
@@ -42,7 +45,7 @@ def repair(pair: dict, sidecar: bytes, media: bytes) -> dict:
     cuts = {"cut_bytes": len(sidecar) - at, "media_cut_bytes": len(media) - media_end}
     return {
         "media": media[:media_end], "sidecar": sidecar[:at], "rows": rows, "segments": segments, "cuts": cuts,
-        "complete": rows if pair["kind"] == "camera" else None,
+        "complete": rows,
         "fit_lines": "".join(line + "\n" for line in capture_cases.fit_lines(pair["kind"], segments)).encode(),
         "repair_line": (
             f"# repair cut_bytes={cuts['cut_bytes']} media_cut_bytes={cuts['media_cut_bytes']} "

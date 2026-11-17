@@ -121,6 +121,48 @@ def complete_fragments(data: bytes) -> list[tuple[int, int]]:
     return fragments
 
 
+def _boxes(data: bytes, start: int, end: int):
+    """(kind, payload start, end) of each box from `start` to `end`."""
+    while start + 8 <= end:
+        size, kind = struct.unpack(">I4s", data[start : start + 8])
+        yield kind, start + 8, start + size
+        start += size
+
+
+def _box(data: bytes, start: int, end: int, *path: bytes) -> tuple[int, int]:
+    for kind in path:
+        start, end = next((at, stop) for k, at, stop in _boxes(data, start, end) if k == kind)
+    return start, end
+
+
+def held_samples(data: bytes) -> int:
+    """The samples that an audio file holds: the samples of its complete fragments, minus the pre-skip (SFF-785)."""
+    stsd, stsd_end = _box(data, 0, len(data), b"moov", b"trak", b"mdia", b"minf", b"stbl", b"stsd")
+    entry = stsd + 8  # after the version, the flags and the entry count of `stsd`
+    # The `Opus` sample entry has a box header of 8 bytes and 28 bytes of audio sample entry fields.
+    dops, _ = _box(data, entry + 36, stsd_end, b"dOps")
+    pre_skip = struct.unpack(">H", data[dops + 2 : dops + 4])[0]
+    samples = 0
+    for moof, end in complete_fragments(data):
+        traf = _box(data, moof + 8, end, b"traf")
+        tfhd, _ = _box(data, *traf, b"tfhd")
+        trun, _ = _box(data, *traf, b"trun")
+        flags = int.from_bytes(data[tfhd + 1 : tfhd + 4], "big")
+        assert flags & 0x08 and not int.from_bytes(data[trun + 1 : trun + 4], "big") & 0x100, "one default duration"
+        duration_at = tfhd + 8 + 8 * (flags & 0x01) + 4 * bool(flags & 0x02)
+        samples += int.from_bytes(data[trun + 4 : trun + 8], "big") * int.from_bytes(data[duration_at : duration_at + 4], "big")
+    return samples - pre_skip
+
+
+def whole_blocks(rows: list[list], held: int) -> int:
+    """The number of first rows whose every sample is in the samples that the file holds (SFF-792).
+
+    `file_sample_offset` is 0, so sample n of a row is decoded sample n: the sample after the pre-skip
+    and n more (SFF-766). A block that is only partly in the complete fragments is not usable.
+    """
+    return next((count for count, row in enumerate(rows) if row[1] + row[2] > held), len(rows))
+
+
 # ---------------------------------------------------------------- fit (section 11)
 
 
@@ -286,14 +328,14 @@ def item(
 
     `n_rows` is the number of rows that SFF-746 lets the reader use. `segments` holds the fit lines
     that the reader uses, or nothing when it uses none (SFF-747). `complete` is the number of complete
-    blocks of a camera file that its muxer did not close (SFF-740).
+    blocks of a camera file that its muxer did not close (SFF-740), or the number of blocks of an
+    unfinished audio file whose every sample is in a complete fragment (SFF-792).
     """
     rows = pair["rows"][:n_rows]
     if pair["kind"] == "camera":
         # SFF-781: the fitted time, or the arrival time for each frame of the file.
         times = video_fitted(rows, segments) if segments else [row[2] for row in rows]
-        usable = n_rows if complete is None else min(n_rows, complete)  # SFF-740
-        records = [[*row[:4], times[p]] for p, row in enumerate(rows[:usable])]
+        records = [[*row[:4], times[p]] for p, row in enumerate(rows)]
     else:
         fit = segments or [s for s in [reader_audio_fit(rows)] if s]  # SFF-784
         records = [
@@ -301,6 +343,7 @@ def item(
             for first, last, n0, t0_ns, period_fs in fit
             for row in rows[first : last + 1]
         ] or [[*row[:4], None] for row in rows]
+    records = records[: n_rows if complete is None else min(n_rows, complete)]  # SFF-740, SFF-792
     warnings = {"prerelease"}  # SFF-891
     if pair["kind"] == "camera":  # SFF-887: a usable row with the flag
         warnings |= {name for name, bit in (("gap", GAP), ("encode_skip", ENCODE_SKIP)) if any(r[4] & bit for r in rows)}

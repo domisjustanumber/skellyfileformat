@@ -707,7 +707,8 @@ finds the files of the other subfolders through the manifest, or by their fixed 
 file by its fixed name, a reader MAY test one exact path of section 18 that it builds from `<rec>`,
 for example `annotated_videos/<rec>.<camera_label>.annotated.mp4`. It does not list another
 subfolder. It does not search another subfolder with a glob pattern. It does not look inside other
-subfolders for files of this format.
+subfolders for files of this format. The only exception is the legacy recognition of section 21
+(SFF-875, [ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 5).
 
 **SFF-722** (writer) A writer of this format does not write `synchronized_videos_README.md`.
 
@@ -788,7 +789,8 @@ manifest computes the summary from the files
 - `duration_s` of the take: ns is the largest `arrival_ns` of the last rows of the video sidecars.
   The value is ⌊(ns + 500,000) / 10^6⌋ thousandths. A take with no camera uses the audio value.
 - `duration_s` of `audio` is `samples` of the `# end` line divided by `sample_rate` of the header,
-  rounded half up to thousandths.
+  rounded half up to thousandths. After a repair, the `# end` line counts only the audio that the
+  repair keeps (SFF-795).
 - `cameras` is in order of `group_position`. `user_name` and `model` are `user_name` and
   `device.model` of the camera config (section 13), so the text rule of `user_name` also applies
   here. `exposure_us` is `controls.exposure_us.value`
@@ -1343,6 +1345,16 @@ with no error.
 
 **SFF-792** (reader) In an unfinished audio file, a reader ignores a fragment whose `moof` or
 `mdat` goes past the end of the file, and a `trun` entry whose bytes go past the end of the file.
+`rows` of the reader result counts each complete row (SFF-746). `records` holds only the blocks that
+have a complete fragment. This is the rule of an unfinished camera file (SFF-740). A block has a
+complete fragment only when each sample of the block, from `first_sample` to `first_sample` +
+`n_samples` − 1, is in a complete fragment. A block that is only partly in the complete fragments is
+not usable. Sample n of the sidecar is decoded sample n − `file_sample_offset`, and decoded sample
+0 is the first sample after the pre-skip (SFF-766). So a block has a complete fragment when
+`first_sample` + `n_samples` − `file_sample_offset` is not more than the samples that the file holds
+(SFF-785)
+([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 4,
+[ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 9).
 
 **SFF-793** (writer) When a program (skellycam or freemocap) finds an unfinished file of a take,
 or a manifest of a take whose `state` is `recording`, it asks the user: "An
@@ -1398,7 +1410,13 @@ n is the smaller of two numbers: the number of rows before the first bad row (ea
 is bad), and the number of complete blocks.
 A repaired video sidecar has as many rows as its camera file has blocks (SFF-759)
 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1 and 4,
-[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 2). The repair computes the fit from the kept rows and appends the fit lines, the line
+[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 2). The repair
+of an audio pair keeps the first n rows of the audio sidecar. n is the smaller of two numbers: the
+number of rows before the first bad row, and the number of first rows whose blocks have a complete
+fragment (SFF-792) in the audio file that the repair keeps (SFF-796). So the `# end` line and the
+manifest `duration_s` of the audio count only the audio that the repair keeps (SFF-728)
+([ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
+item 2). The repair computes the fit from the kept rows and appends the fit lines, the line
 `# repair cut_bytes=<n> media_cut_bytes=<m> repair_writer=<writer string>`, and the `# end` line.
 `cut_bytes` is for the sidecar, and `media_cut_bytes` is for the media file. `repair_writer` is the
 last key of the line (SFF-745). A reader reports a sidecar as `repaired` only when it has a
@@ -1409,8 +1427,9 @@ last key of the line (SFF-745). A reader reports a sidecar as `repaired` only wh
 
 **SFF-796** (writer) The repair of an audio file cuts the file after the last fragment whose
 `moof` and `mdat` are complete. It removes a zero-filled tail only when the box walk finds an
-incomplete box. It does not remux the file, and it appends no `mfra` box (SFF-794). It writes the
-repair line in the audio sidecar (SFF-795).
+incomplete box. It does not remux the file, and it appends no `mfra` box (SFF-794). It cuts the
+audio sidecar to the blocks that have a complete fragment in the cut file, and it writes the repair
+line in the audio sidecar (SFF-795).
 
 **SFF-797** (writer) (provisional: the repair of a camera file, desk test DT-R1) The repair of a
 camera file keeps its first n blocks (SFF-795). Each of them is a complete block. It cuts the file
@@ -1459,7 +1478,8 @@ A camera config has these members:
 has no other member. In particular, it has no `videos`, `camera_timing` or `multiframe_timing` map,
 no `recording_name`, `recording_directory`, `recording_uuid`, `mic_device_index` or full timestamp
 object, and, in a camera config, no `rotation`, `camera_index`, `use_this_camera`, `resolution`,
-`color_channels`, `pixel_format` or `writer_fourcc`. `user_name` is metadata only: no writer puts
+`color_channels`, `pixel_format` or `writer_fourcc`. A reader reports a `rotation` member with the
+link check `rotation` (SFF-872). `user_name` is metadata only: no writer puts
 it in a file name, in `camera_label` or in the identity string (SFF-752). A writer SHOULD NOT give
 two cameras of one take the same `user_name` that is not null. A reader has no rule for `user_name`
 ([ADR-70VP](../decisions/entries/70VP-camera-identity-forms-and-remembered-keys.md)).
@@ -2168,7 +2188,12 @@ with no video sidecar uses the audio sidecar
 
 **SFF-869** (reader) When a take has fewer camera files than `group_size`, or fewer audio files
 than `audio_count`, the reader reports the take as `incomplete`, with the warning `incomplete_take`,
-and it opens the other files. When it has more, it gives the warning `extra_files`.
+and it opens the other files. When it has more, it gives the warning `extra_files`. A camera pair
+or an audio pair that is `invalid` or `unsupported_version` (a refused pair) counts as a present
+file of the take wherever the reader counts the files of the take: for the take state, so the take
+stays `complete`, and also for `extra_files`. The state of that file is the report
+([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 1,
+[ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 7).
 
 **SFF-870** (reader) When two camera files of one take have the same `camera_label`, the reader
 gives the warning `duplicate_label` and keeps both files.
@@ -2226,7 +2251,10 @@ result does not read (SFF-892). The state of a check is `mismatch` when an evalu
 are evaluated and none fails, and `not_checked` when no part is evaluated. So, with no manifest,
 `calibration` and `camera_key` are `not_checked`, `hashes` has only its Parquet part, `files` has
 only its Parquet part and `rotation` has only its capture info part
-([ADR-0XX2](../decisions/entries/0XX2-spec-v2-details-part-5.md)).
+([ADR-0XX2](../decisions/entries/0XX2-spec-v2-details-part-5.md)). A capture info JSON of version
+2.0 that holds the member `rotation`, which SFF-800 forbids, stays `present`: its part of `rotation`
+fails, and the check is `mismatch`
+([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 2).
 
 **SFF-873** (reader) When a camera has `camera_key` 0, a reader links it by `camera_label` and
 gives the warning `camera_key_zero`.
@@ -2253,7 +2281,11 @@ file of this format, and it has one or more
 regular files. A reader then reports the folder state `legacy` and does not change the folder. A
 folder with a file of this format and no take is `unreadable` (SFF-888), not legacy. Examples are a
 folder with only a timing sidecar of this format, and a folder with only `<rec>_data.parquet` of this
-format.
+format. Only for the legacy recognition, a reader MAY read the subfolders that the signals of
+SFF-876 to SFF-878 name: `SyncedVideos/`, `RawVideos/`, `synchronized_videos/timestamps/`,
+`output_data/` and `output_data/raw_data/`. It reads no other subfolder (SFF-721,
+[ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 5,
+[ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 10).
 
 **SFF-876** (reader) A reader reports the family `pre_v1` for a folder with one of these: a
 `SyncedVideos/` or `RawVideos/` subfolder and a
@@ -2403,12 +2435,22 @@ line end ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conv
   repaired, holds fit lines and the reader
   uses them, SFF-747; false when the reader computes a fit, SFF-784), `warnings` and, when the test asks for
   them, `records`. An audio item has `camera_key` and `camera_label` null. An item with the state
-  `invalid` or `unsupported_version` has `rows`, `torn_bytes` and `fit` null. For each other state,
-  `torn_bytes` is an integer. Its `camera_key` and
-  `camera_label` are the header values when their form is correct, else null;
+  `invalid` or `unsupported_version` has `rows`, `torn_bytes` and `fit` null. It also has `records`
+  null, not `[]`, also when the test asks for `records`. For each other state,
+  `torn_bytes` is an integer. For each state, also `invalid` and `unsupported_version`, the
+  `camera_key` and `camera_label` of a camera item are the header values only when the reader can
+  read their header lines and the value has the correct form (section 8). A value of the wrong form
+  is null. A reader of an unknown `major` checks the form of version 2.0
+  ([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) items 1 and 3,
+  [ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 8,
+  [ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md) item 11;
+  the form of an unknown `major`:
+  [ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 1, proposed);
 - each item of `records`: `[position, source_frame_number, arrival_ns, sample_ns, player_ns]` for a
   camera, and `[block, first_sample, n_samples, host_ns, fitted_ns]` for audio. An absent value is
-  null. For an unfinished camera file, `records` holds only the usable frames (SFF-740).
+  null. For an unfinished camera file, `records` holds only the usable frames (SFF-740). For an
+  unfinished audio file, `records` holds only the blocks that have a complete fragment: each sample
+  of the block is in a complete fragment (SFF-792).
   `fitted_ns` is the fitted time of the `first_sample` of the block (SFF-779), with the fit that
   the reader uses: the fit lines of a finished or repaired sidecar, else the fit that the reader
   computes (SFF-784). It is null when the reader has no fit
@@ -2468,7 +2510,8 @@ header, without the members or the columns of its section, or a journal header w
 SFF-843 refuses; a manifest that no take uses and that holds no `take_uuid`, SFF-867; an NPY file
 with no NPY header, an NPZ file that is not a ZIP file, or an NPZ member with no NPY header,
 SFF-884; int64 in the Parquet columns `frame_number` and `run_id` is
-not a cause, SFF-819) and `code_in_file`. Each reader makes a file `invalid` with `bad_time` when a
+not a cause, SFF-819; the member `rotation` in the capture info JSON is not a cause, SFF-872) and
+`code_in_file`. Each reader makes a file `invalid` with `bad_time` when a
 row time or a fitted time has a magnitude of 2^53 ns or more. The take warnings are
 `incomplete_take`, `duplicate_label`, `take_fact_mismatch`, `extra_files`, `manifest_missing`,
 `camera_key_zero`, `stale_processing_info`, `summary_stale`, `calibration_mismatch`
@@ -2513,9 +2556,10 @@ SFF-872. Each `warnings` array is sorted by code point.
 same way. Another reader MAY refuse it as
 `unsupported_version`
 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 8). A file with
-the state `unsupported_version` also gets the warning `prerelease` when the reader can read its
-`format_prerelease` and the value is above 0 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 7,
-[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 6). The manifest is not an item of the result (SFF-889), so its
+the state `invalid` or `unsupported_version` also gets the warning `prerelease` when the reader can
+read its `format_prerelease` and the value is above 0 ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 7,
+[ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 6,
+[ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 3). The manifest is not an item of the result (SFF-889), so its
 `format_prerelease` gives no warning: each other file of the take has the warning
 ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md) item 3).
 
