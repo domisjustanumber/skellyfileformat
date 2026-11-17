@@ -193,7 +193,9 @@ alternative. Section 4 lists the spec gaps that the agent found.
 The user accepted the choice of each item as a convention of the golden folders. Items 40 to 44
 have a decision
 ([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 5).
-Part of item 41 is proposed.
+The last part of item 41 has the decision of
+[ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md)
+item 1.
 
 40. **`unsupported_version` and the link parts** (SFF-872). The rule says that a reader does not
     evaluate a part when a file is "absent, is `invalid`, or is a file that the scope does not
@@ -208,9 +210,9 @@ Part of item 41 is proposed.
     counts for the take state, so the take stays `complete`. The result shows `camera_key` and
     `camera_label` when the reader can read the header line. Decision of 2026-11-17
     ([ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
-    item 11): only when the value also has the correct form. The form of version 2.0 for an unknown
-    `major` is a proposed choice
-    ([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 1). `records`
+    item 11): only when the value also has the correct form. Decision of 2026-11-17
+    ([ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md)
+    item 1): a reader of an unknown `major` checks the form of version 2.0. `records`
     null of item 33 is decided
     ([ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 8).
 42. **`reason` of `unsupported_version`** (SFF-886, SFF-887). No reason code applies. G10 gives

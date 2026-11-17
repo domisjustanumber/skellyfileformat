@@ -789,8 +789,8 @@ manifest computes the summary from the files
 - `duration_s` of the take: ns is the largest `arrival_ns` of the last rows of the video sidecars.
   The value is ⌊(ns + 500,000) / 10^6⌋ thousandths. A take with no camera uses the audio value.
 - `duration_s` of `audio` is `samples` of the `# end` line divided by `sample_rate` of the header,
-  rounded half up to thousandths. After a repair, the `# end` line counts only the audio that the
-  repair keeps (SFF-795).
+  rounded half up to thousandths. After a repair, `samples` of the `# end` line counts only the
+  samples of the kept rows (SFF-769, SFF-795).
 - `cameras` is in order of `group_position`. `user_name` and `model` are `user_name` and
   `device.model` of the camera config (section 13), so the text rule of `user_name` also applies
   here. `exposure_us` is `controls.exposure_us.value`
@@ -1277,7 +1277,10 @@ sidecar (SFF-779). It MUST NOT use the take start and the nominal sample rate. I
 `file_sample_offset` to a decoded sample index before it uses the fit. When the sidecar has no fit
 that the reader uses (SFF-747), for example after a crash, the reader gives the warning
 `missing_fit` and computes one fit segment
-from the rows that it uses (SFF-746), with this method ([ADR-E45D](../decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)):
+from the rows that it uses (SFF-746), with this method ([ADR-E45D](../decisions/entries/E45D-spec-draft-v2-corrections-after-review.md)).
+For an unfinished audio file, the fit uses each row that SFF-746 lets the reader use. It also uses a
+row whose block is not in `records` (SFF-792,
+[ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md) item 2).
 
 - The time of a row is its `adc_ns` when that field is not empty, else its `host_ns`.
 - A row with the flag `silence` is a usable row for the fit
@@ -1345,12 +1348,13 @@ with no error.
 
 **SFF-792** (reader) In an unfinished audio file, a reader ignores a fragment whose `moof` or
 `mdat` goes past the end of the file, and a `trun` entry whose bytes go past the end of the file.
-`rows` of the reader result counts each complete row (SFF-746). `records` holds only the blocks that
-have a complete fragment. This is the rule of an unfinished camera file (SFF-740). A block has a
-complete fragment only when each sample of the block, from `first_sample` to `first_sample` +
-`n_samples` − 1, is in a complete fragment. A block that is only partly in the complete fragments is
+`rows` of the reader result counts each row that SFF-746 lets the reader use. `records` holds only
+the blocks whose every sample, from `first_sample` to `first_sample` + `n_samples` − 1, is in a
+complete fragment. A block can be in two fragments. This is the rule of an unfinished camera file
+(SFF-740). A block that is only partly in the complete fragments is
 not usable. Sample n of the sidecar is decoded sample n − `file_sample_offset`, and decoded sample
-0 is the first sample after the pre-skip (SFF-766). So a block has a complete fragment when
+0 is the first sample after the pre-skip (SFF-766). So each sample of a block is in a complete
+fragment when
 `first_sample` + `n_samples` − `file_sample_offset` is not more than the samples that the file holds
 (SFF-785)
 ([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 4,
@@ -1412,9 +1416,10 @@ A repaired video sidecar has as many rows as its camera file has blocks (SFF-759
 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1 and 4,
 [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 2). The repair
 of an audio pair keeps the first n rows of the audio sidecar. n is the smaller of two numbers: the
-number of rows before the first bad row, and the number of first rows whose blocks have a complete
-fragment (SFF-792) in the audio file that the repair keeps (SFF-796). So the `# end` line and the
-manifest `duration_s` of the audio count only the audio that the repair keeps (SFF-728)
+number of rows before the first bad row, and the number of first rows whose block has each sample in
+a complete fragment (SFF-792) of the audio file that the repair keeps (SFF-796). So the `# end` line
+and the manifest `duration_s` of the audio count only the samples of the kept rows (SFF-728,
+SFF-769)
 ([ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
 item 2). The repair computes the fit from the kept rows and appends the fit lines, the line
 `# repair cut_bytes=<n> media_cut_bytes=<m> repair_writer=<writer string>`, and the `# end` line.
@@ -1427,9 +1432,11 @@ last key of the line (SFF-745). A reader reports a sidecar as `repaired` only wh
 
 **SFF-796** (writer) The repair of an audio file cuts the file after the last fragment whose
 `moof` and `mdat` are complete. It removes a zero-filled tail only when the box walk finds an
-incomplete box. It does not remux the file, and it appends no `mfra` box (SFF-794). It cuts the
-audio sidecar to the blocks that have a complete fragment in the cut file, and it writes the repair
-line in the audio sidecar (SFF-795).
+incomplete box. It does not remux the file, and it appends no `mfra` box (SFF-794). This is step 1
+of SFF-793. In step 2, the repair cuts the audio sidecar to its first n rows. n is the smaller of
+two numbers: the number of rows before the first bad row, and the number of first rows whose block
+has each sample in a complete fragment of the cut file. In step 3, it appends the fit lines, the
+repair line and the `# end` line to the audio sidecar (SFF-795).
 
 **SFF-797** (writer) (provisional: the repair of a camera file, desk test DT-R1) The repair of a
 camera file keeps its first n blocks (SFF-795). Each of them is a complete block. It cuts the file
@@ -2194,6 +2201,9 @@ file of the take wherever the reader counts the files of the take: for the take 
 stays `complete`, and also for `extra_files`. The state of that file is the report
 ([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 1,
 [ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 7).
+This rule is about the counts only. A refused pair stays out of the take-level checks (SFF-871,
+[ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 2,
+[ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md) item 3).
 
 **SFF-870** (reader) When two camera files of one take have the same `camera_label`, the reader
 gives the warning `duplicate_label` and keeps both files.
@@ -2445,12 +2455,12 @@ line end ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conv
   [ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 8,
   [ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md) item 11;
   the form of an unknown `major`:
-  [ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 1, proposed);
+  [ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md) item 1);
 - each item of `records`: `[position, source_frame_number, arrival_ns, sample_ns, player_ns]` for a
   camera, and `[block, first_sample, n_samples, host_ns, fitted_ns]` for audio. An absent value is
   null. For an unfinished camera file, `records` holds only the usable frames (SFF-740). For an
-  unfinished audio file, `records` holds only the blocks that have a complete fragment: each sample
-  of the block is in a complete fragment (SFF-792).
+  unfinished audio file, `records` holds only the blocks whose every sample is in a complete
+  fragment (SFF-792).
   `fitted_ns` is the fitted time of the `first_sample` of the block (SFF-779), with the fit that
   the reader uses: the fit lines of a finished or repaired sidecar, else the fit that the reader
   computes (SFF-784). It is null when the reader has no fit

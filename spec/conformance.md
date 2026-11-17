@@ -701,10 +701,12 @@ of SFF-791: the bytes of the last line of its sidecar when that line has no LF, 
 its media file after the last complete block
 or fragment when the last line of the sidecar is not an `# end` line. The torn audio fragment is
 ignored. `torn_bytes` is 0 for each pair of G1 and for each pair of `repaired` of G6. For each
-unfinished audio file, `rows` counts each complete row, and `records` holds only the blocks whose
-every sample is in a complete fragment: the first 19 of 21 blocks in `audio_clean_kill` and the
-first 9 in `audio_torn_fragment`. A block that is only partly in the complete fragments is not in
-`records`
+unfinished audio file, `rows` counts each row that SFF-746 lets the reader use, and `records` holds
+only the blocks whose every sample is in a complete fragment: the first 19 of 21 blocks in
+`audio_clean_kill` and the first 9 in `audio_torn_fragment`. A block that is only partly in the
+complete fragments is not in `records`. A reader must not count the packets of an incomplete `mdat`,
+also when a decoder can decode them: in `audio_torn_fragment`, a decoder gives 70,728 samples
+(14 blocks), but `records` holds 9 blocks
 ([ADR-FB8P](../decisions/entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md) item 4,
 [ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 9).
 

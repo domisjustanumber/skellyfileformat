@@ -11,8 +11,11 @@ decided items 8, 9 and 10.
 [ADR-7JJJ](../decisions/entries/7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md)
 item 2 replaced item 5 on 2026-11-17, and
 [ADR-783H](../decisions/entries/783H-text-corrections-of-the-second-golden-review.md) item 9 gave the
-audio `records` of G05 and G06. Each of these items gives its decision. Item 46 is a proposed
-choice ([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md)). No other
+audio `records` of G05 and G06. Each of these items gives its decision.
+[ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md)
+item 2 decided item 46 on 2026-11-17. The audio members `held_samples` and `complete_blocks` of
+item 29 are a proposed choice
+([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 3). No other
 item is open.
 
 This file is for the six golden folders that `tools/goldgen/capture_cases.py` makes: G02, G04, G05,
@@ -210,11 +213,12 @@ the desk tests DT-R1 and DT5.
 34. In `interrupted_repair`, the torn `# repair` line of camera 2 has 20 bytes. Cameras 0 and 1 have
     a complete `# repair` line. The audio sidecar has its 9 kept rows (item 5) and only the fit
     lines.
-46. **The rows of the fit of the reader** (SFF-784, proposed:
-    [ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 2). In G05,
+46. **The rows of the fit of the reader** (SFF-784). In G05,
     the reader computes its fit from the 21 rows that SFF-746 lets it use, also from the rows whose
     block is not in `records`. So `reader_fit` of G05 did not change. Alternative: the fit from the
-    rows of `records` only.
+    rows of `records` only. Decision of 2026-11-17
+    ([ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md)
+    item 2): the fit from the 21 rows.
 
 ## 7. G11
 
