@@ -25,19 +25,23 @@ The user accepted these items. Each item gives its question number.
      not apply to it.
 
    ADR-G9ER links these two headings in place of the text.
-2. **The scope of a gate 2 approval (Q163, Q166).** The gate 2 approval of spec draft v2 covers
-   each conformance test that this repository runs and the golden folders G1 to G16. This includes
-   each test that uses an `exports/` folder only as input, for example to check that a reader
-   ignores it (Q166). The approval does not cover a test of the content of an export file. That
-   test waits with section 18.3. The approval also does not cover the skellysync folders and G17,
-   or the provisional points that wait for a desk test or a hardware test. For these, the
-   implementation writes only the provisional behaviour that the spec gives now. On 2026-11-17, the
-   user had not approved gate 2.
+2. **The scope of a gate 2 approval (Q163, Q166).** The user approves gate 2 for each stage of
+   [ADR-CPM2](CPM2-stages-of-the-implementation.md). The approval of a stage covers the
+   conformance tests and the golden folders of that stage in `spec/conformance.md`. A test that uses
+   an `exports/` folder only as input, for example to check that a reader ignores it (Q166), is in
+   the stage of its folder. A test of the content of an export file waits with section 18.3. The
+   approval does not cover the provisional points that wait for a desk test or a hardware test. For
+   these, the implementation writes only the provisional behaviour that the spec gives now. On
+   2026-11-17, the user had not approved gate 2 for a stage. (Corrected in place by [ADR-CPM2](CPM2-stages-of-the-implementation.md): the
+   approval was for all tests and G1 to G16, and did not cover the skellysync folders and G17. They
+   are stage 1b now.)
 3. **No push before gate 2 (Q164).** skellyfileformat is not pushed before the user approves
    gate 2. This agreement ends at the approval, so the gate 2 item of
    [open-work.md](../open-work.md) states it.
-4. **The order of implementation (Q167).** After the gate 2 approval, the implementation starts
-   with the Python reader. The Python writer is next. The JavaScript reader is last.
+4. **The order of implementation (Q167).** In each stage, after the gate 2 approval of that stage,
+   the implementation starts with the Python reader. The Python writer is next. The JavaScript
+   reader is last. The JavaScript reader is built only in stage 1. (Corrected in place by [ADR-CPM2](CPM2-stages-of-the-implementation.md):
+   the order was for the whole implementation.)
 
 ## Reason
 

@@ -23,3 +23,11 @@ exclude-newer = "2026-11-02T23:59:59Z"
 
 [tool.pytest.ini_options]
 testpaths = ["tools/tests"]
+# The stages of the conformance tests (spec/conformance.md, "The stage of each test").
+markers = [
+    "stage1a: the test passes in stage 1a (skellycam recording and playback)",
+    "stage1b: the test passes in stage 1b (skellysync folders)",
+    "stage2: the test passes in stage 2 (realtime capture)",
+    "stage3: the test passes in stage 3 (posthoc capture)",
+    "stage4: the test passes in stage 4 (Blender)",
+]

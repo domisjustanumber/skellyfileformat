@@ -56,6 +56,130 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
   and SFT-753. G12 holds the Parquet of the vector of SFT-748 as committed bytes
   ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 5).
 
+## The stage of each test
+
+- The implementation is built in four stages
+  ([ADR-CPM2](../decisions/entries/CPM2-stages-of-the-implementation.md)). Stage 1 is the
+  recording. It has two parts: 1a is the recording and playback of skellycam, and 1b is the
+  skellysync folders. Stage 2 is the realtime capture. Stage 3 is the posthoc capture. Stage 4 is
+  Blender. This list and SPEC.md stay whole documents. The user approves gate 2 for each stage
+  ([AGENTS.md](../AGENTS.md#4-project-rules)).
+- The first table gives the stage in which each test passes. A test passes when each of its parts
+  passes. This includes each external part, in the repository of its program.
+- The column "Earlier parts" gives the parts of the test that pass in an earlier stage. A part is
+  the name of a test function in `tests/conformance/` after `test_sft_<NNN>_`. A part with
+  `[<ID>]` is one case of that function, by its pytest parameter ID. `*` matches any text.
+- `<golden case>`: each case of the test that reads one golden case has the stage of that case in
+  the second table. This is the `player` stage when the case reads only with the scope `player` or
+  with the JavaScript reader. In all other cases, it is the `full` stage.
+- In stage 1, the reader with the scope `full` stops with an error on a folder that holds a
+  calibration TOML, a Parquet or a journal. Thus each test that needs the scope `full` on such a
+  folder is in stage 2. G3 and each copy of G3 are such folders.
+- `tests/conformance/conftest.py` gives each runnable test the mark `stage1a`, `stage1b`, `stage2`,
+  `stage3` or `stage4` from these tables. `tools/tests/test_conformance_stages.py` checks that the
+  two agree. A test function with no SFT ID checks the fixtures. It has the mark `stage1a`.
+
+| Test | Stage | Earlier parts |
+|---|---|---|
+| SFT-700 | 2 | 1a: `text_integers_json_ids_crcs`, `check_on_golden[G01]` |
+| SFT-701 | 1a | |
+| SFT-702 | 1a | |
+| SFT-703 | 4 | 1a: `version_fields_and_rules[writer_output]`, `version_fields_and_rules[pair_version_is_of_its_sidecar]`, `version_fields_and_rules[unknown_major_*]`, `version_fields_and_rules[higher_minor:python_player]`, `version_fields_and_rules[higher_minor:js]`, `version_fields_and_rules[prerelease*]`, `check_on_golden[G01/*]`, `check_on_golden[G10/prerelease_0]`; 2: `version_fields_and_rules[higher_minor:python_full]`, `version_fields_and_rules[higher_minor_journal]`, `check_on_golden[G03/take]`, `check_on_golden[results]`, `descriptor_and_journal_header_on_golden` |
+| SFT-704 | 1a | |
+| SFT-705 | 2 | 1a: `names_and_layout` |
+| SFT-706 | 2 | 1a: `renamed_take_folder[player]` |
+| SFT-707 | 2 | |
+| SFT-708 | 2 | 1a: `manifest`, `check_on_golden[G01/*]` |
+| SFT-709 | 2 | |
+| SFT-710 | 2 | 1a: `missing_or_wrong_manifest[audio_only]` |
+| SFT-711 | 1a | |
+| SFT-712 | 1a | |
+| SFT-713 | 1a | |
+| SFT-714 | 1a | |
+| SFT-715 | 1a | |
+| SFT-716 | 1a | |
+| SFT-717 | 1a | |
+| SFT-718 | 1a | |
+| SFT-719 | 1a | |
+| SFT-720 | 1a | |
+| SFT-721 | 1a | |
+| SFT-722 | 1a | |
+| SFT-723 | 1a | |
+| SFT-724 | 1a | |
+| SFT-725 | 1a | |
+| SFT-726 | 1a | |
+| SFT-727 | 1a | |
+| SFT-728 | 1a | |
+| SFT-729 | 1a | |
+| SFT-730 | 2 | 1a: `whole_files_and_live_files`, `fsync_provisional` |
+| SFT-731 | 1a | |
+| SFT-732 | 1a | |
+| SFT-733 | 2 | 1a: `repair`, `check_on_golden`, `camera_file_provisional` |
+| SFT-734 | 2 | `<golden case>` |
+| SFT-735 | 1a | |
+| SFT-736 | 2 | |
+| SFT-737 | 3 | 2: `golden_part` |
+| SFT-738 | 2 | |
+| SFT-739 | 2 | |
+| SFT-740 | 2 | |
+| SFT-741 | 4 | |
+| SFT-742 | 3 | |
+| SFT-743 | 3 | |
+| SFT-744 | 2 | |
+| SFT-745 | 3 | |
+| SFT-746 | 2 | |
+| SFT-747 | 2 | |
+| SFT-748 | 2 | |
+| SFT-749 | 2 | |
+| SFT-750 | 2 | |
+| SFT-751 | 3 | 2: `golden_part` |
+| SFT-752 | 2 | |
+| SFT-753 | 2 | |
+| SFT-754 | 2 | |
+| SFT-755 | 2 | |
+| SFT-756 | 2 | |
+| SFT-757 | 2 | |
+| SFT-758 | 2 | |
+| SFT-759 | 2 | |
+| SFT-760 | 1b | |
+| SFT-761 | 2 | |
+| SFT-762 | 2 | |
+| SFT-763 | 2 | 1a: `link_checks_unfinished_files` |
+| SFT-764 | 1a | |
+| SFT-765 | 1a | |
+| SFT-766 | 2 | 1a: `golden_part`, `writer_part`, `may_contain_private_data[g1_audio_only]` |
+| SFT-767 | 1a | |
+| SFT-768 | 2 | `<golden case>`; 1a: `folders_that_the_test_makes[empty-*]`, `folders_that_the_test_makes[one_timing_sidecar-*]`, `folders_that_the_test_makes[only_capture_info-*]`, `folders_that_the_test_makes[empty_annotated_video-player]`, `folders_that_the_test_makes[empty_annotated_video-js]` |
+| SFT-769 | 2 | `<golden case>`; 1a: `scope_player[G16]`, `scope_player[G15-v1a]`, `folder_file_alone[*-player]`, `folder_file_alone[*-js]` |
+| SFT-770 | 2 | |
+
+The second table gives the stage in which a reader gives the committed `full` result and the
+committed `player` result of each golden case. "each" is each case of the folder. "each other
+case" is each case that has no row of its own. G12 also holds `equal_fitted_times.parquet` beside
+its case. SFT-748 reads it in stage 2.
+
+| Folder | Cases | `full` | `player` |
+|---|---|---|---|
+| G1 | each | 1a | 1a |
+| G2 | each | 1a | 1a |
+| G3 | each | 2 | 1a |
+| G4 | each | 1a | 1a |
+| G5 | each | 1a | 1a |
+| G6 | each | 1a | 1a |
+| G7 | each | 2 | 1a |
+| G8 | each | 2 | 1a |
+| G9 | each | 2 | 1a |
+| G10 | `higher_minor` | 2 | 1a |
+| G10 | `higher_minor_journal` | 2 | 1a |
+| G10 | each other case | 1a | 1a |
+| G11 | each | 1a | 1a |
+| G12 | each | 1a | 1a |
+| G13 | each | 2 | 1a |
+| G14 | each | 2 | 1a |
+| G15 | each | 1a | 1a |
+| G16 | each | 1a | 1a |
+| G17 | each | 1b | 1b |
+
 ## Withdrawn tests
 
 <details>

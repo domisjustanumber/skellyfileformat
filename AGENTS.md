@@ -57,6 +57,8 @@ between the spec requirements and the conformance tests.
 Run `uv run --group conformance pytest tests/conformance` to run the conformance tests.
 These tests fail until the implementation exists
 ([ADR-G21H](decisions/entries/G21H-gate-2-tests-location-and-interfaces.md)).
+Add `-m stage1a` to run only the tests of stage 1a. The other marks are `stage1b`, `stage2`,
+`stage3` and `stage4` ([section 4](#4-project-rules)).
 Run `uv run --group golden python tools/make_golden.py --check` to check the golden files
 against a new run of the generator.
 Report each new test failure to the user.
@@ -75,17 +77,58 @@ Fix the failures of one root cause in one PR.
   3. Write the runnable tests and the golden files. The tests fail, because there is no
      implementation yet.
   4. Stop. The user reviews them (gate 2).
-  5. Write the implementation. It is complete when its tests pass. Write the Python reader first,
-     then the Python writer, then the JavaScript reader
-     ([ADR-Z641](decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 4).
+  5. Write the implementation. It is complete when its tests pass. In each stage, write the Python
+     reader first, then the Python writer, then the JavaScript reader. Write the JavaScript reader
+     only in stage 1
+     ([ADR-Z641](decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 4,
+     [ADR-CPM2](decisions/entries/CPM2-stages-of-the-implementation.md) item 2).
 - Do not write implementation code for a part before the user approves gate 2 for that part.
-- The gate 2 approval of spec draft v2 covers each conformance test that this repository runs and
-  the golden folders G1 to G16. This includes each test that uses an `exports/` folder only as
-  input, for example to check that a reader ignores it. The approval does not cover a test of the
-  content of an export file. That test waits with SPEC.md section 18.3. The approval also does not
-  cover the skellysync folders and G17, or the provisional points that wait for a desk test or a
-  hardware test. For these, write only the provisional behaviour that the spec gives now
+- Build the implementation in four stages
+  ([ADR-CPM2](decisions/entries/CPM2-stages-of-the-implementation.md)). The spec and the test list
+  stay whole documents. Only the gate 2 approval and the implementation are staged.
+  - Stage 1, recording: what skellycam and skellysync need. This is SPEC.md sections 2 to 13 and
+    19 to 23, the reading of the processing info JSON (section 14) and the scope `player` for
+    every folder.
+  - Stage 1a: the recording and playback of skellycam. It starts after the gate 2 approval of
+    stage 1.
+  - Stage 1b: the skellysync folders (section 19, G17). It starts after the skellysync decisions
+    D-Q, D-FPS, D-HDR, D-DRIFT and D-AUDIO. Stage 1a does not wait for stage 1b.
+  - Stage 2, realtime capture: the calibration TOML (section 15), the Parquet (section 16), the
+    journal (section 17) and each reader check that needs them. All Parquet reading is in stage 2,
+    for realtime and posthoc runs. The package is complete at the end of stage 2.
+  - Stage 3, posthoc capture: work in freemocap. Annotated videos and logs (sections 18.2 and
+    18.4) come first. Exports (section 18.3) are the last part of stage 3. They do not block
+    stage 4.
+  - Stage 4, Blender: work in the Blender addon (section 18.1).
+  - In stages 3 and 4, this repository accepts the output of the ported freemocap exporter and
+    Blender addon as golden files. It also keeps the spec text correct.
+- The user approves gate 2 for each stage. The review of a stage covers only the tests and the
+  golden folders of that stage. The user reviews a later stage just before it starts.
+- The section [The stage of each test](spec/conformance.md#the-stage-of-each-test) gives the stage
+  of each test and each golden folder.
+- The approval does not cover the provisional points that wait for a desk test or a hardware test.
+  For these, write only the provisional behaviour that the spec gives now
   ([ADR-Z641](decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 2).
+- A stage ends when its conformance tests pass and the program has adopted it.
+- skellycam must record and play with the package before stage 2 starts.
+- freemocap must run a realtime capture with the package before stage 3 starts.
+- The limits of stage 1:
+  - In the scope `player`, the stage 1 reader is complete for every folder. The JavaScript reader
+    needs no work after stage 1.
+  - In the scope `full`, the stage 1 reader stops with a clear "not in this version" error on a
+    folder that holds a calibration TOML, a Parquet or a journal. Do not add a state to the format
+    for this. A legacy TOML is not a calibration TOML.
+  - Stage 1 lists the calibration TOML but does not read it. It reads only what the scope `player`
+    and the format mark need.
+  - Stage 1 reads and validates the processing info JSON.
+  - Stage 1 does all legacy recognition. No later stage adds to it.
+  - Stage 1 checks the headers of `.npy` and `.npz` files for code (SFF-884).
+  - Stage 1 does the media repair: the media files, the sidecars, the fit lines and the manifest.
+    A stage 1 repair does not change a journal.
+  - The stage 1 repair refuses a take that holds a calibration TOML or a Parquet, with a clear
+    message. Stage 2 adds the full repair.
+  - The fold of a left-over journal is in stage 2. It is work of freemocap. skellycam gets no more
+    repair work in stage 2.
 - A bug fix needs a test that fails before the fix.
 - Each requirement in `spec/SPEC.md` has an ID `SFF-NNN`. Each test in `spec/conformance.md` has
   an ID `SFT-NNN` and cites the SFF IDs that it checks.

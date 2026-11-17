@@ -21,7 +21,32 @@ task. Delete an item when its work is done. The PR that closes an item records t
   runs. Do not push skellyfileformat before the user approves gate 2. Then each correction from the
   review can change the entries in place
   ([ADR-Z641](entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 3).
-  [AGENTS.md](../AGENTS.md#4-project-rules) gives the scope of the approval.
+  The user approves gate 2 for each stage
+  ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md)). The review now is the review of
+  stage 1: the tests, the test parts and the golden results of stage 1a in
+  [conformance.md](../spec/conformance.md#the-stage-of-each-test). SFT-760 and G17 of stage 1b
+  wait for the skellysync decisions. Not decided: whether the approval of stage 1 also ends the
+  agreement of no push.
+  [AGENTS.md](../AGENTS.md#4-project-rules) gives the stages and the scope of the approval.
+- **Two tests of the package in the staged build (for the start of stage 1).** These tests check
+  the package while it is built in stages. They are not rules of the format. The user must review
+  them as additions to the tests before they are written: the Python reader of stage 1, with the
+  scope `full`, gives the "not in this version" error on a folder that holds a calibration TOML, a
+  Parquet or a journal; and the stage 1 repair refuses a take that holds a calibration TOML or a
+  Parquet, with a clear message
+  ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) items 10 and 12).
+- **The full repair (stage 2).** A new test and a golden case for the repair of a take that holds a
+  calibration TOML or a Parquet. The manifest summary of the repair takes values from them
+  (SFF-728). The user reviews them at the gate of stage 2
+  ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) item 12).
+- **Two points that no rule decides (found in the stage map).** The depth of the check
+  `bad_schema` of the processing info JSON: SFF-887 says "without the members ... of its
+  section", section 14 has nested members (`processed.runs` and others), and no test makes an
+  invalid processing info JSON. Stage 1 validates this file
+  ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) item 11). Also, whether a reader reads
+  the export inventory and the BVH metadata JSON: both hold `format_prerelease` (SFF-707) and no
+  `skellyfileformat` member, and SFF-891 gives the warning `prerelease` to each file that holds
+  `format_prerelease`. No golden case has either file, and no test checks it.
 - **Complete section 18.3** ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 23).
   Exports are not in gate 2, and section 18.3 is provisional
   ([ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 12). G3 holds no export,
@@ -56,7 +81,8 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - SFF-846: the journal waits for the on/off load test and the kill test with real data (DT11);
   - SFF-848: the `.blend` scene contents are future freemocap work;
   - SFF-862, SFF-863 and G17: skellysync folders wait for the skellysync decisions D-Q, D-FPS,
-    D-HDR, D-DRIFT and D-AUDIO;
+    D-HDR, D-DRIFT and D-AUDIO. Stage 1b starts after these five decisions
+    ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) item 3);
   - G5 and G6: the stand-in for the killed camera file waits for desk tests DT-R1 and DT5
     ([ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) item 6).
 - **Open points of the model types of the Parquet descriptor**

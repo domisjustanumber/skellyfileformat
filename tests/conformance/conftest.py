@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -91,6 +92,7 @@ def pytest_configure(config):
 
 def pytest_collection_modifyitems(items):
     for item in items:
+        item.add_marker(f"stage{stage_of(item)}")
         mark = item.get_closest_marker("external")
         if mark is not None:
             reason = f"external: {mark.args[0]}; the repository of that program runs it"
@@ -98,6 +100,97 @@ def pytest_collection_modifyitems(items):
         mark = item.get_closest_marker("provisional")
         if mark is not None:
             item.add_marker(pytest.mark.skip(reason=f"provisional: {mark.args[0]}"))
+
+
+# --- Stages (conformance.md, "The stage of each test"; decision CPM2) ---
+# tools/tests/test_conformance_stages.py checks these three tables against conformance.md.
+
+# The stage of each test: the stage in which all of its parts pass.
+STAGES = {
+    "700": "2", "701": "1a", "702": "1a", "703": "4", "704": "1a", "705": "2", "706": "2", "707": "2",
+    "708": "2", "709": "2", "710": "2", "711": "1a", "712": "1a", "713": "1a", "714": "1a", "715": "1a",
+    "716": "1a", "717": "1a", "718": "1a", "719": "1a", "720": "1a", "721": "1a", "722": "1a", "723": "1a",
+    "724": "1a", "725": "1a", "726": "1a", "727": "1a", "728": "1a", "729": "1a", "730": "2", "731": "1a",
+    "732": "1a", "733": "2", "734": "2", "735": "1a", "736": "2", "737": "3", "738": "2", "739": "2",
+    "740": "2", "741": "4", "742": "3", "743": "3", "744": "2", "745": "3", "746": "2", "747": "2",
+    "748": "2", "749": "2", "750": "2", "751": "3", "752": "2", "753": "2", "754": "2", "755": "2",
+    "756": "2", "757": "2", "758": "2", "759": "2", "760": "1b", "761": "2", "762": "2", "763": "2",
+    "764": "1a", "765": "1a", "766": "2", "767": "1a", "768": "2", "769": "2", "770": "2",
+}  # fmt: skip
+
+# The parts of a test that pass in an earlier stage. A part is the function name after `test_sft_<NNN>_`,
+# with `[<parameter ID>]` for one case. `*` matches any text.
+PARTS = {
+    "700": {"1a": ["text_integers_json_ids_crcs", "check_on_golden[G01]"]},
+    "703": {
+        "1a": [
+            "version_fields_and_rules[writer_output]", "version_fields_and_rules[pair_version_is_of_its_sidecar]",
+            "version_fields_and_rules[unknown_major_*]", "version_fields_and_rules[higher_minor:python_player]",
+            "version_fields_and_rules[higher_minor:js]", "version_fields_and_rules[prerelease*]",
+            "check_on_golden[G01/*]", "check_on_golden[G10/prerelease_0]",
+        ],
+        "2": [
+            "version_fields_and_rules[higher_minor:python_full]", "version_fields_and_rules[higher_minor_journal]",
+            "check_on_golden[G03/take]", "check_on_golden[results]", "descriptor_and_journal_header_on_golden",
+        ],
+    },
+    "705": {"1a": ["names_and_layout"]},
+    "706": {"1a": ["renamed_take_folder[player]"]},
+    "708": {"1a": ["manifest", "check_on_golden[G01/*]"]},
+    "710": {"1a": ["missing_or_wrong_manifest[audio_only]"]},
+    "730": {"1a": ["whole_files_and_live_files", "fsync_provisional"]},
+    "733": {"1a": ["repair", "check_on_golden", "camera_file_provisional"]},
+    "737": {"2": ["golden_part"]},
+    "751": {"2": ["golden_part"]},
+    "763": {"1a": ["link_checks_unfinished_files"]},
+    "766": {"1a": ["golden_part", "writer_part", "may_contain_private_data[g1_audio_only]"]},
+    "768": {
+        "1a": [
+            "folders_that_the_test_makes[empty-*]", "folders_that_the_test_makes[one_timing_sidecar-*]",
+            "folders_that_the_test_makes[only_capture_info-*]", "folders_that_the_test_makes[empty_annotated_video-player]",
+            "folders_that_the_test_makes[empty_annotated_video-js]",
+        ]
+    },
+    "769": {"1a": ["scope_player[G16]", "scope_player[G15-v1a]", "folder_file_alone[*-player]", "folder_file_alone[*-js]"]},
+}  # fmt: skip
+
+# In these tests, a case that reads one golden case has the stage of that case in GOLDEN_STAGES.
+GOLDEN_RULE = {"734", "768", "769"}
+
+# The stage of the `full` result and of the `player` result of each golden case. A key `G<NN>/<case>`
+# is for one case, a key `G<NN>` for each other case of the folder.
+GOLDEN_STAGES = {
+    "G01": ("1a", "1a"), "G02": ("1a", "1a"), "G03": ("2", "1a"), "G04": ("1a", "1a"), "G05": ("1a", "1a"),
+    "G06": ("1a", "1a"), "G07": ("2", "1a"), "G08": ("2", "1a"), "G09": ("2", "1a"), "G10/higher_minor": ("2", "1a"),
+    "G10/higher_minor_journal": ("2", "1a"), "G10": ("1a", "1a"), "G11": ("1a", "1a"), "G12": ("1a", "1a"),
+    "G13": ("2", "1a"), "G14": ("2", "1a"), "G15": ("1a", "1a"), "G16": ("1a", "1a"), "G17": ("1b", "1b"),
+}  # fmt: skip
+
+_SFT = re.compile(r"test_sft_(\d{3})_(\w+)$")
+
+
+def _matches(pattern: str, function: str, name: str) -> bool:
+    text = name if "[" in pattern else function
+    return re.fullmatch(re.escape(pattern).replace(r"\*", ".*"), text) is not None
+
+
+def stage_of(item) -> str:
+    """The stage of a collected test: `1a`, `1b`, `2`, `3` or `4`. A test with no SFT ID checks the fixtures: `1a`."""
+    found = _SFT.match(item.originalname)
+    if found is None:
+        return "1a"
+    number, function = found.groups()
+    params = item.callspec.params if hasattr(item, "callspec") else {}
+    if number in GOLDEN_RULE:
+        case = f"{params['name']}/{params['case']}" if "name" in params and "case" in params else params.get("case")
+        if isinstance(case, str) and "/" in case:
+            full, player = GOLDEN_STAGES.get(case) or GOLDEN_STAGES[case.split("/")[0]]
+            return player if params.get("kind") in ("player", "js") else full
+    name = function + item.name[len(item.originalname) :]
+    for stage, patterns in PARTS.get(number, {}).items():
+        if any(_matches(pattern, function, name) for pattern in patterns):
+            return stage
+    return STAGES[number]
 
 
 def external(program: str):
