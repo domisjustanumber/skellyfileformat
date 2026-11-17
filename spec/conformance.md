@@ -20,29 +20,15 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 - **Writer** tests run a writer and check its output. **Reader** tests run a reader on the inputs. A
   test marked `(provisional)` waits for the same open item as the requirement that it checks.
 - "Python and JS" means that the test runs for the scope `player` (SPEC.md SFF-892) with two
-  readers: the Python reader with the scope `player`, and the JavaScript reader. Each gives the
+  readers, each through its test adapter ([The test adapter](#the-test-adapter)): the Python reader
+  with the scope `player`, and the JavaScript reader. Each gives the
   committed `player` result of the case (`<case>.player.json`, SPEC.md Appendix A), byte for byte.
   The Python reader with the scope `full` also runs the test. It gives the committed `full` result
   (`<case>.full.json`), byte for byte
   ([ADR-0JVZ](../decisions/entries/0JVZ-spec-v2-details-part-9.md) item 21).
-- In this repository, "skellycam" in an Input line is the package writer `TakeWriter` with
-  synthetic input. "The converter" is `TakeWriter` in a conversion. The repair is `repair_take`
-  ([ADR-QH61](../decisions/entries/QH61-spec-v2-details-part-15.md) item 46).
-- The runnable tests are in `tests/conformance/`. They call these names. The Python reader:
-  `read_folder(path, records=False, scope="full")` and `canonical_json(result)`. The JavaScript
-  reader: the command of SFF-892. The Python writer: `TakeWriter` (with `write_frame`,
-  `write_audio`, `add_warning` and `close`), `repair_take` and `release_check`. A fact that a test
-  needs and that the reader result does not hold comes from a detail function of the Python reader:
-  `camera_details`, `frame_spans`, `read_frame`, `position_at`, `audio_details`, `sample_time_ns`
-  or `run_details`. The result gets no member for it. The journal counts of SFF-885 are the
-  exception. The Python reader does not decode pixels or audio samples. It gives the stored bytes
-  and the timing, and a test decodes with PyAV
-  ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) items 2, 3 and 8).
-- The package writer writes only what a capture or a conversion needs: the camera files, the audio
-  file, the timing sidecars, the manifest, the capture info JSON and a repair. freemocap writes the
-  Parquet, the TOML, the journal, the exports and the processing info JSON. This repository tests
-  those files by checks on golden folders
-  ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 4).
+- "skellycam" in an Input line is `TakeWriter` of the test adapter, with synthetic input. "The
+  converter" is that `TakeWriter` in a conversion. The repair is `repair_take` of the test adapter
+  ([ADR-QH61](../decisions/entries/QH61-spec-v2-details-part-15.md) item 46, [ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
 - A test, or a Pass sentence, is **external** when it needs a run of freemocap, a run of the
   Blender addon, capture hardware or an answer of a user. Its mark is `(external: <program>)`.
   `<program>` names what the test needs: `freemocap`, `Blender addon`, `Blender`, `skellycam` (the
@@ -51,23 +37,57 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
   applies only to that sentence. The repository of that program runs an external test or sentence.
   This repository does not.
 - An external test can have a line that starts with `Golden part:`. The line gives what this
-  repository runs of the test: each Pass sentence that a file of the named golden folder, or the
-  package writer, can show. An external test with no such line has no golden part.
+  repository runs of the test: each Pass sentence that a file of the named golden folder, or a
+  writer through its test adapter, can show. An external test with no such line has no golden part.
 - A test whose only inputs are golden files is not external. Examples are SFT-746, SFT-748, SFT-750
   and SFT-753. G12 holds the Parquet of the vector of SFT-748 as committed bytes
   ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 5).
 
+## The test adapter
+
+- This repository holds no implementation. The runnable tests in `tests/conformance/` are the
+  executable form of this list. They reach an implementation through one configurable seam: its
+  test adapter. Each implementing repository (skellycam, freemocap, skellysync and the Blender
+  addon) writes a thin test adapter and runs these tests, at a pinned commit of this repository,
+  against its own code ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) items 1 and 2).
+- The names that the tests call are what a test adapter exposes. They are not a product API. The
+  code behind an adapter can have any form ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 3). The Python adapter has:
+  - the reader: `read_folder(path, records=False, scope="full")`, which gives the reader result of
+    SPEC.md section 23, and `canonical_json(result)`;
+  - the detail functions, for a fact that a test needs and that the reader result does not hold:
+    `camera_details`, `frame_spans`, `read_frame`, `position_at`, `audio_details`,
+    `sample_time_ns` and `run_details`. The result gets no member for such a fact. The journal
+    counts of SFF-885 are the exception. The adapter does not decode pixels or audio samples. It
+    gives the stored bytes and the timing, and a test decodes with PyAV;
+  - the writer: `TakeWriter` (with `write_frame`, `write_audio`, `add_warning` and `close`),
+    `repair_take` and `release_check`.
+- The JavaScript adapter is a command that takes a folder and the switch `--records`. It writes the
+  `player` result of SFF-892 as canonical JSON to standard output, and no other byte.
+- The writer of the adapter writes only what a capture or a conversion needs: the camera files, the
+  audio file, the timing sidecars, the manifest, the capture info JSON and a repair. freemocap
+  writes the Parquet, the TOML, the journal, the exports and the processing info JSON. This
+  repository tests those files by checks on golden folders
+  ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) items 2 to 4 and 8,
+  [ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
+- The argument shapes that the tests assume beyond these names are not decided. They are in
+  `tests/conformance/INTERFACE_NOTES_capture.md` and `tests/conformance/INTERFACE_NOTES_folder.md`.
+  The configuration of the seam is a proposal of an agent: an environment variable for each adapter
+  ([ADR-K4Y1](../decisions/entries/K4Y1-test-adapter-seam-choices.md), proposed). With no adapter,
+  each test that calls one fails with one line that says that no adapter is configured.
+
 ## The stage of each test
 
-- The implementation is built in four stages
-  ([ADR-CPM2](../decisions/entries/CPM2-stages-of-the-implementation.md)). Stage 1 is the
-  recording. It has two parts: 1a is the recording and playback of skellycam, and 1b is the
-  skellysync folders. Stage 2 is the realtime capture. Stage 3 is the posthoc capture. Stage 4 is
-  Blender. This list and SPEC.md stay whole documents. The user approves gate 2 for each stage
-  ([AGENTS.md](../AGENTS.md#4-project-rules)).
-- The first table gives the stage in which each test passes. A test passes when each of its parts
-  passes. This includes each external part, in the repository of its program.
-- The column "Earlier parts" gives the parts of the test that pass in an earlier stage. A part is
+- The "stage" of a test is its mark: a label that tells which program and which need the test
+  serves. It is not a build stage. Each implementing repository plans its own build
+  ([ADR-CPM2](../decisions/entries/CPM2-stages-of-the-implementation.md), [ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 4). Stage 1
+  is the recording. It has two parts: 1a is the recording and playback of skellycam, with its
+  converter, and 1b is the skellysync folders. Stage 2 is the realtime capture: the calibration
+  TOML, the Parquet, the journal and each reader check that needs them. Stage 3 is the posthoc
+  capture of freemocap. Stage 4 is the Blender addon. This list and SPEC.md stay whole documents.
+  The user approves gate 2 for each stage ([AGENTS.md](../AGENTS.md#4-project-rules)).
+- The first table gives the stage of each test: the latest stage of its parts, in the order 1a,
+  1b, 2, 3, 4. This includes each external part, which the repository of its program runs.
+- The column "Earlier parts" gives the parts of the test that have an earlier stage. A part is
   the name of a test function in `tests/conformance/` after `test_sft_<NNN>_`. A part with
   `[<ID>]` is one case of that function, by its pytest parameter ID. `*` matches any text.
 - `<golden case>`: each case of the test that reads one golden case with a reader has the stage of
@@ -75,9 +95,14 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
   `player` or with the JavaScript reader. In all other cases, it is the `full` stage. A case that is
   in the column "Earlier parts" has the stage of that column. This rule does not apply to it. A
   case that runs no reader, for example `committed_results`, is in the column "Earlier parts".
-- In stage 1, the reader with the scope `full` stops with an error on a folder that holds a
-  calibration TOML, a Parquet or a journal. Thus each test that needs the scope `full` on such a
-  folder is in stage 2. G3 and each copy of G3 are such folders.
+- Each test that needs the scope `full` on a folder that holds a calibration TOML of this format
+  (SPEC.md section 15), a Parquet or a journal is in stage 2, because only stage 2 needs those files
+  read. G3 and each copy of G3 are such folders. A legacy folder with an old-style calibration TOML
+  is not such a folder (SFT-764) ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 4).
+- A test that uses an `exports/` folder only as an input, for example to check that a reader
+  ignores it, has the stage of its folder. A test of the content of an export file waits with
+  section 18.3 ([ADR-Z641](../decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md)
+  item 2).
 - A check on golden files that runs no reader has the stage of the kind of file that it inspects
   ([ADR-YT1F](../decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
   item 4). The files of the media folder, the manifest, the capture info JSON, the processing info
@@ -93,12 +118,13 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
   a parameter ID that starts with `g1`. The cases on a copy of G3 stay in stage 2. The case `g9` of
   SFT-762 reads G9 and has no copy of G1.
 - SFT-711 is in stage 1a. Its external sentence (Blender, at the pinned version, counts the same
-  number of frames in the camera file) is a check that a person runs by hand one time in stage 1a.
+  number of frames in the camera file) is a check that a person runs by hand one time ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
   It checks that Blender opens the video. It does not check the Blender addon
   ([ADR-YT1F](../decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
   item 1).
 - The cases of the converter are in stage 1a: `names_and_layout[camera_key_0]` of SFT-705 and
-  `video_sidecar[converter]` of SFT-717. The use of the converter by skellysync is in stage 1b
+  `video_sidecar[converter]` of SFT-717. They run through `TakeWriter` of the test adapter, in a
+  conversion. The use of the converter by skellysync is in stage 1b
   ([ADR-YT1F](../decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
   item 2).
 - `tests/conformance/conftest.py` gives each runnable test the mark `stage1a`, `stage1b`, `stage2`,
@@ -182,10 +208,10 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 | SFT-769 | 2 | `<golden case>`; 1a: `scope_player`, `scope_player_against_full[G16]`, `scope_player_against_full[G15-v1a]`, `folder_file_alone[*-player]`, `folder_file_alone[*-js]`, `committed_results` |
 | SFT-770 | 2 | |
 
-The second table gives the stage in which a reader gives the committed `full` result and the
-committed `player` result of each golden case. "each" is each case of the folder. "each other
+The second table gives the stage of the committed `full` result and of the committed `player`
+result of each golden case. "each" is each case of the folder. "each other
 case" is each case that has no row of its own. G12 also holds `equal_fitted_times.parquet` beside
-its case. SFT-748 reads it in stage 2.
+its case. SFT-748 reads it, in stage 2.
 
 | Folder | Cases | `full` | `player` |
 |---|---|---|---|
@@ -564,8 +590,8 @@ unknown key in `[metadata]` and in the camera table of the TOML, and the flag bi
 row of the video sidecar. In `higher_minor_journal` of G10, the good record of the unknown type 200
 counts in `records`, and the reader uses no value of it. The TOML and journal vectors are tests of
 the scope `full` only. SFF-714 has no case in version 2.0, because each field has minor 0. The
-first minor version that adds a field adds the vector. The Python and JS readers of this package
-read a file with `format_prerelease` > 0 and give it the file warning `prerelease` (SFF-891). Each
+first minor version that adds a field adds the vector. The Python reader and the JS reader, each
+through its test adapter, read a file with `format_prerelease` > 0 and give it the file warning `prerelease` (SFF-891). Each
 file of each golden case that holds `format_prerelease` has this warning. The only exception is the
 case `prerelease_0` of G10: no file of it has the warning. A file that does not hold
 `format_prerelease` does not have the warning (SPEC.md Appendix A,
@@ -584,7 +610,7 @@ Checks: SFF-715, SFF-716, SFF-719, SFF-720, SFF-722
 Input: the output of skellycam and freemocap for G3; a writer run with two cameras whose keys have the
 same first 6 characters; a converter run that writes a camera with `camera_key` 0; a `TakeWriter`
 that gets a folder with a file of this format of another take.
-Golden part: the names in G3, and the three runs of the package writer.
+Golden part: the names in G3, and the three runs of `TakeWriter` of the test adapter.
 Pass: each file has the name and the place of section 4. `<rec>` obeys SFF-715. The labels are 6
 hexadecimal characters, or 7 or 8 for the two cameras. The camera with `camera_key` 0 has the label
 `cam<N>`, where N is its `group_position`. No `synchronized_videos_README.md` exists. The
@@ -1067,7 +1093,7 @@ Input: the Parquet of G3; a copy of it with the columns `frame_number` and `run_
 Pass: pyarrow 26.0.0, polars 2.0.0, DuckDB 2.0.0 and hyparquet 1.25.6 with hyparquet-compressors
 1.1.2 (pinned) read every value bit-exactly: for each of the four readers, the SHA-256 of the values
 that it reads is the SHA-256 in the truth file of G3. The truth file holds the SHA-256 of the raw
-values that the generator meant to write to the Parquet ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 4). The reader of this package reads the int64 copy. It
+values that the generator meant to write to the Parquet ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 4). The Python reader, through its test adapter, reads the int64 copy. It
 gives the same values as for the Parquet of G3, and it does not give the reason `bad_schema`.
 
 **SFT-748** Writer: the row rules

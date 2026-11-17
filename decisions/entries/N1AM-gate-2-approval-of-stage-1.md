@@ -1,11 +1,6 @@
 # N1AM — The gate 2 approval of stage 1
 
-**Status:** absorbed into
-[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
-[`AGENTS.md#6-git-rules`](../../AGENTS.md#6-git-rules),
-[`spec/SPEC.md#skellyfileformat-specification`](../../spec/SPEC.md#skellyfileformat-specification),
-[`spec/conformance.md#skellyfileformat-conformance-tests`](../../spec/conformance.md#skellyfileformat-conformance-tests),
-2026-11-17 (commit to main; was accepted, 2026-11-17 (user; "stage 1 approved")).
+**Status:** superseded by [YBT1](YBT1-spec-only-test-adapter-and-labels.md), 2026-11-17 (commit to main; was absorbed, 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; "stage 1 approved"))).
 
 ## Decision
 

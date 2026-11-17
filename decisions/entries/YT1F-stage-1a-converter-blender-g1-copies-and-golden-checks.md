@@ -1,10 +1,7 @@
 # YT1F — Stage 1a: the converter, the Blender check, inputs on copies of G1 and checks with no reader
 
-**Status:** absorbed into
-[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
-[`spec/conformance.md#the-stage-of-each-test`](../../spec/conformance.md#the-stage-of-each-test),
-2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q183 to Q186 of round 14
-and Q187 to Q189 of round 15)).
+**Status:** superseded by [YBT1](YBT1-spec-only-test-adapter-and-labels.md), 2026-11-17 (commit to main; was absorbed, 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q183 to Q186 of round 14
+and Q187 to Q189 of round 15))).
 
 ## Decision
 

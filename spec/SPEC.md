@@ -3,7 +3,8 @@
 Status: **draft v2 (the whole take folder)**. Gate 1 closed on 2026-11-16. The user approved
 gate 2 for stage 1 on 2026-11-17
 ([ADR-N1AM](../decisions/entries/N1AM-gate-2-approval-of-stage-1.md),
-[AGENTS.md section 4](../AGENTS.md#4-project-rules)). No format version is released yet. Draft v1
+[AGENTS.md section 4](../AGENTS.md#4-project-rules)). This repository holds no implementation: each
+program that uses the format implements it ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)). No format version is released yet. Draft v1
 (the MCAP profile) was withdrawn before gate 1, because the freemocap Blender addon needs real video
 files ([ADR-6RSB](../decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md)). Draft v0 (MKV
 with binary sidecars) was withdrawn earlier. Their IDs stay in section 0, marked withdrawn. A
@@ -1178,9 +1179,9 @@ of silence and marks the row in the CSV (SFF-768). So the sample index of the de
 the device sample index.
 
 **SFF-766** (reader) Sample 0 of the audio is the first decoded sample after the pre-skip samples of
-`dOps`. A program that decodes the audio drops the pre-skip samples and applies no output gain. The
-Python reader of this package does not decode: its detail function `audio_details` gives the
-pre-skip ([ADR-0WTH](../decisions/entries/0WTH-spec-v2-details-part-12.md) item 36).
+`dOps`. A program that decodes the audio drops the pre-skip samples and applies no output gain. Through
+its test adapter, a reader does not decode: the detail function `audio_details` gives the pre-skip
+([ADR-0WTH](../decisions/entries/0WTH-spec-v2-details-part-12.md) item 36, [ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
 
 ## 10. Audio timing sidecar
 
@@ -2617,7 +2618,8 @@ that is alone gives the folder warning `orphan_file` (SFF-865)
 `other_files` are in order of the bytes of the path. `links` is in the order of the table of
 SFF-872. Each `warnings` array is sorted by code point.
 
-**SFF-891** (reader) The Python and JavaScript readers of this package read a file with
+**SFF-891** (reader) The readers of skellycam, skellysync, freemocap and the Blender addon, in
+Python and in JavaScript ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)), read a file with
 `format_prerelease` > 0 and give it the warning `prerelease`. They treat each value above 0 in the
 same way. Another reader MAY refuse it as
 `unsupported_version`
@@ -2658,15 +2660,15 @@ of a folder is the `full` result of that folder with only these changes:
   reports as when no row matches (SFF-878): `release_range` `["v1.0.25","v1.8.2"]`, `ambiguous`
   true, `eras` `[]` and the four warnings of SFF-879.
 
-The Python reader of this package supports the two scopes:
-`read_folder(path, records=False, scope="full")`. The JavaScript reader of this package supports
-only the scope `player`. Its command is `node js/bin/read-folder.mjs <folder> [--records]`. The
-command writes the canonical JSON to standard output, and no other byte. So the Python reader with
-the scope `player` and the JavaScript reader give the same bytes for the same folder
+A Python reader supports the two scopes. A JavaScript reader supports only the scope `player`.
+Through its test adapter ([conformance.md, "The test adapter"](conformance.md#the-test-adapter)), a
+Python reader is `read_folder(path, records=False, scope="full")`, and a JavaScript reader is a
+command that writes the canonical JSON to standard output, and no other byte. So a Python reader
+with the scope `player` and a JavaScript reader give the same bytes for the same folder
 ([ADR-DM9S](../decisions/entries/DM9S-spec-v2-details-part-7.md),
-[ADR-0JVZ](../decisions/entries/0JVZ-spec-v2-details-part-9.md) item 21).
+[ADR-0JVZ](../decisions/entries/0JVZ-spec-v2-details-part-9.md) item 21, [ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
 
-**SFF-893** (reader) This requirement belongs to section 16. The reader of this package checks the
+**SFF-893** (reader) This requirement belongs to section 16. A reader ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)) checks the
 structure of each `RecordedModel` of the descriptor and of its nested types, as
 parts/parquet-descriptor.md section "Structure rules and writer rules" gives it: each member is
 present, except a member that its row lets the writer omit and a member whose row gives a default;

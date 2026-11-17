@@ -4,7 +4,7 @@
 [`README.md#scope-normative`](../../README.md#scope-normative),
 [`README.md#compatibility-promise-normative`](../../README.md#compatibility-promise-normative),
 [`README.md#versioning-normative`](../../README.md#versioning-normative),
-[`README.md#package`](../../README.md#package),
+[`README.md#implementations`](../../README.md#implementations),
 [`AGENTS.md#1-purpose`](../../AGENTS.md#1-purpose),
 [`spec/SPEC.md#skellyfileformat-specification`](../../spec/SPEC.md#skellyfileformat-specification),
 [`spec/parts/parquet-descriptor.md#sensorgroup-closed`](../../spec/parts/parquet-descriptor.md#sensorgroup-closed),
@@ -26,7 +26,7 @@ items means its rule here.
 - README [Scope](../../README.md#scope-normative): 92TM 1.
   [Compatibility](../../README.md#compatibility-promise-normative): 9DV4 5; 92TM 1.
   [Versioning](../../README.md#versioning-normative): 9DV4 1, 2, 4, 6, 7, 8, 9.
-  [Package](../../README.md#package): 92TM 2.
+  [Implementations](../../README.md#implementations): 92TM 2.
 - [AGENTS.md 1](../../AGENTS.md#1-purpose): VPD9 1.
 - [§1](../../spec/SPEC.md#1-scope-and-terms): 5XNA 2; 3D33 and VPD9 (preambles).
 - [§2](../../spec/SPEC.md#2-conventions): N6HS 2; VPD9 1, 5.
@@ -94,3 +94,5 @@ A pushed entry changes only by the allowed edits, so a new entry restates its ru
 ## Open work
 
 G1YG item 10, the desk test of a replace on Windows ([open-work.md](../open-work.md)).
+
+_Edited 2026-11-17 (commit to main): link repair._

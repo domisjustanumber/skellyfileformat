@@ -1,16 +1,6 @@
 # G21H — Gate 2: where the runnable tests live and what they call
 
-**Status:** absorbed into
-[`AGENTS.md#1-purpose`](../../AGENTS.md#1-purpose),
-[`AGENTS.md#3-install-and-test`](../../AGENTS.md#3-install-and-test),
-[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
-[`spec/conformance.md#how-to-read-a-test`](../../spec/conformance.md#how-to-read-a-test),
-[`spec/conformance.md#camera-files-section-6`](../../spec/conformance.md#camera-files-section-6),
-[`golden/README.md#golden-folders`](../../golden/README.md#golden-folders),
-[`golden/README.md#layout`](../../golden/README.md#layout),
-[`golden/README.md#how-to-make-and-check-the-files`](../../golden/README.md#how-to-make-and-check-the-files),
-[`golden/README.md#provisional-parts`](../../golden/README.md#provisional-parts),
-2026-11-17 (commit to main; was accepted, 2026-11-16 (user; review of the spec after gate 1)).
+**Status:** superseded by [YBT1](YBT1-spec-only-test-adapter-and-labels.md), 2026-11-17 (commit to main; was absorbed, 2026-11-17 (commit to main; was accepted, 2026-11-16 (user; review of the spec after gate 1))).
 
 ## Decision
 

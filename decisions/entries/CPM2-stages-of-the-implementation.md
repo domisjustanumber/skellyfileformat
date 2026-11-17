@@ -1,10 +1,7 @@
 # CPM2 — The stages of the implementation
 
-**Status:** absorbed into
-[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
-[`spec/conformance.md#the-stage-of-each-test`](../../spec/conformance.md#the-stage-of-each-test),
-2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q168 to Q180 of rounds 11
-and 12, and Q181 of round 13)).
+**Status:** superseded by [YBT1](YBT1-spec-only-test-adapter-and-labels.md), 2026-11-17 (commit to main; was absorbed, 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q168 to Q180 of rounds 11
+and 12, and Q181 of round 13))).
 
 ## Decision
 

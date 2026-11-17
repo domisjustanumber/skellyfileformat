@@ -1,21 +1,6 @@
 # 2C9V — The format is the whole take folder; every file is fully specified; one shared package
 
-**Status:** absorbed into
-[`README.md#scope-normative`](../../README.md#scope-normative),
-[`README.md#package`](../../README.md#package),
-[`README.md#licenses`](../../README.md#licenses),
-[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
-[`AGENTS.md#6-git-rules`](../../AGENTS.md#6-git-rules),
-[`AGENTS.md#8-private-data`](../../AGENTS.md#8-private-data),
-[`spec/SPEC.md#1-scope-and-terms`](../../spec/SPEC.md#1-scope-and-terms),
-[`spec/SPEC.md#2-conventions`](../../spec/SPEC.md#2-conventions),
-[`spec/SPEC.md#6-camera-files`](../../spec/SPEC.md#6-camera-files),
-[`spec/SPEC.md#16-tracking-parquet`](../../spec/SPEC.md#16-tracking-parquet),
-[`spec/SPEC.md#181-blender`](../../spec/SPEC.md#181-blender),
-[`spec/SPEC.md#184-logs`](../../spec/SPEC.md#184-logs),
-[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
-[`spec/SPEC.md#appendix-b-player-guidance-informative`](../../spec/SPEC.md#appendix-b-player-guidance-informative),
-2026-11-17 (commit to main; was accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16)).
+**Status:** superseded by [YBT1](YBT1-spec-only-test-adapter-and-labels.md), 2026-11-17 (commit to main; was absorbed, 2026-11-17 (commit to main; was accepted, 2026-11-16 (user; whole-folder grilling, 2026-11-13 to 2026-11-16))).
 
 ## Decision
 

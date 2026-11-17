@@ -9,7 +9,9 @@ writing and recovery rules, and how a reader opens a folder, so that other progr
 compatible folder or read the output of freemocap from the spec alone.
 
 **Status: draft.** No format version is released yet. The spec and its conformance tests are written
-first and reviewed. Code comes after them ([AGENTS.md section 4](AGENTS.md#4-project-rules)).
+first and reviewed ([AGENTS.md section 4](AGENTS.md#4-project-rules)). This repository holds no
+reader and no writer: each program implements the format ([Implementations](#implementations),
+[ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
 
 The sections marked "normative" are rules. A change to them needs a decision entry
 ([decisions/](decisions/README.md)).
@@ -60,8 +62,6 @@ legacy folders stays in skellycam and freemocap.
   - A change that an older reader cannot read needs a new freemocap major version.
   - An added field needs a new freemocap minor version, or a new major version.
   - A freemocap patch release does not change the format.
-  - The skellyfileformat package and skellycam release at the same `major.minor` when the format
-    changes.
   - freemocap 2.x and skellycam 2.x are released at the same time. Until then, the 2.0.0
     prereleases of skellycam can write prerelease files
     ([ADR-9DV4](decisions/entries/9DV4-format-version-from-freemocap.md) item 9).
@@ -74,8 +74,9 @@ legacy folders stays in skellycam and freemocap.
   - `format_prerelease` is 0 for a released format. For a draft, the spec gives its value (SFF-710).
     The value is 1 until the draft goes to external review. From then on, each revised draft that
     goes to the reviewers adds 1. A reader treats each value above 0 in the same way. The readers of
-    this package give the warning `prerelease`
-    ([ADR-2MQE](decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 8).
+    skellycam, skellysync, freemocap and the Blender addon give the warning `prerelease`
+    ([ADR-2MQE](decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 8,
+    [ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
   - A reader must refuse a file with a `major` that it does not know.
   - A reader must read a file with a higher `minor` of a `major` that it knows, and skip the fields
     that it does not know.
@@ -84,9 +85,8 @@ legacy folders stays in skellycam and freemocap.
 - **Writer string.** Each of these files also holds a writer string, for example `skellycam 2.1.0`. It is for
   diagnostics only. A reader must not change its behaviour because of it. skellysync writes the
   format version that skellyfileformat gives, not its own version.
-- **Package version.** The skellyfileformat package uses semantic versioning. Its `major.minor` is
-  the format version that it implements. Its patch number counts the library fixes that do not change
-  the format.
+- **No package version.** There is no skellyfileformat package, so no package version follows the
+  format version ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 1).
 
 ## Conformance (normative)
 
@@ -97,16 +97,24 @@ legacy folders stays in skellycam and freemocap.
 - Each requirement has an ID `SFF-NNN`. Each test has an ID `SFT-NNN` and names the requirements
   that it checks.
 
-## Package
+## Implementations
 
-The format code is in one shared package, skellyfileformat. It holds the spec, the conformance test
-list, the golden files, a Python reader and writer, and a JavaScript reader. The optional write
-layer `skellyfileformat[write]` holds the writer. The Python reference reader reads each file of the
-folder: the scope `full` of SFF-892. The JavaScript reader reads only what the skellycam player
-needs: the scope `player`. The writer encodes Opus with libopus through PyAV, at the version that
-the exact `av` pin gives (SFF-762, SFF-763)
-([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md) items 5 and 6,
-[ADR-92TM](decisions/entries/92TM-opus-audio-in-fragmented-mp4.md) item 2).
+This repository is a spec. It holds the spec, the conformance test list, the golden folders and the
+runnable conformance tests. It holds no reader, writer, converter, repair tool or JavaScript reader,
+and there is no package `skellyfileformat` or `skellyfileformat[write]` ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) items 1 and 2).
+
+- skellycam, freemocap, skellysync and the Blender addon each implement their own reading and
+  writing. skellycam owns its Python writer (the camera files, the CSV sidecars, the Opus fMP4
+  audio, the manifest and the capture info JSON), the crash repair, the opening of a folder with
+  the recognition of old formats, the "upgrade recording" converter and a JavaScript reader in
+  skellycam-ui.
+- A reader gives the scope `full` or `player` of SFF-892. A JavaScript reader gives only `player`.
+- A writer encodes Opus with libopus (SFF-762, SFF-763)
+  ([ADR-92TM](decisions/entries/92TM-opus-audio-in-fragmented-mp4.md) item 2). The library that
+  calls libopus is the choice of each writer ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 1).
+- Each implementing repository writes a thin test adapter and runs the tests of
+  `tests/conformance/` at a pinned commit of this repository against its own code
+  ([conformance.md, "The test adapter"](spec/conformance.md#the-test-adapter)).
 
 ## Licenses
 

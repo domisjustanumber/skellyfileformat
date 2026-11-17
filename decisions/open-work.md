@@ -3,32 +3,26 @@
 This file holds the open work of the [decision log](README.md). Read the items that apply to your
 task. Delete an item when its work is done. The PR that closes an item records the result.
 
-- **Stage 1a: the next work.** The user approved gate 2 for stage 1 on 2026-11-17
-  ([ADR-N1AM](entries/N1AM-gate-2-approval-of-stage-1.md)). Do the work in this order:
-  1. Get the review of the user for the two tests of the package (the next item). Then write them.
-  2. Write the Python reader of stage 1a. Then write the Python writer, then the JavaScript reader
-     ([ADR-Z641](entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 4).
-
-  Stage 1b (SFT-760 and G17) waits for the skellysync decisions. The user has not approved gate 2
-  for stages 2, 3 and 4. The approval of stage 1 ends the agreement of no push
-  ([ADR-Z641](entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 3). The user
-  approved the first push on 2026-11-17 (question Q193). From that push on, an entry cannot be
-  corrected in place. [AGENTS.md](../AGENTS.md#4-project-rules) gives the stages and the scope of the approval.
-- **Two tests of the package in the staged build (before the code of stage 1a).** These tests check
-  the package while it is built in stages. They are not rules of the format. The user must review
-  them as additions to the tests before they are written: the Python reader of stage 1, with the
-  scope `full`, gives the "not in this version" error on a folder that holds a calibration TOML, a
-  Parquet or a journal; and the stage 1 repair refuses a take that holds a calibration TOML or a
-  Parquet, with a clear message
-  ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) items 10 and 12).
+- **The next work.** This repository is a spec. It holds no implementation
+  ([ADR-YBT1](entries/YBT1-spec-only-test-adapter-and-labels.md)). skellycam, freemocap, skellysync
+  and the Blender addon each plan and build their own code, and run the conformance tests through a
+  test adapter. The user approved gate 2 for stage 1 on 2026-11-17
+  ([ADR-N1AM](entries/N1AM-gate-2-approval-of-stage-1.md)). The user has not approved gate 2 for
+  stages 2, 3 and 4. The user approved the first push on 2026-11-17 (question Q193). From that push
+  on, an entry cannot be corrected in place. [AGENTS.md](../AGENTS.md#4-project-rules) gives the
+  marks and the scope of the approval.
+- **The choices of the test adapter seam.** The user must accept or reject the agent choices of
+  [ADR-K4Y1](entries/K4Y1-test-adapter-seam-choices.md): the variables `SKELLYFILEFORMAT_ADAPTER`
+  and `SKELLYFILEFORMAT_JS_ADAPTER`, the folder form of the JavaScript adapter, the child process of
+  SFT-730 and the names.
 - **The full repair (stage 2).** A new test and a golden case for the repair of a take that holds a
   calibration TOML or a Parquet. The manifest summary of the repair takes values from them
-  (SFF-728). The user reviews them at the gate of stage 2
+  (SFF-728). The user reviews them at the gate 2 review of stage 2
   ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) item 12).
 - **Two points that no rule decides (found in the stage map).** The depth of the check
   `bad_schema` of the processing info JSON: SFF-887 says "without the members ... of its
   section", section 14 has nested members (`processed.runs` and others), and no test makes an
-  invalid processing info JSON. Stage 1 validates this file
+  invalid processing info JSON. The check of this file is in stage 1a
   ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) item 11). Also, whether a reader reads
   the export inventory and the BVH metadata JSON: both hold `format_prerelease` (SFF-707) and no
   `skellyfileformat` member, and SFF-891 gives the warning `prerelease` to each file that holds
@@ -67,7 +61,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - SFF-846: the journal waits for the on/off load test and the kill test with real data (DT11);
   - SFF-848: the `.blend` scene contents are future freemocap work;
   - SFF-862, SFF-863 and G17: skellysync folders wait for the skellysync decisions D-Q, D-FPS,
-    D-HDR, D-DRIFT and D-AUDIO. Stage 1b starts after these five decisions
+    D-HDR, D-DRIFT and D-AUDIO. The tests of stage 1b wait for these five decisions
     ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) item 3);
   - G5 and G6: the stand-in for the killed camera file waits for desk tests DT-R1 and DT5
     ([ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) item 6).

@@ -277,13 +277,12 @@ The rules of `RecordedModel` and of its nested types are of two kinds
   member has the JSON type of the column "Type", with the number of items that the column gives. A
   closed type has no other member. An "integer" is a JSON number with no fraction in its value: `1`
   and `1.0` pass. A "float" is each JSON number: `0` passes for `position`. A text is a JSON
-  string. The reader of this package checks the structure (SPEC.md
-  SFF-893). A structure fault makes the Parquet file `invalid` with the reason `bad_schema`.
+  string. A reader checks the structure (SPEC.md SFF-893, [ADR-YBT1](../../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)). A structure fault makes the Parquet file `invalid` with the reason `bad_schema`.
 - **Writer rules.** Each rule that is not a structure rule is a writer rule, at each place of this
   part. The column "Rule", the lists "Writer rules" and the sentences "Writer rule" are examples. A
   rule in the text of a type, for example "`weight` (float; more than 0)", is also a writer rule.
-  The writer rules are the cross-reference rules, the value ranges and the enum values. A writer must obey each writer rule. The reader of
-  this package does not check the writer rules in version 2.0.
+  The writer rules are the cross-reference rules, the value ranges and the enum values. A writer must obey each writer rule. A reader
+  does not check the writer rules in version 2.0 ([ADR-YBT1](../../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
 
 A later minor version can add an optional deep check. The deep check reports a fault of a writer rule
 as a warning. It never refuses the file for such a fault. This specification gives no other rule for

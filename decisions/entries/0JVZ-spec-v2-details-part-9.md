@@ -1,12 +1,6 @@
 # 0JVZ — Spec draft v2 details, part 9: prerelease number, result scopes, golden layout
 
-**Status:** absorbed into [`spec/SPEC.md#3-versioning`](../../spec/SPEC.md#3-versioning),
-[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
-[`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
-[`spec/SPEC.md#layout-and-cases`](../../spec/SPEC.md#layout-and-cases),
-[`spec/conformance.md#how-to-read-a-test`](../../spec/conformance.md#how-to-read-a-test),
-[`spec/conformance.md#clocks-the-fit-and-reader-timing-section-11`](../../spec/conformance.md#clocks-the-fit-and-reader-timing-section-11),
-2026-11-16 (commit to main; was accepted, 2026-11-16).
+**Status:** superseded by [YBT1](YBT1-spec-only-test-adapter-and-labels.md), 2026-11-17 (commit to main; was absorbed, 2026-11-16 (commit to main; was accepted, 2026-11-16)).
 
 ## Decision
 

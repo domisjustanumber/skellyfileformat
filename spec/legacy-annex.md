@@ -125,6 +125,7 @@ These are rules of the programs, not of the format
   and the current code write.
 - skellycam plays old H.264 recordings through a legacy `<video>` path. It also gives an explicit
   "upgrade recording" conversion, for the other old files and on request.
-- skellycam owns the converter. The converter uses `skellyfileformat[write]`.
+- skellycam owns the converter. The converter uses the writer of skellycam
+  ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 1).
 - The legacy playback of skellycam does not correct the early audio (9 to 74 ms) of old skellycam
   recordings. It shows a note: the audio of recordings of that era can lead by up to about 74 ms.

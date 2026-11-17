@@ -1,19 +1,6 @@
 # QH61 — Spec draft v2 details, part 15: tests that run at gate 2, tests with no Pass text
 
-**Status:** absorbed into
-[`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
-[`spec/SPEC.md#layout-and-cases`](../../spec/SPEC.md#layout-and-cases),
-[`spec/conformance.md#how-to-read-a-test`](../../spec/conformance.md#how-to-read-a-test),
-[`spec/conformance.md#conventions-and-versioning-sections-2-and-3`](../../spec/conformance.md#conventions-and-versioning-sections-2-and-3),
-[`spec/conformance.md#the-take-folder-and-the-manifest-sections-4-and-5`](../../spec/conformance.md#the-take-folder-and-the-manifest-sections-4-and-5),
-[`spec/conformance.md#camera-files-section-6`](../../spec/conformance.md#camera-files-section-6),
-[`spec/conformance.md#writing-crashed-files-and-repair-section-12`](../../spec/conformance.md#writing-crashed-files-and-repair-section-12),
-[`spec/conformance.md#capture-info-processing-info-and-calibration-sections-13-to-15`](../../spec/conformance.md#capture-info-processing-info-and-calibration-sections-13-to-15),
-[`spec/conformance.md#blender-outputs-annotated-videos-exports-and-logs-section-18`](../../spec/conformance.md#blender-outputs-annotated-videos-exports-and-logs-section-18),
-[`spec/conformance.md#tracking-parquet-section-16`](../../spec/conformance.md#tracking-parquet-section-16),
-[`spec/conformance.md#realtime-journal-section-17`](../../spec/conformance.md#realtime-journal-section-17),
-[`spec/conformance.md#the-reader-result-section-23`](../../spec/conformance.md#the-reader-result-section-23),
-2026-11-16 (commit to main; was accepted, 2026-11-16).
+**Status:** superseded by [YBT1](YBT1-spec-only-test-adapter-and-labels.md), 2026-11-17 (commit to main; was absorbed, 2026-11-16 (commit to main; was accepted, 2026-11-16)).
 
 ## Decision
 

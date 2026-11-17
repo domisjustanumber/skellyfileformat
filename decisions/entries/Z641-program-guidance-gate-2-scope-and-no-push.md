@@ -1,11 +1,7 @@
 # Z641 — Guidance for programs in the spec, the scope of a gate 2 approval, and no push before gate 2
 
-**Status:** absorbed into
-[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
-[`spec/SPEC.md#17-realtime-journal`](../../spec/SPEC.md#17-realtime-journal),
-[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
-2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q161, Q163 and Q164 of
-round 9, Q166 and Q167 of round 10, and Q182 of round 13; "agree to all")).
+**Status:** superseded by [YBT1](YBT1-spec-only-test-adapter-and-labels.md), 2026-11-17 (commit to main; was absorbed, 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q161, Q163 and Q164 of
+round 9, Q166 and Q167 of round 10, and Q182 of round 13; "agree to all"))).
 
 ## Decision
 
