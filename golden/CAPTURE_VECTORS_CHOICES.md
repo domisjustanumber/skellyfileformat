@@ -15,10 +15,10 @@ audio `records` of G05 and G06. Each of these items gives its decision.
 [ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md)
 item 2 decided item 46 on 2026-11-17, and
 [ADR-3GWN](../decisions/entries/3GWN-jitter-in-the-g5-audio-rows-after-the-cut.md) decided the
-jitter of item 47. The audio members `held_samples` and `complete_blocks` of
-item 29 are a proposed choice
-([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 3), and so are
-the values of the jitter of item 47 (ADR-SM53 item 4). No other item is open.
+jitter of item 47. The user accepted the audio members `held_samples` and `complete_blocks` of
+item 29 as a convention of the golden folders
+([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 3), and the
+values of the jitter of item 47 (ADR-SM53 item 4), on 2026-11-17. No item is open.
 
 This file is for the six golden folders that `tools/goldgen/capture_cases.py` makes: G02, G04, G05,
 G06, G11 and G12. Most choices apply to more than one folder, so the folders have one file.
@@ -202,7 +202,7 @@ the desk tests DT-R1 and DT5.
 47. **The jitter of the audio rows after the cut.** Decision
     ([ADR-3GWN](../decisions/entries/3GWN-jitter-in-the-g5-audio-rows-after-the-cut.md)): the rows
     whose block is not in `records` get a jitter of `adc_ns`, so that a fit from only the rows in
-    `records` gives other `fitted_ns` than the fit of item 46. Choice (ADR-SM53 item 4, proposed):
+    `records` gives other `fitted_ns` than the fit of item 46. Choice (ADR-SM53 item 4, accepted):
     −25,000 ns in row 19 and +40,000 ns in row 20. These rows are after the cut in both cases. The
     `period_fs` of `reader_fit` is 20833773125. A fit from only the rows in `records` has
     20833356458, and its `fitted_ns` are up to 36,001 ns early in `audio_clean_kill` and up to

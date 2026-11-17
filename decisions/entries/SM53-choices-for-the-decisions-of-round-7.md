@@ -1,15 +1,18 @@
 # SM53 — Choices for the decisions of round 7: the truth and the audio jitter of G5
 
-**Status:** proposed, 2026-11-17 (agent; the details that the generator and the spec needed to apply
-[ADR-783H](783H-text-corrections-of-the-second-golden-review.md),
+**Status:** absorbed into
+[`golden/CAPTURE_VECTORS_CHOICES.md#5-g05`](../../golden/CAPTURE_VECTORS_CHOICES.md#5-g05),
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q159 and Q160 of round 9,
+"agree to all"); was proposed, 2026-11-17 (agent; the details that the generator and the spec
+needed to apply [ADR-783H](783H-text-corrections-of-the-second-golden-review.md),
 [ADR-7JJJ](7JJJ-audio-repair-refused-header-values-and-the-rules-of-w5ak.md) and
-[ADR-3GWN](3GWN-jitter-in-the-g5-audio-rows-after-the-cut.md)).
+[ADR-3GWN](3GWN-jitter-in-the-g5-audio-rows-after-the-cut.md))).
 
 ## Decision
 
-The user did not decide these choices. An agent made them to apply the decisions of round 7 and
-ADR-3GWN. The user must accept or change them. Items 1 and 2 of this entry were accepted on
-2026-11-17 and moved to
+An agent made these choices to apply the decisions of round 7 and ADR-3GWN. The user accepted
+item 3 as a convention of the golden folders (Q159) and the values of item 4 (Q160) on 2026-11-17.
+Items 1 and 2 of this entry were accepted on 2026-11-17 and moved to
 [ADR-64ER](64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md) items 1 and 2.
 
 3. **The truth file of G5 (golden/README.md).** The audio entry of `<case>.truth.json` also holds

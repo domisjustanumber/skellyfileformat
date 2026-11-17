@@ -1,8 +1,16 @@
 # G9ER — Consolidation of the pushed entries whose rules changed
 
-**Status:** accepted, 2026-11-17 (user; questions Q129 and Q155: one consolidation entry
-supersedes the changed entries and changes no rule; an agent wrote the restatements; commit to
-main).
+**Status:** absorbed into
+[`README.md#scope-normative`](../../README.md#scope-normative),
+[`README.md#compatibility-promise-normative`](../../README.md#compatibility-promise-normative),
+[`README.md#versioning-normative`](../../README.md#versioning-normative),
+[`README.md#package`](../../README.md#package),
+[`AGENTS.md#1-purpose`](../../AGENTS.md#1-purpose),
+[`spec/SPEC.md#skellyfileformat-specification`](../../spec/SPEC.md#skellyfileformat-specification),
+[`spec/parts/parquet-descriptor.md#sensorgroup-closed`](../../spec/parts/parquet-descriptor.md#sensorgroup-closed),
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q129 and Q155: one
+consolidation entry supersedes the changed entries and changes no rule; an agent wrote the
+restatements; commit to main)).
 
 ## Decision
 
@@ -28,8 +36,8 @@ items means its rule here.
 - [§5](../../spec/SPEC.md#5-the-recording-manifest): 3D33 1, 10; 5XNA 2, 6, 7, 8; N6HS 2.
 - [§6](../../spec/SPEC.md#6-camera-files): VPD9 10.
 - [§7](../../spec/SPEC.md#7-csv-timing-sidecars-common-rules): 5XNA 5; G1YG 6; VPD9 5.
-- [§8](../../spec/SPEC.md#8-video-timing-sidecar): N6HS 2; VPD9 4, 5, 6 and the two keys
-  (preamble).
+- [§8](../../spec/SPEC.md#8-video-timing-sidecar): N6HS 2; VPD9 4, 5, 6 (the flag `encode_skip`
+  replaces the log message as guidance for programs, ADR-Z641 item 1) and the two keys (preamble).
 - [§9](../../spec/SPEC.md#9-audio-file): 92TM 1, 2, 3, 4, 6, 10; VPD9 11.
 - [§10](../../spec/SPEC.md#10-audio-timing-sidecar): 92TM 5, 6, 11; N6HS 2; VPD9 7.
 - [§11](../../spec/SPEC.md#11-clocks-the-fit-and-reader-timing): 92TM 5, 7, 8; N6HS 2; VPD9 8, 9.
@@ -41,8 +49,8 @@ items means its rule here.
 - [§15](../../spec/SPEC.md#15-calibration-toml): 3D33 4; N6HS 2 to 7.
 - [§16](../../spec/SPEC.md#16-tracking-parquet): 3D33 5; N6HS 9; P76Y 1 to 8; VPD9 1.
 - [Descriptor `SensorGroup`](../../spec/parts/parquet-descriptor.md#sensorgroup-closed): 3D33 5.
-- [§17](../../spec/SPEC.md#17-realtime-journal): G1YG 6; Q9X2 1, 2 (its file rules), 3 to 6, 8;
-  VPD9 13.
+- [§17](../../spec/SPEC.md#17-realtime-journal): G1YG 6; Q9X2 1 to 8 (items 2 and 7 as guidance
+  for programs, [ADR-Z641](Z641-program-guidance-gate-2-scope-and-no-push.md) item 1); VPD9 13.
 - [§18.1](../../spec/SPEC.md#181-blender): 3D33 6. [§18.2](../../spec/SPEC.md#182-annotated-videos):
   3D33 7. [§18.3](../../spec/SPEC.md#183-exports): 3D33 8; P76Y 9.
   [§18.4](../../spec/SPEC.md#184-logs): 3D33 9.
@@ -78,15 +86,6 @@ items means its rule here.
 - VPD9 item 4: four forms of the identity string. Item 6: bit 3 `repeat`, and bit 1 `filled` is
   provisional. Item 12: the repair line has `media_cut_bytes`. The lock covers only whole-file
   writes, and skellycam also holds it.
-
-**Kept rules that no heading states.**
-
-- VPD9 item 6: the flag `encode_skip` replaces the encoder-skip log message.
-- Q9X2 item 2, a rule of freemocap, not of the format ([ADR-DM9S](DM9S-spec-v2-details-part-7.md)
-  item 17e): the journal writer is a node of its own in the freemocap realtime pipeline: a
-  subscriber with its own queue, so that the aggregator and the cameras never wait for the disk.
-- Q9X2 item 7: the journal is the binary file of freemocap. The rule that skellycam writes only
-  standard media and human-readable sidecars does not apply to it.
 
 ## Reason
 

@@ -1120,6 +1120,9 @@ number is equal to the source frame number of the row before. A writer writes 0 
 ([ADR-W6HV](../decisions/entries/W6HV-spec-v2-details-part-3.md),
 [ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)).
 
+Guidance for programs: in skellycam, the flag `encode_skip` replaces the log message of an encoder
+skip ([ADR-Z641](../decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 1).
+
 **SFF-757** (writer) (provisional: live byte offsets, desk test DT5) `byte_offset` and
 `byte_size` give the JPEG payload of the block of the frame in the camera file. They are correct while
 the file is live, and they do not change when the file is closed.
@@ -1924,6 +1927,12 @@ freemocap writes the realtime tracking results of a take to `<rec>_realtime_jour
 take runs, and folds it into a Parquet run at the end
 ([ADR-Q9X2](../decisions/entries/Q9X2-realtime-tracking-journal.md)). The journal is a binary file of
 framed records. Each multi-byte integer and float in it is little-endian.
+
+Guidance for programs: the journal writer is a node of its own in the freemocap realtime pipeline:
+a subscriber with its own queue, so that the aggregator and the cameras never wait for the disk. The
+journal is the binary file of freemocap. The rule that skellycam writes only standard media and
+human-readable sidecars does not apply to it
+([ADR-Z641](../decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 1).
 
 | Bytes | Field |
 |---|---|

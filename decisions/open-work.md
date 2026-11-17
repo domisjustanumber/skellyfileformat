@@ -18,7 +18,10 @@ task. Delete an item when its work is done. The PR that closes an item records t
   and G16). [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 22 gives the layout and the
   cases, with two expected results for each case (the scopes `full` and `player`).
   [ADR-QH61](entries/QH61-spec-v2-details-part-15.md) item 46 gives the tests that this repository
-  runs.
+  runs. Do not push skellyfileformat before the user approves gate 2. Then each correction from the
+  review can change the entries in place
+  ([ADR-Z641](entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 3).
+  [AGENTS.md](../AGENTS.md#4-project-rules) gives the scope of the approval.
 - **Complete section 18.3** ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 23).
   Exports are not in gate 2, and section 18.3 is provisional
   ([ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 12). G3 holds no export,
@@ -33,18 +36,6 @@ task. Delete an item when its work is done. The PR that closes an item records t
   of the three version members in the export inventory and in the BVH metadata JSON (the spec lists
   them first). [ADR-G9ER](entries/G9ER-consolidation-of-the-pushed-entries.md) holds the version
   rules of ADR-9DV4 and ADR-VPD9 now.
-- **Proposed choices and wording.** The user must accept or change the choices of
-  [ADR-SM53](entries/SM53-choices-for-the-decisions-of-round-7.md) (proposed): the new members of
-  the G5 truth files and the values of the G5 audio jitter. The user must also accept or change the
-  text corrections 1, 3, 4 and 5 of
-  [ADR-0HS2](entries/0HS2-wording-of-the-audio-repair-and-the-audio-records.md) (proposed). The
-  user accepted item 2 on 2026-11-17. It is in
-  [ADR-FB8P](entries/FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)
-  item 4 now.
-- **An entry that stays Active after the absorb pass of 2026-11-17.**
-  [ADR-G9ER](entries/G9ER-consolidation-of-the-pushed-entries.md) restates as text three rules that
-  fit no absorb document: ADR-VPD9 item 6 (the flag replaces the encoder-skip log message) and
-  ADR-Q9X2 items 2 and 7.
 - **Provisional parts of spec draft v2.** Close each of them before v2.0.0:
   - SFF-752 (Q107, [ADR-2MQE](entries/2MQE-tests-prerelease-serial-and-exports.md) item 11): the
     source and the text form of `port_path` and `os_device_id` on each OS are not
@@ -158,4 +149,5 @@ task. Delete an item when its work is done. The PR that closes an item records t
   ([ADR-1P4N](entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md)).
 - **Side note (no decision): stale input signatures.** The posthoc code of freemocap puts a
   signature of the times into the input signatures of each stage. If the fold copies that, a repair
-  that rewrites the times of a realtime run leaves those signatures stale. No rule covers it.
+  that rewrites the times of a realtime run leaves those signatures stale. No rule covers it. It is
+  not in gate 2. It is decided when the freemocap fold is ported (Q162, 2026-11-17).

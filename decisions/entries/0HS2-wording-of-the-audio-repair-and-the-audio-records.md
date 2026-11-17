@@ -1,14 +1,21 @@
 # 0HS2 — Wording of the audio repair and the audio records
 
-**Status:** proposed, 2026-11-17 (agent; text corrections from an independent review of the spec
-after round 8). Item 2 was accepted, 2026-11-17 (user; "accept 0HS2 item 2"), and moved to
+**Status:** absorbed into
+[`spec/SPEC.md#5-the-recording-manifest`](../../spec/SPEC.md#5-the-recording-manifest),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/conformance.md#writing-crashed-files-and-repair-section-12`](../../spec/conformance.md#writing-crashed-files-and-repair-section-12),
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; question Q158 of round 9, "agree to
+all": items 1, 3, 4 and 5); was proposed, 2026-11-17 (agent; text corrections from an independent
+review of the spec after round 8)). Item 2 was accepted, 2026-11-17 (user; "accept 0HS2 item 2"),
+and moved to
 [ADR-FB8P](FB8P-refused-pairs-rotation-member-invalid-files-audio-records-legacy-subfolders.md)
 item 4.
 
 ## Decision
 
-The user did not decide items 1, 3, 4 and 5. An agent applied them. No rule changes, and no golden
-byte changes. The user must accept or change each of them. Item 2 is in ADR-FB8P item 4 now.
+An agent wrote items 1, 3, 4 and 5. The user accepted them on 2026-11-17 (Q158). No rule changes,
+and no golden byte changes. Item 2 is in ADR-FB8P item 4 now.
 
 1. **The audio that a repair keeps (SFF-728, SFF-795, SFF-796).** "Count only the audio that the
    repair keeps" had two readings: the 47,688 samples that the cut audio file holds, or the

@@ -77,6 +77,11 @@ Fix the failures of one root cause in one PR.
   4. Stop. The user reviews them (gate 2).
   5. Write the implementation. It is complete when its tests pass.
 - Do not write implementation code for a part before the user approves gate 2 for that part.
+- The gate 2 approval of spec draft v2 covers each conformance test and the golden folders G1 to
+  G16. It does not cover the exports (SPEC.md section 18.3), the skellysync folders and G17, or the
+  provisional points that wait for a desk test or a hardware test. For these, write only the
+  provisional behaviour that the spec gives now
+  ([ADR-Z641](decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 2).
 - A bug fix needs a test that fails before the fix.
 - Each requirement in `spec/SPEC.md` has an ID `SFF-NNN`. Each test in `spec/conformance.md` has
   an ID `SFT-NNN` and cites the SFF IDs that it checks.
