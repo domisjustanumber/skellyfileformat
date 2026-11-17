@@ -1,7 +1,9 @@
 # skellyfileformat specification
 
-Status: **draft v2 (the whole take folder), for review at gate 1**
-([AGENTS.md section 4](../AGENTS.md#4-project-rules)). No format version is released yet. Draft v1
+Status: **draft v2 (the whole take folder)**. Gate 1 closed on 2026-11-16. The user approved
+gate 2 for stage 1 on 2026-11-17
+([ADR-N1AM](../decisions/entries/N1AM-gate-2-approval-of-stage-1.md),
+[AGENTS.md section 4](../AGENTS.md#4-project-rules)). No format version is released yet. Draft v1
 (the MCAP profile) was withdrawn before gate 1, because the freemocap Blender addon needs real video
 files ([ADR-6RSB](../decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md)). Draft v0 (MKV
 with binary sidecars) was withdrawn earlier. Their IDs stay in section 0, marked withdrawn. A

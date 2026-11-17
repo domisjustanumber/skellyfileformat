@@ -109,6 +109,11 @@ Fix the failures of one root cause in one PR.
     Blender addon as golden files. It also keeps the spec text correct.
 - The user approves gate 2 for each stage. The review of a stage covers only the tests and the
   golden folders of that stage. The user reviews a later stage just before it starts.
+- The user approved gate 2 for stage 1
+  ([ADR-N1AM](decisions/entries/N1AM-gate-2-approval-of-stage-1.md)). The implementation of
+  stage 1a can start. Stage 1b waits for the skellysync decisions. The user has not approved gate 2
+  for stages 2, 3 and 4. Before you write the code of stage 1a, the user must review the two tests
+  of the package in [open-work.md](decisions/open-work.md).
 - The section [The stage of each test](spec/conformance.md#the-stage-of-each-test) gives the stage
   of each test and each golden folder.
 - The approval does not cover the provisional points that wait for a desk test or a hardware test.

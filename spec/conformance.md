@@ -1,8 +1,9 @@
 # skellyfileformat conformance tests
 
-Status: **draft v2 (the whole take folder), for review at gate 1**, together with
-[SPEC.md](SPEC.md). Gate 2 turns each test into a runnable test and makes the golden folders (SPEC.md
-Appendix A). The tests of draft v0 and draft v1 stay in this file, marked withdrawn.
+Status: **draft v2 (the whole take folder)**, together with [SPEC.md](SPEC.md). Gate 1 closed on
+2026-11-16. The user approved gate 2 for stage 1 on 2026-11-17
+([ADR-N1AM](../decisions/entries/N1AM-gate-2-approval-of-stage-1.md)). Gate 2 turns each test
+into a runnable test and makes the golden folders (SPEC.md Appendix A). The tests of draft v0 and draft v1 stay in this file, marked withdrawn.
 
 This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)).
 

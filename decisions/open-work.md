@@ -3,34 +3,18 @@
 This file holds the open work of the [decision log](README.md). Read the items that apply to your
 task. Delete an item when its work is done. The PR that closes an item records the result.
 
-- **Gate 2: runnable tests and golden folders.** The user accepted the items of
-  [ADR-VPD9](entries/VPD9-spec-draft-v2-details.md) and
-  [ADR-3D33](entries/3D33-spec-draft-v2-details-folder-files.md) at gate 1 on 2026-11-16. Write the
-  runnable tests of [conformance.md](../spec/conformance.md) and the golden folders G1 to G16 of
-  SPEC.md Appendix A, and stop for gate 2. G17 waits for the skellysync decisions.
-  [ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) gives the place of the tests, the
-  names that they call and the rules of the golden files. The user reviewed G1 ([ADR-94YQ](entries/94YQ-golden-g1-review-decisions.md)): the
-  other folders copy its conventions. Also do the repository changes of its item 9:
-  `.gitattributes`, the golden generator in `tools/`, and the `golden/` and `tests/` rows and the
-  command of the failing run in `AGENTS.md`. The golden folders also get the vectors that
-  [ADR-W6HV](entries/W6HV-spec-v2-details-part-3.md) to
-  [ADR-72QQ](entries/72QQ-spec-v2-details-part-8.md) add to Appendix A (G8, G9, G11, G12, G13, G15
-  and G16). [ADR-0JVZ](entries/0JVZ-spec-v2-details-part-9.md) item 22 gives the layout and the
-  cases, with two expected results for each case (the scopes `full` and `player`).
-  [ADR-QH61](entries/QH61-spec-v2-details-part-15.md) item 46 gives the tests that this repository
-  runs. Do not push skellyfileformat before the user approves gate 2 for stage 1. Until then, each
-  correction from the review can change the entries in place. The approval of stage 1 ends this
-  agreement. Ask the user before the first push. From that push on, an entry cannot be corrected in
-  place ([ADR-Z641](entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 3).
-  The user approves gate 2 for each stage
-  ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md)). The review now is the review of
-  stage 1: the tests, the test parts and the golden results of stage 1a in
-  [conformance.md](../spec/conformance.md#the-stage-of-each-test). It includes the cases on
-  copies of G1 that
-  [ADR-YT1F](entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md) item 3 adds.
-  SFT-760 and G17 of stage 1b wait for the skellysync decisions.
-  [AGENTS.md](../AGENTS.md#4-project-rules) gives the stages and the scope of the approval.
-- **Two tests of the package in the staged build (for the start of stage 1).** These tests check
+- **Stage 1a: the next work.** The user approved gate 2 for stage 1 on 2026-11-17
+  ([ADR-N1AM](entries/N1AM-gate-2-approval-of-stage-1.md)). Do the work in this order:
+  1. Get the review of the user for the two tests of the package (the next item). Then write them.
+  2. Write the Python reader of stage 1a. Then write the Python writer, then the JavaScript reader
+     ([ADR-Z641](entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 4).
+
+  Stage 1b (SFT-760 and G17) waits for the skellysync decisions. The user has not approved gate 2
+  for stages 2, 3 and 4. The approval of stage 1 ends the agreement of no push
+  ([ADR-Z641](entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 3). The user
+  approved the first push on 2026-11-17 (question Q193). From that push on, an entry cannot be
+  corrected in place. [AGENTS.md](../AGENTS.md#4-project-rules) gives the stages and the scope of the approval.
+- **Two tests of the package in the staged build (before the code of stage 1a).** These tests check
   the package while it is built in stages. They are not rules of the format. The user must review
   them as additions to the tests before they are written: the Python reader of stage 1, with the
   scope `full`, gives the "not in this version" error on a folder that holds a calibration TOML, a
