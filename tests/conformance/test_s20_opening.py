@@ -35,14 +35,21 @@ def _third_sidecar(folder: Path, name: str, with_media: bool) -> Path:
 UNREADABLE_UUID = {"no_take_uuid_key": "missing_metadata", "take_uuid_wrong_form": "bad_metadata"}
 
 
-@pytest.mark.parametrize("case", ["sidecar_of_the_take", "sidecar_of_another_take", *UNREADABLE_UUID])
-def test_sft_761_device_pairs_and_orphan_files(reader, variant, case):
+def _on_g3_and_g1(cases: list[str], g3_only: tuple[str, ...] = ()) -> list:
+    """Each case on a copy of G3 (ID `<case>`), and each case on a copy of G1 (ID `g1_<case>`, stage 1a; ADR-YT1F item 3)."""
+    return [pytest.param("G03", case, id=case) for case in cases] + [
+        pytest.param("G01", case, id=f"g1_{case}") for case in cases if case not in g3_only
+    ]
+
+
+@pytest.mark.parametrize(("base", "case"), _on_g3_and_g1(["sidecar_of_the_take", "sidecar_of_another_take", *UNREADABLE_UUID]))
+def test_sft_761_device_pairs_and_orphan_files(reader, variant, base, case):
     """SFT-761 Reader: device pairs and orphan files. Checks: SFF-864, SFF-865.
 
     The two sidecars whose `take_uuid` the reader cannot read follow ADR-E68K
     item 5: `invalid` in `other_files` with the reason of SFF-748, and `orphan_file`.
     """
-    folder = variant("G03")
+    folder = variant(base)
     rec = checks.manifest(folder)["recording_name"]
     if case == "sidecar_of_the_take":
         shutil.copy(_pair(folder, 0)[0], folder / MEDIA / "extra.mkv")  # an extra `.mkv` with no sidecar
@@ -64,10 +71,10 @@ def test_sft_761_device_pairs_and_orphan_files(reader, variant, case):
     assert result["folder_warnings"].count("orphan_file") == 1
 
 
-@pytest.mark.parametrize("case", ["third_camera_pair_refused", "audio_pair_refused"])
-def test_sft_762_refused_pairs_count(reader, variant, case):
+@pytest.mark.parametrize(("base", "case"), _on_g3_and_g1(["third_camera_pair_refused", "audio_pair_refused"]))
+def test_sft_762_refused_pairs_count(reader, variant, base, case):
     """SFT-762, a refused pair counts as a file of the take (ADR-783H item 7). Checks: SFF-869."""
-    folder = variant("G03")
+    folder = variant(base)
     rec = checks.manifest(folder)["recording_name"]
     if case == "third_camera_pair_refused":
         checks.set_header(_third_sidecar(folder, f"{rec}.{OTHER_LABEL}", with_media=True), "display_rotation", "45")
@@ -84,16 +91,22 @@ def test_sft_762_refused_pairs_count(reader, variant, case):
         assert take["state"] == "complete" and "incomplete_take" not in take["warnings"]
 
 
-@pytest.mark.parametrize("case", ["g9", "two_takes", "camera_missing", "third_camera_pair", "one_label", "clock_disagrees", "group_size_disagrees"])
-def test_sft_762_takes_and_counts(reader, variant, golden_or_skip, case):
-    """SFT-762 Reader: takes and counts. Checks: SFF-866, SFF-869, SFF-870, SFF-871."""
+VECTORS_762 = ["g9", "two_takes", "camera_missing", "third_camera_pair", "one_label", "clock_disagrees", "group_size_disagrees"]
+
+
+@pytest.mark.parametrize(("base", "case"), _on_g3_and_g1(VECTORS_762, g3_only=("g9",)))
+def test_sft_762_takes_and_counts(reader, variant, golden_or_skip, base, case):
+    """SFT-762 Reader: takes and counts. Checks: SFF-866, SFF-869, SFF-870, SFF-871.
+
+    The case `g9` reads the golden cases of G9 and has no copy of G1.
+    """
     if case == "g9":  # each take is reported
         for name in checks.G09_CHECKS:
             folder = golden_or_skip("G09", name)
             uuids = {checks.header(sidecar)["take_uuid"] for sidecar in (folder / MEDIA).glob("*.csv")}
             assert {take["take_uuid"] for take in checks.read(reader, folder)["takes"]} == uuids, name
         return
-    folder = variant("G03")
+    folder = variant(base)
     rec = checks.manifest(folder)["recording_name"]
     if case == "two_takes":
         for media in sorted((folder / MEDIA).glob(f"{rec}.*")):

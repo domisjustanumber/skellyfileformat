@@ -477,19 +477,26 @@ def channel_key(channel: dict) -> tuple:
 
 
 def processing_info_faults(folder: Path) -> list[str]:
-    """The golden part of SFT-737: the processing info JSON of a take against its Parquet."""
+    """The golden part of SFT-737 in stage 1a: the processing info JSON of a take alone. It reads no Parquet."""
     info = load_json(one(folder, "*_recording_info.json"))
-    parquet = one(folder, "*_data.parquet")
     faults = []
     if list(info) != [*INFO_MEMBERS, "processed"] or info["skellyfileformat"] != "processing_info":
         faults.append(f"the members are {list(info)}")
     processed = info["processed"]
     if list(processed) != PROCESSED_MEMBERS:
         faults.append(f"the members of processed are {list(processed)}")
-    if processed["parquet_sha256"] != sha256(parquet):
-        faults.append("parquet_sha256 is not the SHA-256 of the Parquet")
     if str(processed["selected_run_id"]) not in processed["runs"]:
         faults.append("selected_run_id is not a key of runs")
+    return faults
+
+
+def processing_info_parquet_faults(folder: Path) -> list[str]:
+    """The golden part of SFT-737 in stage 2: the processing info JSON of a take against its Parquet."""
+    processed = load_json(one(folder, "*_recording_info.json"))["processed"]
+    parquet = one(folder, "*_data.parquet")
+    faults = []
+    if processed["parquet_sha256"] != sha256(parquet):
+        faults.append("parquet_sha256 is not the SHA-256 of the Parquet")
     runs = descriptor(parquet)["runs"]
     for run_id, run in processed["runs"].items():
         kinds = {channel_key(c) for c in runs[run_id]["channels"] if c["kind"] in INFO_DATA_KINDS}

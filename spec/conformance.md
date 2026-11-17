@@ -77,6 +77,29 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 - In stage 1, the reader with the scope `full` stops with an error on a folder that holds a
   calibration TOML, a Parquet or a journal. Thus each test that needs the scope `full` on such a
   folder is in stage 2. G3 and each copy of G3 are such folders.
+- A check on golden files that runs no reader has the stage of the kind of file that it inspects
+  ([ADR-YT1F](../decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
+  item 4). The files of the media folder, the manifest, the capture info JSON, the processing info
+  JSON and the committed results are of stage 1a. A calibration TOML of this format (SPEC.md section
+  15), a Parquet and a journal are of stage 2. A check of the name of a file inspects that file. A
+  check that inspects files of two stages has the later stage. Thus `golden_part` of SFT-737 checks
+  the processing info JSON alone and is in stage 1a, and `golden_part_against_the_parquet` compares
+  that file with the Parquet and is in stage 2.
+- SFT-707, SFT-709, SFT-736, SFT-744, SFT-761 and SFT-762 also run each of their inputs on a copy of
+  G1, in stage 1a
+  ([ADR-YT1F](../decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
+  item 3). Their Input lines name G3. A case on a copy of G1 has a parameter ID that starts with
+  `g1`. The cases on a copy of G3 stay in stage 2. The case `g9` of SFT-762 reads G9 and has no copy
+  of G1.
+- SFT-711 is in stage 1a. Its external sentence (Blender, at the pinned version, counts the same
+  number of frames in the camera file) is a check that a person runs by hand one time in stage 1a.
+  It checks that Blender opens the video. It does not check the Blender addon
+  ([ADR-YT1F](../decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
+  item 1).
+- The cases of the converter are in stage 1a: `names_and_layout[camera_key_0]` of SFT-705 and
+  `video_sidecar[converter]` of SFT-717. The use of the converter by skellysync is in stage 1b
+  ([ADR-YT1F](../decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
+  item 2).
 - `tests/conformance/conftest.py` gives each runnable test the mark `stage1a`, `stage1b`, `stage2`,
   `stage3` or `stage4` from these tables. `tools/tests/test_conformance_stages.py` checks that the
   two agree, and that each part matches a collected case. The two test functions of
@@ -89,13 +112,13 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 | SFT-700 | 2 | 1a: `text_integers_json_ids_crcs`, `check_on_golden[G01]` |
 | SFT-701 | 1a | |
 | SFT-702 | 1a | |
-| SFT-703 | 4 | 1a: `version_fields_and_rules[writer_output]`, `version_fields_and_rules[pair_version_is_of_its_sidecar]`, `version_fields_and_rules[unknown_major_*]`, `version_fields_and_rules[higher_minor:python_player]`, `version_fields_and_rules[higher_minor:js]`, `version_fields_and_rules[prerelease*]`, `check_on_golden[G01/*]`, `check_on_golden[G10/prerelease_0]`; 2: `version_fields_and_rules[higher_minor:python_full]`, `version_fields_and_rules[higher_minor_journal]`, `check_on_golden[G03/take]`, `check_on_golden[results]`, `descriptor_and_journal_header_on_golden` |
+| SFT-703 | 4 | 1a: `version_fields_and_rules[writer_output]`, `version_fields_and_rules[pair_version_is_of_its_sidecar]`, `version_fields_and_rules[unknown_major_*]`, `version_fields_and_rules[higher_minor:python_player]`, `version_fields_and_rules[higher_minor:js]`, `version_fields_and_rules[prerelease*]`, `check_on_golden[G01/*]`, `check_on_golden[G10/prerelease_0]`, `check_on_golden[results]`; 2: `version_fields_and_rules[higher_minor:python_full]`, `version_fields_and_rules[higher_minor_journal]`, `check_on_golden[G03/take]`, `descriptor_and_journal_header_on_golden` |
 | SFT-704 | 1a | |
 | SFT-705 | 2 | 1a: `names_and_layout` |
 | SFT-706 | 2 | 1a: `renamed_take_folder[player]` |
-| SFT-707 | 2 | |
-| SFT-708 | 2 | 1a: `manifest`, `check_on_golden[G01/*]` |
-| SFT-709 | 2 | |
+| SFT-707 | 2 | 1a: `only_root_and_media_folder[g1]` |
+| SFT-708 | 2 | 1a: `manifest`, `check_on_golden` |
+| SFT-709 | 2 | 1a: `summary_is_not_used[g1_*]` |
 | SFT-710 | 2 | 1a: `missing_or_wrong_manifest[audio_only]` |
 | SFT-711 | 1a | |
 | SFT-712 | 1a | |
@@ -122,15 +145,15 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 | SFT-733 | 2 | 1a: `repair`, `check_on_golden`, `camera_file_provisional` |
 | SFT-734 | 2 | `<golden case>` |
 | SFT-735 | 1a | |
-| SFT-736 | 2 | |
-| SFT-737 | 3 | 2: `golden_part` |
+| SFT-736 | 2 | 1a: `camera_configs_by_key[g1]`, `bad_key_origin[g1_*]` |
+| SFT-737 | 3 | 1a: `golden_part`; 2: `golden_part_against_the_parquet` |
 | SFT-738 | 2 | |
 | SFT-739 | 2 | |
 | SFT-740 | 2 | |
 | SFT-741 | 4 | |
 | SFT-742 | 3 | |
 | SFT-743 | 3 | |
-| SFT-744 | 2 | |
+| SFT-744 | 2 | 1a: `hidden_export_files[g1]` |
 | SFT-745 | 3 | |
 | SFT-746 | 2 | |
 | SFT-747 | 2 | |
@@ -147,8 +170,8 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 | SFT-758 | 2 | |
 | SFT-759 | 2 | |
 | SFT-760 | 1b | |
-| SFT-761 | 2 | |
-| SFT-762 | 2 | |
+| SFT-761 | 2 | 1a: `device_pairs_and_orphan_files[g1_*]` |
+| SFT-762 | 2 | 1a: `refused_pairs_count[g1_*]`, `takes_and_counts[g1_*]` |
 | SFT-763 | 2 | 1a: `link_checks_unfinished_files` |
 | SFT-764 | 1a | |
 | SFT-765 | 1a | |

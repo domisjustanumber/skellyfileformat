@@ -79,16 +79,20 @@ def test_sft_706_renamed_take_folder(reader, golden_or_skip, scope):
         assert parquet["state"] == "present"
 
 
-def test_sft_707_only_root_and_media_folder(reader, golden_or_skip, variant):
-    """SFT-707 Reader: only the root and the media folder are scanned. Checks: SFF-721."""
-    folder = variant("G03")
+@pytest.mark.parametrize("base", ["G03", "G01"], ids=["g3", "g1"])
+def test_sft_707_only_root_and_media_folder(reader, golden_or_skip, variant, base):
+    """SFT-707 Reader: only the root and the media folder are scanned. Checks: SFF-721.
+
+    The case `g1` is the same input on a copy of G1, for stage 1a (ADR-YT1F item 3).
+    """
+    folder = variant(base)
     video = c.media_files(folder, ".mkv")[0]
     (folder / "exports").mkdir()
     for path in (video, video.with_suffix(".csv")):
         (folder / "exports" / path.name).write_bytes(path.read_bytes())
     found = c.read_bytes(reader, folder)
     assert b'"exports/' not in found, "the copy is not in the result"
-    assert found == c.read_bytes(reader, golden_or_skip("G03"))
+    assert found == c.read_bytes(reader, golden_or_skip(base))
 
 
 def test_sft_708_manifest(writer, tmp_path):
@@ -147,10 +151,19 @@ def test_sft_708_external():
     """
 
 
-@pytest.mark.parametrize("vector", ["rotation_and_fps", "gaps", "sha256"])
-def test_sft_709_summary_is_not_used(reader, variant, expected, vector):
-    """SFT-709 Reader: the summary is not used. Checks: SFF-729, SFF-730."""
-    folder = variant("G03")
+VECTORS_709 = ["rotation_and_fps", "gaps", "sha256"]
+
+
+@pytest.mark.parametrize(
+    ("base", "vector"),
+    [pytest.param(base, vector, id=prefix + vector) for base, prefix in (("G03", ""), ("G01", "g1_")) for vector in VECTORS_709],
+)
+def test_sft_709_summary_is_not_used(reader, variant, expected, base, vector):
+    """SFT-709 Reader: the summary is not used. Checks: SFF-729, SFF-730.
+
+    The cases `g1_*` are the same inputs on a copy of G1, for stage 1a (ADR-YT1F item 3).
+    """
+    folder = variant(base)
     manifest = c.load_json(folder / c.MANIFEST)
     cameras = manifest["summary"]["cameras"]
     if vector == "rotation_and_fps":
@@ -162,7 +175,7 @@ def test_sft_709_summary_is_not_used(reader, variant, expected, vector):
         item["sha256"] = "0" * 64
     c.write_json(folder / c.MANIFEST, manifest)
     result = c.read(reader, folder, records=True)
-    want = json.loads(expected("G03", "take", "full"))
+    want = json.loads(expected(base, "take", "full"))
     if vector == "sha256":
         assert result == want, "the wrong `sha256` changes nothing in the result"
         return

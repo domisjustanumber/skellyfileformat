@@ -41,9 +41,13 @@ def test_sft_735_capture_info_json(writer, tmp_path):
     assert writes == [True, True], "skellycam holds `.processing.lock` for each of the two writes"
 
 
-def test_sft_736_camera_configs_by_key(reader, variant, expected):
-    """SFT-736 Reader: camera configs by key. Checks: SFF-803."""
-    folder = variant("G03")
+@pytest.mark.parametrize("base", ["G03", "G01"], ids=["g3", "g1"])
+def test_sft_736_camera_configs_by_key(reader, variant, expected, base):
+    """SFT-736 Reader: camera configs by key. Checks: SFF-803.
+
+    The case `g1` is the same input on a copy of G1, for stage 1a (ADR-YT1F item 3).
+    """
+    folder = variant(base)
     info_path = checks.capture_info(folder)
     info = checks.load_json(info_path)
     configs = dict(reversed(info["camera_configs"].items()))  # another order
@@ -53,18 +57,25 @@ def test_sft_736_camera_configs_by_key(reader, variant, expected):
     checks.write_json(info_path, info | {"camera_configs": configs})
     result = checks.read(reader, folder, records=True)
     assert checks.link(checks.the_take(result), "camera_key") == "ok"
-    # The result holds no value of a camera config, so the links by key give the result of G3.
-    assert checks.canonical(result) == expected("G03", "take", "full")
+    # The result holds no value of a camera config, so the links by key give the committed result.
+    assert checks.canonical(result) == expected(base, "take", "full")
 
 
-@pytest.mark.parametrize("key_origin", ["remembered", None], ids=["remembered", "null_with_a_key"])
-def test_sft_736_bad_key_origin(reader, variant, key_origin):
+@pytest.mark.parametrize(
+    ("base", "key_origin"),
+    [
+        pytest.param(base, key_origin, id=prefix + name)
+        for base, prefix in (("G03", ""), ("G01", "g1_"))
+        for key_origin, name in (("remembered", "remembered"), (None, "null_with_a_key"))
+    ],
+)
+def test_sft_736_bad_key_origin(reader, variant, base, key_origin):
     """SFT-736 Reader: a `key_origin` outside the three values, and null with a `camera_key` that is not 0.
 
     Checks: SFF-803. G3 with one camera config changed at test time (ADR-XR63 item 9; ADR-W5AK
-    item 7).
+    item 7). The cases `g1_*` are the same inputs on a copy of G1, for stage 1a (ADR-YT1F item 3).
     """
-    folder = variant("G03")
+    folder = variant(base)
     info_path = checks.capture_info(folder)
     info = checks.load_json(info_path)
     key, config = next(iter(info["camera_configs"].items()))
@@ -82,11 +93,20 @@ def test_sft_737_processing_info_json():
 
 
 def test_sft_737_golden_part(golden_or_skip):
-    """SFT-737, golden part: G3. Checks: SFF-804, SFF-805.
+    """SFT-737, golden part: the processing info JSON of G3 alone. Checks: SFF-804, SFF-805.
 
-    G3 holds no export, so the sentence about the file after an export has no golden part.
+    G3 holds no export, so the sentence about the file after an export has no golden part. This part
+    reads no Parquet, so it is in stage 1a (ADR-YT1F item 4).
     """
     assert checks.processing_info_faults(golden_or_skip("G03")) == []
+
+
+def test_sft_737_golden_part_against_the_parquet(golden_or_skip):
+    """SFT-737, golden part: the processing info JSON of G3 against its Parquet. Checks: SFF-804, SFF-805.
+
+    This part reads the Parquet, so it is in stage 2 (ADR-YT1F item 4).
+    """
+    assert checks.processing_info_parquet_faults(golden_or_skip("G03")) == []
 
 
 @pytest.mark.external("freemocap")

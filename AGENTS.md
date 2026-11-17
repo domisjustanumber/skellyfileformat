@@ -90,9 +90,14 @@ Fix the failures of one root cause in one PR.
     19 to 23, the reading of the processing info JSON (section 14) and the scope `player` for
     every folder.
   - Stage 1a: the recording and playback of skellycam. It starts after the gate 2 approval of
-    stage 1.
+    stage 1. It includes the skellycam converter: the writer in conversion mode, which changes an
+    old recording to this format
+    ([ADR-YT1F](decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)).
+    A person runs the Blender check of SFT-711 by hand one time in stage 1a: Blender, at the pinned
+    version, counts the same number of frames in the camera file.
   - Stage 1b: the skellysync folders (section 19, G17). It starts after the skellysync decisions
-    D-Q, D-FPS, D-HDR, D-DRIFT and D-AUDIO. Stage 1a does not wait for stage 1b.
+    D-Q, D-FPS, D-HDR, D-DRIFT and D-AUDIO. Stage 1a does not wait for stage 1b. The use of
+    conversion mode by skellysync is in stage 1b.
   - Stage 2, realtime capture: the calibration TOML (section 15), the Parquet (section 16), the
     journal (section 17) and each reader check that needs them. All Parquet reading is in stage 2,
     for realtime and posthoc runs. The package is complete at the end of stage 2.
@@ -119,6 +124,8 @@ Fix the failures of one root cause in one PR.
     folder that holds a calibration TOML, a Parquet or a journal. Do not add a state to the format
     for this. The error applies only to a calibration TOML of this format (section 15). An
     old-style calibration TOML in a legacy folder must not cause the error.
+  - The stage 1a reader needs a TOML parser. It reads the calibration TOML of a legacy folder (G15)
+    to tell the legacy eras apart.
   - Stage 1 lists the calibration TOML but does not read it. It reads only what the scope `player`
     and the format mark need.
   - Stage 1 reads and validates the processing info JSON.

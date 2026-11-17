@@ -24,9 +24,13 @@ def test_sft_743_exports():
     checks.not_run_here()
 
 
-def test_sft_744_hidden_export_files(reader, variant):
-    """SFT-744 Reader: hidden export files. Checks: SFF-860."""
-    folder = variant("G03")
+@pytest.mark.parametrize("base", ["G03", "G01"], ids=["g3", "g1"])
+def test_sft_744_hidden_export_files(reader, variant, base):
+    """SFT-744 Reader: hidden export files. Checks: SFF-860.
+
+    The case `g1` is the same input on a copy of G1, for stage 1a (ADR-YT1F item 3).
+    """
+    folder = variant(base)
     (folder / "exports" / ".staging-1").mkdir(parents=True)
     (folder / "exports" / ".staging-1" / "part.csv").write_bytes(b"frame_number\r\n")
     (folder / "exports" / ".publication.json").write_bytes(b"{}\n")

@@ -25,8 +25,10 @@ task. Delete an item when its work is done. The PR that closes an item records t
   The user approves gate 2 for each stage
   ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md)). The review now is the review of
   stage 1: the tests, the test parts and the golden results of stage 1a in
-  [conformance.md](../spec/conformance.md#the-stage-of-each-test). SFT-760 and G17 of stage 1b
-  wait for the skellysync decisions.
+  [conformance.md](../spec/conformance.md#the-stage-of-each-test). It includes the cases on
+  copies of G1 that
+  [ADR-YT1F](entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md) item 3 adds.
+  SFT-760 and G17 of stage 1b wait for the skellysync decisions.
   [AGENTS.md](../AGENTS.md#4-project-rules) gives the stages and the scope of the approval.
 - **Two tests of the package in the staged build (for the start of stage 1).** These tests check
   the package while it is built in stages. They are not rules of the format. The user must review
