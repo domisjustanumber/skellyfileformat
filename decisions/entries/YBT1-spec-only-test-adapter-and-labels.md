@@ -93,7 +93,7 @@ ADR-QH61 and ADR-CZQ9 in full, because items 1 to 4 change a rule of each.
 
 ## Consequences
 
-- The agent choices for the seam (the variables and the JavaScript adapter) are in [ADR-K4Y1](K4Y1-test-adapter-seam-choices.md). They wait for the user.
+- The agent choices for the seam (the variables and the JavaScript adapter) are in [ADR-K4Y1](K4Y1-test-adapter-seam-choices.md). The user accepted them on 2026-11-17.
 
 ## Evidence
 
