@@ -18,7 +18,6 @@ These entries are `accepted` or `evidence`.
 
 | # | Decision | Status |
 |---|----------|--------|
-| [YBT1](entries/YBT1-spec-only-test-adapter-and-labels.md) | A spec only: no package; one test adapter seam; the adapter interface; marks as labels; no staged-package tests; Python 3.13.18 | accepted |
 
 ### Proposed
 

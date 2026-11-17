@@ -1,7 +1,23 @@
 # YBT1 — A spec only: no package, a test adapter for each implementation, marks as labels, Python 3.13.18
 
-**Status:** accepted, 2026-11-17 (user; decisions D1 to D6 of a planning session of skellycam; an
-agent wrote the restatements).
+**Status:** absorbed into
+[`README.md#scope-normative`](../../README.md#scope-normative),
+[`README.md#compatibility-promise-normative`](../../README.md#compatibility-promise-normative),
+[`README.md#versioning-normative`](../../README.md#versioning-normative),
+[`README.md#implementations`](../../README.md#implementations),
+[`README.md#licenses`](../../README.md#licenses),
+[`AGENTS.md#1-purpose`](../../AGENTS.md#1-purpose),
+[`AGENTS.md#3-install-and-test`](../../AGENTS.md#3-install-and-test),
+[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
+[`AGENTS.md#6-git-rules`](../../AGENTS.md#6-git-rules),
+[`AGENTS.md#8-private-data`](../../AGENTS.md#8-private-data),
+[`spec/SPEC.md#skellyfileformat-specification`](../../spec/SPEC.md#skellyfileformat-specification),
+[`spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules`](../../spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules),
+[`spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative`](../../spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative),
+[`spec/conformance.md#skellyfileformat-conformance-tests`](../../spec/conformance.md#skellyfileformat-conformance-tests),
+[`golden/README.md#golden-folders`](../../golden/README.md#golden-folders),
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; decisions D1 to D6 of a planning
+session of skellycam; an agent wrote the restatements)).
 
 ## Decision
 
