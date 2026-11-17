@@ -146,15 +146,21 @@ PARTS = {
     "766": {"1a": ["golden_part", "writer_part", "may_contain_private_data[g1_audio_only]"]},
     "768": {
         "1a": [
-            "folders_that_the_test_makes[empty-*]", "folders_that_the_test_makes[one_timing_sidecar-*]",
+            "committed_results", "folders_that_the_test_makes[empty-*]", "folders_that_the_test_makes[one_timing_sidecar-*]",
             "folders_that_the_test_makes[only_capture_info-*]", "folders_that_the_test_makes[empty_annotated_video-player]",
             "folders_that_the_test_makes[empty_annotated_video-js]",
         ]
     },
-    "769": {"1a": ["scope_player[G16]", "scope_player[G15-v1a]", "folder_file_alone[*-player]", "folder_file_alone[*-js]"]},
+    "769": {
+        "1a": [
+            "scope_player", "scope_player_against_full[G16]", "scope_player_against_full[G15-v1a]",
+            "folder_file_alone[*-player]", "folder_file_alone[*-js]", "committed_results",
+        ]
+    },
 }  # fmt: skip
 
-# In these tests, a case that reads one golden case has the stage of that case in GOLDEN_STAGES.
+# In these tests, each other case that reads one golden case with a reader has the stage of that case in
+# GOLDEN_STAGES. A case that matches PARTS has the stage of PARTS.
 GOLDEN_RULE = {"734", "768", "769"}
 
 # The stage of the `full` result and of the `player` result of each golden case. A key `G<NN>/<case>`
@@ -168,6 +174,9 @@ GOLDEN_STAGES = {
 
 _SFT = re.compile(r"test_sft_(\d{3})_(\w+)$")
 
+# The only test functions with no SFT ID: they check the fixtures (test_fixtures.py), in stage 1a.
+FIXTURE_TESTS = {"test_golden_g01_is_present", "test_reader_has_its_interface"}
+
 
 def _matches(pattern: str, function: str, name: str) -> bool:
     text = name if "[" in pattern else function
@@ -175,21 +184,23 @@ def _matches(pattern: str, function: str, name: str) -> bool:
 
 
 def stage_of(item) -> str:
-    """The stage of a collected test: `1a`, `1b`, `2`, `3` or `4`. A test with no SFT ID checks the fixtures: `1a`."""
+    """The stage of a collected test: `1a`, `1b`, `2`, `3` or `4`. A test with no SFT ID that is not in FIXTURE_TESTS is an error."""
     found = _SFT.match(item.originalname)
     if found is None:
-        return "1a"
+        if item.originalname in FIXTURE_TESTS:
+            return "1a"
+        raise ValueError(f"{item.nodeid}: a conformance test function must be `test_sft_<NNN>_<part>` (conformance.md, 'The stage of each test')")
     number, function = found.groups()
+    name = function + item.name[len(item.originalname) :]
+    for stage, patterns in PARTS.get(number, {}).items():
+        if any(_matches(pattern, function, name) for pattern in patterns):
+            return stage
     params = item.callspec.params if hasattr(item, "callspec") else {}
     if number in GOLDEN_RULE:
         case = f"{params['name']}/{params['case']}" if "name" in params and "case" in params else params.get("case")
         if isinstance(case, str) and "/" in case:
             full, player = GOLDEN_STAGES.get(case) or GOLDEN_STAGES[case.split("/")[0]]
             return player if params.get("kind") in ("player", "js") else full
-    name = function + item.name[len(item.originalname) :]
-    for stage, patterns in PARTS.get(number, {}).items():
-        if any(_matches(pattern, function, name) for pattern in patterns):
-            return stage
     return STAGES[number]
 
 

@@ -94,11 +94,14 @@ def test_sft_768_folders_that_the_test_makes(reader, js_reader, variant, golden_
         assert checks.canonical(result) == expected("G03", "take", _scope(kind)), "the other members do not change"
 
 
-@pytest.mark.parametrize(
+SCOPE_PLAYER = pytest.mark.parametrize(
     ("name", "cases"),
     [("G03", ["take"]), ("G09", list(checks.G09_CHECKS)), ("G13", ["take"]), ("G16", ["take"]), ("G15", ["v1a"])],
     ids=["G03", "G09", "G13", "G16", "G15-v1a"],
 )
+
+
+@SCOPE_PLAYER
 def test_sft_769_scope_player(reader, js_reader, golden_or_skip, expected, name, cases):
     """SFT-769 Reader: the scope `player`, Python and JS. Checks: SFF-892."""
     for case in cases:
@@ -109,6 +112,14 @@ def test_sft_769_scope_player(reader, js_reader, golden_or_skip, expected, name,
         without_records = checks.read_bytes("player", reader, js_reader, folder, records=False)
         assert checks.read_bytes("js", reader, js_reader, folder, records=False) == without_records, case
         assert without_records == checks.canonical(json.loads(without_records)), "the canonical JSON, and no other byte"
+
+
+@SCOPE_PLAYER
+def test_sft_769_scope_player_against_full(reader, js_reader, golden_or_skip, name, cases):
+    """SFT-769 Reader: the `player` result against the `full` result of the Python reader. Checks: SFF-892."""
+    for case in cases:
+        folder = golden_or_skip(name, case)
+        player = checks.read_bytes("player", reader, js_reader, folder)
         full = checks.read_bytes("full", reader, js_reader, folder)
         assert checks.scope_faults(json.loads(full), json.loads(player)) == [], case
 

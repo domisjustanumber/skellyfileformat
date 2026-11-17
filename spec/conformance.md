@@ -69,15 +69,20 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 - The column "Earlier parts" gives the parts of the test that pass in an earlier stage. A part is
   the name of a test function in `tests/conformance/` after `test_sft_<NNN>_`. A part with
   `[<ID>]` is one case of that function, by its pytest parameter ID. `*` matches any text.
-- `<golden case>`: each case of the test that reads one golden case has the stage of that case in
-  the second table. This is the `player` stage when the case reads only with the scope `player` or
-  with the JavaScript reader. In all other cases, it is the `full` stage.
+- `<golden case>`: each case of the test that reads one golden case with a reader has the stage of
+  that case in the second table. This is the `player` stage when the case reads only with the scope
+  `player` or with the JavaScript reader. In all other cases, it is the `full` stage. A case that is
+  in the column "Earlier parts" has the stage of that column. This rule does not apply to it. A
+  case that runs no reader, for example `committed_results`, is in the column "Earlier parts".
 - In stage 1, the reader with the scope `full` stops with an error on a folder that holds a
   calibration TOML, a Parquet or a journal. Thus each test that needs the scope `full` on such a
   folder is in stage 2. G3 and each copy of G3 are such folders.
 - `tests/conformance/conftest.py` gives each runnable test the mark `stage1a`, `stage1b`, `stage2`,
   `stage3` or `stage4` from these tables. `tools/tests/test_conformance_stages.py` checks that the
-  two agree. A test function with no SFT ID checks the fixtures. It has the mark `stage1a`.
+  two agree, and that each part matches a collected case. The two test functions of
+  `tests/conformance/test_fixtures.py` have no SFT ID. They check the fixtures and have the mark
+  `stage1a`. Each other test function must have an SFT ID. If it has none, the collection stops with
+  an error.
 
 | Test | Stage | Earlier parts |
 |---|---|---|
@@ -149,8 +154,8 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 | SFT-765 | 1a | |
 | SFT-766 | 2 | 1a: `golden_part`, `writer_part`, `may_contain_private_data[g1_audio_only]` |
 | SFT-767 | 1a | |
-| SFT-768 | 2 | `<golden case>`; 1a: `folders_that_the_test_makes[empty-*]`, `folders_that_the_test_makes[one_timing_sidecar-*]`, `folders_that_the_test_makes[only_capture_info-*]`, `folders_that_the_test_makes[empty_annotated_video-player]`, `folders_that_the_test_makes[empty_annotated_video-js]` |
-| SFT-769 | 2 | `<golden case>`; 1a: `scope_player[G16]`, `scope_player[G15-v1a]`, `folder_file_alone[*-player]`, `folder_file_alone[*-js]` |
+| SFT-768 | 2 | `<golden case>`; 1a: `committed_results`, `folders_that_the_test_makes[empty-*]`, `folders_that_the_test_makes[one_timing_sidecar-*]`, `folders_that_the_test_makes[only_capture_info-*]`, `folders_that_the_test_makes[empty_annotated_video-player]`, `folders_that_the_test_makes[empty_annotated_video-js]` |
+| SFT-769 | 2 | `<golden case>`; 1a: `scope_player`, `scope_player_against_full[G16]`, `scope_player_against_full[G15-v1a]`, `folder_file_alone[*-player]`, `folder_file_alone[*-js]`, `committed_results` |
 | SFT-770 | 2 | |
 
 The second table gives the stage in which a reader gives the committed `full` result and the

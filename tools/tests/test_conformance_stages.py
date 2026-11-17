@@ -8,11 +8,16 @@ from __future__ import annotations
 
 import importlib.util
 import re
+import subprocess
+import sys
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 ORDER = ["1a", "1b", "2", "3", "4"]
-FUNCTION = re.compile(r"^def test_sft_(\d{3})_(\w+)\(", re.MULTILINE)
+COLLECTED = re.compile(r"::test_sft_(\d{3})_((\w+).*)$")
 DEFINITION = re.compile(r"^\*\*SFT-(\d{3})\*\*(.*)$", re.MULTILINE)
 
 
@@ -68,19 +73,42 @@ def test_the_marks_agree_with_conformance_md():
     assert parse_golden(text) == module.GOLDEN_STAGES
 
 
-def test_each_test_has_a_stage_and_each_part_names_a_function():
+def collected() -> list[tuple[str, str, str]]:
+    """The number, the function and the name with its parameter ID of each collected conformance test with an SFT ID."""
+    command = [sys.executable, "-m", "pytest", "tests/conformance", "--collect-only", "-q", "-p", "no:cacheprovider"]
+    output = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=True).stdout  # noqa: S603
+    return [found.group(1, 3, 2) for line in output.splitlines() if (found := COLLECTED.search(line))]
+
+
+def test_each_test_has_a_stage_and_each_part_names_a_case():
     conformance = (ROOT / "spec" / "conformance.md").read_text(encoding="utf-8")
     listed = {number for number, rest in DEFINITION.findall(conformance) if not rest.strip().startswith("(withdrawn)")}
     module = conftest()
     assert set(module.STAGES) == listed, "each test of conformance.md has one stage"
     assert set(module.STAGES.values()) <= set(ORDER)
-    functions = {(number, name) for path in (ROOT / "tests" / "conformance").glob("*.py") for number, name in FUNCTION.findall(path.read_text(encoding="utf-8"))}
+    cases = collected()
     for number, groups in module.PARTS.items():
         for stage, patterns in groups.items():
             assert ORDER.index(stage) < ORDER.index(module.STAGES[number]), f"SFT-{number}: a part of stage {stage} is not earlier"
             for pattern in patterns:
-                function = re.escape(pattern.split("[", 1)[0]).replace(r"\*", ".*")
-                assert any(n == number and re.fullmatch(function, name) for n, name in functions), f"SFT-{number}: no function for `{pattern}`"
+                found = any(n == number and module._matches(pattern, function, name) for n, function, name in cases)
+                assert found, f"SFT-{number}: no collected case for `{pattern}`"
+
+
+def test_stage_of():
+    module = conftest()
+
+    def item(originalname, params=None, suffix=""):
+        call = {"callspec": SimpleNamespace(params=params)} if params else {}
+        return SimpleNamespace(originalname=originalname, name=originalname + suffix, nodeid=originalname, **call)
+
+    reads = "test_sft_768_reader_result_of_each_golden_case"
+    for kind, stage in (("player", "1a"), ("js", "1a"), ("full", "2")):
+        assert module.stage_of(item(reads, {"name": "G03", "case": "take", "kind": kind}, f"[G03-take-{kind}]")) == stage, kind
+    assert module.stage_of(item("test_sft_768_committed_results", {"name": "G03", "case": "take"}, "[G03-take]")) == "1a"
+    assert module.stage_of(item("test_golden_g01_is_present")) == "1a"
+    with pytest.raises(ValueError, match="test_sft_<NNN>_<part>"):
+        module.stage_of(item("test_no_sft_id"))
 
 
 def test_the_parsers():
