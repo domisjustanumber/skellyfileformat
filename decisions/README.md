@@ -26,7 +26,6 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
-| [K4Y1](entries/K4Y1-test-adapter-seam-choices.md) | Agent choices for the seam: `SKELLYFILEFORMAT_ADAPTER`, a JavaScript adapter folder, the SFT-730 child, mark names | `conformance` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

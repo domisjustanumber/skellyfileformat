@@ -2,7 +2,7 @@
 
 The tests reach an implementation only through its test adapter. `SKELLYFILEFORMAT_ADAPTER` names
 the importable module of the Python adapter, and `SKELLYFILEFORMAT_JS_ADAPTER` the folder of the
-JavaScript adapter (decision K4Y1, proposed). This module imports no adapter at module level, so
+JavaScript adapter (decision K4Y1). This module imports no adapter at module level, so
 pytest can collect the tests with no adapter. A test that needs an adapter then fails with one line.
 """
 

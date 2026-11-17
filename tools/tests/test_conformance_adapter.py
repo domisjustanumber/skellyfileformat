@@ -1,4 +1,4 @@
-"""The test adapter seam of tests/conformance/conftest.py (decision YBT1; its form: decision K4Y1, proposed).
+"""The test adapter seam of tests/conformance/conftest.py (decision YBT1; its form: decision K4Y1).
 
 The fixtures `reader` and `writer` give the module that `SKELLYFILEFORMAT_ADAPTER` names. With no
 adapter, a test that calls one fails with one line. The check runs pytest on a copy of the conftest.

@@ -5,7 +5,8 @@ These notes belong to the test files `test_s02_03_conventions.py`, `test_s04_05_
 `test_s12_crash_repair.py`, and to `checks_capture.py` and `conftest.py`. They record what the tests
 assume of the test adapter of an implementation: the Python adapter and the JavaScript adapter. `INTERFACE_NOTES_folder.md` holds
 the same for SFT-735 to SFT-770.
-The status of each choice is: proposed. The user did not review this file.
+The status of each choice is: proposed. The user did not review this file. The exception is the
+configuration of the seam in section 1, which the user accepted ([ADR-K4Y1](../../decisions/entries/K4Y1-test-adapter-seam-choices.md)).
 
 [ADR-G21H](../../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) fixes only the
 names and the main arguments of the interface. [ADR-YBT1](../../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) keeps them as the interface that a test adapter
@@ -18,7 +19,7 @@ The tests get the Python adapter from the fixtures `reader` and `writer` of `con
 fixtures give the module that the environment variable `SKELLYFILEFORMAT_ADAPTER` names. The child
 process of SFT-730 also imports that module, with the `sys.path` of the test process, so
 `TakeWriter` and `repair_take` must be attributes of it. The JavaScript adapter is the folder that
-`SKELLYFILEFORMAT_JS_ADAPTER` names. An agent chose this configuration ([ADR-K4Y1](../../decisions/entries/K4Y1-test-adapter-seam-choices.md), proposed).
+`SKELLYFILEFORMAT_JS_ADAPTER` names. The user accepted this configuration ([ADR-K4Y1](../../decisions/entries/K4Y1-test-adapter-seam-choices.md)).
 
 | Name | Signature and shape | Fixed by G21H | Test |
 |---|---|---|---|

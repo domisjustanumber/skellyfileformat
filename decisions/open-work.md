@@ -11,10 +11,6 @@ task. Delete an item when its work is done. The PR that closes an item records t
   stages 2, 3 and 4. The user approved the first push on 2026-11-17 (question Q193). From that push
   on, an entry cannot be corrected in place. [AGENTS.md](../AGENTS.md#4-project-rules) gives the
   marks and the scope of the approval.
-- **The choices of the test adapter seam.** The user must accept or reject the agent choices of
-  [ADR-K4Y1](entries/K4Y1-test-adapter-seam-choices.md): the variables `SKELLYFILEFORMAT_ADAPTER`
-  and `SKELLYFILEFORMAT_JS_ADAPTER`, the folder form of the JavaScript adapter, the child process of
-  SFT-730 and the names.
 - **The full repair (stage 2).** A new test and a golden case for the repair of a take that holds a
   calibration TOML or a Parquet. The manifest summary of the repair takes values from them
   (SFF-728). The user reviews them at the gate 2 review of stage 2

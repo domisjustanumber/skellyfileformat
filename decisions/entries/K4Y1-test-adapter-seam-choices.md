@@ -1,7 +1,12 @@
 # K4Y1 — The choices of the test adapter seam
 
-**Status:** proposed, 2026-11-17 (an agent chose these items to apply
-[ADR-YBT1](YBT1-spec-only-test-adapter-and-labels.md); the user did not review them).
+**Status:** absorbed into
+[`spec/conformance.md#the-test-adapter`](../../spec/conformance.md#the-test-adapter),
+[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
+[`README.md#implementations`](../../README.md#implementations),
+2026-11-17 (commit to main; was accepted, 2026-11-17 (user; the user accepted each item as it
+stands); was proposed, 2026-11-17 (an agent chose these items to apply
+[ADR-YBT1](YBT1-spec-only-test-adapter-and-labels.md))).
 
 ## Decision
 

@@ -107,7 +107,7 @@ Parts that were not run at gate 2:
 
 - The Node script of hyparquet in `checks_folder.HYPARQUET`: the packages are not installed. The
   test looks for them in `node_modules` of the folder that `SKELLYFILEFORMAT_JS_ADAPTER` names
-  ([ADR-K4Y1](../../decisions/entries/K4Y1-test-adapter-seam-choices.md), proposed).
+  ([ADR-K4Y1](../../decisions/entries/K4Y1-test-adapter-seam-choices.md), accepted by the user).
 - The parts with polars and DuckDB: the packages are not in a dependency group.
 - Each check on G07, G09, G13, G14 and G17, when the folder was not built: `fold_faults`,
   `journal_faults`, `journal_digest`, `parquet_digest`, `charuco_faults`, the journal copies of
