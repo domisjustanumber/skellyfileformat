@@ -23,8 +23,8 @@ entry.
    the sidecar before its first row with empty byte fields. It appends a placeholder block to the
    camera file for each cut row, and appends each cut row again with the byte fields of its
    placeholder. SFF-794 allows this one append to a media file.
-5. **Two summary values** (SFF-728, F-1, F-2). `stored_px` is null when the camera file holds no
-   block. When no video sidecar holds an `arrival_ns`, `duration_s` is the audio value, or null when
+5. **Two summary values** (SFF-728, F-1, F-2). When the camera file holds no block, `stored_px` is
+   the mode size of SFF-756, as the skellycam recorder writes it. When no video sidecar holds an `arrival_ns`, `duration_s` is the audio value, or null when
    the take has no audio.
 6. **The order of the four Annex K.3 tables** in the inserted DHT segment is the choice of the writer
    (SFF-734, F-3). SFT-712 accepts each order.

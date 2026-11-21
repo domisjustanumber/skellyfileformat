@@ -829,8 +829,8 @@ manifest computes the summary from the files
 - `cameras` is in order of `group_position`. `user_name` and `model` are `user_name` and
   `device.model` of the camera config (section 13), so the text rule of `user_name` also applies
   here. `exposure_us` is `controls.exposure_us.value`
-  of that config, or null. `stored_px` is the size of the first stored JPEG. It is null when the
-  camera file holds no block (proposed:
+  of that config, or null. `stored_px` is the size of the first stored JPEG. When the camera
+  file holds no block, it is the mode size of SFF-756 (proposed:
   [ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 5). `gaps`,
   `filled` and `missing` are the counts of the `# end` line (`missing`:
   [ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1).

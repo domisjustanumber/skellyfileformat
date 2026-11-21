@@ -997,7 +997,9 @@ def check_manifest(folder: Path) -> dict:
             mkv = (folder / item["video"]).read_bytes()
             blocks = parse_mkv(mkv).blocks
             first = mkv[blocks[0].offset : blocks[0].offset + blocks[0].size] if blocks else None
-            stored = "{}x{}".format(*jpeg_size(first)) if blocks else None  # null with no block (ADR-5B03 item 5)
+            # With no block, the mode size (ADR-5B03 item 5): no file holds it, so any size passes.
+            stored = "{}x{}".format(*jpeg_size(first)) if blocks else camera_summary["stored_px"]
+            assert re.fullmatch(r"[1-9][0-9]*x[1-9][0-9]*", stored or "")
             expected.update(stored_px=stored, gaps=int(end["gaps"]), filled=int(end["filled"]), missing=int(end["missing"]))
             arrivals = [value for value in sidecar.integers("arrival_ns") if value is not None]
             last_arrivals += arrivals[-1:]  # the last row that holds an `arrival_ns` (SFF-728)
