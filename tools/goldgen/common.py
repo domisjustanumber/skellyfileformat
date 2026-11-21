@@ -296,7 +296,7 @@ def write_take(folder: Path, take: dict, cameras: list[dict], audio: dict) -> di
             fit_line(),
             f"# fit_segment pos_first=0 pos_last={len(rows) - 1} t0_ns={camera['t0_ns']} "
             f"period_ps={camera['period_ps']}",
-            f"# end rows={len(rows)} gaps={gaps} filled=0 encode_skips=0",
+            f"# end rows={len(rows)} gaps={gaps} filled=0 missing=0 encode_skips=0",
         ]
         columns = ["frame", "source_frame_number", "arrival_ns", "sample_ns", "flags", "byte_offset", "byte_size"]
         (folder / timing).write_bytes(sidecar(header, columns, rows, footer))
@@ -325,6 +325,7 @@ def write_take(folder: Path, take: dict, cameras: list[dict], audio: dict) -> di
                 "nominal_fps": thousandths((2000 * rate.numerator + rate.denominator) // (2 * rate.denominator)),
                 "gaps": gaps,
                 "filled": 0,
+                "missing": 0,
                 "exposure_us": exposure["value"] if exposure else None,
             }
         )

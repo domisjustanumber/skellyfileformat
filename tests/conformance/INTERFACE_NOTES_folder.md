@@ -40,7 +40,10 @@ Test inputs that a test makes ("G3 with X"), and the choices in them:
   `take_uuid` `0000000000004000800000000000ffff`. The clock vector writes `linux_monotonic`.
 - SFT-736: the `key_origin` vectors change the first camera config of the capture info JSON of G3:
   `"remembered"`, and null with a `camera_key` that is not 0. Each is `invalid` with `bad_schema`
-  ([ADR-W5AK](../../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 7).
+  ([ADR-W5AK](../../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 7). The
+  vector `provisional` changes the first camera config of a copy of G1. The capture info JSON stays
+  `present`
+  ([ADR-6AT7](../../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 6).
 - SFT-761: the two sidecars whose `take_uuid` the reader cannot read are copies of the third
   sidecar of the case `sidecar_of_another_take`: one with no `take_uuid` line (`missing_metadata`),
   and one with `# take_uuid=nothex` (`bad_metadata`). Each reason is from SFF-748. Each sidecar is

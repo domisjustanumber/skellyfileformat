@@ -109,4 +109,4 @@ frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,x_fut
 89,1089,3004476654,3000110584,0,77641,870,1,33dda72d
 # fit fitter=goldgen-truth fitter_version=1.0.0 fitter_params={}
 # fit_segment pos_first=0 pos_last=89 t0_ns=33483200 period_ps=33333400000
-# end rows=90 gaps=0 filled=0 encode_skips=0
+# end rows=90 gaps=0 filled=0 missing=0 encode_skips=0

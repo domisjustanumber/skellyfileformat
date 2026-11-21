@@ -21,7 +21,7 @@ from pathlib import Path
 from goldgen import common
 from goldgen.g01 import _device
 
-GAP, ENCODE_SKIP, REPEAT = 1, 4, 8  # SFF-756
+GAP, ENCODE_SKIP, REPEAT, MISSING = 1, 4, 8, 16  # SFF-756
 VIDEO_COLUMNS = ["frame", "source_frame_number", "arrival_ns", "sample_ns", "flags", "byte_offset", "byte_size"]
 AUDIO_COLUMNS = ["block", "first_sample", "n_samples", "host_ns", "adc_ns", "flags"]
 MANIFEST = "recording_manifest.json"
@@ -198,8 +198,8 @@ def fit_lines(kind: str, segments: list[tuple]) -> list[str]:
 def end_line(kind: str, rows: list[list]) -> str:
     """The `# end` line for these rows (SFF-758, SFF-769). The generator writes no `filled` and no `silence` row."""
     if kind == "camera":
-        gaps, skips = (sum(1 for row in rows if row[4] & bit) for bit in (GAP, ENCODE_SKIP))
-        return f"# end rows={len(rows)} gaps={gaps} filled=0 encode_skips={skips}"
+        gaps, missing, skips = (sum(1 for row in rows if row[4] & bit) for bit in (GAP, MISSING, ENCODE_SKIP))
+        return f"# end rows={len(rows)} gaps={gaps} filled=0 missing={missing} encode_skips={skips}"
     return f"# end rows={len(rows)} samples={sum(row[2] for row in rows)} gaps=0 silence_samples=0"
 
 
@@ -333,9 +333,10 @@ def item(
     """
     rows = pair["rows"][:n_rows]
     if pair["kind"] == "camera":
-        # SFF-781: the fitted time, or the arrival time for each frame of the file.
+        # SFF-781: the fitted time, or the arrival time for each frame of the file. A row with no
+        # `arrival_ns` has no player time.
         times = video_fitted(rows, segments) if segments else [row[2] for row in rows]
-        records = [[*row[:4], times[p]] for p, row in enumerate(rows)]
+        records = [[*row[:4], times[p] if row[2] is not None else None] for p, row in enumerate(rows)]
     else:
         fit = segments or [s for s in [reader_audio_fit(rows)] if s]  # SFF-784
         records = [
@@ -375,11 +376,15 @@ def expected_result(facts: dict, scope: str, folder_warnings: tuple = ()) -> dic
 # ---------------------------------------------------------------- folder files and output
 
 
-def folder_files(take: dict, cameras: list[dict], pairs: list[dict], audio: dict | None, kept: list[int] | None) -> dict:
+def folder_files(
+    take: dict, cameras: list[dict], pairs: list[dict], audio: dict | None, kept: list[int] | None,
+    warnings: tuple = (),
+) -> dict:  # fmt: skip
     """The capture info JSON (section 13) and the manifest (section 5), as {path: bytes}.
 
     `kept` is None for the manifest of the take start, with `state` `recording` (SFF-724, SFF-728).
-    Else it gives, for each pair, the number of rows of its finished or repaired sidecar.
+    Else it gives, for each pair, the number of rows of its finished or repaired sidecar. `warnings`
+    holds more manifest warnings, after the warnings `camera_gap` (SFF-727).
     """
     rec = take["rec"]
     info_path = f"{rec}_info.json"
@@ -421,11 +426,12 @@ def folder_files(take: dict, cameras: list[dict], pairs: list[dict], audio: dict
                 "nominal_fps": common.thousandths((2000 * rate.numerator + rate.denominator) // (2 * rate.denominator)),
                 "gaps": sum(1 for row in rows if row[4] & GAP) if kept else None,
                 "filled": 0 if kept else None,
+                "missing": sum(1 for row in rows if row[4] & MISSING) if kept else None,
                 "exposure_us": exposure["value"] if exposure else None,
             }
         )
-        if kept:
-            last_arrival_ns.append(rows[-1][2])
+        if kept:  # SFF-728: the last row that holds an `arrival_ns`
+            last_arrival_ns += [next(row[2] for row in reversed(rows) if row[2] is not None)]
             if summary_cameras[-1]["gaps"]:
                 gap_warnings.append(
                     {"code": "camera_gap", "source": "skellycam", "camera_key": pair["camera_key"], "detail": None}
@@ -464,7 +470,7 @@ def folder_files(take: dict, cameras: list[dict], pairs: list[dict], audio: dict
         "files": [
             {"path": info_path, "role": "capture_info", "owner": "skellycam", "sha256": common.sha256_hex(info)}
         ],
-        "warnings": gap_warnings,
+        "warnings": gap_warnings + list(warnings),
         "privacy": {
             "fields": [
                 {"file": file, "field": field, "kind": kind}
@@ -486,7 +492,7 @@ def folder_files(take: dict, cameras: list[dict], pairs: list[dict], audio: dict
             else None,
             "calibration": None,
             "processing_runs": [],
-            "warnings": sorted({warning["code"] for warning in gap_warnings}),
+            "warnings": sorted({warning["code"] for warning in gap_warnings + list(warnings)}),
         },
     }
     return {info_path: info, MANIFEST: common.file_json(manifest)}

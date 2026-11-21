@@ -396,7 +396,7 @@ def capture_info_faults(info: dict, camera_keys: list[str], microphone: str) -> 
         if list(config) != CONFIG_MEMBERS:
             faults.append(f"{key}: the members of the camera config are {list(config)}")
             continue
-        if config["key_origin"] not in {"computed", "confirmed_by_user", "assigned"}:
+        if config["key_origin"] not in {"computed", "confirmed_by_user", "assigned", "provisional"}:
             faults.append(f"{key}: key_origin is {config['key_origin']}")
         if list(config["device"]) != DEVICE_MEMBERS:
             faults.append(f"{key}: the members of device are {list(config['device'])}")

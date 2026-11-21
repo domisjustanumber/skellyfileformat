@@ -1,4 +1,4 @@
-"""Cross-checks of the golden folders G2, G4, G5, G6, G11 and G12 (golden/CAPTURE_VECTORS_CHOICES.md).
+"""Cross-checks of the golden folders G2, G4, G5, G6, G11, G12 and G18 (golden/CAPTURE_VECTORS_CHOICES.md).
 
 Each check reads the committed files and computes a value again from the text of the spec. Of the
 generator, the checks use only the walk `complete_blocks`, which they compare with the offsets of
@@ -430,3 +430,52 @@ def test_g12_vectors():
     assert times[6] == times[7] and len(set(times)) == 11  # the two equal fitted times
     states = {link["check"]: link["state"] for link in take_of("G12", "take")["links"]}
     assert states["frames"] == "ok" and take_of("G12", "take", "player") != take_of("G12", "take")
+
+
+# ---------------------------------------------------------------- G18
+
+
+def _sof(jpeg: bytes) -> bytes:
+    """The frame header of a baseline JPEG, from its length field: the size, the components and their factors."""
+    at = jpeg.index(b"\xff\xc0")
+    return jpeg[at + 4 : at + 2 + int.from_bytes(jpeg[at + 2 : at + 4], "big")]
+
+
+def test_g18_missing_rows_against_the_files():
+    """`missing` rows, placeholders and the short file of G18 (decision 6AT7; SFF-754, SFF-756, SFF-758, SFF-885)."""
+    folder = GOLDEN / "G18" / "take"
+    manifest = json.loads((folder / "recording_manifest.json").read_bytes())
+    take = take_of("G18", "take")
+    assert [item["state"] for item in take["files"]] == ["finished", "finished", "repaired"]
+    for item, camera, summary in zip(take["files"], manifest["cameras"], manifest["summary"]["cameras"]):
+        _, rows, footer = read_sidecar(folder / camera["timing"])
+        media = (folder / camera["video"]).read_bytes()
+        blocks = complete_blocks(media)
+        missing = [int(row[4]) & 16 != 0 for row in rows]
+        with_bytes = [(int(row[5]), int(row[6])) for row in rows if row[5]]
+        assert blocks == with_bytes and item["rows"] == len(rows) == 12  # SFF-759: a block for each row with a `byte_offset`
+        if item["state"] == "repaired":
+            assert len(media) == sum(blocks[-1]), "no byte after the last block (SFF-894)"
+        assert f"missing={sum(missing)} " in footer[-1] and summary["missing"] == sum(missing)
+        frames = [media[o : o + s] for (o, s), m in zip(blocks, missing) if not m]
+        for (offset, size), is_missing in zip(blocks, missing):
+            if is_missing:  # SFF-756: the size, the components and the factors of the frames
+                assert _sof(media[offset : offset + size]) == _sof(frames[0])
+        for record, row in zip(item["records"], rows):
+            assert (record[2] is None) == (row[2] == "") and (record[4] is None) == (row[2] == "")  # SFF-781
+    assert [len(blocks) for blocks in [complete_blocks((folder / c["video"]).read_bytes()) for c in manifest["cameras"]]] == [12, 12, 8]
+    assert [w["code"] for w in manifest["warnings"]] == ["camera_dead", "camera_dead", "camera_file_short"]
+
+
+def test_g18_placeholders_decode_to_black():
+    av = pytest.importorskip("av")
+    pytest.importorskip("PIL")
+    folder = GOLDEN / "G18" / "take"
+    for csv in sorted((folder / MEDIA).glob("*.csv")):
+        _, rows, _ = read_sidecar(csv)
+        media = csv.with_suffix(".mkv").read_bytes()
+        for row in rows:
+            if int(row[4]) & 16 and row[5]:
+                context = av.CodecContext.create("mjpeg", "r")
+                (frame,) = context.decode(av.Packet(media[int(row[5]) : int(row[5]) + int(row[6])])) + context.decode(None)
+                assert max(high for _, high in frame.to_image().convert("RGB").getextrema()) <= 16

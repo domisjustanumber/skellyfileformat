@@ -102,4 +102,7 @@
       {
         "file": "g05_synthetic_take_info.json",
         "field": "/camera_configs/e40ba19b877f64fb/device/model",
-        "kind": "device_
+        "kind": "device_name"
+      },
+      {
+        "file":

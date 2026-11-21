@@ -92,14 +92,14 @@ FOOTER_KEYS = {
     "repair": ["cut_bytes", "media_cut_bytes", "repair_writer"],
     ("video", "fit_segment"): ["pos_first", "pos_last", "t0_ns", "period_ps"],
     ("audio", "fit_segment"): ["row_first", "row_last", "n0", "t0_ns", "period_fs"],
-    ("video", "end"): ["rows", "gaps", "filled", "encode_skips"],
+    ("video", "end"): ["rows", "gaps", "filled", "missing", "encode_skips"],
     ("audio", "end"): ["rows", "samples", "gaps", "silence_samples"],
 }
 INTEGER = re.compile(r"0|-?[1-9][0-9]*")  # SFF-701
 HEX8 = re.compile(r"[0-9a-f]{8}")
 HEX16 = re.compile(r"[0-9a-f]{16}")
 UUID4 = re.compile(r"[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}")  # SFF-703
-GAP, FILLED, ENCODE_SKIP, REPEAT = 1, 2, 4, 8  # SFF-756
+GAP, FILLED, ENCODE_SKIP, REPEAT, MISSING = 1, 2, 4, 8, 16  # SFF-756
 OVERFLOW, SILENCE = 1, 2  # SFF-768
 
 
@@ -765,7 +765,8 @@ MANIFEST_FILE = ["path", "role", "owner", "sha256"]
 MANIFEST_WARNING = ["code", "source", "camera_key", "detail"]
 SUMMARY = ["take_start_utc", "duration_s", "cameras", "audio", "calibration", "processing_runs", "warnings"]
 SUMMARY_CAMERA = [
-    "camera_label", "user_name", "model", "stored_px", "display_rotation", "nominal_fps", "gaps", "filled", "exposure_us",
+    "camera_label", "user_name", "model", "stored_px", "display_rotation", "nominal_fps", "gaps", "filled", "missing",
+    "exposure_us",
 ]  # fmt: skip
 SUMMARY_AUDIO = ["file", "sample_rate", "channels", "duration_s"]
 CAPTURE_INFO = ["skellyfileformat", "format_version", "format_prerelease", "writer", "take_uuid", "camera_configs", "audio"]
@@ -989,15 +990,17 @@ def check_manifest(folder: Path) -> dict:
             "display_rotation": int(sidecar.header["display_rotation"]),
             "nominal_fps": thousandths((2000 * num + den) // (2 * den)),
             "exposure_us": config["controls"].get("exposure_us", {}).get("value"),
-            "stored_px": None, "gaps": None, "filled": None,
+            "stored_px": None, "gaps": None, "filled": None, "missing": None,
         }  # fmt: skip
         if not recording:
             (end,) = sidecar.lines("end")
             mkv = (folder / item["video"]).read_bytes()
-            first = parse_mkv(mkv).blocks[0]
-            width, height = jpeg_size(mkv[first.offset : first.offset + first.size])
-            expected.update(stored_px=f"{width}x{height}", gaps=int(end["gaps"]), filled=int(end["filled"]))
-            last_arrivals.append(int(sidecar.rows[-1]["arrival_ns"]))
+            blocks = parse_mkv(mkv).blocks
+            first = mkv[blocks[0].offset : blocks[0].offset + blocks[0].size] if blocks else None
+            stored = "{}x{}".format(*jpeg_size(first)) if blocks else None  # null with no block (ADR-5B03 item 5)
+            expected.update(stored_px=stored, gaps=int(end["gaps"]), filled=int(end["filled"]), missing=int(end["missing"]))
+            arrivals = [value for value in sidecar.integers("arrival_ns") if value is not None]
+            last_arrivals += arrivals[-1:]  # the last row that holds an `arrival_ns` (SFF-728)
         assert camera_summary == expected, f"the summary of camera {item['camera_label']} has the values of SFF-728"
     duration = None
     audio = manifest["audio"]
@@ -1115,7 +1118,7 @@ def check_video_sidecars(folder: Path, capture: bool = True) -> list[Sidecar]:
             if config["key_origin"] == "computed":
                 assert key in identity_keys(config["device"]), "a computed key is the hash of the identity string of form 1, 2 or 3"
             else:
-                assert config["key_origin"] in ("confirmed_by_user", "assigned") and HEX16.fullmatch(key) and int(key, 16)
+                assert config["key_origin"] in ("confirmed_by_user", "assigned", "provisional") and HEX16.fullmatch(key) and int(key, 16)
         assert sidecar.integers("frame") == list(range(len(sidecar.rows))), "the rows count from 0"
         numbers, flags = sidecar.integers("source_frame_number"), sidecar.integers("flags")
         for k, flag in enumerate(flags):
@@ -1123,10 +1126,10 @@ def check_video_sidecars(folder: Path, capture: bool = True) -> list[Sidecar]:
             known = k > 0 and numbers[k] is not None and before is not None
             assert bool(flag & GAP) == (known and numbers[k] not in (before, before + 1)), f"the flag `gap` of row {k}"
             assert bool(flag & REPEAT) == (known and numbers[k] == before), f"the flag `repeat` of row {k}"
-            assert flag & ~(GAP | FILLED | ENCODE_SKIP | REPEAT) == 0
+            assert flag & ~(GAP | FILLED | ENCODE_SKIP | REPEAT | MISSING) == 0
         (end,) = sidecar.lines("end")
-        counts = [len(flags), *(sum(1 for flag in flags if flag & bit) for bit in (GAP, FILLED, ENCODE_SKIP))]
-        assert [int(end[key]) for key in ("rows", "gaps", "filled", "encode_skips")] == counts, "the `# end` counts agree"
+        counts = [len(flags), *(sum(1 for flag in flags if flag & bit) for bit in (GAP, FILLED, MISSING, ENCODE_SKIP))]
+        assert [int(end[key]) for key in ("rows", "gaps", "filled", "missing", "encode_skips")] == counts, "the `# end` counts agree"
     assert len({len(s.rows) for s in videos}) == 1, "each camera file of the take has the same number of rows"
     return sorted(videos, key=lambda s: int(s.header["group_position"]))
 
@@ -1257,7 +1260,7 @@ def build_unusual_take(folder: Path) -> tuple[str, list[bytes], list[int]]:
     footer = [
         "# fit fitter=sft713 fitter_version=1.0.0 fitter_params={}",
         f"# fit_segment pos_first=0 pos_last={len(jpegs) - 1} t0_ns=33000000 period_ps=33400000000",
-        f"# end rows={len(jpegs)} gaps=0 filled=0 encode_skips=0",
+        f"# end rows={len(jpegs)} gaps=0 filled=0 missing=0 encode_skips=0",
     ]
     text += "".join(line + chr(10) for line in footer)
     (media / f"sft713.{label}.csv").write_bytes(text.encode())
@@ -1341,7 +1344,7 @@ def check_recording_manifest(folder: Path) -> dict:
     assert manifest["state"] == "recording"
     summary = manifest["summary"]
     assert summary["duration_s"] is None
-    assert all(item[key] is None for item in summary["cameras"] for key in ("stored_px", "gaps", "filled"))
+    assert all(item[key] is None for item in summary["cameras"] for key in ("stored_px", "gaps", "filled", "missing"))
     assert summary["audio"] is None or summary["audio"]["duration_s"] is None
     return manifest
 

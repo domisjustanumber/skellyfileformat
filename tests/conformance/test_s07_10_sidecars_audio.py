@@ -212,6 +212,39 @@ def test_sft_719_rows_against_blocks(reader, variant, source):
     assert (item["state"], item["reason"]) == ("invalid", "bad_metadata")
 
 
+@pytest.mark.parametrize("vector", ["skipped_block", "short_file"])
+def test_sft_719_skipped_block_and_short_file(reader, variant, golden_or_skip, vector):
+    """SFT-719, the order of the checks of a player and the short file (ADR-6AT7 items 2 and 9). Checks: SFF-759.
+
+    `skipped_block`: a copy of G1 whose sidecar of camera 0 has no row for block 5. The rows after it
+    move up by one, so row 5 points at the block after a skipped block. `short_file`: camera 2 of G18.
+    """
+    if vector == "short_file":
+        folder = golden_or_skip("G18")
+        video = c.load_json(folder / c.MANIFEST)["cameras"][2]["video"]
+        rows = c.read_sidecar(c.sidecar_path(folder, video)).rows
+        assert len(c.parse_mkv((folder / video).read_bytes()).blocks) == sum(1 for row in rows if row["byte_offset"]) < len(rows)
+        (item,) = [item for item in c.only_take(c.read(reader, folder))["files"] if item["name"] == video]
+        assert item["state"] == "repaired", "the rows with a `byte_offset` and the blocks are equal"
+        return
+    folder = variant("G01")
+    video = c.load_json(folder / c.MANIFEST)["cameras"][0]["video"]
+    path = c.sidecar_path(folder, video)
+    sidecar = c.read_sidecar(path)
+    count = len(sidecar.rows)
+    lines = []
+    for k, row in enumerate(sidecar.rows[:5] + sidecar.rows[6:]):
+        flags = int(row["flags"]) | (c.GAP if k == 5 else 0)  # the source frame number jumps at row 5 (SFF-756)
+        lines.append(c.row_line([k, *(row[key] for key in c.VIDEO_COLUMNS[1:4]), flags, row["byte_offset"], row["byte_size"]]))
+    footer = sidecar.data[sidecar.rows_end :].decode()
+    gaps = int(sidecar.lines("end")[0]["gaps"])
+    footer = footer.replace(f"pos_last={count - 1}", f"pos_last={count - 2}").replace(f"rows={count} gaps={gaps}", f"rows={count - 1} gaps={gaps + 1}")
+    path.write_bytes(sidecar.data[: sidecar.data.index(sidecar.row_lines[0].encode())] + "".join(lines).encode() + footer.encode())
+    assert len(c.check_sidecar_common(path).rows) == count - 1
+    (item,) = [item for item in c.only_take(c.read(reader, folder))["files"] if item["name"] == video]
+    assert (item["state"], item["reason"]) == ("invalid", "bad_metadata")
+
+
 @pytest.mark.parametrize("channels", [1, 2], ids=["mono_as_g1", "stereo_as_g2"])
 def test_sft_720_audio_file_and_sidecar(writer, tmp_path, channels):
     """SFT-720 Writer: the audio file and its sidecar.

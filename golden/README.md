@@ -6,7 +6,7 @@ The committed bytes are the reference
 ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 10).
 A change to a golden file needs a decision entry ([AGENTS.md section 4](../AGENTS.md#4-project-rules)).
 
-G1 to G16 exist. G17 does not exist: it waits for the skellysync decisions. G1 is the worked
+G1 to G16 and G18 exist. G17 does not exist: it waits for the skellysync decisions. G1 is the worked
 example for the other folders. The user reviewed G1 on 2026-11-16 and accepted its conventions for
 the other folders ([ADR-94YQ](../decisions/entries/94YQ-golden-g1-review-decisions.md), ADR-G21H item 5).
 Each file `G<NN>…_CHOICES.md` and `CAPTURE_VECTORS_CHOICES.md` lists the choices of its folders
@@ -169,5 +169,7 @@ G9 and the case `higher_minor` of G10 are copies of G3, so they also have the ro
   ([CAPTURE_VECTORS_CHOICES.md](CAPTURE_VECTORS_CHOICES.md) item 23). They are provisional until
   desk tests DT-R1 and DT5
   ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 6).
+  Camera 2 of G18 holds the same stand-in, cut after block 7
+  ([CAPTURE_VECTORS_CHOICES.md](CAPTURE_VECTORS_CHOICES.md) item 51).
 - `byte_offset` and `byte_size` (SFF-757), `port_path` and `os_device_id` (SFF-752) and
   `audio_latency_ns` (SFF-771) are provisional in the spec.

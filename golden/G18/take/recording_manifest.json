@@ -1,0 +1,235 @@
+{
+  "skellyfileformat": "recording_manifest",
+  "format_version": "2.0",
+  "format_prerelease": 1,
+  "writer": "skellyfileformat-goldgen 1.0.0",
+  "take_uuid": "00000000000040008000000000000018",
+  "recording_name": "g18_synthetic_take",
+  "purpose": "motion_capture",
+  "state": "finished",
+  "cameras": [
+    {
+      "camera_key": "e40ba19b877f64fb",
+      "camera_label": "e40ba1",
+      "group_position": 0,
+      "video": "synchronized_videos/g18_synthetic_take.e40ba1.mkv",
+      "timing": "synchronized_videos/g18_synthetic_take.e40ba1.csv",
+      "calibration_camera": null
+    },
+    {
+      "camera_key": "d206761ad952f62f",
+      "camera_label": "d20676",
+      "group_position": 1,
+      "video": "synchronized_videos/g18_synthetic_take.d20676.mkv",
+      "timing": "synchronized_videos/g18_synthetic_take.d20676.csv",
+      "calibration_camera": null
+    },
+    {
+      "camera_key": "74a520c84ed0ef00",
+      "camera_label": "74a520",
+      "group_position": 2,
+      "video": "synchronized_videos/g18_synthetic_take.74a520.mkv",
+      "timing": "synchronized_videos/g18_synthetic_take.74a520.csv",
+      "calibration_camera": null
+    }
+  ],
+  "audio": null,
+  "calibration": null,
+  "files": [
+    {
+      "path": "g18_synthetic_take_info.json",
+      "role": "capture_info",
+      "owner": "skellycam",
+      "sha256": "d616b231fe0262d350e2792ce036f53c652eda6135dec462390b65c92483413d"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "camera_dead",
+      "source": "skellycam",
+      "camera_key": "d206761ad952f62f",
+      "detail": "last_frame=6 reason=stopped"
+    },
+    {
+      "code": "camera_dead",
+      "source": "skellycam",
+      "camera_key": "74a520c84ed0ef00",
+      "detail": "last_frame=7 reason=hang"
+    },
+    {
+      "code": "camera_file_short",
+      "source": "skellycam",
+      "camera_key": "74a520c84ed0ef00",
+      "detail": "blocks=8 rows=12"
+    }
+  ],
+  "privacy": {
+    "fields": [
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/74a520c84ed0ef00/device/model",
+        "kind": "device_name"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/74a520c84ed0ef00/device/os_name",
+        "kind": "device_name"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/74a520c84ed0ef00/device/port_path",
+        "kind": "device_path"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/74a520c84ed0ef00/device/serial",
+        "kind": "serial_number"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/74a520c84ed0ef00/user_name",
+        "kind": "user_entered_name"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/d206761ad952f62f/device/model",
+        "kind": "device_name"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/d206761ad952f62f/device/os_device_id",
+        "kind": "device_path"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/d206761ad952f62f/device/os_name",
+        "kind": "device_name"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/d206761ad952f62f/device/port_path",
+        "kind": "device_path"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/e40ba19b877f64fb/device/model",
+        "kind": "device_name"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/e40ba19b877f64fb/device/os_name",
+        "kind": "device_name"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/e40ba19b877f64fb/device/port_path",
+        "kind": "device_path"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/e40ba19b877f64fb/device/serial",
+        "kind": "serial_number"
+      },
+      {
+        "file": "g18_synthetic_take_info.json",
+        "field": "/camera_configs/e40ba19b877f64fb/user_name",
+        "kind": "user_entered_name"
+      },
+      {
+        "file": "recording_manifest.json",
+        "field": "/recording_name",
+        "kind": "user_entered_name"
+      },
+      {
+        "file": "recording_manifest.json",
+        "field": "/summary/cameras/0/model",
+        "kind": "device_name"
+      },
+      {
+        "file": "recording_manifest.json",
+        "field": "/summary/cameras/0/user_name",
+        "kind": "user_entered_name"
+      },
+      {
+        "file": "recording_manifest.json",
+        "field": "/summary/cameras/1/model",
+        "kind": "device_name"
+      },
+      {
+        "file": "recording_manifest.json",
+        "field": "/summary/cameras/2/model",
+        "kind": "device_name"
+      },
+      {
+        "file": "recording_manifest.json",
+        "field": "/summary/cameras/2/user_name",
+        "kind": "user_entered_name"
+      },
+      {
+        "file": "synchronized_videos/g18_synthetic_take.74a520.csv",
+        "field": "utc_offset_min",
+        "kind": "time_zone"
+      },
+      {
+        "file": "synchronized_videos/g18_synthetic_take.d20676.csv",
+        "field": "utc_offset_min",
+        "kind": "time_zone"
+      },
+      {
+        "file": "synchronized_videos/g18_synthetic_take.e40ba1.csv",
+        "field": "utc_offset_min",
+        "kind": "time_zone"
+      }
+    ],
+    "media_shows_people": true
+  },
+  "summary": {
+    "take_start_utc": "2000-01-01T00:00:00Z",
+    "duration_s": 0.404,
+    "cameras": [
+      {
+        "camera_label": "e40ba1",
+        "user_name": "Fake camera A",
+        "model": "Synthetic Camera Model 0",
+        "stored_px": "64x48",
+        "display_rotation": 0,
+        "nominal_fps": 30,
+        "gaps": 0,
+        "filled": 0,
+        "missing": 1,
+        "exposure_us": 4000
+      },
+      {
+        "camera_label": "d20676",
+        "user_name": null,
+        "model": "Synthetic Camera Model 1",
+        "stored_px": "64x48",
+        "display_rotation": 0,
+        "nominal_fps": 30,
+        "gaps": 0,
+        "filled": 0,
+        "missing": 5,
+        "exposure_us": null
+      },
+      {
+        "camera_label": "74a520",
+        "user_name": "Fake camera C",
+        "model": "Synthetic Camera Model 2",
+        "stored_px": "64x48",
+        "display_rotation": 0,
+        "nominal_fps": 30,
+        "gaps": 0,
+        "filled": 0,
+        "missing": 4,
+        "exposure_us": 4000
+      }
+    ],
+    "audio": null,
+    "calibration": null,
+    "processing_runs": [],
+    "warnings": [
+      "camera_dead",
+      "camera_file_short"
+    ]
+  }
+}

@@ -136,7 +136,8 @@ STAGES = {
     "740": "2", "741": "4", "742": "3", "743": "3", "744": "2", "745": "3", "746": "2", "747": "2",
     "748": "2", "749": "2", "750": "2", "751": "3", "752": "2", "753": "2", "754": "2", "755": "2",
     "756": "2", "757": "2", "758": "2", "759": "2", "760": "1b", "761": "2", "762": "2", "763": "2",
-    "764": "1a", "765": "1a", "766": "2", "767": "1a", "768": "2", "769": "2", "770": "2",
+    "764": "1a", "765": "1a", "766": "2", "767": "1a", "768": "2", "769": "2", "770": "2", "771": "1a",
+    "772": "1a", "773": "1a",
 }  # fmt: skip
 
 # The parts of a test that have an earlier stage. A part is the function name after `test_sft_<NNN>_`,
@@ -161,9 +162,9 @@ PARTS = {
     "708": {"1a": ["manifest", "check_on_golden"]},
     "709": {"1a": ["summary_is_not_used[g1_*]"]},
     "710": {"1a": ["missing_or_wrong_manifest[audio_only]"]},
-    "730": {"1a": ["whole_files_and_live_files", "fsync_provisional"]},
-    "733": {"1a": ["repair", "check_on_golden", "camera_file_provisional"]},
-    "736": {"1a": ["camera_configs_by_key[g1]", "confirmed_key", "bad_key_origin[g1_*]"]},
+    "730": {"1a": ["whole_files_and_live_files", "fsync_provisional", "lock_form"]},
+    "733": {"1a": ["repair", "check_on_golden", "camera_file_provisional", "missing_rows_with_no_block"]},
+    "736": {"1a": ["camera_configs_by_key[g1]", "confirmed_key", "bad_key_origin[g1_*]", "provisional_key_origin"]},
     "737": {"1a": ["golden_part"], "2": ["golden_part_against_the_parquet"]},
     "744": {"1a": ["hidden_export_files[g1]"]},
     "751": {"2": ["golden_part"]},
@@ -197,6 +198,7 @@ GOLDEN_STAGES = {
     "G06": ("1a", "1a"), "G07": ("2", "1a"), "G08": ("2", "1a"), "G09": ("2", "1a"), "G10/higher_minor": ("2", "1a"),
     "G10/higher_minor_journal": ("2", "1a"), "G10": ("1a", "1a"), "G11": ("1a", "1a"), "G12": ("1a", "1a"),
     "G13": ("2", "1a"), "G14": ("2", "1a"), "G15": ("1a", "1a"), "G16": ("1a", "1a"), "G17": ("1b", "1b"),
+    "G18": ("1a", "1a"),
 }  # fmt: skip
 
 _SFT = re.compile(r"test_sft_(\d{3})_(\w+)$")

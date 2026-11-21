@@ -34,4 +34,4 @@ frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
 # fit fitter=goldgen-truth fitter_version=1.0.0 fitter_params={}
 # fit_segment pos_first=0 pos_last=14 t0_ns=33133500 period_ps=99999750000
 # repair cut_bytes=277 media_cut_bytes=123 repair_writer=skellyfileformat-goldgen 1.0.0
-# end rows=15 gaps=0 filled=0 encode_skips=0
+# end rows=15 gaps=0 filled=0 missing=0 encode_skips=0

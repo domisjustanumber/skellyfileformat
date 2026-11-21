@@ -149,6 +149,7 @@
         "nominal_fps": 30,
         "gaps": 0,
         "filled": 0,
+        "missing": 0,
         "exposure_us": 4000
       },
       {
@@ -160,6 +161,7 @@
         "nominal_fps": 30,
         "gaps": 1,
         "filled": 0,
+        "missing": 0,
         "exposure_us": null
       }
     ],

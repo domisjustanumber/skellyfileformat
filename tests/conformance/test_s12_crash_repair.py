@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import threading
 from pathlib import Path
 
 import pytest
@@ -80,6 +81,62 @@ def test_sft_730_whole_files_and_live_files(writer, tmp_path):
         assert (killed / c.LOCK).is_file()
         writer.repair_take(killed, writer=REPAIR_WRITER)
         assert c.load_json(killed / c.MANIFEST)["state"] == "finished", f"kill point {point}"
+
+
+def _hold_lock(path: Path):
+    """Take the lock of SFF-789 for this OS on `path` (ADR-6AT7 item 7). Return a function that releases it."""
+    handle = open(path, "r+b")  # noqa: SIM115
+    if sys.platform == "win32":
+        import msvcrt
+
+        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)  # `LockFile` of byte 0, for 1 byte
+
+        def release() -> None:
+            handle.seek(0)
+            msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            handle.close()
+    else:
+        import fcntl
+
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+        def release() -> None:
+            fcntl.flock(handle, fcntl.LOCK_UN)
+            handle.close()
+
+    return release
+
+
+def test_sft_730_lock_form(writer, tmp_path):
+    """SFT-730, the form of the lock: while the test holds it, the writer does not replace the manifest. Checks: SFF-789.
+
+    The writer can wait for the lock or refuse the write. The test accepts both.
+    """
+    folder = tmp_path / "take"
+    take = writer.TakeWriter(folder, "synthetic_take", [c.camera(0)], None, writer=c.WRITER)
+    take.write_frame(0, c.jpeg(0), take.take_start_host_ns + 33_333_333, source_frame_number=0)
+    before = (folder / c.MANIFEST).read_bytes()
+    outcome = []
+
+    def close() -> None:
+        try:
+            take.close()
+            outcome.append(None)
+        except Exception as error:  # noqa: BLE001  a refusal of the write is allowed
+            outcome.append(error)
+
+    release = _hold_lock(folder / c.LOCK)
+    thread = threading.Thread(target=close, daemon=True)
+    try:
+        thread.start()
+        thread.join(1.0)
+        assert (folder / c.MANIFEST).read_bytes() == before, "no replace of the manifest while the test holds the lock"
+    finally:
+        release()
+    thread.join(30.0)
+    assert not thread.is_alive() and len(outcome) == 1
+    if outcome[0] is None:
+        assert c.load_json(folder / c.MANIFEST)["state"] == "finished"
 
 
 @pytest.mark.provisional("the measurement of the cost of fsync (SFF-788)")
@@ -270,6 +327,30 @@ def test_sft_733_camera_file_provisional(writer, golden_or_skip, variant, case):
         blocks = c.parse_mkv(old).blocks
         assert 0 < rows <= len(blocks) and new == old[: blocks[rows - 1].end], "the file is cut after the block of its last row"
         assert len(c.parse_mkv(new).blocks) == rows
+
+
+def test_sft_733_missing_rows_with_no_block(writer, reader, variant, expected):
+    """SFT-733, the repair keeps the `missing` rows with no block (ADR-6AT7 item 2). Checks: SFF-795.
+
+    The input is a copy of G18 whose sidecar of camera 2 has no `# repair` line and no `# end` line,
+    and whose manifest has `state` `recording`.
+    """
+    folder = variant("G18")
+    manifest = c.load_json(folder / c.MANIFEST)
+    manifest["state"] = "recording"
+    c.write_json(folder / c.MANIFEST, manifest)
+    camera = manifest["cameras"][2]
+    timing, video = folder / camera["timing"], folder / camera["video"]
+    sidecar, media = c.read_sidecar(timing), video.read_bytes()
+    timing.write_bytes(sidecar.data[: sidecar.rows_end])
+    _repair(writer, folder)
+    repaired = c.read_sidecar(timing)
+    assert repaired.repaired and repaired.row_lines == sidecar.row_lines, "the repair keeps each row"
+    assert video.read_bytes() == media, "the repair changes no byte of the camera file"
+    item = c.cameras_of(c.only_take(c.read(reader, folder, records=True)))[2]
+    want = c.cameras_of(c.only_take(c.json.loads(expected("G18", "take", "full"))))[2]
+    assert (item["state"], item["rows"]) == ("repaired", want["rows"])
+    assert [record[:4] for record in item["records"]] == [record[:4] for record in want["records"]]
 
 
 @pytest.mark.external("user")

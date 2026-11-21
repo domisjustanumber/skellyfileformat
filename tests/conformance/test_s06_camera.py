@@ -56,14 +56,47 @@ def test_sft_711_external():
     """SFT-711, the external sentence: Blender (pinned) counts the same number of frames. Checks: SFF-733."""
 
 
-@pytest.mark.parametrize("vector", ["mjpeg_source", "raw_source", "h264_request"])
+def _dht_tables(data: bytes) -> list[bytes]:
+    """Each table of each DHT segment before the first SOS: the class and ID byte, the 16 counts and the values."""
+    tables = []
+    for marker, start, end in c.jpeg_segments(data):
+        at = start + 4
+        while marker == c.DHT and at < end:
+            size = 17 + sum(data[at + 1 : at + 17])
+            tables.append(data[at : at + size])
+            at += size
+    return tables
+
+
+@pytest.mark.parametrize("vector", ["mjpeg_source", "raw_source", "h264_request", "no_dht"])
 def test_sft_712_jpeg_bytes(writer, tmp_path, vector):
     """SFT-712 Writer: JPEG bytes. Checks: SFF-734.
 
     `mjpeg_source` is the synthetic form of the sentence about an MJPEG camera: the block payloads
     are the bytes that the test sent. The run with test hardware is external (test_sft_712_external).
+    `no_dht`: the camera sends JPEGs with no DHT segment (ADR-6AT7 item 3). Pillow writes the tables of
+    ITU-T T.81 Annex K.3, so the test takes the four tables from a JPEG of Pillow.
     """
     folder = tmp_path / "take"
+    if vector == "no_dht":
+        annex_k = _dht_tables(c.jpeg(0))
+        # Table K.3, the DC luminance table: the class and ID byte 0x00, then the counts of the codes of each length.
+        assert len(annex_k) == 4 and bytes([0x00, 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]) in [t[:17] for t in annex_k]
+        take = writer.TakeWriter(folder, "synthetic_take", [c.camera(0)], None, writer=c.WRITER)
+        sent = [c.jpeg_without(c.jpeg(position), {c.DHT}) for position in range(5)]
+        for position, data in enumerate(sent):
+            take.write_frame(0, data, take.take_start_host_ns + 33_333_333 * (position + 1), source_frame_number=position)
+        take.close()
+        (path,) = c.media_files(folder, ".mkv")
+        data = path.read_bytes()
+        for block, before in zip(c.parse_mkv(data).blocks, sent, strict=True):
+            stored = data[block.offset : block.offset + block.size]
+            segments = c.jpeg_segments(stored)
+            (dht,) = [(start, end) for marker, start, end in segments if marker == c.DHT]
+            assert segments[-1][0] == c.SOS and segments[-2][1:] == dht, "one DHT segment immediately before the first SOS"
+            assert stored[: dht[0]] + stored[dht[1] :] == before, "no other byte changes"
+            assert sorted(_dht_tables(stored)) == sorted(annex_k), "the four tables of Annex K.3, each one time"
+        return
     if vector == "mjpeg_source":
         sent = c.record_take(writer, folder)
         for index, sidecar in enumerate(c.sidecars_by_position(folder)):
@@ -153,6 +186,20 @@ def _check_unfinished_camera_files(reader, folder, method: str) -> None:
 def test_sft_714_unfinished_camera_file(reader, golden_or_skip, case):
     """SFT-714 Reader: an unfinished camera file, found by a walk. Checks: SFF-740, SFF-757."""
     _check_unfinished_camera_files(reader, golden_or_skip("G05", case), "walk")
+
+
+def test_sft_714_missing_rows_with_no_block(reader, variant):
+    """SFT-714, a `missing` row with empty byte fields in an unfinished camera file. Checks: SFF-740.
+
+    The input is a copy of G18 whose sidecar of camera 2 has no `# repair` line and no `# end` line.
+    """
+    folder = variant("G18")
+    timing = folder / c.load_json(folder / c.MANIFEST)["cameras"][2]["timing"]
+    sidecar = c.read_sidecar(timing)
+    timing.write_bytes(sidecar.data[: sidecar.rows_end])
+    item = c.cameras_of(c.only_take(c.read(reader, folder, records=True)))[2]
+    assert (item["state"], item["rows"], item["torn_bytes"]) == ("unfinished", len(sidecar.rows), 0)
+    assert [record[0] for record in item["records"]] == list(range(len(sidecar.rows))), "each row is usable"
 
 
 @pytest.mark.provisional("desk test DT5 (SFF-757)")

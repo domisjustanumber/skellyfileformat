@@ -18,6 +18,7 @@ These entries are `accepted` or `evidence`.
 
 | # | Decision | Status |
 |---|----------|--------|
+| [6AT7](entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) | F-1 to F-10: `missing` rows and placeholders, short files and their completion, Annex K DHT, warnings, `provisional` key, lock form, player rules | accepted |
 
 ### Proposed
 
@@ -26,6 +27,7 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
+| [5B03](entries/5B03-choices-for-the-format-changes-f1-to-f10.md) | Choices for F-1 to F-10: player marks, completion after a write error, tail repair, summary nulls, DHT order, F-5 as a player rule, test inputs | `spec` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

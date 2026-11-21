@@ -97,6 +97,22 @@ def test_sft_736_bad_key_origin(reader, variant, base, key_origin):
     assert (item["state"], item["reason"]) == ("invalid", "bad_schema")
 
 
+def test_sft_736_provisional_key_origin(reader, variant, expected):
+    """SFT-736 Reader: the `key_origin` `provisional` (ADR-6AT7 item 6). Checks: SFF-803.
+
+    A copy of G1 with one camera config changed at test time. The reader does not check `sha256` of
+    the manifest item (SFF-730), so the result is the committed result of G1.
+    """
+    folder = variant("G01")
+    info_path = checks.capture_info(folder)
+    info = checks.load_json(info_path)
+    next(iter(info["camera_configs"].values()))["key_origin"] = "provisional"
+    checks.write_json(info_path, info)
+    result = checks.read(reader, folder, records=True)
+    assert checks.folder_file(checks.the_take(result), info_path.name)["state"] == "present"
+    assert checks.canonical(result) == expected("G01", "take", "full")
+
+
 @pytest.mark.external("freemocap")
 def test_sft_737_processing_info_json():
     """SFT-737 (external: freemocap) Writer: the processing info JSON. Checks: SFF-804, SFF-805."""

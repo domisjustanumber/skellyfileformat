@@ -1,0 +1,108 @@
+{
+  "skellyfileformat": "capture_info",
+  "format_version": "2.0",
+  "format_prerelease": 1,
+  "writer": "skellyfileformat-goldgen 1.0.0",
+  "take_uuid": "00000000000040008000000000000018",
+  "camera_configs": {
+    "e40ba19b877f64fb": {
+      "camera_label": "e40ba1",
+      "user_name": "Fake camera A",
+      "key_origin": "computed",
+      "device": {
+        "model": "Synthetic Camera Model 0",
+        "os_name": "Synthetic Camera 0",
+        "vendor_id": "ffff",
+        "product_id": "0001",
+        "serial": "FAKE-SERIAL-A",
+        "port_path": "FAKE-PORT-0",
+        "os_device_id": null,
+        "backend": "media_foundation",
+        "os_index": 0
+      },
+      "requested": {
+        "width": 64,
+        "height": 48,
+        "framerate": 30,
+        "capture_format": "MJPG",
+        "exposure_mode": "manual"
+      },
+      "controls": {
+        "exposure_us": {
+          "value": 4000,
+          "auto": false
+        },
+        "gain": {
+          "value": 32,
+          "auto": false
+        }
+      },
+      "exposure_step": null
+    },
+    "d206761ad952f62f": {
+      "camera_label": "d20676",
+      "user_name": null,
+      "key_origin": "computed",
+      "device": {
+        "model": "Synthetic Camera Model 1",
+        "os_name": "Synthetic Camera 1",
+        "vendor_id": "ffff",
+        "product_id": "0002",
+        "serial": null,
+        "port_path": "FAKE-PORT-1",
+        "os_device_id": "FAKE-OS-DEVICE-1",
+        "backend": "media_foundation",
+        "os_index": 1
+      },
+      "requested": {
+        "width": 64,
+        "height": 48,
+        "framerate": 30,
+        "capture_format": "MJPG",
+        "exposure_mode": "manual"
+      },
+      "controls": {
+        "exposure_us": {
+          "value": null,
+          "auto": null
+        }
+      },
+      "exposure_step": null
+    },
+    "74a520c84ed0ef00": {
+      "camera_label": "74a520",
+      "user_name": "Fake camera C",
+      "key_origin": "computed",
+      "device": {
+        "model": "Synthetic Camera Model 2",
+        "os_name": "Synthetic Camera 2",
+        "vendor_id": "ffff",
+        "product_id": "0003",
+        "serial": "FAKE-SERIAL-C",
+        "port_path": "FAKE-PORT-2",
+        "os_device_id": null,
+        "backend": "media_foundation",
+        "os_index": 2
+      },
+      "requested": {
+        "width": 64,
+        "height": 48,
+        "framerate": 30,
+        "capture_format": "MJPG",
+        "exposure_mode": "manual"
+      },
+      "controls": {
+        "exposure_us": {
+          "value": 4000,
+          "auto": false
+        },
+        "gain": {
+          "value": 32,
+          "auto": false
+        }
+      },
+      "exposure_step": null
+    }
+  },
+  "audio": null
+}

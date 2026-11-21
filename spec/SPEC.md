@@ -542,7 +542,9 @@ Terms:
 | multi-camera frame | The frames of the cameras of a take that have the same position. Row k of each video sidecar of a take is multi-camera frame k (SFF-754). |
 | finished file | A file that its writer closed normally. A finished CSV ends with an `# end` line. |
 | unfinished file | A file that its writer did not close, for example after a crash (section 12). |
-| repaired file | An unfinished file that a repair changed into a finished file (section 12). |
+| repaired file | An unfinished file that a repair changed into a finished file (section 12), or a file that the program that recorded the take completed (SFF-894). |
+| `missing` row | A row of a video sidecar with the flag `missing`: the camera gave no usable frame for it (SFF-756). |
+| placeholder | The black JPEG in the block of a `missing` row (SFF-756). |
 | writer | A program that writes files of this format. A writer with live capture is a **capture writer** (skellycam). A writer that makes files from other files is a **conversion writer** (the skellycam converter, skellysync). freemocap writes the folder files. |
 | reader | A program that reads files of this format. A player is a reader. |
 | host clock | The monotonic clock of the computer that recorded the take (section 11). |
@@ -789,11 +791,20 @@ change. It sets `writer` to its own writer string.
 differs from the value that it set) and `awb_not_settled` (auto white balance did not settle before
 the take). A repair adds `camera_gap`, with the `source` of the program that did the repair
 (SFF-793). A program adds its warnings. It does not remove the warnings of another program.
+skellycam also writes `camera_dead` (a camera stopped during the take; its sidecar holds `missing`
+rows to the end of the take), `camera_file_short` (the camera file ends early, SFF-754) and
+`take_error` (an error ended the take). The `detail` of `camera_dead` is
+`last_frame=<p> reason=<text>`, where p is the position of the last row that is not `missing`, or
+`none`. The `detail` of `camera_file_short` is `blocks=<b> rows=<r>`: the number of blocks of the
+camera file and the number of rows of its sidecar. The `detail` of `take_error` is the error text,
+and its `camera_key` is the camera of the error, or null. A write error gives `camera_file_short`
+and `take_error`, and no `camera_dead`. A reader parses the two `detail` forms as SFF-895 gives
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 5).
 
 **SFF-728** (writer) The `summary` member is an informative overview for people. It holds:
 `take_start_utc` (ISO 8601 UTC text); `duration_s`; `cameras` (each with `camera_label`, `user_name`,
-`model`, `stored_px` (`"<width>x<height>"`), `display_rotation`, `nominal_fps`, `gaps`, `filled` and
-`exposure_us`, a number or null); `audio` (null, or `{file, sample_rate, channels, duration_s}`);
+`model`, `stored_px` (`"<width>x<height>"`), `display_rotation`, `nominal_fps`, `gaps`, `filled`,
+`missing` and `exposure_us`, a number or null); `audio` (null, or `{file, sample_rate, channels, duration_s}`);
 `calibration` (the `calibration_uuid` and the source take); `processing_runs` (each item is
 `{run_id, origin, recorded_at}`, with the latest `recorded_at` of the stage provenances of the run);
 and `warnings` (the codes of the manifest `warnings`, each one time, sorted). The writer of the
@@ -806,30 +817,38 @@ manifest computes the summary from the files
 - `nominal_fps` is ⌊(2000 × `num` + `den`) / (2 × `den`)⌋ thousandths, where `num/den` is the
   nominal rate (rounded half up).
 - `take_start_utc` is `take_start_utc_ns` as `YYYY-MM-DDTHH:MM:SSZ`, rounded down to the second.
-- `duration_s` of the take: ns is the largest `arrival_ns` of the last rows of the video sidecars.
-  The value is ⌊(ns + 500,000) / 10^6⌋ thousandths. A take with no camera uses the audio value.
+- `duration_s` of the take: ns is the largest `arrival_ns` of the last row that holds an
+  `arrival_ns` of each video sidecar
+  ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1).
+  The value is ⌊(ns + 500,000) / 10^6⌋ thousandths. A take with no camera uses the audio value. A
+  take in which no video sidecar holds an `arrival_ns` also uses the audio value, or null when it
+  has no audio (proposed: [ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 5).
 - `duration_s` of `audio` is `samples` of the `# end` line divided by `sample_rate` of the header,
   rounded half up to thousandths. After a repair, `samples` of the `# end` line counts only the
   samples of the kept rows (SFF-769, SFF-795).
 - `cameras` is in order of `group_position`. `user_name` and `model` are `user_name` and
   `device.model` of the camera config (section 13), so the text rule of `user_name` also applies
   here. `exposure_us` is `controls.exposure_us.value`
-  of that config, or null. `stored_px` is the size of the first stored JPEG. `gaps` and `filled`
-  are the counts of the `# end` line.
+  of that config, or null. `stored_px` is the size of the first stored JPEG. It is null when the
+  camera file holds no block (proposed:
+  [ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 5). `gaps`,
+  `filled` and `missing` are the counts of the `# end` line (`missing`:
+  [ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1).
 - `audio.file` is the path of the audio file.
 - `calibration` is null, or `{calibration_uuid, source_take_uuid}` from the TOML.
   `source_take_uuid` is null when the TOML has none.
 - `processing_runs` is in order of `run_id`. `origin` is `realtime` when a stage provenance of the
   run has that origin, else `posthoc`. `recorded_at` is the unchanged text of the latest stage
   provenance.
-- In a manifest with `state` `recording`, each `duration_s`, `stored_px`, `gaps` and `filled` is
-  null.
+- In a manifest with `state` `recording`, each `duration_s`, `stored_px`, `gaps`, `filled` and
+  `missing` is null.
 
 **SFF-729** (reader) A reader MUST NOT use a value of `summary` for processing. When
 `summary` does not agree with the home of a value, the home wins, and a reader gives the take
 warning `summary_stale`. A reader gives this warning when `camera_label`, `display_rotation` or
-`nominal_fps` of a summary camera differs from the timing sidecar of the camera, or when `gaps` or
-`filled` differs from the `# end` line of a finished or repaired sidecar. For `nominal_fps`, the
+`nominal_fps` of a summary camera differs from the timing sidecar of the camera, or when `gaps`,
+`filled` or `missing` differs from the `# end` line of a finished or repaired sidecar (`missing`:
+[ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1). For `nominal_fps`, the
 reader compares the thousandths of SFF-728. A sidecar that the reader refuses (state `invalid`) is
 not in this comparison (SFF-871).
 
@@ -868,7 +887,13 @@ No block is laced. The frames are in position order.
 **SFF-734** (writer) A capture writer stores the JPEG bytes that an MJPEG camera sent,
 unchanged. For a camera that sends raw frames, it encodes each frame to JPEG
 ([ADR-VPD9](../decisions/entries/VPD9-spec-draft-v2-details.md)). It does not capture H.264. It
-refuses a request for H.264 capture.
+refuses a request for H.264 capture. There are two exceptions to "unchanged": (1) the block of a
+`missing` row is the placeholder of SFF-756; (2) when the camera sent a JPEG with no DHT segment
+before its first SOS, the capture writer inserts the standard tables of ITU-T T.81 Annex K.3 as one
+DHT segment immediately before the first SOS, and stores those bytes. It changes no other byte
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 3).
+The order of the four tables in that segment is the choice of the writer (proposed:
+[ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 6).
 
 **SFF-735** (writer) A writer stores each frame in the orientation of the sensor. It does not
 rotate the pixels. It writes no rotation element (for example `Projection` or `ProjectionPoseRoll`)
@@ -896,10 +921,14 @@ assume a fixed header length.
 
 **SFF-740** (reader) An unfinished camera file can have no Cues and elements of unknown size. A
 reader of an unfinished camera file finds its frames from the byte positions of its CSV rows, or by a
-walk of the elements from the start of the Segment data. Row k of the sidecar belongs to the k-th
-complete block of the camera file, in file order. A frame is usable when its row is usable (SFF-746)
-and its block is complete. A reader uses no row after the last complete block, and no block after the
-last usable row ([ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)). `rows` of the
+walk of the elements from the start of the Segment data. The j-th row with byte fields
+(`byte_offset` and `byte_size`) belongs to the j-th complete block of the camera file, in file
+order. When each row has byte fields, row k belongs to block k. A `missing` row with empty byte
+fields has no block (SFF-754). It is usable when it is complete and its CRC is correct
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 2).
+A frame is usable when its row is usable (SFF-746) and, for a row with byte fields, its block is
+complete. A reader uses no row after the first row with byte fields whose block is not complete,
+and no block after the last usable row ([ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)). `rows` of the
 reader result still counts each usable row, also a row after the last complete block (SFF-746,
 SFF-885). The multi-camera frames use only the usable frames (SFF-754)
 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2).
@@ -921,7 +950,7 @@ frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
 0,1000,1203311,1180002,0,4127,61234,5b1e0c2a
 ...
 # fit_segment pos_first=0 pos_last=18341 t0_ns=1190001 period_ps=33366700000
-# end rows=18342 gaps=2 filled=0 encode_skips=0
+# end rows=18342 gaps=2 filled=0 missing=0 encode_skips=0
 ```
 
 **SFF-741** (writer) A timing sidecar is a text file (SFF-700). Fields are separated by
@@ -995,15 +1024,16 @@ The columns are:
 |---|---|
 | `frame` | The position of the frame |
 | `source_frame_number` | The source frame number, or empty |
-| `arrival_ns` | The arrival time (relative) |
+| `arrival_ns` | The arrival time (relative), or empty in a `missing` row (SFF-756) |
 | `sample_ns` | The sample time (relative), or empty |
 | `flags` | The flags of the frame (SFF-756) |
-| `byte_offset` | The offset of the JPEG payload from the start of the camera file |
-| `byte_size` | The number of bytes of the JPEG payload |
+| `byte_offset` | The offset of the JPEG payload of the block of the row (the frame or the placeholder) from the start of the camera file, or empty in a `missing` row with no block (SFF-754) |
+| `byte_size` | The number of bytes of the JPEG payload of the block of the row, or empty in a `missing` row with no block |
 | `crc32` | The row CRC (SFF-744) |
 
 The footer of a finished file has zero or more `# fit` and `# fit_segment` lines (section 11), then
-`# end rows=<R> gaps=<G> filled=<F> encode_skips=<E>`.
+`# end rows=<R> gaps=<G> filled=<F> missing=<M> encode_skips=<E>`
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) items 1 and 2).
 
 The sidecar has no legacy column, for example `recording_frame_number` or
 `timestamp.from_recording_start.sec` ([ADR-VPD9](../decisions/entries/VPD9-spec-draft-v2-details.md)
@@ -1046,6 +1076,12 @@ its identity. A conversion writer MAY write `0`.
 A capture writer MAY write the remembered `camera_key` of a camera in place of the computed one,
 when the user confirmed that the device is that camera. `key_origin` of the camera config
 (section 13) tells which key the file holds.
+
+A capture writer that cannot read the values of the identity string MAY write a provisional key, with
+`key_origin` `provisional`: 16 lowercase hexadecimal characters, not 0, that the writer made from its
+own camera identifier. The key is not stable across computers or sessions. A program does not
+remember it
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 6).
 
 A capture writer MUST NOT give two different cameras the same `camera_key`. The capture program
 finds a remembered camera by its remembered location (the serial, the port path or the OS device
@@ -1097,23 +1133,30 @@ of SFF-720 (reason `bad_label`). The form is the pattern only, 6 to 8 lowercase 
 characters or `cam<N>`, so a reader does not refuse a label that is not the start of the
 `camera_key` of its own camera ([ADR-QDF0](../decisions/entries/QDF0-label-form-and-group-position-range.md)).
 
-**SFF-754** (writer) There is one row for each frame of the camera file, in position order.
+**SFF-754** (writer) There is one row for each position, in position order.
 `frame` is 0 in the first row and increases by 1 in each row. Row k of each video sidecar of a take
 is multi-camera frame k. The finished camera files of one take have the same number of rows
 ([ADR-W6HV](../decisions/entries/W6HV-spec-v2-details-part-3.md)). A camera file has at most 2^31
-frames. When the camera files that a reader reads have different numbers of usable frames
+frames. A camera file has one block for each row, with two exceptions: when the process that writes
+the camera file is killed or hangs, and when a write to the camera file fails, the file ends early.
+Each row after its last block has the flag `missing` and empty `byte_offset` and `byte_size`. Such a
+row has no block. A camera file can hold no block: it then holds only the EBML header, the Segment
+and the Tracks
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 2).
+When the camera files that a reader reads have different numbers of usable frames
 (SFF-740), the multi-camera frames are the frames from 0 to the smallest number of usable frames
 minus 1. For a finished or a repaired camera file, the number of usable frames is `rows` (SFF-885):
 each row of a repaired camera file is a usable frame
 ([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 3).
-For an unfinished camera file, it counts only the usable rows that have a complete block
+For an unfinished camera file, it counts only the usable frames of SFF-740: the usable rows that have
+a complete block, and the usable `missing` rows with no block
 ([ADR-0WTH](../decisions/entries/0WTH-spec-v2-details-part-12.md) item 32,
 [ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2).
 
 **SFF-755** (writer) `arrival_ns` is the host-clock time at which the writer received the frame,
 minus the take start. `sample_ns` is the time that the capture driver gives for the frame, on the host
 clock, minus the take start. It is empty when the driver gives none. A conversion writer writes an old
-per-frame time as `arrival_ns`.
+per-frame time as `arrival_ns`. In a `missing` row, `arrival_ns` and `sample_ns` follow SFF-756.
 
 **SFF-756** (writer) `flags` is a decimal integer of bits. Bit 0 (1): `gap`, the source frame
 number is not the source frame number of the row before plus 1, and it is not equal to the source
@@ -1124,27 +1167,51 @@ the camera gave no new frame for this multi-camera frame
 ([ADR-VPD9](../decisions/entries/VPD9-spec-draft-v2-details.md)). A writer of version 2.0 writes 0
 to bit 1, because it copies no frame. Bit 2 (4): `encode_skip`, the writer did not store one or more
 frames before this frame because the JPEG encoder failed. Bit 3 (8): `repeat`, the source frame
-number is equal to the source frame number of the row before. A writer writes 0 to the other bits
+number is equal to the source frame number of the row before. Bit 4 (16): `missing`, the camera gave
+no usable frame for this row. A writer writes 0 to the other bits
 ([ADR-W6HV](../decisions/entries/W6HV-spec-v2-details-part-3.md),
 [ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)).
+
+A capture writer writes `missing` for a frame with a capture error, and for each multi-camera frame
+after the last frame of a camera that stopped during the take. The block of a `missing` row is a
+placeholder: a baseline JPEG of one colour, black, with the width, the height, the number of
+components and the H/V sampling factors of each component of the camera's frames. When the writer
+knows no frame of the camera, it uses the mode size and the factors 2x1, 1x1, 1x1. Its Huffman and
+quantisation tables are the writer's choice. The writer compares layouts by the size, the number of
+components and the H/V factors only. In a `missing` row, `source_frame_number`, `arrival_ns` and
+`sample_ns` hold the values of the frame that had the error, or are empty when the camera gave no
+frame. The `missing` rows after the last block of a short file have no block (SFF-754)
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1).
 
 Guidance for programs: in skellycam, the flag `encode_skip` replaces the log message of an encoder
 skip ([ADR-Z641](../decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 1).
 
 **SFF-757** (writer) (provisional: live byte offsets, desk test DT5) `byte_offset` and
-`byte_size` give the JPEG payload of the block of the frame in the camera file. They are correct while
-the file is live, and they do not change when the file is closed.
+`byte_size` give the JPEG payload of the block of the row (the frame or the placeholder) in the
+camera file. They are correct while the file is live, and they do not change when the file is
+closed. A row with no block has both fields empty (SFF-754).
 
 **SFF-758** (writer) In the `# end` line, `rows` is the number of data rows, `gaps` the number of
-rows with the `gap` flag, `filled` the number with the `filled` flag, and `encode_skips` the number
-of rows with the `encode_skip` flag. A repair computes each count from the rows
-([ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)).
+rows with the `gap` flag, `filled` the number with the `filled` flag, `missing` the number with the
+`missing` flag, and `encode_skips` the number of rows with the `encode_skip` flag. A repair computes
+each count from the rows
+([ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md), `missing`:
+[ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1).
 
-**SFF-759** (reader) The number of rows of a finished or a repaired video sidecar is the number of
-blocks of its camera file. On a mismatch, a reader refuses the pair (state `invalid`, reason
+**SFF-759** (reader) The number of rows with a `byte_offset` of a finished or a repaired video
+sidecar is the number of blocks of its camera file
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 2).
+On a mismatch, a reader refuses the pair (state `invalid`, reason
 `bad_metadata`). A repair makes the two numbers equal (SFF-795,
 [ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 1,
 [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 10).
+A player MAY show the frames of a finished or repaired camera file before it has counted its
+blocks. It then checks, for each frame that it reads, that the block of the frame is the next block
+after the block of the previous row with byte fields (SFF-739), and, at the open, that no block
+follows the last block that a row points at. When a check fails, the player stops showing images of
+that camera file and reports the file as `invalid` with `bad_metadata`. The reader result of SFF-885
+does not use this order
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 9).
 
 ## 9. Audio file
 
@@ -1293,17 +1360,34 @@ fitted time of sample `n0`, relative to the take start. `period_fs` is an intege
 **SFF-781** (reader) The player time of each frame of a camera file is its fitted time, when the
 sidecar is finished or repaired and has a fit that holds each position. Otherwise it is
 `arrival_ns`, for every frame of the file, and the reader gives the warning `missing_fit`. A reader
-does not mix the two in one file.
+does not mix the two in one file. A row with no `arrival_ns` has no player time. In the strict
+player time of SFF-782, the reader skips it
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1).
 
 **SFF-782** (writer, reader) The player time never decreases from one position to the next in one
-file. The times that a reader gives to freemocap for a camera strictly increase. With the player
-times p, the strict player time is s(0) = p(0), and s(k) is the larger of p(k) and s(k − 1) + 1 ns.
+file. A position with no player time (SFF-781) is not in this rule. The times that a reader gives to
+freemocap for a camera strictly increase. With the player times p, in position order and with only
+the positions that have a player time, the strict player time is s(0) = p(0), and s(k) is the
+larger of p(k) and s(k − 1) + 1 ns.
 A reader gives s to freemocap, and SFF-828 uses s. The `records` of the reader result hold p
 ([ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)).
 
 **SFF-783** (reader) A player shows, at take time t, the last frame of each camera whose player
-time is at or before t. It MUST NOT compute a frame from its index and the frame rate. A player shows
+time is at or before t. When two or more positions have the same player time, the player shows the
+highest of them at that time
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 8). It MUST NOT compute a frame from its index and the frame rate. A player shows
 no frame of a camera before the player time of its position 0.
+
+At a take time in a `missing` row, a player shows the last frame before it that is not `missing`,
+with a mark "no frame". It never shows the placeholder as a picture. A program that ignores the flag
+shows the placeholder (black)
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 10).
+A take time t is in a `missing` row when that row is the last row whose player time is at or before
+t. It is also in a `missing` row with no player time when the player shows the multi-camera frame of
+that row at t. How a player selects that multi-camera frame is its choice. When no frame before the
+`missing` row is not `missing`, the player shows no frame of the camera, with the mark "no frame"
+(proposed: [ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) items
+1 and 2).
 
 **SFF-784** (reader) A reader maps an audio sample to take time only with the fit of the audio
 sidecar (SFF-779). It MUST NOT use the take start and the nominal sample rate. It adds
@@ -1361,6 +1445,11 @@ the journal needs no lock: the journal is a live append-only file (SFF-787), lik
 reader ignores the lock file
 ([ADR-0XX2](../decisions/entries/0XX2-spec-v2-details-part-5.md),
 [ADR-1HH0](../decisions/entries/1HH0-lock-startup-repair-and-reader-model-check.md)).
+On Windows, the lock is an exclusive lock of byte 0 for 1 byte (`LockFileEx` with
+`LOCKFILE_EXCLUSIVE_LOCK`, or `LockFile`, which takes the same lock; Python `msvcrt.locking` calls
+`LockFile`). On Linux and macOS, it is `flock` with `LOCK_EX` on the whole file. Each program uses
+this form, because a `flock` lock and an `fcntl` record lock do not see each other on Linux
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 7).
 
 **SFF-790** (reader) A reader ignores a file whose name ends in `.tmp`. It gives the folder warning
 `stray_tmp` when it finds one or more
@@ -1399,7 +1488,9 @@ incomplete recording was found. Would you like to repair it?" skellycam asks abo
 recorded on its own. When freemocap runs, freemocap asks one time for the whole take: for the media
 files and the journal together. So the user gets one question for one take. This rule also applies
 at start-up. No
-program repairs a file, folds a journal or changes a file of the take before the user agrees. When
+program repairs a file, folds a journal or changes a file of the take before the user agrees. The
+only exception is the completion of SFF-894 by the program that records the take
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 4). When
 the user agrees, the program repairs the files, and freemocap folds a left-over journal as part of
 that repair (SFF-845). The repair sets `state` of the manifest to `finished`. The manifest `state`
 has no third value: each repaired file still reports the state `repaired`, from its `# repair` line
@@ -1432,7 +1523,9 @@ repair writes no manifest
 
 **SFF-794** (writer, reader) A repair never changes a byte before its cut. It cuts each file of a
 device pair after the last record that it keeps (SFF-795 to SFF-797). Then it appends the footer
-lines of SFF-795 to the sidecar. It appends nothing to the media file. A repaired camera file has no
+lines of SFF-795 to the sidecar. It appends nothing to the media file. The one exception is a repair
+that replaces the tail of a short file with placeholders (SFF-795; proposed:
+[ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 4). A repaired camera file has no
 normal end: the repair writes no Cues and does not write the SeekHead again. A repaired audio file
 has no `mfra` box. These writes would change bytes before the cut. A reader accepts a repaired
 camera file with no normal end, and reads it as SFF-740 gives for an unfinished camera file: with no index and no normal end
@@ -1445,7 +1538,15 @@ camera pair equal: it keeps only the frames that have a kept row and a complete 
 it keeps the first n rows of a video sidecar and the first n blocks of its camera file (SFF-797).
 n is the smaller of two numbers: the number of rows before the first bad row (each row, when no row
 is bad), and the number of complete blocks.
-A repaired video sidecar has as many rows as its camera file has blocks (SFF-759)
+The repair keeps the `missing` rows with empty byte fields that come before the cut, and they do not
+count as blocks: n counts only the rows with byte fields. A later repair MAY replace the tail of a
+short file with placeholders (SFF-756)
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 2).
+Such a repair cuts the sidecar before its first row with empty byte fields. It appends a placeholder
+block to the camera file for each cut row, and it appends each cut row again with the byte fields
+of its placeholder (proposed:
+[ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 4).
+A repaired video sidecar has as many rows with a `byte_offset` as its camera file has blocks (SFF-759)
 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1 and 4,
 [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 2). The repair
 of an audio pair keeps the first n rows of the audio sidecar. n is the smaller of two numbers: the
@@ -1508,7 +1609,7 @@ A camera config has these members:
 |---|---|
 | `camera_label` | The label (a link for people; `camera_key` is the link key) |
 | `user_name` | The name that the user gave the camera: null, or a text of 1 to 128 bytes of UTF-8 with no control character |
-| `key_origin` | The origin of `camera_key` (SFF-752): `"computed"` (the key is the hash of form 1, 2 or 3, built from the `device` values of this file), `"confirmed_by_user"` (a remembered key that the camera has because the user confirmed the camera, in this session or an earlier one) or `"assigned"` (form 4, made in this session, confirmed by nobody). null when `camera_key` is 0. |
+| `key_origin` | The origin of `camera_key` (SFF-752): `"computed"` (the key is the hash of form 1, 2 or 3, built from the `device` values of this file), `"confirmed_by_user"` (a remembered key that the camera has because the user confirmed the camera, in this session or an earlier one), `"assigned"` (form 4, made in this session, confirmed by nobody) or `"provisional"` (a capture writer that cannot read the identity of SFF-752 made the key from its own camera identifier; the key is not stable across computers or sessions, and a program does not remember it, [ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 6). null when `camera_key` is 0. |
 | `device` | `model` (the product text that the camera reports about itself: the USB product string), `os_name` (the name that the capture API lists for the camera) ([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 2), `vendor_id` and `product_id` (4 lowercase hexadecimal characters, or null), `serial` (or null), `port_path` (or null), `os_device_id` (a text, or null: the persistent identifier of the OS, SFF-752), `backend` (for example `media_foundation`, `v4l2`, `avfoundation`) and `os_index` (the OS index at capture, or null) |
 | `requested` | `width`, `height` and `framerate` (a number, or `"camera_default"`), `capture_format` (`MJPG` or `YUYV`) and `exposure_mode` (`auto`, `manual` or `recommend`) |
 | `controls` | An object of the control values that the writer read back at the take start. Each key is a control name with its unit (SFF-802). Each value is `{"value": <number or null>, "auto": <true, false or null>}`. A writer MUST write the keys in the order of the list of SFF-802 ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conventions.md) item 4). |
@@ -1535,9 +1636,10 @@ writer of this file.
 device has. It writes null for a value that it could not read.
 
 **SFF-803** (reader) A reader links a camera config to its camera only by its key (`camera_key`).
-A reader checks only that `key_origin` is one of its three values, or null when `camera_key` is 0.
+A reader checks only that `key_origin` is one of its four values, or null when `camera_key` is 0.
 Another value makes the capture info JSON `invalid`, with the reason `bad_schema`
-([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 7). A reader never
+([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 7; the fourth
+value: [ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 6). A reader never
 computes a key again from the `device` values ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 9).
 
 ## 14. Processing info JSON
@@ -2515,7 +2617,10 @@ line end ([ADR-W389](../decisions/entries/W389-format-rules-from-the-golden-conv
   [ADR-64ER](../decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md) item 1);
 - each item of `records`: `[position, source_frame_number, arrival_ns, sample_ns, player_ns]` for a
   camera, and `[block, first_sample, n_samples, host_ns, fitted_ns]` for audio. An absent value is
-  null. For an unfinished camera file, `records` holds only the usable frames (SFF-740). For an
+  null. `rows` counts the `missing` rows. A `records` item of a row with no time has `arrival_ns`,
+  `sample_ns` and `player_ns` null
+  ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1).
+  For an unfinished camera file, `records` holds only the usable frames (SFF-740). For an
   unfinished audio file, `records` holds only the blocks whose every sample is in a complete
   fragment (SFF-792).
   `fitted_ns` is the fitted time of the `first_sample` of the block (SFF-779), with the fit that
@@ -2681,6 +2786,28 @@ its value (`1` and `1.0` pass), a "float" is each JSON number, and a text is a J
 the part: it does not refuse a model that breaks only a writer rule
 ([ADR-W5JC](../decisions/entries/W5JC-nested-model-types-in-the-descriptor-part.md) item 3).
 
+**SFF-894** (writer) This requirement belongs to section 12. When the process that writes a camera
+pair ends during a take with no normal end of its files (a hang, a kill), the program that records
+the take completes that pair at the end of the same take, in the same run, after that process has
+ended. It cuts the camera file and the sidecar as SFF-795 gives, appends no byte to the camera file,
+and appends a `missing` row with empty byte fields (SFF-754) for each multi-camera frame up to the
+number of rows of the take. Then it appends the `# repair` line and the `# end` line. It writes the
+fit lines of SFF-795 only when it has a fitter. This is not the repair of SFF-793: the program does
+not ask the user. A reader reports the pair as `repaired` (SFF-795)
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 4).
+The program completes a camera pair after a write to its camera file failed (SFF-754) in the same way
+(proposed: [ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 3).
+
+**SFF-895** (reader) This requirement belongs to section 5. A reader parses the `detail` of
+`camera_dead` and of `camera_file_short` (SFF-727) as keys and values: each key is followed by `=`,
+the keys are separated by one space, the values of p, b and r are integers in the form of SFF-701
+(or `none` for p), and the value of `reason` is the rest of the text. A player shows "camera lost at
+frame N" with N = p + 1, and N = 0 for `none`
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 5).
+When a `detail` does not parse, the player shows the warning of the code with no frame number. The
+codes of SFF-727 are not warnings of the reader result: SFF-887 does not change (proposed:
+[ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 7).
+
 ## Appendix A. Golden folders
 
 Gate 2 makes these folders. Each is committed with its SHA-256 sums and the script that made it,
@@ -2712,6 +2839,7 @@ in the case `confirmed_key` of G1
 | G15 | Legacy folders: one v1 folder of each era signal; a v1 folder whose signals are in two chains; a v1 folder with no era signal; a v0.0.x folder; a v0.1.0 folder; a folder of MP4 files only (the family `unknown`) | 21 |
 | G16 | Files with code: a pickle (`.pkl`) in the take folder; an NPY with an object array that the manifest lists | 22 |
 | G17 | (provisional) A skellysync folder | 19 |
+| G18 | Missing frames: a finished take of 3 cameras with no audio. Camera 0 has a frame with a capture error: a `missing` row with its times and a placeholder. Camera 1 stops during the take: `missing` rows with no times and placeholders, and the warning `camera_dead`. The process of camera 2 is killed: a short file that the program completed (SFF-894), with `missing` rows with no block, a `# repair` line, no fit line, and the warnings `camera_dead` and `camera_file_short` ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md)) | 5, 6, 8, 11, 12 |
 
 ### Layout and cases
 
@@ -2721,7 +2849,7 @@ A case name has only `a` to `z`, `0` to `9` and `_`. It is not the `<rec>` of th
 results are beside the case folder: `<case>.full.json` (the scope `full`) and `<case>.player.json`
 (the scope `player`). `golden/G<NN>/SHA256SUMS` lists each file. The cases are:
 
-- G1 to G4, G12, G13 and G16: `take`. G4 has four cameras. G12 has four cameras and audio with a
+- G1 to G4, G12, G13, G16 and G18: `take`. G4 has four cameras. G12 has four cameras and audio with a
   fit: camera 0 has two segments and a source frame gap, camera 1 a `period_ps` with a remainder,
   camera 2 no fit, and camera 3 two equal fitted times and an `encode_skip` row. G12 also holds the
   Parquet of the vector of SFT-748 (the two rows with equal fitted times) as committed bytes

@@ -11,7 +11,7 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 
 - A test starts on a new line with its ID in bold, then its title.
 - The next line starts with `Checks:` and gives the SFF IDs of the requirements that the test checks.
-- An `Input:` line names the inputs, for example a golden folder (G1 to G17 of SPEC.md Appendix A).
+- An `Input:` line names the inputs, for example a golden folder (G1 to G18 of SPEC.md Appendix A).
   A `Pass:` line gives the pass criteria.
 - A removed test keeps its line, with `(withdrawn)` after its ID.
 - Each requirement of [SPEC.md](SPEC.md) that is not withdrawn has one or more tests.
@@ -174,13 +174,13 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 | SFT-727 | 1a | |
 | SFT-728 | 1a | |
 | SFT-729 | 1a | |
-| SFT-730 | 2 | 1a: `whole_files_and_live_files`, `fsync_provisional` |
+| SFT-730 | 2 | 1a: `whole_files_and_live_files`, `fsync_provisional`, `lock_form` |
 | SFT-731 | 1a | |
 | SFT-732 | 1a | |
-| SFT-733 | 2 | 1a: `repair`, `check_on_golden`, `camera_file_provisional` |
+| SFT-733 | 2 | 1a: `repair`, `check_on_golden`, `camera_file_provisional`, `missing_rows_with_no_block` |
 | SFT-734 | 2 | `<golden case>` |
 | SFT-735 | 1a | |
-| SFT-736 | 2 | 1a: `camera_configs_by_key[g1]`, `confirmed_key`, `bad_key_origin[g1_*]` |
+| SFT-736 | 2 | 1a: `camera_configs_by_key[g1]`, `confirmed_key`, `bad_key_origin[g1_*]`, `provisional_key_origin` |
 | SFT-737 | 3 | 1a: `golden_part`; 2: `golden_part_against_the_parquet` |
 | SFT-738 | 2 | |
 | SFT-739 | 2 | |
@@ -215,6 +215,9 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
 | SFT-768 | 2 | `<golden case>`; 1a: `committed_results`, `folders_that_the_test_makes[empty-*]`, `folders_that_the_test_makes[one_timing_sidecar-*]`, `folders_that_the_test_makes[only_capture_info-*]`, `folders_that_the_test_makes[empty_annotated_video-player]`, `folders_that_the_test_makes[empty_annotated_video-js]` |
 | SFT-769 | 2 | `<golden case>`; 1a: `scope_player`, `scope_player_against_full[G16]`, `scope_player_against_full[G15-v1a]`, `folder_file_alone[*-player]`, `folder_file_alone[*-js]`, `committed_results` |
 | SFT-770 | 2 | |
+| SFT-771 | 1a | |
+| SFT-772 | 1a | |
+| SFT-773 | 1a | |
 
 The second table gives the stage of the committed `full` result and of the committed `player`
 result of each golden case. "each" is each case of the folder. "each other
@@ -242,6 +245,7 @@ its case. SFT-748 reads it, in stage 2.
 | G15 | each | 1a | 1a |
 | G16 | each | 1a | 1a |
 | G17 | each | 1b | 1b |
+| G18 | each | 1a | 1a |
 
 ## Withdrawn tests
 
@@ -654,17 +658,19 @@ SHA-256 or null, as SFF-723 gives for its role. skellycam holds
 each keeps the members and
 the items of the other (external: freemocap). `summary` has the members and the values of SFF-728: `exposure_us` for each camera, the
 `audio` object, the sorted `warnings`, and a
-`nominal_fps` and a `duration_s` with at most 3 decimal places. In the manifest with `state`
-`recording`, each `duration_s`, `stored_px`, `gaps` and `filled` is null. `processing_runs` has
+`nominal_fps` and a `duration_s` with at most 3 decimal places. Each summary camera has `missing`
+after `filled`, with the count of the `# end` line. In the manifest with `state`
+`recording`, each `duration_s`, `stored_px`, `gaps`, `filled` and `missing` is null. `processing_runs` has
 `{run_id, origin, recorded_at}` for each run (external: freemocap).
 
 **SFT-709** Reader: the summary is not used
 Checks: SFF-729, SFF-730
 Input: G3 with a `summary` whose `display_rotation` and `nominal_fps` differ from the sidecars; G3
-with a `summary` whose `gaps` differs from the `# end` line; G3 with a wrong `sha256` in a `files`
-item; a copy of G1 with each of these changes.
+with a `summary` whose `gaps` differs from the `# end` line; G3 with a `summary` whose `missing`
+differs from the `# end` line; G3 with a wrong `sha256` in a `files` item; a copy of G1 with each of
+these changes.
 Pass: the reader result uses the sidecar values and has the warning `summary_stale`, for the first
-two inputs. The wrong `sha256` of the `files` item changes nothing in the result.
+three inputs. The wrong `sha256` of the `files` item changes nothing in the result.
 
 **SFT-710** Reader: a missing or wrong manifest
 Checks: SFF-731, SFF-867, SFF-868
@@ -706,9 +712,12 @@ sidecar. Blender (pinned) counts the same number (external: Blender). The writer
 **SFT-712** Writer: JPEG bytes
 Checks: SFF-734
 Input: a recording from an MJPEG camera (test hardware), and from a raw-frame source; a request for
-H.264 capture.
-Pass: the block payloads are the bytes that the camera sent (external: capture hardware). A raw source gives valid JPEG frames.
-The writer refuses the request for H.264 capture.
+H.264 capture; a synthetic MJPEG camera that sends JPEGs with no DHT segment.
+Pass: the block payloads are the bytes that the camera sent, except the two exceptions of SFF-734 (external: capture hardware). A raw source gives valid JPEG frames.
+The writer refuses the request for H.264 capture. For each JPEG with no DHT segment, the block
+payload is the sent JPEG with one DHT segment inserted immediately before its first SOS. That
+segment holds the four tables of ITU-T T.81 Annex K.3, each one time, in any order. No other byte
+changes.
 
 **SFT-713** Reader: JPEG and block parsing
 Checks: SFF-738, SFF-739
@@ -723,13 +732,15 @@ rotation from the EXIF tag
 
 **SFT-714** Reader: an unfinished camera file
 Checks: SFF-740, SFF-757
-Input: G5.
+Input: G5; a copy of G18, changed at test time, whose sidecar of camera 2 has no `# repair` line and
+no `# end` line.
 Pass: the reader finds each complete frame from the CSV offsets, and the same frames by a walk. Row
 k belongs to the k-th complete block. The reader uses no row after the last complete block and no
 block after the last usable row. `rows` is the number of usable CSV rows, also of the rows after the
 last complete block, and `records` holds only the usable frames ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2). The
 check of the CSV offsets is provisional: it waits for desk test DT5 (SFF-757). The check of the walk
-does not wait.
+does not wait. In the copy of G18, camera 2 is `unfinished`, and its `records` hold each of its 12
+rows: a `missing` row with empty byte fields has no block, and it is usable.
 
 ### Timing sidecars (sections 7, 8 and 10)
 
@@ -762,7 +773,7 @@ string of one of the forms 1 to 3 of SFF-752, built from the `device` values of 
 JSON. The test computes each of these forms that the values give, because the file records no
 reason when the writer does not use a serial that is not null
 ([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 4). When
-`key_origin` is `confirmed_by_user` or `assigned`, `camera_key` is 16 lowercase hexadecimal
+`key_origin` is `confirmed_by_user`, `assigned` or `provisional`, `camera_key` is 16 lowercase hexadecimal
 characters and is not 0: the test does not compute it. The confirmed camera has the remembered key
 and `confirmed_by_user`. A new camera whose computed key is the key of a remembered camera, and
 that the user says is not that camera, gets an assigned key with `key_origin` `assigned`
@@ -770,7 +781,8 @@ that the user says is not that camera, gets an assigned key with `key_origin` `a
 count from 0, and each camera file of the take has the same number of rows. The gap of G1 has the
 flag `gap`, and a reader gives that camera file the file warning `gap` (SFF-887). `gap` is 0 in the first row and next to an empty `source_frame_number`. The row after
 the encoder failure has the flag `encode_skip`. The row with the equal source frame number has the
-flag `repeat` and not the flag `gap`. The `# end` counts agree with the rows, and `encode_skips` is
+flag `repeat` and not the flag `gap`. The `# end` counts agree with the rows, `missing` is the
+number of rows with the flag `missing`, and `encode_skips` is
 the number of rows with the flag `encode_skip`. The converter writes
 the old time as `arrival_ns`. The check that the writer writes 0 to the bit `filled` is provisional:
 it waits for the slot assembly of the skellycam plan and desk tests DT4 and DT7 (SFF-756). The other
@@ -787,9 +799,13 @@ of G4.
 Checks: SFF-759
 Input: a finished pair whose sidecar has one row more than the camera file has blocks; a pair of
 `repaired` of G6 whose sidecar has one row more than the camera file has blocks, changed at test
-time.
-Pass: each pair is `invalid` with `bad_metadata`
-([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 10).
+time; a copy of G1 whose sidecar of camera 0 has no row for block 5, so that row 5 points at the
+block after a skipped block, changed at test time; G18.
+Pass: each changed pair is `invalid` with `bad_metadata`
+([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 10). The
+reader result does not use the order of the checks of a player (SFF-759). In G18, the short camera
+file of camera 2 has as many blocks as its sidecar has rows with a `byte_offset`, and the pair is
+`repaired`, not `invalid`.
 
 **SFT-720** Writer: the audio file and its sidecar
 Checks: SFF-760, SFF-761, SFF-762, SFF-764, SFF-767, SFF-768, SFF-769, SFF-770
@@ -850,13 +866,18 @@ Pass: the fitted times equal the committed values, in Python and JS. The result 
 
 **SFT-728** Reader: player time and the frame shown
 Checks: SFF-781, SFF-782, SFF-783
-Input: G1, G12 (a sidecar with no fit, and the two rows with equal fitted times) and G5.
+Input: G1, G12 (a sidecar with no fit, and the two rows with equal fitted times), G5 and G18.
 Pass: the player time is the fitted time for G1 and for the G12 file with the two equal fitted
 times. It is the arrival time, with `missing_fit`, for the G12 sidecar with no fit and for G5. It
 never decreases. For the two rows of G12 with equal fitted times, the `records` hold the
 two equal player times, and the times that the reader gives to freemocap differ by 1 ns. At each
 test time t, the frame shown is the last frame with a player time
-at or before t, and no frame is shown before position 0.
+at or before t, and no frame is shown before position 0. At the equal player time of the two rows
+of G12, the frame shown is the row with the higher position. In G18, a row with no `arrival_ns` has
+no player time: its `player_ns` is null, and the times that the reader gives to freemocap skip it.
+The frame shown is never a `missing` row: at a take time in the `missing` row of camera 0, it is the
+last row before it that is not `missing`. After the last frame of camera 1 and of camera 2, the
+frame shown stays the last row that is not `missing`.
 
 **SFT-729** Reader: audio mapping and length
 Checks: SFF-784, SFF-785
@@ -887,7 +908,8 @@ info JSON, the calibration TOML, the Parquet or an export) (external: freemocap)
 writer of the manifest holds it while it reads, changes and writes the manifest. skellycam holds it
 for each whole-file write that it makes: the manifest and the capture info JSON. freemocap appends
 to the journal without the lock, also while another program holds the lock (external: freemocap). The lock is the
-file lock of the operating system on the empty file `.processing.lock`. After a kill, the lock file
+file lock of the operating system on the empty file `.processing.lock`, in the form of SFF-789 for
+the OS: while the test holds that lock, the writer does not replace the manifest. After a kill, the lock file
 that no process holds does not stop the next writer. The check
 that a writer forces each live file to disk about once a second is provisional: it waits for the
 measurement of the cost of fsync (SFF-788). The other checks do not wait.
@@ -920,7 +942,8 @@ Checks: SFF-793, SFF-794, SFF-795, SFF-796, SFF-797, SFF-798
 Input: G5; G6; a copy of `repaired` of G6, changed at test time, with the manifest of
 `interrupted_repair` and with no `# end` line in one sidecar (a repair that stopped in the `# end`
 pass); a start-up of skellycam and of freemocap with G5, one time with a user who agrees
-and one time with a user who does not agree.
+and one time with a user who does not agree; a copy of G18, changed at test time, whose sidecar of
+camera 2 has no `# repair` line and no `# end` line, and whose manifest has `state` `recording`.
 Pass: the program asks the user the question of SFF-793 before it repairs, also at start-up
 (external: user).
 skellycam asks about a take that it recorded on its own (external: user). When freemocap runs, freemocap asks, and
@@ -954,7 +977,10 @@ copy that stopped in the `# end` pass, the reader reports `unfinished` for the s
 `# end` line and `repaired` for each other sidecar, and `state` of the manifest is `recording`. A
 repair of that copy gives the same files as the repair of G5, except for `cut_bytes` and
 `media_cut_bytes`
-([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 12). The check
+([ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 12). In the
+copy of G18, the repair keeps each row of camera 2, also the `missing` rows with empty byte fields
+after its last block: they do not count as blocks. It changes no byte of the camera file, and the
+reader reports the pair as `repaired`, with the rows of G18. The check
 of the repaired camera
 file (its first n blocks are kept, SFF-795) is provisional: it waits for desk test DT-R1 (SFF-797). The checks
 of the sidecars and the audio file do not wait.
@@ -975,7 +1001,7 @@ Pass: the file exists at the take start and at its end, each time complete. skel
 `.processing.lock` for each of the two writes. It has the members of
 section 13, in order, and no member of the forbidden list. `camera_configs` is keyed by `camera_key`.
 Each camera config has `key_origin` after `user_name`, with the value `computed`,
-`confirmed_by_user` or `assigned`, and each `device` has `os_device_id`, a text or null. Each
+`confirmed_by_user`, `assigned` or `provisional`, and each `device` has `os_device_id`, a text or null. Each
 `user_name` is null, or a text of 1 to 128 bytes of UTF-8 with no control character.
 Each control name is from SFF-802, and `audio` names the microphone.
 
@@ -983,10 +1009,12 @@ Each control name is from SFF-802, and `audio` names the microphone.
 Checks: SFF-803
 Input: G3 with the camera configs in another order and with `camera_label` values swapped; the case
 `confirmed_key` of G1; G3 with the `key_origin` `"remembered"` in one camera config, changed at
-test time; a copy of G1 with each of these changes of G3.
+test time; a copy of G1 with each of these changes of G3; a copy of G1 with the `key_origin`
+`"provisional"` in one camera config, changed at test time.
 Pass: each config is linked to the camera of its key. The case `confirmed_key` reads with no error:
 the reader does not compute the key from the `device` values. The capture info JSON with
 `"remembered"` is `invalid`, with `bad_schema` ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 9).
+The capture info JSON with `"provisional"` is `present`, and the reader result is the result of G1.
 
 **SFT-737** (external: freemocap) Writer: the processing info JSON
 Checks: SFF-804, SFF-805
@@ -1399,6 +1427,8 @@ one time in each `warnings` array. The `folder_files` item of `calibration.file`
 `calibration` ([ADR-XR63](../decisions/entries/XR63-reader-rules-of-the-golden-review.md) item 3). The file of G12 with the flag `encode_skip` in a usable row has
 the file warning `encode_skip`. Each camera file with the flag `gap` in a usable row (camera 1 of
 G1, camera 0 of G12) has the file warning `gap`. A camera file with no such row does not have it.
+In G18, `rows` of each camera counts its `missing` rows, and each `records` item of a row with no
+time has `arrival_ns`, `sample_ns` and `player_ns` null.
 The empty folder has `folder_state` `empty`. The folder with one
 timing sidecar has `folder_state` `unreadable`, the sidecar in `other_files` as `invalid` with
 `missing_media`, its own path as its `name`, and the folder warning `orphan_file`. The folder with
@@ -1446,3 +1476,46 @@ refuse the fourth copy: its item is `present`, as for G3. The fifth copy is also
 "integer" is a JSON number with no fraction in its value, and a "float" is each JSON number. The
 sixth copy is also `present`
 ([ADR-H2HQ](../decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 2).
+
+### Missing frames and short files (sections 5, 6, 8, 11 and 12)
+
+These tests are for the changes F-1 to F-10
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md)).
+
+**SFT-771** Writer: `missing` rows and the placeholder
+Checks: SFF-727, SFF-728, SFF-734, SFF-754, SFF-755, SFF-756, SFF-757, SFF-758
+Input: a skellycam run of 2 MJPEG cameras with 8 multi-camera frames. Camera 1 has a frame with a
+capture error at position 2: the writer gets its times and no JPEG. Camera 1 stops after position 4.
+Pass: each sidecar has 8 rows, and each camera file has 8 blocks. Rows 2, 5, 6 and 7 of camera 1
+have the flag `missing`. Row 2 holds the source frame number and the times that the test gave. Rows
+5 to 7 have empty `source_frame_number`, `arrival_ns` and `sample_ns`. The byte fields of each
+`missing` row give its block. That block is a baseline JPEG that decodes to black, with the width, the
+height, the number of components and the H/V sampling factors of the frames of the camera. Each
+other block holds the bytes that the test sent. The `# end` line of camera 1 has `missing=4`, and
+that of camera 0 has `missing=0`. The summary cameras have `missing` 0 and 4. The manifest
+`warnings` has one `camera_dead` for camera 1, with the `detail` `last_frame=4 reason=<the reason
+of the test>`, and no `camera_dead` for camera 0.
+
+**SFT-772** (external: skellycam) Writer: the completion of a take by its own writer
+Checks: SFF-727, SFF-754, SFF-793, SFF-795, SFF-894
+Input: a skellycam take in which the process of one camera is killed; one in which it hangs; one
+with a failed write to one camera file; G18.
+Golden part: camera 2 of G18.
+Pass: at the end of the same take, with no question to the user, the program completes the pair of
+the camera. The camera file holds no byte after its last block, and it has as many blocks as the
+sidecar has rows with a `byte_offset`. Each row after the last block has the flag `missing` and
+empty byte fields and times. The sidecar has as many rows as the other sidecars of the take. Its
+last two lines are the `# repair` line and the `# end` line, and it has no fit line when the program
+has no fitter. The reader reports the pair as `repaired`. The manifest `warnings` has
+`camera_dead` and `camera_file_short` for the killed and the hung camera, with the `detail` forms
+of SFF-727. For the failed write, it has `camera_file_short` and `take_error`, and no `camera_dead`
+(external: skellycam).
+
+**SFT-773** Reader: camera lost at frame N
+Checks: SFF-895
+Input: G18; copies of G18, changed at test time, in which the `detail` of `camera_dead` of camera 1
+is `last_frame=none reason=hang`, `last_frame=06 reason=hang` or `frame=6`.
+Pass: `camera_lost_at` of the Python reader gives N = p + 1 of SFF-895: 7 for camera 1 and 8 for
+camera 2 of G18, and null for camera 0. For `last_frame=none`, it gives 0. For the two `detail` texts
+that do not parse, it gives null. The reader result of each copy is the committed result of G18:
+the codes of SFF-727 are not warnings of the reader result.

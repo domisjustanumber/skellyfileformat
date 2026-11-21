@@ -151,7 +151,7 @@ def test_sft_708_external():
     """
 
 
-VECTORS_709 = ["rotation_and_fps", "gaps", "sha256"]
+VECTORS_709 = ["rotation_and_fps", "gaps", "missing", "sha256"]
 
 
 @pytest.mark.parametrize(
@@ -168,8 +168,8 @@ def test_sft_709_summary_is_not_used(reader, variant, expected, base, vector):
     cameras = manifest["summary"]["cameras"]
     if vector == "rotation_and_fps":
         cameras[0].update(display_rotation=90, nominal_fps=25)
-    elif vector == "gaps":
-        cameras[1]["gaps"] += 5
+    elif vector in ("gaps", "missing"):
+        cameras[1][vector] += 5
     else:
         item = next(item for item in manifest["files"] if item["sha256"] is not None)
         item["sha256"] = "0" * 64

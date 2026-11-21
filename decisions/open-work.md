@@ -11,6 +11,13 @@ task. Delete an item when its work is done. The PR that closes an item records t
   stages 2, 3 and 4. The user approved the first push on 2026-11-17 (question Q193). From that push
   on, an entry cannot be corrected in place. [AGENTS.md](../AGENTS.md#4-project-rules) gives the
   marks and the scope of the approval.
+- **Review of the changes F-1 to F-10.** The user reviews the text of
+  [ADR-6AT7](entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) in SPEC.md
+  and conformance.md (gate 1), and its tests and G18 (gate 2). The user accepts or rejects each item
+  of [ADR-5B03](entries/5B03-choices-for-the-format-changes-f1-to-f10.md).
+- **freemocap and the rows with no time.** A `missing` row with no `arrival_ns` has no player time
+  (SFF-781), so its frame has no strict player time. SFF-828 (`timestamp_s` and the group time) and
+  the fold (SFF-844) give no value for such a frame. It waits for the freemocap port.
 - **The full repair (stage 2).** A new test and a golden case for the repair of a take that holds a
   calibration TOML or a Parquet. The manifest summary of the repair takes values from them
   (SFF-728). The user reviews them at the gate 2 review of stage 2
@@ -59,7 +66,7 @@ task. Delete an item when its work is done. The PR that closes an item records t
   - SFF-862, SFF-863 and G17: skellysync folders wait for the skellysync decisions D-Q, D-FPS,
     D-HDR, D-DRIFT and D-AUDIO. The tests of stage 1b wait for these five decisions
     ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) item 3);
-  - G5 and G6: the stand-in for the killed camera file waits for desk tests DT-R1 and DT5
+  - G5, G6 and camera 2 of G18: the stand-in for the killed camera file waits for desk tests DT-R1 and DT5
     ([ADR-G21H](entries/G21H-gate-2-tests-location-and-interfaces.md) item 6).
 - **Open points of the model types of the Parquet descriptor**
   ([ADR-W5JC](entries/W5JC-nested-model-types-in-the-descriptor-part.md)). They wait for the

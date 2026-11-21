@@ -1,4 +1,4 @@
-# Choices made for G2, G4, G5, G6, G11 and G12 that the spec does not give
+# Choices made for G2, G4, G5, G6, G11, G12 and G18 that the spec does not give
 
 **Accepted by the user on 2026-11-16 as conventions of the golden folders**
 ([ADR-2MQE](../decisions/entries/2MQE-tests-prerelease-serial-and-exports.md) item 7). An item is a
@@ -18,10 +18,13 @@ item 2 decided item 46 on 2026-11-17, and
 jitter of item 47. The user accepted the audio members `held_samples` and `complete_blocks` of
 item 29 as a convention of the golden folders
 ([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 3), and the
-values of the jitter of item 47 (ADR-SM53 item 4), on 2026-11-17. No item is open.
+values of the jitter of item 47 (ADR-SM53 item 4), on 2026-11-17. Section 11 (G18, items 48 to
+52) is **proposed**
+([ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 8): the user
+did not review it. No other item is open.
 
-This file is for the six golden folders that `tools/goldgen/capture_cases.py` makes: G02, G04, G05,
-G06, G11 and G12. Most choices apply to more than one folder, so the folders have one file.
+This file is for the seven golden folders that `tools/goldgen/capture_cases.py` makes: G02, G04, G05,
+G06, G11, G12 and G18. Most choices apply to more than one folder, so the folders have one file.
 The conventions of [G01_CHOICES.md](G01_CHOICES.md) apply and are not repeated here: the writer
 string, the take keys, the frame size of 64 × 48 pixels, the JPEG quality, the fit `goldgen-truth`,
 the JSON white space, the synthetic devices, `SHA256SUMS` and `<case>.truth.json`.
@@ -321,3 +324,28 @@ TOML, SFF-872). Each take is `complete` (SFF-869), with `manifest` `present` (SF
   because `records` hold p and not the strict time (SFF-782). Audio: `fitted_ns` by SFF-779.
   `frames` is `ok` for `full` and `not_checked` for `player`. In `equal_fitted_times.parquet`, the
   times of rows 6 and 7 differ by 1 ns (item 45).
+
+## 11. G18 (proposed)
+
+G18 shows the changes F-1, F-2 and F-4
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md)).
+
+48. **The case.** One case `take`: the cameras 0, 1 and 2 of `capture_cases.camera`, 12 frames each,
+    the rate 30/1 and no audio. Camera 0 has the capture error at position 4. Camera 1 stops after
+    position 6. The process of camera 2 is killed in the write of block 8.
+49. **The placeholder** (SFF-756). Pillow writes a black RGB image of 64 × 48 pixels at the JPEG
+    quality of the frames. So it has the size, the 3 components and the factors 2x2, 1x1, 1x1 of the
+    frames. Each `missing` row with a block holds the same bytes.
+50. **The fit of camera 1.** Its fit line holds each position (SFF-776), also the rows with no time.
+    Those rows have no player time (SFF-781), so their `player_ns` is null.
+51. **The short file of camera 2.** The camera file is a stand-in, as in item 23: the muxer output
+    before `close()`, cut after block 7. The kill left 37 bytes of block 8, so the `# repair` line has
+    `media_cut_bytes=37`. The sidecar had no torn row, so `cut_bytes=0`. The sidecar has no fit line:
+    the program has no fitter (SFF-894). The pair is provisional, as G05 (DT-R1 and DT5).
+52. **The manifest warnings** (SFF-727). They are in order of `group_position`, and `camera_dead`
+    comes before `camera_file_short` for one camera. The reasons are `stopped` and `hang`.
+
+- **G18 `take`**: cameras 0 and 1 `finished`, `fit` true; camera 2 `repaired`, `fit` false,
+  `missing_fit` (SFF-747, SFF-795). `rows` 12 for each camera: the `missing` rows count (SFF-885).
+  The `records` of a row with no `arrival_ns` have null times (SFF-781, SFF-885). `torn_bytes` 0.
+  `frames` is `ok` for `full` (two finished files with 12 rows) and `not_checked` for `player`.
