@@ -1,14 +1,15 @@
 # 76NN — Details of the format changes F-1 to F-10 that an independent review found
 
-**Status:** proposed, 2026-11-21 (an agent wrote these details to complete
+**Status:** accepted, 2026-11-21 (user; the user accepted the 13 items as one set, on `main`, not
+pushed; was proposed, 2026-11-21 (an agent wrote these details to complete
 [ADR-6AT7](6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) and
 [ADR-5B03](5B03-choices-for-the-format-changes-f1-to-f10.md), after an independent review of the
-first text; the user did not review them; branch dom/f1-f10, not pushed).
+first text; branch dom/f1-f10)).
 
 ## Decision
 
 Neither skellycam `specs/recorder.md` section 13 nor ADR-5B03 gives these details. The spec states
-each item now, with "proposed" and a citation of this entry.
+each item, with a citation of this entry.
 
 1. **SFF-740.** The j-th row with byte fields belongs to the j-th complete block. A reader uses no
    row after the first row with byte fields whose block is not complete.

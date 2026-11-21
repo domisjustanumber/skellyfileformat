@@ -19,7 +19,7 @@ jitter of item 47. The user accepted the audio members `held_samples` and `compl
 item 29 as a convention of the golden folders
 ([ADR-SM53](../decisions/entries/SM53-choices-for-the-decisions-of-round-7.md) item 3), and the
 values of the jitter of item 47 (ADR-SM53 item 4), on 2026-11-17. The user accepted items 48 to
-52 of section 11 (G18) on 2026-11-21 ([ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 8). Item 53 (the case `no_block`) is **proposed**
+52 of section 11 (G18) on 2026-11-21 ([ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 8), and item 53 (the case `no_block`) on 2026-11-21
 ([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 13). No other item is open.
 
 This file is for the seven golden folders that `tools/goldgen/capture_cases.py` makes: G02, G04, G05,
@@ -346,7 +346,7 @@ G18 shows the changes F-1, F-2 and F-4
     and DT5).
 52. **The manifest warnings** (SFF-727). They are in order of `group_position`, and `camera_dead`
     comes before `camera_file_short` for one camera. The reasons are `stopped` and `hang`.
-53. **The case `no_block`** (proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 13). Two cameras with 6 frames each, and another
+53. **The case `no_block`** ([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 13). Two cameras with 6 frames each, and another
     `take_uuid`. Row 0 of camera 0 is a `missing` row with its times and a placeholder (F-10 with no
     earlier real frame). The process of camera 1 hangs before its first block reaches the file: the
     camera file is the muxer output before `close()`, cut before the first Cluster, and the process

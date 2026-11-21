@@ -19,6 +19,7 @@ These entries are `accepted` or `evidence`.
 | # | Decision | Status |
 |---|----------|--------|
 | [5B03](entries/5B03-choices-for-the-format-changes-f1-to-f10.md) | Choices for F-1 to F-10: player marks, completion after a write error, tail repair, summary nulls, DHT order, F-5 as a player rule, test inputs | accepted |
+| [76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md) | Details for F-1 to F-10 from a review: byte-field rows, tail repair steps, SFF-828, no-block file, terms, `stored_px`, tests | accepted |
 
 ### Proposed
 
@@ -27,7 +28,6 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
-| [76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md) | Details for F-1 to F-10 from a review: byte-field rows, tail repair steps, SFF-828, no-block file, terms, `stored_px`, tests | `spec` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

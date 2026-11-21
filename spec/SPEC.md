@@ -831,7 +831,7 @@ manifest computes the summary from the files
   here. `exposure_us` is `controls.exposure_us.value`
   of that config, or null. `stored_px` is the size of the first stored JPEG that is not a
   placeholder, or the mode size of SFF-756 when there is none ([ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 5; "that is
-  not a placeholder", proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 12). `gaps`,
+  not a placeholder", [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 12). `gaps`,
   `filled` and `missing` are the counts of the `# end` line (`missing`:
   [ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1).
 - `audio.file` is the path of the audio file.
@@ -848,7 +848,7 @@ manifest computes the summary from the files
 warning `summary_stale`. A reader gives this warning when `camera_label`, `display_rotation` or
 `nominal_fps` of a summary camera differs from the timing sidecar of the camera, or when `gaps`,
 `filled` or `missing` differs from the `# end` line of a finished or repaired sidecar (`missing`:
-only when both hold it, proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 11;
+only when both hold it, [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 11;
 [ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1). For `nominal_fps`, the
 reader compares the thousandths of SFF-728. A sidecar that the reader refuses (state `invalid`) is
 not in this comparison (SFF-871).
@@ -883,8 +883,8 @@ holds no version field and no writer string of this format: its timing sidecar h
 and a track number below 128. It has no other track.
 
 **SFF-733** (writer) Each block holds one JPEG image (a frame or a placeholder) in one
-`SimpleBlock` with the keyframe flag. No block is laced. The blocks are in position order (proposed:
-[ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 11).
+`SimpleBlock` with the keyframe flag. No block is laced. The blocks are in position order
+([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 11).
 
 **SFF-734** (writer) A capture writer stores the JPEG bytes that an MJPEG camera sent,
 unchanged. For a camera that sends raw frames, it encodes each frame to JPEG
@@ -931,7 +931,7 @@ fields has no block (SFF-754). It is usable when it is complete and its CRC is c
 A frame is usable when its row is usable (SFF-746) and, for a row with byte fields, its block is
 complete. A reader uses no row after the first row with byte fields whose block is not complete,
 and no block after the last usable row (the mapping by the rows with byte fields and the first row
-whose block is not complete, proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 1; [ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)). `rows` of the
+whose block is not complete, [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 1; [ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)). `rows` of the
 reader result still counts each usable row, also a row after the last complete block (SFF-746,
 SFF-885). The multi-camera frames use only the usable frames (SFF-754)
 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2).
@@ -1086,7 +1086,7 @@ own camera identifier. The key is not stable across computers or sessions. A pro
 remember it
 ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 6). A writer that writes a provisional key for a camera does not make an assigned key
 (form 4) for that camera (the words "cannot read the values" and "not 0", and this sentence,
-proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 5).
+[ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 5).
 
 A capture writer MUST NOT give two different cameras the same `camera_key`. The capture program
 finds a remembered camera by its remembered location (the serial, the port path or the OS device
@@ -1146,7 +1146,7 @@ frames. A camera file has one block for each row, with two exceptions: when the 
 the camera file is killed or hangs, and when a write to the camera file fails, the file ends early.
 Each row after its last block has the flag `missing` and empty `byte_offset` and `byte_size`. Such a
 row has no block. A camera file can hold no block: it then holds no Cluster, only the elements before
-the first Cluster (proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 9)
+the first Cluster ([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 9)
 ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 2).
 When the camera files that a reader reads have different numbers of usable frames
 (SFF-740), the multi-camera frames are the frames from 0 to the smallest number of usable frames
@@ -1154,7 +1154,7 @@ minus 1. For a finished or a repaired camera file, the number of usable frames i
 each row of a repaired camera file is a usable frame
 ([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 3).
 For an unfinished camera file, it counts only the usable frames of SFF-740: the usable rows that have
-a complete block, and the usable `missing` rows with no block (proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 3)
+a complete block, and the usable `missing` rows with no block ([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 3)
 ([ADR-0WTH](../decisions/entries/0WTH-spec-v2-details-part-12.md) item 32,
 [ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2).
 
@@ -1182,7 +1182,7 @@ after the last frame of a camera that stopped during the take. The block of a `m
 placeholder: a baseline JPEG of one colour, black, with the width, the height, the number of
 components and the H/V sampling factors of each component of the camera's frames. When the writer
 knows no frame of the camera, it uses the mode size (the width and the height of the capture mode
-that the writer opened; proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 10) and the factors 2x1, 1x1, 1x1. Its Huffman and
+that the writer opened; [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 10) and the factors 2x1, 1x1, 1x1. Its Huffman and
 quantisation tables are the writer's choice. The writer compares layouts by the size, the number of
 components and the H/V factors only. In a `missing` row, `source_frame_number`, `arrival_ns` and
 `sample_ns` hold the values of the frame that had the error, or are empty when the camera gave no
@@ -1195,7 +1195,7 @@ skip ([ADR-Z641](../decisions/entries/Z641-program-guidance-gate-2-scope-and-no-
 **SFF-757** (writer) (provisional: live byte offsets, desk test DT5) `byte_offset` and
 `byte_size` give the JPEG payload of the block of the row (the frame or the placeholder) in the
 camera file. They are correct while the file is live, and they do not change when the file is
-closed. A row with no block has both fields empty (SFF-754; proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 4).
+closed. A row with no block has both fields empty (SFF-754; [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 4).
 
 **SFF-758** (writer) In the `# end` line, `rows` is the number of data rows, `gaps` the number of
 rows with the `gap` flag, `filled` the number with the `filled` flag, `missing` the number with the
@@ -1220,7 +1220,7 @@ does not use this order
 ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 9).
 A reader also refuses the pair (state `invalid`, reason `bad_metadata`) when a row has one empty
 byte field and one that is not empty, when a row has empty byte fields and no flag `missing`, or when
-a row with byte fields follows a row with empty byte fields (proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 10).
+a row with byte fields follows a row with empty byte fields ([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 10).
 
 ## 9. Audio file
 
@@ -1370,7 +1370,7 @@ fitted time of sample `n0`, relative to the take start. `period_fs` is an intege
 sidecar is finished or repaired and has a fit that holds each position. Otherwise it is
 `arrival_ns`, for every frame of the file, and the reader gives the warning `missing_fit`. A reader
 does not mix the two in one file. A row with no `arrival_ns` has no player time, also when the file
-has a fit ("also when the file has a fit", proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 11). In the strict
+has a fit ("also when the file has a fit", [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 11). In the strict
 player time of SFF-782, the reader skips it
 ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 1).
 
@@ -1378,7 +1378,7 @@ player time of SFF-782, the reader skips it
 file. A position with no player time (SFF-781) is not in this rule. The times that a reader gives to
 freemocap for a camera strictly increase. With the player times p, in position order and with only
 the positions that have a player time, the strict player time is s(0) = p(0), and s(k) is the
-larger of p(k) and s(k − 1) + 1 ns (only the positions with a player time, proposed:
+larger of p(k) and s(k − 1) + 1 ns (only the positions with a player time,
 [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 2).
 A reader gives s to freemocap, and SFF-828 uses s. The `records` of the reader result hold p
 ([ADR-ATW0](../decisions/entries/ATW0-spec-v2-details-part-6.md)).
@@ -1387,7 +1387,7 @@ A reader gives s to freemocap, and SFF-828 uses s. The `records` of the reader r
 time is at or before t. When two or more positions have the same player time, the player shows the
 highest of them at that time
 ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 8). It MUST NOT compute a frame from its index and the frame rate. A player shows
-no frame of a camera before its first player time (proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 11).
+no frame of a camera before its first player time ([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 11).
 
 At a take time in a `missing` row, a player shows the last frame before it that is not `missing`,
 with a mark "no frame". It never shows the placeholder as a picture. A program that ignores the flag
@@ -1515,7 +1515,7 @@ A repair does each step for the whole take before the next step: (1) it cuts eac
 (2) it cuts each sidecar; (3) it appends the footer lines of SFF-795: first the fit lines to each
 sidecar, then the `# repair` line to each sidecar, then the `# end` line to each sidecar; (4) it
 writes the manifest. In the tail repair of SFF-795, step 1 appends the placeholder blocks and step
-2 appends the cut rows again (proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 6)
+2 appends the cut rows again ([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 6)
 ([ADR-E68K](../decisions/entries/E68K-camera-match-repair-order-and-g5-g6-files.md) item 3,
 [ADR-158N](../decisions/entries/158N-details-for-the-decisions-of-round-3.md) item 3). An
 interrupted repair leaves the manifest in the state `recording`. A repair that stops in step 3 can
@@ -1537,7 +1537,7 @@ repair writes no manifest
 device pair after the last record that it keeps (SFF-795 to SFF-797). Then it appends the footer
 lines of SFF-795 to the sidecar, and, in the tail repair of SFF-795, the cut rows again before
 them. It appends nothing to the media file, except the placeholder blocks of the tail repair
-([ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 4; the appended rows, proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 6). A repaired camera file has no
+([ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 4; the appended rows, [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 6). A repaired camera file has no
 normal end: the repair writes no Cues and does not write the SeekHead again. A repaired audio file
 has no `mfra` box. These writes would change bytes before the cut. A reader accepts a repaired
 camera file with no normal end, and reads it as SFF-740 gives for an unfinished camera file: with no index and no normal end
@@ -1552,13 +1552,13 @@ file (SFF-797). n is the smaller of two numbers: the number of rows with byte fi
 first bad row (each row with byte fields, when no row is bad), and the number of complete blocks. When n is the
 number of rows with byte fields before the first bad row, the repair also keeps the `missing` rows
 with empty byte fields that follow them, up to the first bad row. These rows do not count as blocks
-([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 2; the wording, proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 7). A later repair MAY replace the tail of a
+([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 2; the wording, [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 7). A later repair MAY replace the tail of a
 short file with placeholders (SFF-756) ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 2).
 Such a repair cuts the sidecar before its first row with empty byte fields. It appends a placeholder
 block to the camera file for each cut row, and it appends each cut row again with the byte fields
 of its placeholder ([ADR-5B03](../decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 4). A program runs it only after the question of SFF-793 and the
 agreement of the user. Its `# repair` line has the bytes that it cut from the sidecar in
-`cut_bytes`, and `media_cut_bytes` 0 (proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 6).
+`cut_bytes`, and `media_cut_bytes` 0 ([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 6).
 A repaired video sidecar has as many rows with byte fields as its camera file has blocks (SFF-759)
 ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) items 1 and 4,
 [ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 2). The repair
@@ -1588,7 +1588,7 @@ repair line and the `# end` line to the audio sidecar (SFF-795).
 **SFF-797** (writer) (provisional: the repair of a camera file, desk test DT-R1) The repair of a
 camera file keeps its first n blocks (SFF-795). Each of them is a complete block. It cuts the file
 after block n − 1, changes no byte before its cut and appends nothing, except the placeholders of
-the tail repair of SFF-795 (the exception, proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 6; SFF-794,
+the tail repair of SFF-795 (the exception, [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 6; SFF-794,
 [ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 1).
 
 **SFF-798** (writer) A repair that stops before its end leaves the manifest in the state
@@ -1928,8 +1928,8 @@ frame. The group time is m = ⌊(2 × S + n) / (2 × n)⌋ ns: the mean, rounded
 rounds down also for a negative value. The group `timestamp_s` is the float64 nearest to m / 10^9
 ([ADR-6VRQ](../decisions/entries/6VRQ-spec-v2-details-part-13.md) item 38b). (provisional: rows with
 no player time, [open-work.md](../decisions/open-work.md)) A frame with no strict player time
-(SFF-781) has no camera `timestamp_s`, and S and n count only the cameras that have one (proposed:
-[ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 8).
+(SFF-781) has no camera `timestamp_s`, and S and n count only the cameras that have one
+([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 8).
 
 **SFF-829** (writer) 2D values are pixels of the stored JPEG, in sensor orientation, before
 `display_rotation`. The `width` and `height` of each camera image reference are the width and height
@@ -2810,7 +2810,7 @@ ended. It cuts the camera file and the sidecar as SFF-795 gives, appends no byte
 and appends a `missing` row with empty byte fields (SFF-754) for each multi-camera frame up to the
 number of rows of the take. That number is the number of multi-camera frames that the program
 counted, or, when it counted none, the largest number of rows of the other sidecars of the take
-(proposed: [ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 10). Then it appends the `# repair` line and the `# end` line. It writes the
+([ADR-76NN](../decisions/entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 10). Then it appends the `# repair` line and the `# end` line. It writes the
 fit lines of SFF-795 only when it has a fitter. This is not the repair of SFF-793: the program does
 not ask the user. A reader reports the pair as `repaired` (SFF-795)
 ([ADR-6AT7](../decisions/entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) item 4).

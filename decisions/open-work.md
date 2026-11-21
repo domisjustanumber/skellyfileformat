@@ -14,8 +14,8 @@ task. Delete an item when its work is done. The PR that closes an item records t
 - **Review of the changes F-1 to F-10.** The spec text, the tests and G18 of
   [ADR-6AT7](entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) came in one
   step with no gate-1 stop, so the user reviews the wording and the tests after the fact. The user
-  accepts or rejects each item of
-  [ADR-76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md).
+  accepted the items of [ADR-76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md) on
+  2026-11-21.
 - **freemocap and the rows with no time.** A `missing` row with no `arrival_ns` has no player time
   (SFF-781), so its frame has no strict player time. SFF-828 has a provisional rule for such a frame
   ([ADR-76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 8). The fold (SFF-844) gives no value for it. It waits for the freemocap port.
