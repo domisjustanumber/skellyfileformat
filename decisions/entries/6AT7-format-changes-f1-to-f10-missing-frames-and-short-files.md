@@ -1,8 +1,19 @@
 # 6AT7 — Format changes F-1 to F-10: missing frames, short files, a provisional key, the lock and three player rules
 
-**Status:** accepted, 2026-11-21 (user; the user decided the ten changes on 2026-11-19 and
-2026-11-20 in skellycam, and on 2026-11-21 the user gave this project the sole control of this
-repository; branch dom/f1-f10, not pushed).
+**Status:** absorbed into
+[`spec/SPEC.md#1-scope-and-terms`](../../spec/SPEC.md#1-scope-and-terms),
+[`spec/SPEC.md#5-the-recording-manifest`](../../spec/SPEC.md#5-the-recording-manifest),
+[`spec/SPEC.md#6-camera-files`](../../spec/SPEC.md#6-camera-files),
+[`spec/SPEC.md#8-video-timing-sidecar`](../../spec/SPEC.md#8-video-timing-sidecar),
+[`spec/SPEC.md#11-clocks-the-fit-and-reader-timing`](../../spec/SPEC.md#11-clocks-the-fit-and-reader-timing),
+[`spec/SPEC.md#12-writing-crashed-files-and-repair`](../../spec/SPEC.md#12-writing-crashed-files-and-repair),
+[`spec/SPEC.md#13-capture-info-json`](../../spec/SPEC.md#13-capture-info-json),
+[`spec/SPEC.md#23-the-reader-result`](../../spec/SPEC.md#23-the-reader-result),
+[`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
+[`spec/conformance.md#missing-frames-and-short-files-sections-5-6-8-11-and-12`](../../spec/conformance.md#missing-frames-and-short-files-sections-5-6-8-11-and-12),
+2026-11-21 (branch dom/f1-f10, not pushed; was accepted, 2026-11-21 (user; the user decided the ten
+changes on 2026-11-19 and 2026-11-20 in skellycam, and on 2026-11-21 the user gave this project the
+sole control of this repository)).
 
 ## Decision
 

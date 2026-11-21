@@ -18,7 +18,6 @@ These entries are `accepted` or `evidence`.
 
 | # | Decision | Status |
 |---|----------|--------|
-| [6AT7](entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) | F-1 to F-10: `missing` rows and placeholders, short files and their completion, Annex K DHT, warnings, `provisional` key, lock form, player rules | accepted |
 
 ### Proposed
 
