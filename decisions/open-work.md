@@ -11,13 +11,14 @@ task. Delete an item when its work is done. The PR that closes an item records t
   stages 2, 3 and 4. The user approved the first push on 2026-11-17 (question Q193). From that push
   on, an entry cannot be corrected in place. [AGENTS.md](../AGENTS.md#4-project-rules) gives the
   marks and the scope of the approval.
-- **Review of the changes F-1 to F-10.** The user reviews the text of
-  [ADR-6AT7](entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) in SPEC.md
-  and conformance.md (gate 1), and its tests and G18 (gate 2). The user accepts or rejects each item
-  of [ADR-5B03](entries/5B03-choices-for-the-format-changes-f1-to-f10.md).
+- **Review of the changes F-1 to F-10.** The spec text, the tests and G18 of
+  [ADR-6AT7](entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) came in one
+  step with no gate-1 stop, so the user reviews the wording and the tests after the fact. The user
+  accepts or rejects each item of
+  [ADR-76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md).
 - **freemocap and the rows with no time.** A `missing` row with no `arrival_ns` has no player time
-  (SFF-781), so its frame has no strict player time. SFF-828 (`timestamp_s` and the group time) and
-  the fold (SFF-844) give no value for such a frame. It waits for the freemocap port.
+  (SFF-781), so its frame has no strict player time. SFF-828 has a provisional rule for such a frame
+  ([ADR-76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md) item 8). The fold (SFF-844) gives no value for it. It waits for the freemocap port.
 - **The full repair (stage 2).** A new test and a golden case for the repair of a take that holds a
   calibration TOML or a Parquet. The manifest summary of the repair takes values from them
   (SFF-728). The user reviews them at the gate 2 review of stage 2

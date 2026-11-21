@@ -995,10 +995,11 @@ def check_manifest(folder: Path) -> dict:
         if not recording:
             (end,) = sidecar.lines("end")
             mkv = (folder / item["video"]).read_bytes()
-            blocks = parse_mkv(mkv).blocks
-            first = mkv[blocks[0].offset : blocks[0].offset + blocks[0].size] if blocks else None
-            # With no block, the mode size (ADR-5B03 item 5): no file holds it, so any size passes.
-            stored = "{}x{}".format(*jpeg_size(first)) if blocks else camera_summary["stored_px"]
+            # The first stored JPEG that is not a placeholder (ADR-76NN item 12), else the mode size
+            # (ADR-5B03 item 5): no file holds the mode size, so any size passes.
+            real = [row for row in sidecar.rows if row["byte_offset"] and not int(row["flags"]) & MISSING]
+            first = mkv[int(real[0]["byte_offset"]) : int(real[0]["byte_offset"]) + int(real[0]["byte_size"])] if real else None
+            stored = "{}x{}".format(*jpeg_size(first)) if real else camera_summary["stored_px"]
             assert re.fullmatch(r"[1-9][0-9]*x[1-9][0-9]*", stored or "")
             expected.update(stored_px=stored, gaps=int(end["gaps"]), filled=int(end["filled"]), missing=int(end["missing"]))
             arrivals = [value for value in sidecar.integers("arrival_ns") if value is not None]

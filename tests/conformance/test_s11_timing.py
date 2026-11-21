@@ -145,13 +145,14 @@ def test_sft_728_player_time_and_frame_shown(reader, golden_or_skip, target):
     assert fitted_cameras == {"G01": [True, True], "G12": [True, True, False, True], "G05": [False, False, False]}[name]
 
 
-def test_sft_728_missing_rows(reader, golden_or_skip):
+@pytest.mark.parametrize("case", ["take", "no_block"])
+def test_sft_728_missing_rows(reader, golden_or_skip, case):
     """SFT-728, the `missing` rows of G18 (ADR-6AT7 items 1, 8 and 10). Checks: SFF-781, SFF-782, SFF-783.
 
     A row with no `arrival_ns` has no player time. The frame shown is never a `missing` row. Equal
     player times show the highest position: the search below is `bisect_right`, as in the test above.
     """
-    folder = golden_or_skip("G18")
+    folder = golden_or_skip("G18", case)
     for item in c.cameras_of(c.only_take(c.read(reader, folder, records=True))):
         sidecar = c.read_sidecar(c.sidecar_path(folder, item["name"]))
         player = [record[4] for record in item["records"]]
@@ -163,6 +164,9 @@ def test_sft_728_missing_rows(reader, golden_or_skip):
             strict.append(max(value, strict[-1] + 1))
         assert reader.camera_details(folder, item["name"])["strict_ns"] == strict, "the strict times skip the rows with no time"
         real = [(p, k) for k, p in enumerate(player) if p is not None and not sidecar.integers("flags")[k] & c.MISSING]
+        if not timed:  # a camera with no player time shows no frame (SFF-783)
+            assert reader.position_at(folder, item["name"], 0) is None
+            continue
         times = {timed[0] - 1, timed[-1] + 10**9}
         for value in timed:
             times.update((value - 1, value, value + 1))

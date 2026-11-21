@@ -85,28 +85,32 @@ def _g18_camera(folder, index: int):
     return manifest, camera, c.read_sidecar(folder / camera["timing"]), (folder / camera["video"]).read_bytes()
 
 
-def test_sft_772_golden_part(golden_or_skip):
-    """SFT-772, the golden part: camera 2 of G18, a short file that the program completed. It needs no reader.
+@pytest.mark.parametrize(("case", "index"), [("take", 2), ("no_block", 1)])
+def test_sft_772_golden_part(golden_or_skip, case, index):
+    """SFT-772, the golden part: a short file of G18 that the program completed. It needs no reader.
 
-    Checks: SFF-727, SFF-754, SFF-795, SFF-894.
+    Checks: SFF-727, SFF-754, SFF-795, SFF-894. The camera file of `no_block` holds no block.
     """
-    folder = golden_or_skip("G18")
-    manifest, camera, sidecar, data = _g18_camera(folder, 2)
+    folder = golden_or_skip("G18", case)
+    manifest, camera, sidecar, data = _g18_camera(folder, index)
     blocks = c.parse_mkv(data).blocks
     with_bytes = [row for row in sidecar.rows if row["byte_offset"]]
-    assert len(blocks) == len(with_bytes) < len(sidecar.rows), "as many blocks as rows with a `byte_offset`"
-    assert len(data) == blocks[-1].offset + blocks[-1].size, "no byte after the last block"
+    assert len(blocks) == len(with_bytes) < len(sidecar.rows), "as many blocks as rows with byte fields"
+    if blocks:
+        assert len(data) == blocks[-1].offset + blocks[-1].size, "no byte after the last block"
+    else:
+        assert data.startswith(bytes.fromhex("1a45dfa3")) and bytes.fromhex("1f43b675") not in data, "no Cluster (SFF-754)"
     assert sidecar.rows[: len(with_bytes)] == with_bytes
     for row in sidecar.rows[len(with_bytes) :]:
         assert int(row["flags"]) & c.MISSING and not any(row[key] for key in ("byte_offset", "byte_size", "arrival_ns", "sample_ns"))
-    others = [c.read_sidecar(folder / other["timing"]) for other in manifest["cameras"][:2]]
+    others = [c.read_sidecar(folder / other["timing"]) for k, other in enumerate(manifest["cameras"]) if k != index]
     assert {len(other.rows) for other in others} == {len(sidecar.rows)}, "as many rows as the other sidecars"
     assert sidecar.footer[-2].startswith("# repair ") and sidecar.footer[-1].startswith("# end "), "the last two lines"
     assert not sidecar.lines("fit_segment") and sidecar.repaired
     warnings = {w["code"]: w["detail"] for w in manifest["warnings"] if w["camera_key"] == camera["camera_key"]}
     assert set(warnings) == {"camera_dead", "camera_file_short"}
-    last = max(k for k, row in enumerate(sidecar.rows) if not int(row["flags"]) & c.MISSING)
-    assert DEAD.fullmatch(warnings["camera_dead"]).group(1) == str(last)
+    last = max((k for k, row in enumerate(sidecar.rows) if not int(row["flags"]) & c.MISSING), default=None)
+    assert DEAD.fullmatch(warnings["camera_dead"]).group(1) == ("none" if last is None else str(last))
     assert SHORT.fullmatch(warnings["camera_file_short"]).groups() == (str(len(blocks)), str(len(sidecar.rows)))
 
 
@@ -118,23 +122,39 @@ def test_sft_772_external():
     """
 
 
-@pytest.mark.parametrize(
-    ("detail", "lost_at"),
-    [(None, None), ("last_frame=none reason=hang", 0), ("last_frame=06 reason=hang", None), ("frame=6", None)],
-    ids=["g18", "none", "leading_zero", "no_form"],
-)
-def test_sft_773_camera_lost_at(reader, variant, expected, detail, lost_at):
+VECTORS_773 = {  # the vector: (the camera of the changed `detail`, the code, the new `detail`)
+    "g18": None,
+    "none": (1, "camera_dead", "last_frame=none reason=hang"),
+    "leading_zero": (1, "camera_dead", "last_frame=06 reason=hang"),
+    "no_form": (1, "camera_dead", "frame=6"),
+    "short_leading_zero": (2, "camera_file_short", "blocks=08 rows=12"),
+    "short_no_rows": (2, "camera_file_short", "blocks=8"),
+}
+
+
+@pytest.mark.parametrize("vector", [*VECTORS_773, "no_block"])
+def test_sft_773_camera_lost_at(reader, variant, expected, vector):
     """SFT-773 Reader: camera lost at frame N. Checks: SFF-895.
 
-    `camera_lost_at(folder, name)` of the Python reader gives N of SFF-895, or None.
+    `camera_lost_at(folder, name)` gives N of SFF-895, and `short_file_counts(folder, name)` gives
+    `[b, r]` of SFF-895, or None.
     """
-    folder = variant("G18")
+    case = "no_block" if vector == "no_block" else "take"
+    folder = variant("G18", case)
     manifest = c.load_json(folder / c.MANIFEST)
     names = [camera["video"] for camera in manifest["cameras"]]
-    if detail is not None:
-        (warning,) = [w for w in manifest["warnings"] if w["camera_key"] == manifest["cameras"][1]["camera_key"]]
+    lost, counts = ([None, 0], [None, [0, 6]]) if case == "no_block" else ([None, 7, 8], [None, None, [8, 12]])
+    change = VECTORS_773.get(vector)
+    if change is not None:
+        index, code, detail = change
+        key = manifest["cameras"][index]["camera_key"]
+        (warning,) = [w for w in manifest["warnings"] if w["camera_key"] == key and w["code"] == code]
         warning["detail"] = detail
         c.write_json(folder / c.MANIFEST, manifest)
-    found = [reader.camera_lost_at(folder, name) for name in names]
-    assert found == ([None, 7, 8] if detail is None else [None, lost_at, 8])
-    assert c.read_bytes(reader, folder) == expected("G18", "take", "full"), "the codes are not warnings of the reader result"
+        if code == "camera_dead":
+            lost[index] = 0 if vector == "none" else None
+        else:
+            counts[index] = None
+    assert [reader.camera_lost_at(folder, name) for name in names] == lost
+    assert [None if found is None else list(found) for found in (reader.short_file_counts(folder, name) for name in names)] == counts
+    assert c.read_bytes(reader, folder) == expected("G18", case, "full"), "the codes are not warnings of the reader result"

@@ -431,7 +431,7 @@ def folder_files(
             }
         )
         if kept:  # SFF-728: the last row that holds an `arrival_ns`
-            last_arrival_ns += [next(row[2] for row in reversed(rows) if row[2] is not None)]
+            last_arrival_ns += [row[2] for row in rows if row[2] is not None][-1:]
             if summary_cameras[-1]["gaps"]:
                 gap_warnings.append(
                     {"code": "camera_gap", "source": "skellycam", "camera_key": pair["camera_key"], "detail": None}

@@ -212,13 +212,31 @@ def test_sft_719_rows_against_blocks(reader, variant, source):
     assert (item["state"], item["reason"]) == ("invalid", "bad_metadata")
 
 
-@pytest.mark.parametrize("vector", ["skipped_block", "short_file"])
+@pytest.mark.parametrize("vector", ["skipped_block", "short_file", "one_empty_byte_field", "empty_without_missing", "byte_fields_after_empty"])
 def test_sft_719_skipped_block_and_short_file(reader, variant, golden_or_skip, vector):
     """SFT-719, the order of the checks of a player and the short file (ADR-6AT7 items 2 and 9). Checks: SFF-759.
 
     `skipped_block`: a copy of G1 whose sidecar of camera 0 has no row for block 5. The rows after it
     move up by one, so row 5 points at the block after a skipped block. `short_file`: camera 2 of G18.
+    The other three vectors change rows of camera 2 of G18 (ADR-76NN item 10).
     """
+    if vector not in ("skipped_block", "short_file"):
+        folder = variant("G18")
+        video = c.load_json(folder / c.MANIFEST)["cameras"][2]["video"]
+        path = c.sidecar_path(folder, video)
+        row7 = c.read_sidecar(path).rows[7]
+        if vector == "one_empty_byte_field":
+            c.set_row(path, 8, "byte_size", 100)
+        elif vector == "empty_without_missing":
+            c.set_row(path, 8, "flags", 0)
+        else:  # row 7 loses its byte fields, and row 8 points at block 7: the count stays equal
+            for column, value in (("flags", c.MISSING), ("byte_offset", ""), ("byte_size", "")):
+                c.set_row(path, 7, column, value)
+            for column in ("byte_offset", "byte_size"):
+                c.set_row(path, 8, column, row7[column])
+        (item,) = [item for item in c.only_take(c.read(reader, folder))["files"] if item["name"] == video]
+        assert (item["state"], item["reason"]) == ("invalid", "bad_metadata")
+        return
     if vector == "short_file":
         folder = golden_or_skip("G18")
         video = c.load_json(folder / c.MANIFEST)["cameras"][2]["video"]

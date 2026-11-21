@@ -479,3 +479,19 @@ def test_g18_placeholders_decode_to_black():
                 context = av.CodecContext.create("mjpeg", "r")
                 (frame,) = context.decode(av.Packet(media[int(row[5]) : int(row[5]) + int(row[6])])) + context.decode(None)
                 assert max(high for _, high in frame.to_image().convert("RGB").getextrema()) <= 16
+
+
+def test_g18_no_block():
+    """The case `no_block`: a camera file with no Cluster and a `missing` row 0 with its times (decision 76NN item 13)."""
+    folder = GOLDEN / "G18" / "no_block"
+    manifest = json.loads((folder / "recording_manifest.json").read_bytes())
+    take = take_of("G18", "no_block")
+    assert [item["state"] for item in take["files"]] == ["finished", "repaired"]
+    first, empty = (folder / c["video"] for c in manifest["cameras"])
+    assert complete_blocks(empty.read_bytes()) == [] and bytes.fromhex("1f43b675") not in empty.read_bytes()  # no Cluster (SFF-754)
+    _, rows, footer = read_sidecar(first.with_suffix(".csv"))
+    assert int(rows[0][4]) & 16 and rows[0][2] and len(complete_blocks(first.read_bytes())) == len(rows) == 6
+    _, rows, footer = read_sidecar(empty.with_suffix(".csv"))
+    assert all(int(row[4]) & 16 and row[5] == row[2] == "" for row in rows) and footer[-2].startswith("# repair ")
+    assert [w["detail"] for w in manifest["warnings"]] == ["last_frame=none reason=hang", "blocks=0 rows=6"]
+    assert all(record[2] is record[4] is None for record in take["files"][1]["records"])

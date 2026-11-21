@@ -12,15 +12,16 @@
 [`spec/SPEC.md#appendix-a-golden-folders`](../../spec/SPEC.md#appendix-a-golden-folders),
 [`spec/conformance.md#missing-frames-and-short-files-sections-5-6-8-11-and-12`](../../spec/conformance.md#missing-frames-and-short-files-sections-5-6-8-11-and-12),
 2026-11-21 (branch dom/f1-f10, not pushed; was accepted, 2026-11-21 (user; the user decided the ten
-changes on 2026-11-19 and 2026-11-20 in skellycam, and on 2026-11-21 the user gave this project the
-sole control of this repository)).
+changes on 2026-11-19 and 2026-11-20 in skellycam; on 2026-11-21 the user said that this project is
+in sole control of this repository, and that the repository was not published or used outside of
+the machine of the user)).
 
 ## Decision
 
 The user decided these ten changes of the format. The record is in skellycam: ADR-J3QP (M1 to M10,
 C2, C3), ADR-P98T (one list F-1 to F-10) and section 13 of `specs/recorder.md` on the skellycam
 branch dom/integration. That section is the source of the text. An agent wrote the text into the
-spec in the style of the spec. The format version stays 2.0 with `format_prerelease` 1: this is an
+spec. The format version stays 2.0 with `format_prerelease` 1: this is an
 internal draft change (SFF-710, SFF-714). [ADR-5B03](5B03-choices-for-the-format-changes-f1-to-f10.md)
 holds the choices of the agent for the points that the record does not decide.
 
@@ -88,7 +89,7 @@ reader result of G1 to G16 changes.
 
 ## Consequences
 
-- The skellycam reader and writer of commit d67679a must follow this text.
+- The skellycam code that follows commit d67679a of this repository must follow this text.
 - freemocap: a frame with no strict player time has no `timestamp_s` of SFF-828 yet
   ([open-work.md](../open-work.md)).
 

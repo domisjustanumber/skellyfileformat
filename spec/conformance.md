@@ -734,10 +734,10 @@ rotation from the EXIF tag
 Checks: SFF-740, SFF-757
 Input: G5; a copy of G18, changed at test time, whose sidecar of camera 2 has no `# repair` line and
 no `# end` line.
-Pass: the reader finds each complete frame from the CSV offsets, and the same frames by a walk. Row
-k belongs to the k-th complete block. The reader uses no row after the last complete block and no
-block after the last usable row. `rows` is the number of usable CSV rows, also of the rows after the
-last complete block, and `records` holds only the usable frames ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2). The
+Pass: the reader finds each complete frame from the CSV offsets, and the same frames by a walk. The
+j-th row with byte fields belongs to the j-th complete block. The reader uses no row after the first
+row with byte fields whose block is not complete, and no block after the last usable row. `rows` is
+the number of usable CSV rows, also of the rows after the last complete block, and `records` holds only the usable frames ([ADR-B6WH](../decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) item 2). The
 check of the CSV offsets is provisional: it waits for desk test DT5 (SFF-757). The check of the walk
 does not wait. In the copy of G18, camera 2 is `unfinished`, and its `records` hold each of its 12
 rows: a `missing` row with empty byte fields has no block, and it is usable.
@@ -800,11 +800,14 @@ Checks: SFF-759
 Input: a finished pair whose sidecar has one row more than the camera file has blocks; a pair of
 `repaired` of G6 whose sidecar has one row more than the camera file has blocks, changed at test
 time; a copy of G1 whose sidecar of camera 0 has no row for block 5, so that row 5 points at the
-block after a skipped block, changed at test time; G18.
+block after a skipped block, changed at test time; G18; three copies of G18, changed at test time,
+in the sidecar of camera 2: row 8 with an empty `byte_offset` and a `byte_size`; row 8 with no flag
+`missing`; row 7 with the flag `missing` and empty byte fields, and row 8 with the byte fields of
+block 7.
 Pass: each changed pair is `invalid` with `bad_metadata`
 ([ADR-W5AK](../decisions/entries/W5AK-details-for-the-decisions-q83-to-q111.md) item 10). The
 reader result does not use the order of the checks of a player (SFF-759). In G18, the short camera
-file of camera 2 has as many blocks as its sidecar has rows with a `byte_offset`, and the pair is
+file of camera 2 has as many blocks as its sidecar has rows with byte fields, and the pair is
 `repaired`, not `invalid`.
 
 **SFT-720** Writer: the audio file and its sidecar
@@ -877,7 +880,9 @@ of G12, the frame shown is the row with the higher position. In G18, a row with 
 no player time: its `player_ns` is null, and the times that the reader gives to freemocap skip it.
 The frame shown is never a `missing` row: at a take time in the `missing` row of camera 0, it is the
 last row before it that is not `missing`. After the last frame of camera 1 and of camera 2, the
-frame shown stays the last row that is not `missing`.
+frame shown stays the last row that is not `missing`. In the case `no_block` of G18, no frame of
+camera 0 is shown before the player time of row 1, because row 0 is `missing`, and no frame of
+camera 1 is shown at any time.
 
 **SFT-729** Reader: audio mapping and length
 Checks: SFF-784, SFF-785
@@ -1500,10 +1505,10 @@ of the test>`, and no `camera_dead` for camera 0.
 Checks: SFF-727, SFF-754, SFF-793, SFF-795, SFF-894
 Input: a skellycam take in which the process of one camera is killed; one in which it hangs; one
 with a failed write to one camera file; G18.
-Golden part: camera 2 of G18.
+Golden part: camera 2 of the case `take` of G18, and camera 1 of the case `no_block`.
 Pass: at the end of the same take, with no question to the user, the program completes the pair of
-the camera. The camera file holds no byte after its last block, and it has as many blocks as the
-sidecar has rows with a `byte_offset`. Each row after the last block has the flag `missing` and
+the camera. The camera file holds no byte after its last block, or no Cluster when it holds no block,
+and it has as many blocks as the sidecar has rows with byte fields. Each row after the last block has the flag `missing` and
 empty byte fields and times. The sidecar has as many rows as the other sidecars of the take. Its
 last two lines are the `# repair` line and the `# end` line, and it has no fit line when the program
 has no fitter. The reader reports the pair as `repaired`. The manifest `warnings` has
@@ -1513,9 +1518,13 @@ of SFF-727. For the failed write, it has `camera_file_short` and `take_error`, a
 
 **SFT-773** Reader: camera lost at frame N
 Checks: SFF-895
-Input: G18; copies of G18, changed at test time, in which the `detail` of `camera_dead` of camera 1
-is `last_frame=none reason=hang`, `last_frame=06 reason=hang` or `frame=6`.
+Input: G18, both cases; copies of the case `take`, changed at test time, in which the `detail` of
+`camera_dead` of camera 1 is `last_frame=none reason=hang`, `last_frame=06 reason=hang` or
+`frame=6`, or the `detail` of `camera_file_short` of camera 2 is `blocks=08 rows=12` or `blocks=8`.
 Pass: `camera_lost_at` of the Python reader gives N = p + 1 of SFF-895: 7 for camera 1 and 8 for
-camera 2 of G18, and null for camera 0. For `last_frame=none`, it gives 0. For the two `detail` texts
-that do not parse, it gives null. The reader result of each copy is the committed result of G18:
-the codes of SFF-727 are not warnings of the reader result.
+camera 2 of the case `take`, and null for camera 0. For `last_frame=none`, it gives 0. For the two
+`detail` texts that do not parse, it gives null. `short_file_counts` gives b and r of SFF-895:
+`[8, 12]` for camera 2 of the case `take`, `[0, 12]` for camera 1 of the case `no_block`, null for
+each other camera, and null for the two `detail` texts that do not parse. In the case `no_block`,
+`camera_lost_at` gives 0 for camera 1. The reader result of each copy is the committed result of
+G18: the codes of SFF-727 are not warnings of the reader result.

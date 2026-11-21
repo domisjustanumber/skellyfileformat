@@ -1,14 +1,14 @@
 # 5B03 — Choices of the agent for the format changes F-1 to F-10
 
-**Status:** proposed, 2026-11-21 (an agent chose these items to apply
-[ADR-6AT7](6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md); the user did not
-review them; branch dom/f1-f10, not pushed).
+**Status:** accepted, 2026-11-21 (user; the user accepted the eight items, branch dom/f1-f10, not
+pushed; was proposed, 2026-11-21 (an agent chose these items to apply
+[ADR-6AT7](6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md))).
 
 ## Decision
 
-The record of ADR-6AT7 does not decide these points. The spec states each item now, with a
-citation of this entry. When the user rejects an item, the commit that removes its text cites this
-entry.
+The record of ADR-6AT7 does not decide these points. The spec states each item, with a citation of
+this entry. [ADR-76NN](76NN-details-for-the-format-changes-f1-to-f10.md) completes items 4, 5 and
+8.
 
 1. **The take time of a `missing` row with no player time** (SFF-783, F-10). A take time t is in a
    `missing` row when that row is the last row whose player time is at or before t. It is also in a

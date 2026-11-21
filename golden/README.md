@@ -169,7 +169,8 @@ G9 and the case `higher_minor` of G10 are copies of G3, so they also have the ro
   ([CAPTURE_VECTORS_CHOICES.md](CAPTURE_VECTORS_CHOICES.md) item 23). They are provisional until
   desk tests DT-R1 and DT5
   ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 6).
-  Camera 2 of G18 holds the same stand-in, cut after block 7
-  ([CAPTURE_VECTORS_CHOICES.md](CAPTURE_VECTORS_CHOICES.md) item 51).
+  Camera 2 of G18 `take` holds the same stand-in, cut after block 7, and camera 1 of G18 `no_block`
+  holds it cut before the first Cluster ([CAPTURE_VECTORS_CHOICES.md](CAPTURE_VECTORS_CHOICES.md)
+  items 51 and 53).
 - `byte_offset` and `byte_size` (SFF-757), `port_path` and `os_device_id` (SFF-752) and
   `audio_latency_ns` (SFF-771) are provisional in the spec.
