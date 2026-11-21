@@ -2879,9 +2879,9 @@ results are beside the case folder: `<case>.full.json` (the scope `full`) and `<
   that names G1 with no case uses `take`.
 - G5: `audio_clean_kill` and `audio_torn_fragment`. Each has three cameras (0: a clean cut; 1: a
   torn row of 37 bytes; 2: a row with a wrong CRC), the `.tmp` manifest and the old manifest.
-- G6: `repaired` and `interrupted_repair`, from `audio_torn_fragment`.
-- G18: `take` and `no_block`. Each sidecar of
+- G6: `repaired` and `interrupted_repair`, from `audio_torn_fragment`. Each sidecar of
   `interrupted_repair` is `unfinished`, with `fit` false and `missing_fit` (SFF-798).
+- G18: `take` and `no_block`.
 - G7: `no_manifest` and `other_take_manifest`. `other_take_manifest` has `manifest` `invalid`, the
   warning `manifest_missing`, the manifest in `other_files` and `orphan_file` (SFF-867).
 - G8: `renamed`.
