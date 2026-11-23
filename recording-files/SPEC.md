@@ -13,7 +13,7 @@ requirement marked `(provisional)` names the open item that it waits for
 
 This specification is normative, with its part [parts/parquet-descriptor.md](parts/parquet-descriptor.md).
 The [legacy annex](legacy-annex.md) and Appendix B are informative. The license of the spec text is
-CC-BY-4.0 ([LICENSE](LICENSE)).
+Apache-2.0 ([LICENSE](../LICENSE)).
 
 ## 0. Withdrawn requirements
 

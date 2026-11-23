@@ -16,9 +16,8 @@ pin a commit of this repository and run its tests against their own code.
 
 ## Licenses
 
-- The spec text (`recording-files/`) and the normative sections of this README: CC-BY-4.0
-  ([recording-files/LICENSE](recording-files/LICENSE)).
-- All other files: Apache-2.0 ([LICENSE](LICENSE)).
+Each file of this repository, also the spec text, has the license Apache-2.0 ([LICENSE](LICENSE),
+[ADR-YYP7](decisions/entries/YYP7-skellyspecs-one-repository-for-the-specs.md) item 6).
 
 ## Development
 

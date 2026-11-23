@@ -5,7 +5,7 @@ Status: **draft v2 (the whole take folder)**, together with [SPEC.md](SPEC.md). 
 ([ADR-N1AM](decisions/entries/N1AM-gate-2-approval-of-stage-1.md)). Gate 2 turns each test
 into a runnable test and makes the golden folders (SPEC.md Appendix A). The tests of draft v0 and draft v1 stay in this file, marked withdrawn.
 
-This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)).
+This list is normative. The license of the text is Apache-2.0 ([LICENSE](../LICENSE)).
 
 ## How to read a test
 
