@@ -1,9 +1,9 @@
-"""Golden folder G15 (spec/SPEC.md Appendix A): legacy folders, one case for each name of "Layout and cases".
+"""Golden folder G15 (recording-files/SPEC.md Appendix A): legacy folders, one case for each name of "Layout and cases".
 
 Each case is a set of stub files: the smallest files that carry the signals of its row of SFF-878, or
 of its family (SFF-876, SFF-877). No file holds media or data. The input of each case names the rows
 that it must match, and the expected result follows from the tables of SFF-878 and SFF-879.
-golden/G15_CHOICES.md gives each value that the spec does not give.
+recording-files/golden/G15_CHOICES.md gives each value that the spec does not give.
 """
 
 from __future__ import annotations

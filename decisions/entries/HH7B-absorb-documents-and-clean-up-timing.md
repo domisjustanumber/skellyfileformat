@@ -2,7 +2,7 @@
 
 **Status:** absorbed into
 [`decisions/README.md#rules`](../README.md#rules),
-[`spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap`](../../spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap),
+[`spec/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap`](../../recording-files/legacy-annex.md#8-old-recordings-in-skellycam-and-freemocap),
 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q154 to Q157 of the
 clean-up of the decision log; commit to main)).
 
@@ -20,7 +20,7 @@ item gives its question number.
      into them. An agent added this detail. The user confirmed it on 2026-11-17 ("Q157 - yes";
      corrected on 2026-11-17).
 2. **The time of the clean-up (Q155).** The absorb pass and the consolidation entry of
-   [ADR-H2HQ](H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 6 are done now,
+   [ADR-H2HQ](../../recording-files/decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 6 are done now,
    before the gate 2 review and before any push. This replaces the time of Q129 ("after the gate 2
    review").
 3. **The old skellycam audio (Q156).** `spec/legacy-annex.md` states the skellycam playback rule
@@ -39,8 +39,10 @@ changed one of their rules.
 ## Consequences
 
 - Item 2 is a one-off action. This commit group does it: the absorb pass and
-  [ADR-G9ER](G9ER-consolidation-of-the-pushed-entries.md).
+  [ADR-G9ER](../../recording-files/decisions/entries/G9ER-consolidation-of-the-pushed-entries.md).
 
 ## Open work
 
 See [open-work.md](../open-work.md).
+
+_Edited 2026-11-23 (commit to main): link repair._

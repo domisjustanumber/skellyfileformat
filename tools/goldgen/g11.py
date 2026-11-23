@@ -1,4 +1,4 @@
-"""Golden folder G11 (spec/SPEC.md Appendix A): header and row error vectors.
+"""Golden folder G11 (recording-files/SPEC.md Appendix A): header and row error vectors.
 
 Each case is a copy of the case `take` of G1 in which only the sidecar of camera 1 has a change. A
 reader refuses that sidecar (the state `invalid`). A changed row has a correct CRC, so the row has

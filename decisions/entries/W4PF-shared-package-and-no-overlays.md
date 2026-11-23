@@ -14,14 +14,14 @@
    Another program can implement the format from the spec and the MCAP specification alone.
 4. The spec fixes its own names: the profile, the topics, the Metadata records and keys, and the
    Log names. It fixes no file or folder names
-   ([ADR-DK8S](DK8S-mcap-profile-files-and-names.md) item 12).
+   ([ADR-DK8S](../../recording-files/decisions/entries/DK8S-mcap-profile-files-and-names.md) item 12).
 5. skellycam records no overlays. It removes the burned-in `camera.id…fr{N}` stamp from the frames.
 6. The format has no overlay file, channel or attachment. `.skov` is not part of the format.
 7. The player draws the frame label from the fields of the frame in the file.
 8. Recorded overlay data from freemocap is later work. The spec will document it if it comes.
 
 This consolidation entry supersedes
-[ADR-VJ14](VJ14-shared-package-and-spec.md) and [ADR-5K7G](5K7G-no-recorded-overlays.md) in full.
+[ADR-VJ14](VJ14-shared-package-and-spec.md) and [ADR-5K7G](../../recording-files/decisions/entries/5K7G-no-recorded-overlays.md) in full.
 It changes no decision. Items 1 and 3 restate VJ14 items 1 and 4, without the MKV byte layouts.
 Item 2 restates VJ14 items 2 and 3 without the MKV parts that the move to MCAP removed (skellycam
 plan D27). Item 4 restates VJ14 item 5 as ADR-DK8S item 12 changed it. Items 5, 6 and 8 restate
@@ -51,3 +51,5 @@ place of "the sidecar".
 
 - `.skov`: a prototype from the overlay study, not a standard.
 - SVG overlays: 11 times the size, not safe after a crash, and it stores drawings, not data.
+
+_Edited 2026-11-23 (commit to main): link repair._

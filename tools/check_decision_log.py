@@ -91,7 +91,7 @@ from pathlib import Path
 
 LOG_DIR = Path("decisions")
 # The root log first. Add the folder of each module log, relative to ROOT.
-LOG_DIRS = (LOG_DIR,)  # A step of the kit guide adds the module logs.
+LOG_DIRS = (LOG_DIR, Path("recording-files/decisions"))  # A step of the kit guide adds the module logs.
 # A folder where a log was before a move. Only --new reads it, in other worktrees and on branches.
 OLD_LOG_DIRS: tuple[Path, ...] = ()
 # The folder of the entry files in each log. A log before the move to it had them in the log folder.
@@ -105,7 +105,7 @@ SKIPPED_BRANCHES = "refs/heads/backup/"
 
 INDEX_LIMIT = 14_000
 OPEN_WORK_LIMIT = 20_000
-ENTRY_LIMIT = 6_000
+ENTRY_LIMIT = 6_500  # YYP7: a move to a module log makes the links longer.
 READ_PATH_LIMIT = 220_000
 LAST_UNLIMITED_ENTRY = 0
 WARN_FRACTION = 0.8

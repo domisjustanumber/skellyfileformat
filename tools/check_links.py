@@ -9,8 +9,10 @@ In each `AGENTS.md`, `notes/`, `.claude/skills/` and folder named `decisions`, a
 GitHub `blob`, `tree` or `commit` link must pin a full 40-character SHA
 (decision 0001).
 
-The check skips the files in the folders of `specs/model-sidecar/proposals/`. A proposal record
-is a frozen byte copy. The check covers `specs/model-sidecar/proposals/README.md` (decision 1HKJ).
+The check covers each tracked Markdown file, also the root `README.md` and each spec folder
+(decision YYP7). It skips hidden folders, except `.claude/skills/`, and the local `plans/` folder.
+It also skips the files in the folders of `model-sidecars/proposals/`. A proposal record is a frozen
+byte copy. The check covers `model-sidecars/proposals/README.md` (skellytracker ADR-1HKJ).
 """
 
 from __future__ import annotations
@@ -156,7 +158,7 @@ def repo_files(root: Path) -> list[str]:
     return names
 
 
-PROPOSAL_RECORDS = "specs/model-sidecar/proposals/"
+PROPOSAL_RECORDS = "model-sidecars/proposals/"
 
 
 def markdown_files(root: Path) -> list[Path]:
@@ -169,12 +171,10 @@ def markdown_files(root: Path) -> list[Path]:
         # A proposal record is a frozen byte copy of a bundle. Its links name the spec as it was then.
         if rel.startswith(PROPOSAL_RECORDS) and rel != PROPOSAL_RECORDS + "README.md":
             continue
-        if rel.startswith(("specs/", "notes/", ".claude/skills/")):
+        if rel.startswith(".claude/skills/"):
             files.append(root / rel)
-        # Hidden folders and the local plans/ folder hold no tracked AGENTS.md or decision log.
-        elif not any(p.startswith(".") or p == "plans" for p in parts[:-1]) and (
-            parts[-1] == "AGENTS.md" or "decisions" in parts[:-1]
-        ):
+        # Hidden folders and the local plans/ folder hold no tracked doc.
+        elif not any(p.startswith(".") or p == "plans" for p in parts[:-1]):
             files.append(root / rel)
     return files
 

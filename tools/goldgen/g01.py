@@ -1,4 +1,4 @@
-"""Golden folder G1 (spec/SPEC.md Appendix A): a capture-only take, in the cases `take` and `confirmed_key`.
+"""Golden folder G1 (recording-files/SPEC.md Appendix A): a capture-only take, in the cases `take` and `confirmed_key`.
 
 Each value of this file is synthetic. The cameras and the audio follow one list of events: a click
 and a flash each 500 ms. The fit of each file is the ground truth that made its rows.

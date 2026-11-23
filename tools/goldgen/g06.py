@@ -1,4 +1,4 @@
-"""Golden folder G6 (spec/SPEC.md Appendix A): the case `audio_torn_fragment` of G5 after a repair, in
+"""Golden folder G6 (recording-files/SPEC.md Appendix A): the case `audio_torn_fragment` of G5 after a repair, in
 the cases `repaired` and `interrupted_repair`.
 
 No repair tool exists, so this module applies the rules of SPEC.md section 12 (SFF-793 to SFF-798)

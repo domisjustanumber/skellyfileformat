@@ -1,4 +1,4 @@
-"""Golden folder G18 (spec/SPEC.md Appendix A): missing frames, in the cases `take` and `no_block`.
+"""Golden folder G18 (recording-files/SPEC.md Appendix A): missing frames, in the cases `take` and `no_block`.
 
 `take` is a finished take of three cameras with 12 frames each and no audio (decision 6AT7):
 

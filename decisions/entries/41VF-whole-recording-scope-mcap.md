@@ -7,14 +7,14 @@
 1. **Scope.** skellyfileformat describes how to record and how to open a collection of synchronised
    video and audio recordings: one recording (one take). It does not describe only each file. The
    spec covers:
-   - each file: the MCAP profile ([ADR-SFK5](SFK5-mcap-container.md)) with its channels, schemas,
-     timing fields and metadata; the Opus audio ([ADR-HD8Z](HD8Z-opus-audio.md)); unfinished and
+   - each file: the MCAP profile ([ADR-SFK5](../../recording-files/decisions/entries/SFK5-mcap-container.md)) with its channels, schemas,
+     timing fields and metadata; the Opus audio ([ADR-HD8Z](../../recording-files/decisions/entries/HD8Z-opus-audio.md)); unfinished and
      crashed files;
    - the recording: which files make up one recording, the one clock that all files of a recording
      share, how a writer records the set, how a reader opens it (also when it is crashed or
      incomplete), the recording manifest, and how to find a file that is not in this format.
 2. **Names.** The spec fixes only these names: the metadata record names and keys, the channel
-   topics, the recording manifest name ([ADR-SFK5](SFK5-mcap-container.md) item 8) and the
+   topics, the recording manifest name ([ADR-SFK5](../../recording-files/decisions/entries/SFK5-mcap-container.md) item 8) and the
    temporary-file names. The schema names are the names that the schema publisher gives. The spec
    does not fix the media file names or the folder layout. The writer's own spec defines them. A
    recording is the files in this format, directly in one folder, that share a `take_uuid`.
@@ -53,7 +53,7 @@ fixed names and "file metadata" in place of "sidecar header".
   recording; a lone or crashed file must tell which recording it belongs to; a derived manifest
   gives one file that opens a recording and cannot become the only copy of a fact; media file names
   belong to the writer.
-- The files are MCAP files ([ADR-SFK5](SFK5-mcap-container.md)), so the per-file parts and the
+- The files are MCAP files ([ADR-SFK5](../../recording-files/decisions/entries/SFK5-mcap-container.md)), so the per-file parts and the
   fixed names change.
 
 ## Alternatives rejected
@@ -67,3 +67,5 @@ fixed names and "file metadata" in place of "sidecar header".
 ## Open work
 
 [open-work.md](../open-work.md)
+
+_Edited 2026-11-23 (commit to main): link repair._

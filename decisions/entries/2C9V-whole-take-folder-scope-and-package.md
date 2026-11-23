@@ -29,7 +29,7 @@
 7. **No recorded overlays.** skellycam records no overlay and no burned-in text. The take has no
    overlay file. `.skov` is not part of the format. The player draws the frame label from the
    fields of the frame. The take holds 2D and 3D tracking data as data (see
-   [ADR-P76Y](P76Y-tracking-parquet.md)), not as drawings.
+   [ADR-P76Y](../../recording-files/decisions/entries/P76Y-tracking-parquet.md)), not as drawings.
 8. **Spec first.** For each part of the format: write the spec text and the conformance test list;
    the user reviews them (gate 1); write the runnable tests and the golden files; the user reviews
    them (gate 2); then write the implementation.
@@ -49,10 +49,10 @@
 This entry supersedes [ADR-TDB5](TDB5-whole-recording-no-manifest.md) and
 [ADR-W4PF](W4PF-shared-package-and-no-overlays.md) in full. Items 8 to 14 restate TDB5 items 7 to
 13. Item 1 replaces TDB5 items 1 and 5: the scope is the whole folder, and both info JSONs are in
-it. TDB5 item 2 (no manifest) is withdrawn: [ADR-5XNA](5XNA-folder-layout-names-and-manifest.md)
+it. TDB5 item 2 (no manifest) is withdrawn: [ADR-5XNA](../../recording-files/decisions/entries/5XNA-folder-layout-names-and-manifest.md)
 adds a manifest. TDB5 item 3 (takes) is replaced by ADR-5XNA. TDB5 item 4 (canonical reader result)
-is restated in [ADR-KW3G](KW3G-reader-result-for-the-folder.md). TDB5 item 6 (legacy stays out) is
-replaced by [ADR-CZQ9](CZQ9-read-old-write-new-and-legacy-recognition.md). Item 5 restates W4PF
+is restated in [ADR-KW3G](../../recording-files/decisions/entries/KW3G-reader-result-for-the-folder.md). TDB5 item 6 (legacy stays out) is
+replaced by [ADR-CZQ9](../../recording-files/decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md). Item 5 restates W4PF
 items 1 and 2. Item 2 restates W4PF item 3 for each file of the folder. Item 7 restates W4PF items 5
 to 7 and replaces its item 8 (tracking is later work). W4PF item 4 (the spec fixes no file or folder
 names) is replaced by ADR-5XNA. Item 6 limits the JavaScript reader of W4PF item 2. Items 3 and 4
@@ -81,3 +81,5 @@ are new.
 ## Open work
 
 [open-work.md](../open-work.md)
+
+_Edited 2026-11-23 (commit to main): link repair._

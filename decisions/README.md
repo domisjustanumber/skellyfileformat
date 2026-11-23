@@ -18,10 +18,7 @@ These entries are `accepted` or `evidence`.
 
 | # | Decision | Status |
 |---|----------|--------|
-| [5B03](entries/5B03-choices-for-the-format-changes-f1-to-f10.md) | Choices for F-1 to F-10: player marks, completion after a write error, tail repair, summary nulls, DHT order, F-5 as a player rule, test inputs | accepted |
-| [76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md) | Details for F-1 to F-10 from a review: byte-field rows, tail repair steps, SFF-828, no-block file, terms, `stored_px`, tests | accepted |
 | [YYP7](entries/YYP7-skellyspecs-one-repository-for-the-specs.md) | skellyspecs: four spec folders as modules, entry placement, rename edit, Apache-2.0 only, import from skellytracker | accepted |
-| [6PNN](entries/6PNN-format-field-skellyspecs.md) | The format field is `skellyspecs`; no old name; adapter variables; golden folders made again | accepted |
 
 ### Proposed
 
@@ -57,7 +54,7 @@ The open work is in [open-work.md](open-work.md).
   four edits apply from the first push.
 - A decision that a document or code refers to must be in an entry. "This log" in an older entry or
   in the Rules means all logs.
-- An absorb document is one of these: the root or a nested `AGENTS.md`, the skills, `README.md`, `spec/SPEC.md` with its normative parts `spec/parts/*.md`, `spec/conformance.md`, `spec/legacy-annex.md`, `golden/README.md` and the files `golden/*_CHOICES.md` ([ADR-HH7B](entries/HH7B-absorb-documents-and-clean-up-timing.md)), the Rules of this file with [template.md](template.md), and the docstring of a
+- An absorb document is one of these: the root or a nested `AGENTS.md`, the skills, `README.md`, `recording-files/SPEC.md` with its normative parts `recording-files/parts/*.md`, `recording-files/conformance.md`, `recording-files/legacy-annex.md`, `recording-files/golden/README.md` and the files `recording-files/golden/*_CHOICES.md` ([ADR-HH7B](entries/HH7B-absorb-documents-and-clean-up-timing.md)), the Rules of this file with [template.md](template.md), and the docstring of a
   tool in `tools/` for the rules that it checks. A test in `tools/tests/` is a tool here. An accepted entry is absorbed when the absorb
   documents together state all of its rules. Open work of the entry does not stop the absorb when
   `open-work.md` states that work in full. A link to the entry is not

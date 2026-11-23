@@ -123,8 +123,17 @@ def test_decision_logs_in_any_folder_are_checked_and_pinned(tmp_path: Path) -> N
         ]
 
 
+def test_each_doc_of_the_repository_is_checked(tmp_path: Path) -> None:
+    """The spec folders and the root README are checked, not only `specs/` (decision YYP7)."""
+    docs = ["README.md", "recording-files/SPEC.md", "recording-files/golden/README.md", "tools/x.md"]
+    for rel in [*docs, ".hidden/x.md", "plans/x.md"]:
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text("[gone](gone.md)\n", encoding="utf-8")
+    assert markdown_files(tmp_path) == [tmp_path / rel for rel in docs]
+
+
 def test_proposal_records_are_skipped(tmp_path: Path) -> None:
-    records = tmp_path / "specs" / "model-sidecar" / "proposals"
+    records = tmp_path / "model-sidecars" / "proposals"
     (records / "slug").mkdir(parents=True)
     for doc in (records / "README.md", records / "slug" / "proposal.md"):
         doc.write_text("[gone](gone.md)\n", encoding="utf-8")

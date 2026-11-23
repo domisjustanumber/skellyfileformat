@@ -1,8 +1,8 @@
-"""Golden folder G10 (spec/SPEC.md Appendix A): version vectors (SPEC.md section 3).
+"""Golden folder G10 (recording-files/SPEC.md Appendix A): version vectors (SPEC.md section 3).
 
 The cases are `higher_minor` (G3 with `2.1`), `unknown_major_sidecar` and `unknown_major_folder_file`
 (G1 with `3.0` in one file), `higher_minor_journal` (G13 with a journal of `2.1`) and `prerelease_0`
-(G1 with `format_prerelease` 0). golden/G10_G13_G14_CHOICES.md gives each value that the spec does not
+(G1 with `format_prerelease` 0). recording-files/golden/G10_G13_G14_CHOICES.md gives each value that the spec does not
 give.
 """
 

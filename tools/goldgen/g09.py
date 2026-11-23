@@ -1,9 +1,9 @@
-"""Golden folder G9 (spec/SPEC.md Appendix A): link mismatch vectors, one case for each vector.
+"""Golden folder G9 (recording-files/SPEC.md Appendix A): link mismatch vectors, one case for each vector.
 
 Each case is a copy of G3 with one fault, and each other file agrees with the fault: when a case
 changes a file, the hashes that point at that file get the new value (SFF-723, SFF-838), unless the
 hash is the vector. So each case gives `mismatch` in exactly one check of SFF-872, or, for
-`recording_id`, an `invalid` Parquet (SFF-824). golden/G07_G09_CHOICES.md gives each value that the
+`recording_id`, an `invalid` Parquet (SFF-824). recording-files/golden/G07_G09_CHOICES.md gives each value that the
 spec does not give. The camera of each camera vector is camera 1 (`group_position` 1).
 """
 

@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-GOLDEN = Path(__file__).resolve().parents[2] / "golden"
+GOLDEN = Path(__file__).resolve().parents[2] / "recording-files" / "golden"
 G15, G16 = GOLDEN / "G15", GOLDEN / "G16" / "take"
 
 # case: (family, release_range, ambiguous, eras), from SPEC.md "Layout and cases" and SFF-876 to SFF-878.

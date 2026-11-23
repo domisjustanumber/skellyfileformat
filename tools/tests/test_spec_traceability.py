@@ -49,7 +49,7 @@ def test_files_with_no_ids_pass(tmp_path: Path) -> None:
 
 
 def test_the_repository_files_pass() -> None:
-    assert cst.check(ROOT / "spec" / "SPEC.md", ROOT / "spec" / "conformance.md") == []
+    assert cst.check(ROOT / "recording-files" / "SPEC.md", ROOT / "recording-files" / "conformance.md") == []
 
 
 def test_requirement_with_no_test(tmp_path: Path) -> None:

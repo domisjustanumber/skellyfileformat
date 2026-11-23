@@ -1,4 +1,4 @@
-"""Each conformance test of spec/conformance.md has a runnable test in tests/conformance (decision G21H).
+"""Each conformance test of recording-files/conformance.md has a runnable test in recording-files/tests/conformance (decision G21H).
 
 This check reads the files as text. It imports no test and needs only the standard library.
 """
@@ -24,11 +24,11 @@ def covered_ids(folder: Path) -> set[str]:
 
 
 def test_each_conformance_test_has_a_runnable_test():
-    listed = listed_ids((ROOT / "spec" / "conformance.md").read_text(encoding="utf-8"))
-    covered = covered_ids(ROOT / "tests" / "conformance")
+    listed = listed_ids((ROOT / "recording-files" / "conformance.md").read_text(encoding="utf-8"))
+    covered = covered_ids(ROOT / "recording-files" / "tests" / "conformance")
     assert listed, "conformance.md lists tests"
     missing = sorted(f"SFT-{number}" for number in listed - covered)
-    assert not missing, f"no function `test_sft_<NNN>_...` in tests/conformance for: {', '.join(missing)}"
+    assert not missing, f"no function `test_sft_<NNN>_...` in recording-files/tests/conformance for: {', '.join(missing)}"
     unknown = sorted(f"SFT-{number}" for number in covered - listed)
     assert not unknown, f"a test function names an ID that conformance.md does not list, or lists as withdrawn: {', '.join(unknown)}"
 

@@ -1,9 +1,9 @@
-"""Golden folder G7 (spec/SPEC.md Appendix A): two copies of G3 whose manifest the reader cannot use, in
+"""Golden folder G7 (recording-files/SPEC.md Appendix A): two copies of G3 whose manifest the reader cannot use, in
 the cases `no_manifest` and `other_take_manifest`.
 
 `no_manifest` is G3 with no `recording_manifest.json`. `other_take_manifest` is G3 whose manifest holds
 another `take_uuid`. In each case, the reader rebuilds the links by a scan (SFF-731, SFF-867).
-golden/G07_G09_CHOICES.md gives each value that the spec does not give. This module also holds the
+recording-files/golden/G07_G09_CHOICES.md gives each value that the spec does not give. This module also holds the
 small helpers that g08.py and g09.py use.
 """
 

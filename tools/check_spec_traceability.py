@@ -3,7 +3,7 @@
 
 Usage::
 
-    python tools/check_spec_traceability.py [--spec spec/SPEC.md] [--conformance spec/conformance.md]
+    python tools/check_spec_traceability.py [--spec recording-files/SPEC.md] [--conformance recording-files/conformance.md]
 
 Definitions:
 
@@ -119,8 +119,8 @@ def check(spec: Path, conformance: Path) -> list[str]:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--spec", type=Path, default=ROOT / "spec" / "SPEC.md")
-    parser.add_argument("--conformance", type=Path, default=ROOT / "spec" / "conformance.md")
+    parser.add_argument("--spec", type=Path, default=ROOT / "recording-files" / "SPEC.md")
+    parser.add_argument("--conformance", type=Path, default=ROOT / "recording-files" / "conformance.md")
     args = parser.parse_args(argv)
     errors = check(args.spec, args.conformance)
     for error in errors:

@@ -1,4 +1,4 @@
-"""Shared code of the golden folders G2, G4, G5, G6, G11 and G12 (spec/SPEC.md Appendix A).
+"""Shared code of the golden folders G2, G4, G5, G6, G11 and G12 (recording-files/SPEC.md Appendix A).
 
 `common.write_take` writes only a finished take with mono audio and one fit segment for each file.
 This module makes each device pair in memory, with the bytes of its media file before and after the
@@ -6,7 +6,7 @@ muxer closes it. So a folder module can also write the files of a crash, of a re
 vector. For the input of G1, `finished_take` gives the bytes of `common.write_take`: a test checks it.
 
 Each expected reader result comes from the input of the generator and from the rules of SPEC.md
-section 23, not from a read of the files. golden/CAPTURE_VECTORS_CHOICES.md gives the requirement of
+section 23, not from a read of the files. recording-files/golden/CAPTURE_VECTORS_CHOICES.md gives the requirement of
 each value.
 """
 
@@ -522,7 +522,7 @@ def write_files(folder: Path, files: dict) -> None:
 
 
 def write_results(out: Path, case: str, facts: dict, folder_warnings: tuple = (), truth: dict | None = None) -> None:
-    """Write the two expected results of a case and, when given, its truth file (golden/README.md)."""
+    """Write the two expected results of a case and, when given, its truth file (recording-files/golden/README.md)."""
     for scope in ("full", "player"):
         result = expected_result(facts, scope, folder_warnings)
         (out / f"{case}.{scope}.json").write_bytes(common.canonical_json(result))

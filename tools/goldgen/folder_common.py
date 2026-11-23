@@ -145,7 +145,7 @@ def parquet_rows(descriptor: dict, channels: list[tuple]):
 
 
 def values_sha256(rows) -> str:
-    """The digest of the values of the rows, in file order, as golden/README.md defines it."""
+    """The digest of the values of the rows, in file order, as recording-files/golden/README.md defines it."""
     digest = hashlib.sha256()
     for row in rows:
         for name, kind, _ in COLUMNS:
@@ -261,7 +261,7 @@ def add_processing(folder: Path, facts: dict, toml: bytes, toml_facts: dict, des
 def expected_result(facts: dict, scope: str) -> dict:
     """The reader result (SFF-885) of a take of `add_processing` whose files agree with each other.
 
-    golden/G03_CHOICES.md gives the requirement of each member that `common.expected_result` does not give.
+    recording-files/golden/G03_CHOICES.md gives the requirement of each member that `common.expected_result` does not give.
     """
     result = common.expected_result(facts, scope)
     (take,) = result["takes"]

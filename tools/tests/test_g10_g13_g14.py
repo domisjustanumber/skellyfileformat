@@ -1,4 +1,4 @@
-"""Cross-checks of the committed files of golden folders G10, G13 and G14 (golden/G10_G13_G14_CHOICES.md).
+"""Cross-checks of the committed files of golden folders G10, G13 and G14 (recording-files/golden/G10_G13_G14_CHOICES.md).
 
 The checks read the files with `json`, `struct`, `zlib`, `tomllib` and pyarrow. They compute each value
 again from the text of the spec. They do not use the code path that wrote the files. A test that

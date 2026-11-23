@@ -1,4 +1,4 @@
-"""Golden folder G4 (spec/SPEC.md Appendix A): four cameras with `display_rotation` 0, 90, 180 and 270.
+"""Golden folder G4 (recording-files/SPEC.md Appendix A): four cameras with `display_rotation` 0, 90, 180 and 270.
 
 Each camera stores frames of 64 x 48 pixels in the orientation of its sensor (SFF-735). The upright
 picture of each camera has one colour in each corner. `take.truth.json` holds these colours. A stored

@@ -1,4 +1,4 @@
-"""Golden folder G5 (spec/SPEC.md Appendix A): a crashed take, in the cases `audio_clean_kill` and
+"""Golden folder G5 (recording-files/SPEC.md Appendix A): a crashed take, in the cases `audio_clean_kill` and
 `audio_torn_fragment`.
 
 The take is in the state that a loss of power leaves: each live file is a prefix of the bytes that
@@ -7,7 +7,7 @@ differ only in the audio file.
 
 PROVISIONAL (decision G21H item 6): each camera file is a stand-in. It is a prefix of the bytes that
 the pinned FFmpeg muxer gave to its output before `close()`. The real bytes of a killed camera file
-wait for the desk tests DT-R1 and DT5. golden/CAPTURE_VECTORS_CHOICES.md says what the bytes hold.
+wait for the desk tests DT-R1 and DT5. recording-files/golden/CAPTURE_VECTORS_CHOICES.md says what the bytes hold.
 """
 
 from __future__ import annotations

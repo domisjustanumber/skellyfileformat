@@ -1,4 +1,4 @@
-"""Golden folder G2 (spec/SPEC.md Appendix A): G1 with stereo audio, in the case `take`.
+"""Golden folder G2 (recording-files/SPEC.md Appendix A): G1 with stereo audio, in the case `take`.
 
 The take keys, the cameras and the audio rows are those of G1, so each camera file and each video
 sidecar has the bytes of G1. The left channel is the audio of G1. The right channel is the same

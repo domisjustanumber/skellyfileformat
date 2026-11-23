@@ -1,21 +1,21 @@
 # YBT1 — A spec only: no package, a test adapter for each implementation, marks as labels, Python 3.13.18
 
 **Status:** absorbed into
-[`README.md#scope-normative`](../../README.md#scope-normative),
-[`README.md#compatibility-promise-normative`](../../README.md#compatibility-promise-normative),
-[`README.md#versioning-normative`](../../README.md#versioning-normative),
-[`README.md#implementations`](../../README.md#implementations),
+[`README.md#scope-normative`](../../recording-files/README.md#scope-normative),
+[`README.md#compatibility-promise-normative`](../../recording-files/README.md#compatibility-promise-normative),
+[`README.md#versioning-normative`](../../recording-files/README.md#versioning-normative),
+[`README.md#implementations`](../../recording-files/README.md#implementations),
 [`README.md#licenses`](../../README.md#licenses),
 [`AGENTS.md#1-purpose`](../../AGENTS.md#1-purpose),
 [`AGENTS.md#3-install-and-test`](../../AGENTS.md#3-install-and-test),
 [`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
 [`AGENTS.md#6-git-rules`](../../AGENTS.md#6-git-rules),
 [`AGENTS.md#8-private-data`](../../AGENTS.md#8-private-data),
-[`spec/SPEC.md#skellyfileformat-specification`](../../spec/SPEC.md#skellyfileformat-specification),
-[`spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules`](../../spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules),
-[`spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative`](../../spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative),
-[`spec/conformance.md#skellyfileformat-conformance-tests`](../../spec/conformance.md#skellyfileformat-conformance-tests),
-[`golden/README.md#golden-folders`](../../golden/README.md#golden-folders),
+[`spec/SPEC.md#skellyfileformat-specification`](../../recording-files/SPEC.md#skellyfileformat-specification),
+[`spec/parts/parquet-descriptor.md#structure-rules-and-writer-rules`](../../recording-files/parts/parquet-descriptor.md#structure-rules-and-writer-rules),
+[`spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative`](../../recording-files/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative),
+[`spec/conformance.md#skellyfileformat-conformance-tests`](../../recording-files/conformance.md#skellyfileformat-conformance-tests),
+[`golden/README.md#golden-folders`](../../recording-files/golden/README.md#golden-folders),
 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; decisions D1 to D6 of a planning
 session of skellycam; an agent wrote the restatements)).
 
@@ -53,24 +53,24 @@ ADR-QH61 and ADR-CZQ9 in full, because items 1 to 4 change a rule of each.
 
 **Kept rules.** Each heading states the rules of the items on its line, as changed here.
 
-- README [Scope](../../README.md#scope-normative) and
-  [Compatibility](../../README.md#compatibility-promise-normative): 2C9V 1; CZQ9 1, 2, 5.
+- README [Scope](../../recording-files/README.md#scope-normative) and
+  [Compatibility](../../recording-files/README.md#compatibility-promise-normative): 2C9V 1; CZQ9 1, 2, 5.
   [Licenses](../../README.md#licenses): 2C9V 12.
 - AGENTS.md [3](../../AGENTS.md#3-install-and-test): G21H 1, 9.
   [4](../../AGENTS.md#4-project-rules): 2C9V 4, 8 to 11, 13, 14; CPM2 1, 9; N1AM 1; Z641 2; G21H 9.
   [6](../../AGENTS.md#6-git-rules), [8](../../AGENTS.md#8-private-data): 2C9V 12; N1AM 4; Z641 3.
-- [SPEC.md](../../spec/SPEC.md#skellyfileformat-specification): 2C9V 2, 3, 7, by its sections 1,
-  2, 6, 16, 18.1, 18.4 and Appendix B; N1AM 1. [§3](../../spec/SPEC.md#3-versioning),
-  [Appendix A](../../spec/SPEC.md#appendix-a-golden-folders): 0JVZ 20, 22; QH61 46, 47.
-  [§8](../../spec/SPEC.md#8-video-timing-sidecar), [§17](../../spec/SPEC.md#17-realtime-journal):
-  Z641 1. [§21](../../spec/SPEC.md#21-legacy-folders) and the
-  [legacy annex](../../spec/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative):
-  CZQ9 1, 3 to 10. [§23](../../spec/SPEC.md#23-the-reader-result): 2C9V 6; 0JVZ 21.
-- [conformance.md](../../spec/conformance.md#skellyfileformat-conformance-tests): N1AM 1; QH61 46,
-  47. [The test adapter](../../spec/conformance.md#the-test-adapter): G21H 2, 3, 4, 8; 0JVZ 21.
-  [The stage of each test](../../spec/conformance.md#the-stage-of-each-test): CPM2 3 to 6, 8, 9,
+- [SPEC.md](../../recording-files/SPEC.md#skellyfileformat-specification): 2C9V 2, 3, 7, by its sections 1,
+  2, 6, 16, 18.1, 18.4 and Appendix B; N1AM 1. [§3](../../recording-files/SPEC.md#3-versioning),
+  [Appendix A](../../recording-files/SPEC.md#appendix-a-golden-folders): 0JVZ 20, 22; QH61 46, 47.
+  [§8](../../recording-files/SPEC.md#8-video-timing-sidecar), [§17](../../recording-files/SPEC.md#17-realtime-journal):
+  Z641 1. [§21](../../recording-files/SPEC.md#21-legacy-folders) and the
+  [legacy annex](../../recording-files/legacy-annex.md#legacy-annex-freemocap-v1x-recording-folders-informative):
+  CZQ9 1, 3 to 10. [§23](../../recording-files/SPEC.md#23-the-reader-result): 2C9V 6; 0JVZ 21.
+- [conformance.md](../../recording-files/conformance.md#skellyfileformat-conformance-tests): N1AM 1; QH61 46,
+  47. [The test adapter](../../recording-files/conformance.md#the-test-adapter): G21H 2, 3, 4, 8; 0JVZ 21.
+  [The stage of each test](../../recording-files/conformance.md#the-stage-of-each-test): CPM2 3 to 6, 8, 9,
   11, 13, 14; YT1F 1 to 7; Z641 2.
-- [golden/README.md](../../golden/README.md#golden-folders): G21H 5, 6, 7, 10; D6.
+- [golden/README.md](../../recording-files/golden/README.md#golden-folders): G21H 5, 6, 7, 10; D6.
 
 **Changed rules.** Each absorb document cites this entry next to the changed rule.
 
@@ -93,7 +93,7 @@ ADR-QH61 and ADR-CZQ9 in full, because items 1 to 4 change a rule of each.
 
 ## Consequences
 
-- The agent choices for the seam (the variables and the JavaScript adapter) are in [ADR-K4Y1](K4Y1-test-adapter-seam-choices.md). The user accepted them on 2026-11-17.
+- The agent choices for the seam (the variables and the JavaScript adapter) are in [ADR-K4Y1](../../recording-files/decisions/entries/K4Y1-test-adapter-seam-choices.md). The user accepted them on 2026-11-17.
 
 ## Evidence
 
@@ -111,3 +111,5 @@ ADR-QH61 and ADR-CZQ9 in full, because items 1 to 4 change a rule of each.
 ## Open work
 
 See [open-work.md](../open-work.md).
+
+_Edited 2026-11-23 (commit to main): link repair._

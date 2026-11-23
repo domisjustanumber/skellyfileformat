@@ -41,7 +41,7 @@
 
 This entry supersedes [ADR-CD4G](CD4G-spec-first-and-repository-rules.md) in full: items 6 to 12
 restate its rules that stay, and items 1 to 5 replace its scope. It also supersedes
-[ADR-83Y4](83Y4-recording-manifest.md): the recording manifest is now part of the spec (item 3),
+[ADR-83Y4](../../recording-files/decisions/entries/83Y4-recording-manifest.md): the recording manifest is now part of the spec (item 3),
 and skellycam's info JSON is skellycam's own file (item 4).
 
 ## Reason
@@ -78,3 +78,5 @@ and skellycam's info JSON is skellycam's own file (item 4).
 ## Open work
 
 See [open-work.md](../open-work.md).
+
+_Edited 2026-11-23 (commit to main): link repair._

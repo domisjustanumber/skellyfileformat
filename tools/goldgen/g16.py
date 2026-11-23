@@ -1,8 +1,8 @@
-"""Golden folder G16 (spec/SPEC.md Appendix A): a take with a pickle and with an NPY object array (SFF-884).
+"""Golden folder G16 (recording-files/SPEC.md Appendix A): a take with a pickle and with an NPY object array (SFF-884).
 
 The take is the take of G1 with another `<rec>` and `take_uuid`. The two added files are harmless:
 each pickle stream holds a plain value, so a load runs no code. A reader finds the pickle by its
-name suffix and the object array by the NPY header. golden/G16_CHOICES.md gives each value that the
+name suffix and the object array by the NPY header. recording-files/golden/G16_CHOICES.md gives each value that the
 spec does not give.
 """
 

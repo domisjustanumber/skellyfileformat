@@ -5,7 +5,7 @@
 ## Decision
 
 1. **Scope.** skellyfileformat describes how to record and how to open one recording (one take): a
-   set of synchronised MCAP files, one for each device ([ADR-DK8S](DK8S-mcap-profile-files-and-names.md)).
+   set of synchronised MCAP files, one for each device ([ADR-DK8S](../../recording-files/decisions/entries/DK8S-mcap-profile-files-and-names.md)).
    The spec covers each file (channels, schemas, timing fields, metadata, unfinished and crashed
    files) and the recording (which files make it up, the one clock that they share, how a writer
    records the set, how a reader opens it, also when it is crashed or incomplete, and how to find a
@@ -41,7 +41,7 @@ This entry supersedes [ADR-41VF](41VF-whole-recording-scope-mcap.md) in full. It
 its items 5 to 13. Item 1 restates its item 1 for one file per device. Item 2 withdraws its item 4
 (the manifest) and makes its item 3 (file metadata is authoritative) the only source. Item 3
 replaces the folder part of its item 2. The names of its item 2 are in
-[ADR-DK8S](DK8S-mcap-profile-files-and-names.md). Item 4 is new.
+[ADR-DK8S](../../recording-files/decisions/entries/DK8S-mcap-profile-files-and-names.md). Item 4 is new.
 
 ## Reason
 
@@ -62,3 +62,5 @@ replaces the folder part of its item 2. The names of its item 2 are in
 ## Open work
 
 [open-work.md](../open-work.md)
+
+_Edited 2026-11-23 (commit to main): link repair._

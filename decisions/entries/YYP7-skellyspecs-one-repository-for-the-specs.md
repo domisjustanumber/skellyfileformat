@@ -6,7 +6,7 @@ repository, which confirm the rulings Q105, Q108 and Q110 to Q122 of a skellytra
 ## Decision
 
 1. **Name.** The repository is `skellyspecs`. The name `skellyfileformat` is replaced by
-   `skellyspecs` wherever it appears. [ADR-6PNN](6PNN-format-field-skellyspecs.md) gives the change
+   `skellyspecs` wherever it appears. [ADR-6PNN](../../recording-files/decisions/entries/6PNN-format-field-skellyspecs.md) gives the change
    of the format. The IDs `SFF-NNN` and `SFT-NNN` keep their prefix.
 2. **Folders.** The repository holds four spec folders at its root. Each folder is a module with its
    own `AGENTS.md` and `CLAUDE.md`, and its log is at `<folder>/decisions/`.
@@ -50,6 +50,10 @@ repository, which confirm the rulings Q105, Q108 and Q110 to Q122 of a skellytra
    (skellytracker ADR-6GE2). The format version of `recording-files/` covers only that folder.
    skellytracker pins one commit of this repository and reads the sibling checkout `../skellyspecs`.
    A spec change lands here first.
+10. **Entry limit.** `ENTRY_LIMIT` of `tools/check_decision_log.py` goes from 6 000 to 6 500
+    characters. A move to a module log makes the relative links of an entry longer. A link repair
+    must not make a decided entry fail the check. After the move of this entry group, the longest
+    entry has 6 193 characters.
 
 ## Reason
 

@@ -11,8 +11,8 @@ Keep technical names, field names, values, formulas, code and YAML unchanged.
 skellyfileformat defines the take folder of skellycam, skellysync and freemocap recordings: MJPEG
 in MKV and Opus in fragmented MP4, each with a CSV timing sidecar, and every folder file that the
 programs add ([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md),
-[ADR-6RSB](decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md),
-[ADR-92TM](decisions/entries/92TM-opus-audio-in-fragmented-mp4.md)). It holds the normative spec,
+[ADR-6RSB](recording-files/decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md),
+[ADR-92TM](recording-files/decisions/entries/92TM-opus-audio-in-fragmented-mp4.md)). It holds the normative spec,
 the conformance test list, the golden folders and the runnable conformance tests. It holds no
 reader, no writer and no other implementation code. skellycam, skellysync, freemocap and the Blender
 addon each implement the format in their own repository. Each of them runs the conformance tests
@@ -24,11 +24,11 @@ the spec alone.
 | `AGENTS.md` | The root instructions file for coding agents |
 | `CLAUDE.md` | Imports this file. It has no other content. |
 | `README.md` | Normative: the scope, the compatibility promise, the versioning and what "conforming" means |
-| `spec/` | Normative: the spec (`SPEC.md`, with `parts/`) and the conformance test list (`conformance.md`). Informative: `legacy-annex.md` ([ADR-VPD9](decisions/entries/VPD9-spec-draft-v2-details.md)) |
+| `recording-files/` | Normative: the spec (`SPEC.md`, with `parts/`) and the conformance test list (`conformance.md`). Informative: `legacy-annex.md` ([ADR-VPD9](recording-files/decisions/entries/VPD9-spec-draft-v2-details.md)) |
 | `decisions/` | Decision log ([`README.md`](decisions/README.md)) and its open work ([`open-work.md`](decisions/open-work.md)) |
 | `tools/` | The doc checks: `check_decision_log.py`, `check_links.py`, `check_private_data.py`, `check_ai_attribution.py` and `check_spec_traceability.py`. Also `make_golden.py` with `goldgen/`, which makes the golden folders. Their tests are in `tools/tests/`. |
-| `golden/` | The golden folders of SPEC.md Appendix A, each with its `SHA256SUMS` and its expected reader results ([`README.md`](golden/README.md)). `tools/make_golden.py` makes them ([ADR-G21H](decisions/entries/G21H-gate-2-tests-location-and-interfaces.md)). |
-| `tests/` | `tests/conformance/` holds the runnable conformance tests of `spec/conformance.md`. They reach an implementation through its test adapter ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)). They are not in the default pytest run (ADR-G21H). |
+| `recording-files/golden/` | The golden folders of SPEC.md Appendix A, each with its `SHA256SUMS` and its expected reader results ([`README.md`](recording-files/golden/README.md)). `tools/make_golden.py` makes them ([ADR-G21H](recording-files/decisions/entries/G21H-gate-2-tests-location-and-interfaces.md)). |
+| `tests/` | `recording-files/tests/conformance/` holds the runnable conformance tests of `recording-files/conformance.md`. They reach an implementation through its test adapter ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)). They are not in the default pytest run (ADR-G21H). |
 | `plans/` | A local working folder. Git ignores it. |
 
 ## 2. Skills
@@ -56,10 +56,10 @@ These tests must pass.
 Run `uv run pytest tools/tests` to run only the doc checks.
 The doc checks test the decision log, the relative links, the private-data rule and the links
 between the spec requirements and the conformance tests.
-Run `uv run --group conformance pytest tests/conformance` to run the conformance tests.
+Run `uv run --group conformance pytest recording-files/tests/conformance` to run the conformance tests.
 They need the test adapter of an implementation. With no adapter, each test that calls a reader or
 a writer fails with one line
-([conformance.md, "The test adapter"](spec/conformance.md#the-test-adapter), [ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
+([conformance.md, "The test adapter"](recording-files/conformance.md#the-test-adapter), [ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
 Add `-m stage1a` to run only the tests with the mark `stage1a`. The other marks are `stage1b`,
 `stage2`, `stage3` and `stage4`. A mark is a label, not a build stage ([section 4](#4-project-rules)).
 Run `uv run --group golden python tools/make_golden.py --check` to check the golden files
@@ -69,7 +69,7 @@ Fix the failures of one root cause in one PR.
 
 ## 4. Project Rules
 
-- `README.md`, `spec/SPEC.md` and `spec/conformance.md` are normative. Code must agree with them.
+- `README.md`, `recording-files/SPEC.md` and `recording-files/conformance.md` are normative. Code must agree with them.
 - A change to a rule in a normative document needs a decision entry.
 - A change to a file of the take folder needs a change of the spec first. The owner of the
   repository must approve it. The `RECORDING_CONTRACT.md` of freemocap points to the spec for the
@@ -87,28 +87,28 @@ Fix the failures of one root cause in one PR.
 - Each test has a mark: `stage1a`, `stage1b`, `stage2`, `stage3` or `stage4`. A mark is a label. It
   tells which program and which need a test serves. It is not a build stage
   ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 4).
-  The section [The stage of each test](spec/conformance.md#the-stage-of-each-test) gives the mark of
+  The section [The stage of each test](recording-files/conformance.md#the-stage-of-each-test) gives the mark of
   each test and each golden folder.
 - The user approves gate 2 for the tests and the golden folders of each mark. The review of a mark
   covers only its tests and golden folders. The user reviews a later mark when its program needs it
-  ([ADR-CPM2](decisions/entries/CPM2-stages-of-the-implementation.md) item 1).
+  ([ADR-CPM2](recording-files/decisions/entries/CPM2-stages-of-the-implementation.md) item 1).
 - The user approved gate 2 for stage 1, the marks `stage1a` and `stage1b`
-  ([ADR-N1AM](decisions/entries/N1AM-gate-2-approval-of-stage-1.md)). The tests of `stage1b` (SFT-760
+  ([ADR-N1AM](recording-files/decisions/entries/N1AM-gate-2-approval-of-stage-1.md)). The tests of `stage1b` (SFT-760
   and G17) are provisional: they wait for the skellysync decisions
   ([open-work.md](decisions/open-work.md)). The user has not approved gate 2 for `stage2`, `stage3`
   and `stage4`.
 - The approval does not cover the provisional points that wait for a desk test or a hardware test.
   For these, an implementation writes only the provisional behaviour that the spec gives now
-  ([ADR-Z641](decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 2).
+  ([ADR-Z641](recording-files/decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 2).
 - When the freemocap exporter and the Blender addon are ported, this repository accepts their output
   as golden files of the marks `stage3` and `stage4`. It also keeps the spec text correct.
 - A bug fix needs a test that fails before the fix.
-- Each requirement in `spec/SPEC.md` has an ID `SFF-NNN`. Each test in `spec/conformance.md` has
+- Each requirement in `recording-files/SPEC.md` has an ID `SFF-NNN`. Each test in `recording-files/conformance.md` has
   an ID `SFT-NNN` and cites the SFF IDs that it checks.
 - Give a new requirement or test the next free number. Do not reuse or renumber an ID.
 - Mark a removed requirement or test "withdrawn". Do not delete its ID.
 - `tools/check_spec_traceability.py` checks the IDs and the links between requirements and tests.
-- Commit each golden file in `golden/` with its SHA-256 sum and the script that made it.
+- Commit each golden file in `recording-files/golden/` with its SHA-256 sum and the script that made it.
 - A change to a golden file needs a decision entry.
 - Pin each dependency, tool, toolchain and CI action to an exact version. Use a release that is at
   least 14 days old.

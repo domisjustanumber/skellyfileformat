@@ -1,4 +1,4 @@
-"""Cross-checks of the golden folders G2, G4, G5, G6, G11, G12 and G18 (golden/CAPTURE_VECTORS_CHOICES.md).
+"""Cross-checks of the golden folders G2, G4, G5, G6, G11, G12 and G18 (recording-files/golden/CAPTURE_VECTORS_CHOICES.md).
 
 Each check reads the committed files and computes a value again from the text of the spec. Of the
 generator, the checks use only the walk `complete_blocks`, which they compare with the offsets of

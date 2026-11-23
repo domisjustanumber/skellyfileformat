@@ -1,11 +1,11 @@
-"""Golden folder G14 (spec/SPEC.md Appendix A): a calibration and its copies.
+"""Golden folder G14 (recording-files/SPEC.md Appendix A): a calibration and its copies.
 
 The cases are `calibration_take` and `mocap_take`. The folder `library/` is not a case. The
 calibration take holds the calibration TOML that it made, the processing info JSON and a Parquet with
 one run: the `TIMESTAMPS` rows and the ChArUco `OVERLAY_2D` rows (SFF-836). The motion-capture take
 holds a byte-identical copy of the TOML (SFF-811). `library/` holds the library copy and
 `last_successful_camera_calibration.toml` (SFF-812). The two takes record the same two cameras. Each
-take is small and has no audio. golden/G10_G13_G14_CHOICES.md gives each value that the spec does not
+take is small and has no audio. recording-files/golden/G10_G13_G14_CHOICES.md gives each value that the spec does not
 give.
 """
 

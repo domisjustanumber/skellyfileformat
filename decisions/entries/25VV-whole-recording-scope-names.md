@@ -15,7 +15,7 @@
      incomplete), the recording manifest, and how to find a file that is not in this format.
 2. **Names.** The spec fixes only these names: the sidecar names, the attachment names and media
    types, the temporary-file names and the recording manifest name
-   ([ADR-WD1R](WD1R-file-attachment-and-mime-names.md)). It does not fix the media file names or the
+   ([ADR-WD1R](../../recording-files/decisions/entries/WD1R-file-attachment-and-mime-names.md)). It does not fix the media file names or the
    folder layout. The writer's own spec defines them. A recording is the files in this format,
    directly in one folder, that share a `take_uuid`.
 3. **Recording-level facts.** Each file's sidecar header holds the facts about its recording. The
@@ -73,3 +73,5 @@ for the recording. Item 2 is new: it gives the names that the spec fixes.
 ## Open work
 
 [open-work.md](../open-work.md)
+
+_Edited 2026-11-23 (commit to main): link repair._

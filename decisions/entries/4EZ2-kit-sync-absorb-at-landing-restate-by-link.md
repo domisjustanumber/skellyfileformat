@@ -38,12 +38,14 @@ rules.
 
 ## Consequences
 
-- The same commit group absorbs [ADR-64ER](64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md),
-  [ADR-B6WH](B6WH-repair-equal-pair-cut-and-no-normal-end.md) and
-  [ADR-1P4N](1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md). The other
+- The same commit group absorbs [ADR-64ER](../../recording-files/decisions/entries/64ER-unknown-major-form-audio-fit-rows-and-refused-pair-counts.md),
+  [ADR-B6WH](../../recording-files/decisions/entries/B6WH-repair-equal-pair-cut-and-no-normal-end.md) and
+  [ADR-1P4N](../../recording-files/decisions/entries/1P4N-timing-coverage-of-a-realtime-run-and-latency-at-the-fold.md). The other
   entries of these commits stay `accepted`: an absorb document does not state one or more of their
-  rules. The consolidation of [ADR-H2HQ](H2HQ-descriptor-members-deferred-points-and-old-audio.md)
+  rules. The consolidation of [ADR-H2HQ](../../recording-files/decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md)
   item 6 does not change.
 - `AGENTS.md` does not change. Its shared blocks already have the kit text. Step 3 of the kit guide
   removes the kit marker lines, so they are not added.
 - The CI versions, `.gitleaks.toml`, `ALLOWED_EMAILS` and its test stay as this repository has them.
+
+_Edited 2026-11-23 (commit to main): link repair._

@@ -1,4 +1,4 @@
-"""The stage marks of tests/conformance/conftest.py agree with spec/conformance.md (decisions CPM2 and YBT1).
+"""The stage marks of recording-files/tests/conformance/conftest.py agree with recording-files/conformance.md (decisions CPM2 and YBT1).
 
 The section "The stage of each test" of conformance.md has two tables. The conftest holds the same
 facts as `STAGES`, `PARTS`, `GOLDEN_RULE` and `GOLDEN_STAGES`. This check compares them.
@@ -22,7 +22,7 @@ DEFINITION = re.compile(r"^\*\*SFT-(\d{3})\*\*(.*)$", re.MULTILINE)
 
 
 def conftest():
-    spec = importlib.util.spec_from_file_location("conformance_conftest", ROOT / "tests" / "conformance" / "conftest.py")
+    spec = importlib.util.spec_from_file_location("conformance_conftest", ROOT / "recording-files" / "tests" / "conformance" / "conftest.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -64,7 +64,7 @@ def parse_golden(text: str) -> dict:
 
 
 def test_the_marks_agree_with_conformance_md():
-    text = section((ROOT / "spec" / "conformance.md").read_text(encoding="utf-8"))
+    text = section((ROOT / "recording-files" / "conformance.md").read_text(encoding="utf-8"))
     module = conftest()
     stages, parts, golden = parse_tests(text)
     assert stages == module.STAGES
@@ -75,13 +75,13 @@ def test_the_marks_agree_with_conformance_md():
 
 def collected() -> list[tuple[str, str, str]]:
     """The number, the function and the name with its parameter ID of each collected conformance test with an SFT ID."""
-    command = [sys.executable, "-m", "pytest", "tests/conformance", "--collect-only", "-q", "-p", "no:cacheprovider"]
+    command = [sys.executable, "-m", "pytest", "recording-files/tests/conformance", "--collect-only", "-q", "-p", "no:cacheprovider"]
     output = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=True).stdout  # noqa: S603
     return [found.group(1, 3, 2) for line in output.splitlines() if (found := COLLECTED.search(line))]
 
 
 def test_each_test_has_a_stage_and_each_part_names_a_case():
-    conformance = (ROOT / "spec" / "conformance.md").read_text(encoding="utf-8")
+    conformance = (ROOT / "recording-files" / "conformance.md").read_text(encoding="utf-8")
     listed = {number for number, rest in DEFINITION.findall(conformance) if not rest.strip().startswith("(withdrawn)")}
     module = conftest()
     assert set(module.STAGES) == listed, "each test of conformance.md has one stage"

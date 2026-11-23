@@ -1,9 +1,9 @@
-"""Golden folder G13 (spec/SPEC.md Appendix A): a realtime take after the fold, in the case `take`.
+"""Golden folder G13 (recording-files/SPEC.md Appendix A): a realtime take after the fold, in the case `take`.
 
 The take is a small finished take with two cameras and no audio. It also holds the realtime journal
 of freemocap and the Parquet run that the fold of that journal made. The journal has good records, a
 record with a wrong CRC, a hole of 4 KiB of zeros and a torn tail. The take is in the state after the
-fold and before the verified delete of the journal (SFF-845). golden/G10_G13_G14_CHOICES.md gives each
+fold and before the verified delete of the journal (SFF-845). recording-files/golden/G10_G13_G14_CHOICES.md gives each
 value that the spec does not give. G10 `higher_minor_journal` and G14 use the code of this module.
 """
 

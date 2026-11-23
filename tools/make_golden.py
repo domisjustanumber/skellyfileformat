@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Write or check the golden folders of spec/SPEC.md Appendix A (decision G21H).
+"""Write or check the golden folders of recording-files/SPEC.md Appendix A (decision G21H).
 
 Usage::
 
     uv run --group golden python tools/make_golden.py [--only G01] [--check]
 
-With no switch, the tool writes each golden folder that it knows into ``golden/`` and writes its
+With no switch, the tool writes each golden folder that it knows into ``recording-files/golden/`` and writes its
 ``SHA256SUMS``. It deletes the old folder first. ``--only`` selects one folder. ``--check`` changes
 no file: it makes each folder again in a temporary directory and compares the sums with the
-committed ``SHA256SUMS``. The bytes are the same only on the reference platform (golden/README.md).
+committed ``SHA256SUMS``. The bytes are the same only on the reference platform (recording-files/golden/README.md).
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from pathlib import Path
 import goldgen
 from goldgen import common
 
-GOLDEN = Path(__file__).resolve().parents[1] / "golden"
+GOLDEN = Path(__file__).resolve().parents[1] / "recording-files" / "golden"
 # Each module goldgen/gNN.py with a function build(target) makes the folder GNN.
 FOLDERS = {
     m.name.upper(): importlib.import_module(f"goldgen.{m.name}").build

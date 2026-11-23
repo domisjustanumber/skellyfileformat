@@ -1,4 +1,4 @@
-"""The test adapter seam of tests/conformance/conftest.py (decision YBT1; its form: decision K4Y1).
+"""The test adapter seam of recording-files/tests/conformance/conftest.py (decision YBT1; its form: decision K4Y1).
 
 The fixtures `reader` and `writer` give the module that `SKELLYFILEFORMAT_ADAPTER` names. With no
 adapter, a test that calls one fails with one line. The check runs pytest on a copy of the conftest.
@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-CONFTEST = ROOT / "tests" / "conformance" / "conftest.py"
+CONFTEST = ROOT / "recording-files" / "tests" / "conformance" / "conftest.py"
 STUB = "def read_folder(path, records=False, scope='full'):\n    return 'stub result'\n\n\nTakeWriter = 'stub writer'\n"
 TESTS = """
 def test_sft_701_reader(reader):

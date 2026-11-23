@@ -1,4 +1,4 @@
-"""Golden folder G12 (spec/SPEC.md Appendix A): the fit vectors, in the case `take`.
+"""Golden folder G12 (recording-files/SPEC.md Appendix A): the fit vectors, in the case `take`.
 
 Four cameras with 12 frames each, and audio of 0.4 s of silence:
 

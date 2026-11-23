@@ -1,4 +1,4 @@
-"""Golden folder G3 (spec/SPEC.md Appendix A): a processed take, in the case `take`.
+"""Golden folder G3 (recording-files/SPEC.md Appendix A): a processed take, in the case `take`.
 
 The take is the take of G1 with a calibration TOML, a tracking Parquet and the processing info JSON.
 Camera 1 has `display_rotation` 90, so its sidecar and the manifest summary differ from G1.
@@ -15,7 +15,7 @@ from pathlib import Path
 from goldgen import common, g01
 from goldgen import folder_common as fc
 
-PART = Path(__file__).resolve().parents[2] / "spec" / "parts" / "parquet-descriptor.md"
+PART = Path(__file__).resolve().parents[2] / "recording-files" / "parts" / "parquet-descriptor.md"
 CALIBRATION_UUID = "00000000000040008000000000000301"
 SOURCE_TAKE_UUID = "00000000000040008000000000000302"  # a calibration take that is not in a golden folder
 BOARD = {
@@ -320,7 +320,7 @@ def build(out: Path) -> None:
     facts, cameras, audio = write_case(out / "take")
     for scope in ("full", "player"):
         (out / f"take.{scope}.json").write_bytes(common.canonical_json(fc.expected_result(facts, scope)))
-    # The digest of the values that the generator gave to the Parquet writer (golden/README.md), for SFT-747.
+    # The digest of the values that the generator gave to the Parquet writer (recording-files/golden/README.md), for SFT-747.
     run, rows = run_and_rows(cameras, facts["files"][: len(cameras)])
     values = [row for group in fc.parquet_rows({"runs": {"0": run}}, rows) for row in group]
     truth = {  # the facts of G1, and the values of the Parquet

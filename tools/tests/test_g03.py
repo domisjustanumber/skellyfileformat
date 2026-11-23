@@ -23,8 +23,8 @@ from test_golden_files import GOLDEN, footer_values, load, read_sidecar
 G03 = GOLDEN / "G03"
 CASE = G03 / "take"
 MEDIA = "synchronized_videos"
-PART = GOLDEN.parent / "spec" / "parts" / "parquet-descriptor.md"
-pytestmark = pytest.mark.skipif(not CASE.is_dir(), reason="golden/G03 does not exist")
+PART = GOLDEN.parent / "parts" / "parquet-descriptor.md"
+pytestmark = pytest.mark.skipif(not CASE.is_dir(), reason="recording-files/golden/G03 does not exist")
 
 # The table of SPEC.md section 16: the column, the Arrow type and the nullability.
 SCHEMA = [
@@ -105,7 +105,7 @@ def test_strict_and_group_times():
 
 
 def test_values_sha256_encoding():
-    """The digest of golden/README.md for one row, from bytes written by hand."""
+    """The digest of recording-files/golden/README.md for one row, from bytes written by hand."""
     row = dict.fromkeys(name for name, _, _ in SCHEMA) | {
         "timestamp_s": 0.5, "sensor_group": "g", "frame_number": 1, "value": 0.25, "run_id": -1,
     }  # fmt: skip
@@ -542,7 +542,7 @@ def test_row_rules():
 
 
 def test_truth_digest_of_the_parquet_values():
-    """SFT-747: the digest of golden/README.md, from the values that pyarrow reads, equals the truth file."""
+    """SFT-747: the digest of recording-files/golden/README.md, from the values that pyarrow reads, equals the truth file."""
     truth = load(G03 / "take.truth.json")["parquet"]
     table = rows()
     assert truth["name"] == parquet_path().name and truth["rows"] == len(table)

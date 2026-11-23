@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-GOLDEN = Path(__file__).resolve().parents[2] / "golden"
+GOLDEN = Path(__file__).resolve().parents[2] / "recording-files" / "golden"
 FOLDERS = sorted(p for p in GOLDEN.glob("G[0-9][0-9]") if p.is_dir())
 RESULTS = sorted(p for folder in FOLDERS for p in folder.glob("*.json") if p.name.split(".")[-2] in ("full", "player"))
 G01_CASES = [GOLDEN / "G01" / "take", GOLDEN / "G01" / "confirmed_key"]

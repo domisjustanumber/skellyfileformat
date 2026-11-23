@@ -1,4 +1,4 @@
-"""Golden folder G8 (spec/SPEC.md Appendix A): a renamed take folder, in the case `renamed`.
+"""Golden folder G8 (recording-files/SPEC.md Appendix A): a renamed take folder, in the case `renamed`.
 
 The case is G3 in a folder with another name: `renamed` in place of `take`. No file inside the take
 folder changes (SFF-717). A reader finds `<rec>` in the manifest, not in the folder name, so each

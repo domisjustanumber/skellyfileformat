@@ -1,6 +1,6 @@
 """Shared code of the golden generator (decision G21H item 9).
 
-The generator writes the golden folders of spec/SPEC.md Appendix A from synthetic input. This module
+The generator writes the golden folders of recording-files/SPEC.md Appendix A from synthetic input. This module
 holds the parts that more than one golden folder uses. It is not the reader and not the writer of an
 implementation: it writes each file directly from the text of the spec, and it derives each expected reader
 result from its own input, not from a read of the files.
@@ -453,7 +453,7 @@ def write_take(folder: Path, take: dict, cameras: list[dict], audio: dict) -> di
 def expected_result(facts: dict, scope: str) -> dict:
     """The reader result (SFF-885) of a folder that holds one finished capture-only take of ``write_take``.
 
-    golden/README.md gives the requirement of each member.
+    recording-files/golden/README.md gives the requirement of each member.
     """
     # The take has no TOML, no Parquet and no journal. So only the row-count part of `frames` differs
     # between the scopes (SFF-872, SFF-892).
