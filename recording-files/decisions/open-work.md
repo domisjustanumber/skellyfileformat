@@ -30,7 +30,7 @@ the result.
   invalid processing info JSON. The check of this file is in stage 1a
   ([ADR-CPM2](entries/CPM2-stages-of-the-implementation.md) item 11). Also, whether a reader reads
   the export inventory and the BVH metadata JSON: both hold `format_prerelease` (SFF-707) and no
-  `skellyfileformat` member, and SFF-891 gives the warning `prerelease` to each file that holds
+  `skellyspecs` member, and SFF-891 gives the warning `prerelease` to each file that holds
   `format_prerelease`. No golden case has either file, and no test checks it.
 - **Complete section 18.3** ([ADR-PVG8](entries/PVG8-spec-v2-details-part-10.md) item 23).
   Exports are not in gate 2, and section 18.3 is provisional

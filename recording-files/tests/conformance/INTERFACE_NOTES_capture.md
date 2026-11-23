@@ -16,10 +16,10 @@ Each other part is "assumed by the tests, not decided".
 ## 1. Names that the tests call
 
 The tests get the Python adapter from the fixtures `reader` and `writer` of `conftest.py`. Both
-fixtures give the module that the environment variable `SKELLYFILEFORMAT_ADAPTER` names. The child
+fixtures give the module that the environment variable `SKELLYSPECS_ADAPTER` names. The child
 process of SFT-730 also imports that module, with the `sys.path` of the test process, so
 `TakeWriter` and `repair_take` must be attributes of it. The JavaScript adapter is the folder that
-`SKELLYFILEFORMAT_JS_ADAPTER` names. The user accepted this configuration ([ADR-K4Y1](../../decisions/entries/K4Y1-test-adapter-seam-choices.md)).
+`SKELLYSPECS_JS_ADAPTER` names. The user accepted this configuration ([ADR-K4Y1](../../decisions/entries/K4Y1-test-adapter-seam-choices.md)).
 
 | Name | Signature and shape | Fixed by G21H | Test |
 |---|---|---|---|
@@ -107,7 +107,7 @@ A write of a whole file with any other event (for example `write` of the manifes
 - `record_take` of `checks_capture.py` is the writer run that most tests use. It writes 12 frames for
   each camera, with one lost source frame in camera 1 before position 5, and 25 audio blocks of 4,800
   samples. It calls an `after` function after each call (SFT-730).
-- SFT-730 starts a child process with the interpreter of the test. The child imports `skellyfileformat`
+- SFT-730 starts a child process with the interpreter of the test. The child imports `skellyspecs`
   and `checks_capture` and prints one line after the take starts and after each write call. Then it blocks
   on one byte of standard input. The test sends one byte for each step before its kill point, and then
   kills the child, so each of the 50 kill points is exact. After each kill, the test calls `repair_take`

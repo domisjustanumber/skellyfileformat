@@ -68,7 +68,7 @@ accepted items 26a, 28 and 29 on 2026-11-16.
 
 ## Evidence
 
-skellyfileformat, `spec/SPEC.md`: SFF-793 gives the `state` after a repair and no other member of
+skellyspecs, `spec/SPEC.md`: SFF-793 gives the `state` after a repair and no other member of
 the manifest. SFF-844 and SFF-845 give no order for the repair and the fold.
 
 ## Open work
@@ -76,3 +76,5 @@ the manifest. SFF-844 and SFF-845 give no order for the repair and the fold.
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

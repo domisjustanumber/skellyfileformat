@@ -283,8 +283,8 @@ def stored_size(camera: dict) -> tuple[int, int]:
 
 def test_processing_info():
     info, m = processing_info(), manifest()
-    assert list(info) == ["skellyfileformat", "format_version", "format_prerelease", "writer", "take_uuid", "processed"]
-    assert (info["skellyfileformat"], info["format_version"], info["format_prerelease"]) == ("processing_info", "2.0", 1)
+    assert list(info) == ["skellyspecs", "format_version", "format_prerelease", "writer", "take_uuid", "processed"]
+    assert (info["skellyspecs"], info["format_version"], info["format_prerelease"]) == ("processing_info", "2.0", 1)
     assert info["take_uuid"] == m["take_uuid"]
     processed = info["processed"]
     assert list(processed) == [

@@ -61,10 +61,12 @@ records it.
 
 - One file for each take with one writer process: it would need a new frame path from the camera
   processes to the writer, and it makes one process a single point of failure.
-- `profile` = `skellyfileformat`: the user chose `freemocap`.
+- `profile` = `skellyspecs`: the user chose `freemocap`.
 - FlatBuffers, ROS 2 or JSON encodings: protobuf has the widest library support, and JSON would
   base64 the JPEG bytes.
 
 ## Open work
 
 [open-work.md](../open-work.md)
+
+_Edited 2026-11-23 (commit to main): rename._

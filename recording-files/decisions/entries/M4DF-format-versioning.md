@@ -17,8 +17,8 @@
    `prerelease` > 0 has no compatibility promise.
 5. Each sidecar holds a writer string, for example `skellycam 2.1.0`, for diagnostics only. A reader
    does not change its behaviour because of it. skellysync writes the format version that
-   skellyfileformat gives.
-6. The skellyfileformat package uses semantic versioning. Its `major.minor` is the format version
+   skellyspecs gives.
+6. The skellyspecs package uses semantic versioning. Its `major.minor` is the format version
    that it implements. Its patch number counts library fixes that do not change the format.
 
 ## Reason
@@ -30,3 +30,5 @@
 ## Evidence
 
 - Plan row D21 ([plan](https://github.com/domisjustanumber/skellycam/blob/a65e540053073c58f01ef2c8c8297901f6d9517f/research/CAPTURE_AND_RECORDING_PLAN.md)). The skellycam plan and its evidence are on the `dom/research` branch of the skellycam fork. That branch is not force-pushed, so the permalinks stay valid.
+
+_Edited 2026-11-23 (commit to main): rename._

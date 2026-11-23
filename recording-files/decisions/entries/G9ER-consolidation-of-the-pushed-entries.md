@@ -6,7 +6,7 @@
 [`README.md#versioning-normative`](../../README.md#versioning-normative),
 [`README.md#implementations`](../../README.md#implementations),
 [`AGENTS.md#1-purpose`](../../../AGENTS.md#1-purpose),
-[`spec/SPEC.md#skellyfileformat-specification`](../../SPEC.md#skellyfileformat-specification),
+[`spec/SPEC.md#skellyspecs-recording-format-specification`](../../SPEC.md#skellyspecs-recording-format-specification),
 [`spec/parts/parquet-descriptor.md#sensorgroup-closed`](../../parts/parquet-descriptor.md#sensorgroup-closed),
 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q129 and Q155: one
 consolidation entry supersedes the changed entries and changes no rule; an agent wrote the
@@ -98,3 +98,5 @@ G1YG item 10, the desk test of a replace on Windows ([open-work.md](../open-work
 _Edited 2026-11-17 (commit to main): link repair._
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

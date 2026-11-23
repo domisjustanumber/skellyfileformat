@@ -1,7 +1,7 @@
 """Fixtures of the conformance tests (decision YBT1, recording-files/conformance.md, "The test adapter").
 
-The tests reach an implementation only through its test adapter. `SKELLYFILEFORMAT_ADAPTER` names
-the importable module of the Python adapter, and `SKELLYFILEFORMAT_JS_ADAPTER` the folder of the
+The tests reach an implementation only through its test adapter. `SKELLYSPECS_ADAPTER` names
+the importable module of the Python adapter, and `SKELLYSPECS_JS_ADAPTER` the folder of the
 JavaScript adapter (decision K4Y1). This module imports no adapter at module level, so
 pytest can collect the tests with no adapter. A test that needs an adapter then fails with one line.
 """
@@ -18,8 +18,8 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-ADAPTER = "SKELLYFILEFORMAT_ADAPTER"
-JS_ADAPTER = "SKELLYFILEFORMAT_JS_ADAPTER"
+ADAPTER = "SKELLYSPECS_ADAPTER"
+JS_ADAPTER = "SKELLYSPECS_JS_ADAPTER"
 NO_ADAPTER = (
     f"no test adapter is configured: set {ADAPTER} to the importable module of the test adapter of an "
     "implementation (recording-files/conformance.md, 'The test adapter')"

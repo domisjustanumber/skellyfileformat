@@ -4,7 +4,7 @@
 
 ## Decision
 
-1. **Scope.** skellyfileformat is the spec of one take folder and of each file in it. This includes
+1. **Scope.** skellyspecs is the spec of one take folder and of each file in it. This includes
    the skellycam media files and their timing sidecars, and the files that freemocap writes: the
    manifest, the info JSONs, the calibration TOML, the tracking Parquet, the realtime journal, the
    Blender outputs, the annotated videos, the exports and the logs. Another program can use the spec
@@ -20,9 +20,9 @@
    are future freemocap work. freemocap defines them when it writes `.blend` files.
 4. **Governance.** A change to any file of the folder needs a change of this spec first, and the
    user approves it. freemocap's `RECORDING_CONTRACT.md` points to this spec for the folder.
-5. **The package.** The format code is in one shared package, skellyfileformat. It holds the spec,
+5. **The package.** The format code is in one shared package, skellyspecs. It holds the spec,
    the conformance test list, the golden files, a Python reader and writer, and a JavaScript
-   reader. An optional write layer, `skellyfileformat[write]`, holds the writer.
+   reader. An optional write layer, `skellyspecs[write]`, holds the writer.
 6. **Reference readers.** The Python reference reader reads every file of the folder. The
    JavaScript reader reads only what the skellycam player needs: the media files, their timing
    sidecars and the JSON files.
@@ -83,3 +83,5 @@ are new.
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

@@ -4,7 +4,7 @@
 
 ## Decision
 
-1. **Scope.** skellyfileformat describes how to record and how to open a collection of synchronised
+1. **Scope.** skellyspecs describes how to record and how to open a collection of synchronised
    video and audio recordings: one recording (one take). It does not describe only each file. The
    spec covers:
    - each file: the MKV profile, the video timing sidecar, the `.skau` and its packet table, the
@@ -46,7 +46,7 @@ and skellycam's info JSON is skellycam's own file (item 4).
 
 ## Reason
 
-- The user's goal: skellyfileformat must describe a way to record and to open a collection of
+- The user's goal: skellyspecs must describe a way to record and to open a collection of
   synchronised recordings, not only each file.
 - The user's rule: when a synchronised recording cannot be opened or played without the manifest,
   the manifest is part of the spec, with only the fields that the new format needs.
@@ -80,3 +80,5 @@ and skellycam's info JSON is skellycam's own file (item 4).
 See [open-work.md](../open-work.md).
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

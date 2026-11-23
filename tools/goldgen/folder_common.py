@@ -191,7 +191,7 @@ def processing_info(descriptor: dict, parquet: bytes, selected_run_id: int) -> b
     assert str(selected_run_id) in runs
     return common.file_json(
         {
-            "skellyfileformat": "processing_info",
+            "skellyspecs": "processing_info",
             "format_version": common.FORMAT_VERSION,
             "format_prerelease": common.FORMAT_PRERELEASE,
             "writer": common.WRITER,

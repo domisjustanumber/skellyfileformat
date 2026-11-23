@@ -1,6 +1,6 @@
-# skellyfileformat recording files
+# The skellyspecs recording format
 
-skellyfileformat defines the take folder of skellycam, skellysync and freemocap recordings: MJPEG
+The skellyspecs recording format defines the take folder of skellycam, skellysync and freemocap recordings: MJPEG
 video in MKV and Opus audio in fragmented MP4, each with a CSV timing sidecar, and every folder file
 that the programs add, such as the manifest, the info JSONs, the calibration TOML and the tracking
 Parquet ([ADR-2C9V](../decisions/entries/2C9V-whole-take-folder-scope-and-package.md)). The
@@ -84,8 +84,8 @@ legacy folders stays in skellycam and freemocap.
   version.
 - **Writer string.** Each of these files also holds a writer string, for example `skellycam 2.1.0`. It is for
   diagnostics only. A reader must not change its behaviour because of it. skellysync writes the
-  format version that skellyfileformat gives, not its own version.
-- **No package version.** There is no skellyfileformat package, so no package version follows the
+  format version that this spec gives, not its own version.
+- **No package version.** There is no package of this format, so no package version follows the
   format version ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 1).
 
 ## Conformance (normative)
@@ -101,7 +101,7 @@ legacy folders stays in skellycam and freemocap.
 
 This repository is a spec. It holds the spec, the conformance test list, the golden folders and the
 runnable conformance tests. It holds no reader, writer, converter, repair tool or JavaScript reader,
-and there is no package `skellyfileformat` or `skellyfileformat[write]` ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) items 1 and 2).
+and there is no package `skellyspecs` or `skellyspecs[write]` ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) items 1 and 2).
 
 - skellycam, freemocap, skellysync and the Blender addon each implement their own reading and
   writing. skellycam owns its Python writer (the camera files, the CSV sidecars, the Opus fMP4

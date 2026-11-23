@@ -30,7 +30,7 @@ The user accepted these rules. Each item gives its question number.
 5. **The early audio of old skellycam recordings (Q128).** Legacy playback does not correct the
    early audio (9 to 74 ms) of old skellycam recordings. Playback shows a note: the audio of
    recordings of that era can lead by up to about 74 ms. This is a skellycam playback
-   rule. In skellyfileformat, it closes the open-work item S10b.
+   rule. In skellyspecs, it closes the open-work item S10b.
 6. **The consolidation (Q129).** One consolidation entry supersedes in full each accepted entry
    that cannot be absorbed because a later entry changed one of its rules
    ([ADR-G9ER](G9ER-consolidation-of-the-pushed-entries.md); corrected on 2026-11-17: the Rules
@@ -48,3 +48,5 @@ The user answered "otherwise agree" to the recommendations of round 3 of the rev
 See [open-work.md](../open-work.md).
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

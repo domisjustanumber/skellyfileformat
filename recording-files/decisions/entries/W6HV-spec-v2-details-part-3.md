@@ -81,7 +81,7 @@ This part holds items 1 and 2. The other parts are [ADR-Q4BK](Q4BK-spec-v2-detai
 
 - skellycam at 169caf637: `skellycam/core/camera_group/camera_orchestrator.py` and
   `skellycam/core/recorders/recording_finalizer.py` (item 2a).
-- skellyfileformat at 38ad0d6, `spec/SPEC.md`: draft v0 SFF-170 and SFF-171.
+- skellyspecs at 38ad0d6, `spec/SPEC.md`: draft v0 SFF-170 and SFF-171.
 - skellycam `dom/research` (local, not committed): `research/CAPTURE_AND_RECORDING_PLAN.md` row 2.2;
   `research/skellycam_recording/docs/spec_v0_revival_tracking_sidecars_20261113.md` sections 4 and
   8; `research/skellycam_recording/docs/realtime_tracking_storage_20261115.md` sections 3 to 5.
@@ -91,3 +91,5 @@ This part holds items 1 and 2. The other parts are [ADR-Q4BK](Q4BK-spec-v2-detai
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

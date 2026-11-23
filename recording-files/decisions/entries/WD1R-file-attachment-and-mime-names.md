@@ -7,8 +7,8 @@
 1. The video timing sidecar has the magic `SKVT` and the extension `.skvt` ("video timing"). The
    audio timing sidecar has the magic `SKAT` and the extension `.skat` ("audio timing").
 2. The attachment names are `video_timing.skvt` and `audio_timing.skat`. The attachment media types
-   are `application/x-skellyfileformat-video-timing` and
-   `application/x-skellyfileformat-audio-timing`. A reader matches an attachment by its name and its
+   are `application/x-skellyspecs-video-timing` and
+   `application/x-skellyspecs-audio-timing`. A reader matches an attachment by its name and its
    media type together.
 3. A separate sidecar is named `<stem>.skvt` or `<stem>.skat`, where `<stem>` is the name of its
    media file without the last extension. The live audio sidecar is `<stem>.skat.live`, with the
@@ -43,3 +43,5 @@
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

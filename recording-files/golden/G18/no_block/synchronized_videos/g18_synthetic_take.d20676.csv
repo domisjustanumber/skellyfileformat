@@ -1,7 +1,7 @@
-# skellyfileformat=video_timing
+# skellyspecs=video_timing
 # format_version=2.0
 # format_prerelease=1
-# writer=skellyfileformat-goldgen 1.0.0
+# writer=skellyspecs-goldgen 1.0.0
 # take_uuid=00000000000040008000000000000118
 # take_start_host_ns=1000000000000
 # take_start_utc_ns=946684800000000000
@@ -22,5 +22,5 @@ frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
 3,,,,16,,,40b6caab
 4,,,,16,,,24d7a762
 5,,,,16,,,33acb321
-# repair cut_bytes=0 media_cut_bytes=37 repair_writer=skellyfileformat-goldgen 1.0.0
+# repair cut_bytes=0 media_cut_bytes=37 repair_writer=skellyspecs-goldgen 1.0.0
 # end rows=6 gaps=0 filled=0 missing=6 encode_skips=0

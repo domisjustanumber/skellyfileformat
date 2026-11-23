@@ -14,18 +14,18 @@ stands); was proposed, 2026-11-17 (an agent chose these items to apply
 user did not choose its form. An agent chose these items. The code of `tests/conformance/` applies
 them now, so that the tests can run.
 
-1. **The Python adapter.** The environment variable `SKELLYFILEFORMAT_ADAPTER` names an importable
+1. **The Python adapter.** The environment variable `SKELLYSPECS_ADAPTER` names an importable
    Python module: the test adapter. The fixtures `reader` and `writer` give that module. It is
    imported at the first use of a name, so a test with no adapter fails in its body, with one line:
-   "no test adapter is configured: set SKELLYFILEFORMAT_ADAPTER to the importable module of the
+   "no test adapter is configured: set SKELLYSPECS_ADAPTER to the importable module of the
    test adapter of an implementation (spec/conformance.md, 'The test adapter')".
-2. **The JavaScript adapter.** The environment variable `SKELLYFILEFORMAT_JS_ADAPTER` names a
+2. **The JavaScript adapter.** The environment variable `SKELLYSPECS_JS_ADAPTER` names a
    folder. The JavaScript command is `node <folder>/bin/read-folder.mjs <take folder> [--records]`,
    the old layout of `js/`. With no variable, a test that runs the command fails with one line.
 3. **hyparquet.** The hyparquet part of SFT-747 finds `hyparquet` and `hyparquet-compressors` in
    `<folder>/node_modules` of the JavaScript adapter. With no JavaScript adapter, that part is
    skipped, as before.
-4. **The child process of SFT-730.** It imports the module that `SKELLYFILEFORMAT_ADAPTER` names,
+4. **The child process of SFT-730.** It imports the module that `SKELLYSPECS_ADAPTER` names,
    with the `sys.path` of the test process.
 5. **No pytest option.** The two variables are the only configuration.
 6. **Names.** The marks keep the names `stage1a` to `stage4`. The `README.md` section "Package"
@@ -49,3 +49,5 @@ them now, so that the tests can run.
 See [open-work.md](../open-work.md).
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

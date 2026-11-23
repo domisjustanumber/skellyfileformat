@@ -4,10 +4,10 @@
 
 ## Decision
 
-1. The format code is in one shared package: skellyfileformat. The skellycam plan first named it
+1. The format code is in one shared package: skellyspecs. The skellycam plan first named it
    `skellyformat`.
 2. The package holds the spec, the conformance test list, the golden files, a Python reader and
-   writer, and a JavaScript reader. An optional write layer, `skellyfileformat[write]`, holds the
+   writer, and a JavaScript reader. An optional write layer, `skellyspecs[write]`, holds the
    writer. The skellycam recorder, the skellycam converter and skellysync use it.
 3. The package has a detailed descriptive spec: the channels, the field and key meanings, the
    clocks, the rules for unfinished and repaired files, the versioning and the test vectors.
@@ -53,3 +53,5 @@ place of "the sidecar".
 - SVG overlays: 11 times the size, not safe after a crash, and it stores drawings, not data.
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

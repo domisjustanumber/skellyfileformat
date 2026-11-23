@@ -1,5 +1,5 @@
 [project]
-name = "skellyfileformat"
+name = "skellyspecs"
 # No release yet. The first release follows the versioning rules of README.md.
 version = "0.0.0"
 description = "File format of skellycam and skellysync recordings: the take folder, with MJPEG in MKV and Opus in fragmented MP4, each with a CSV timing sidecar"

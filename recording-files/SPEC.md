@@ -1,4 +1,4 @@
-# skellyfileformat specification
+# skellyspecs recording format specification
 
 Status: **draft v2 (the whole take folder)**. Gate 1 closed on 2026-11-16. The user approved
 gate 2 for stage 1 on 2026-11-17
@@ -662,7 +662,7 @@ reviewers adds 1 to the value. The value of this draft is 1. A released writer o
 **SFF-712** (writer, reader) Each file that SFF-707 names holds a writer string `writer`, for
 example `skellycam 2.1.3`. A media file holds none: the `writer` of its timing sidecar is the writer
 string of the device pair. A reader MUST NOT change its behaviour because of a writer string.
-skellysync writes the format version that skellyfileformat gives.
+skellysync writes the format version that this spec gives.
 
 **SFF-713** (reader) The version of a container (the Matroska `DocTypeVersion`, the MP4
 brands, the Parquet format version) is not the format version. A reader does not use it as the
@@ -742,7 +742,7 @@ The manifest `recording_manifest.json` links the files of the take
 
 | Member | Value |
 |---|---|
-| `skellyfileformat` | `"recording_manifest"` |
+| `skellyspecs` | `"recording_manifest"` |
 | `format_version`, `format_prerelease` | The format version (section 3) |
 | `writer` | The writer string of the program that wrote this version of the file |
 | `take_uuid` | The ID of the take (SFF-703) |
@@ -943,7 +943,7 @@ Each media file has one timing sidecar, a CSV file with the same name stem and t
 has, in this order: header lines, one column line, data rows, and footer lines.
 
 ```
-# skellyfileformat=video_timing
+# skellyspecs=video_timing
 # format_version=2.0
 # format_prerelease=1
 # writer=skellycam 2.0.0
@@ -961,7 +961,7 @@ frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
 
 **SFF-742** (writer) A header line has the form `# <key>=<value>`, with one key on each line.
 A key holds only `a`–`z`, `0`–`9` and `_`. A value holds no line end. The first header line is
-`# skellyfileformat=video_timing` or `# skellyfileformat=audio_timing`. The header holds each key that
+`# skellyspecs=video_timing` or `# skellyspecs=audio_timing`. The header holds each key that
 section 8 or 10 lists for its kind, in the order of that list.
 
 **SFF-743** (writer) After the header lines, the column line holds the column names of
@@ -1004,7 +1004,7 @@ The header of a video timing sidecar holds these keys, in this order:
 
 | Key | Value |
 |---|---|
-| `skellyfileformat` | `video_timing` |
+| `skellyspecs` | `video_timing` |
 | `format_version`, `format_prerelease` | Section 3. They apply to the device pair (SFF-707). |
 | `writer` | The writer string. It applies to the device pair (SFF-712). |
 | `take_uuid` | The ID of the take (SFF-703) |
@@ -1261,7 +1261,7 @@ its test adapter, a reader does not decode: the detail function `audio_details` 
 
 ## 10. Audio timing sidecar
 
-The header of the audio timing sidecar holds, in this order: `skellyfileformat` (`audio_timing`),
+The header of the audio timing sidecar holds, in this order: `skellyspecs` (`audio_timing`),
 `format_version`, `format_prerelease`, `writer`, the take keys of section 8 (`take_uuid` to
 `audio_count`), and these keys. The version keys and `writer` apply to the device pair, as in
 section 8:
@@ -1610,7 +1610,7 @@ skellycam writes `<rec>_info.json` with the capture facts of the take, and no ot
 
 | Member | Value |
 |---|---|
-| `skellyfileformat` | `"capture_info"` |
+| `skellyspecs` | `"capture_info"` |
 | `format_version`, `format_prerelease` | Section 3 |
 | `writer` | The writer string |
 | `take_uuid` | The ID of the take |
@@ -1664,7 +1664,7 @@ with these members, in this order:
 
 | Member | Value |
 |---|---|
-| `skellyfileformat` | `"processing_info"` |
+| `skellyspecs` | `"processing_info"` |
 | `format_version`, `format_prerelease` | Section 3 |
 | `writer` | The writer string |
 | `take_uuid` | The ID of the take |
@@ -2073,7 +2073,7 @@ Record types:
 
 | `type` | Record | Payload |
 |---|---|---|
-| 1 | header | UTF-8 JSON (SFF-702): `skellyfileformat` (`"realtime_journal"`), `format_version`, `format_prerelease`, `writer`, `take_uuid`, `origin` (`"realtime"`) and `channels`: an array of channel declarations, each with `channel_index` and the members of a Parquet channel (section 16) |
+| 1 | header | UTF-8 JSON (SFF-702): `skellyspecs` (`"realtime_journal"`), `format_version`, `format_prerelease`, `writer`, `take_uuid`, `origin` (`"realtime"`) and `channels`: an array of channel declarations, each with `channel_index` and the members of a Parquet channel (section 16) |
 | 2 | data | `channel_index` (`u16`), `frame_number` (`i32`, the Parquet `frame_number` of SFF-827), `processed_ns` (`i64`, the host-clock time at which the pipeline finished the result, relative to the take start), `n` (`u32`, the number of names), `k` (`u32`, the number of components), then n × k `f32` values in name order, then component order |
 | 3 | event | UTF-8 JSON: a parameter change, with `time_ns`, `stage`, `parameter` and `value` (SFF-834). `stage` is `timing` or the `stage` of a channel of the header (SFF-844) |
 | 4 | end | UTF-8 JSON: `data_records` (the number of data records that the writer wrote) and `clean_close` (`true`) |
@@ -2324,7 +2324,7 @@ is `synthetic`.
 ## 20. Opening a folder
 
 **SFF-864** (reader) A device pair is a file in the media folder whose name ends in `.csv` and
-whose first line is `# skellyfileformat=video_timing` or `# skellyfileformat=audio_timing`, with the
+whose first line is `# skellyspecs=video_timing` or `# skellyspecs=audio_timing`, with the
 media file of the same stem and the suffix `.mkv` (video) or `.m4a` (audio). A camera file starts with
 the EBML magic `1A 45 DF A3`. An audio file has `ftyp` as its first box.
 
@@ -2456,7 +2456,7 @@ reads the old files is in skellycam and freemocap. The informative
 [legacy annex](legacy-annex.md) describes the files of each layout.
 
 **SFF-875** (reader) A file of this format is one of these: a timing sidecar with the first line of
-SFF-864; a JSON file whose `skellyfileformat` member has a value of this spec; a TOML file with
+SFF-864; a JSON file whose `skellyspecs` member has a value of this spec; a TOML file with
 `[metadata].calibration_uuid`; a Parquet file with a `freemocap.recording` descriptor of
 `schema_version` 2; a journal with a header record; and a media file in a device pair. A media file
 alone has no mark of this format (SFF-865)

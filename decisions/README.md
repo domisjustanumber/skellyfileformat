@@ -1,6 +1,6 @@
 # Decision log
 
-This log records the technical decisions of skellyfileformat, with their reasons and evidence. Read this
+This log records the technical decisions of skellyspecs, with their reasons and evidence. Read this
 file and [open-work.md](open-work.md) before you change the spec, the README, the golden files, the tools or the agent instructions. The
 [Rules](#rules) tell you which entries to read
 ([ADR-0001](entries/0001-decision-log-agents-md-and-private-data.md)).

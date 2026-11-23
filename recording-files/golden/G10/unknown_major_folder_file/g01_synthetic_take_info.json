@@ -1,8 +1,8 @@
 {
-  "skellyfileformat": "capture_info",
+  "skellyspecs": "capture_info",
   "format_version": "3.0",
   "format_prerelease": 1,
-  "writer": "skellyfileformat-goldgen 1.0.0",
+  "writer": "skellyspecs-goldgen 1.0.0",
   "take_uuid": "00000000000040008000000000000001",
   "camera_configs": {
     "e40ba19b877f64fb": {

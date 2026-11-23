@@ -1,6 +1,6 @@
 """The test adapter seam of recording-files/tests/conformance/conftest.py (decision YBT1; its form: decision K4Y1).
 
-The fixtures `reader` and `writer` give the module that `SKELLYFILEFORMAT_ADAPTER` names. With no
+The fixtures `reader` and `writer` give the module that `SKELLYSPECS_ADAPTER` names. With no
 adapter, a test that calls one fails with one line. The check runs pytest on a copy of the conftest.
 """
 
@@ -34,10 +34,10 @@ def run_pytest(tmp_path: Path, adapter: str | None) -> subprocess.CompletedProce
     shutil.copy(CONFTEST, suite / "conftest.py")
     (suite / "test_stub.py").write_text(TESTS, encoding="utf-8")
     (tmp_path / "stub_adapter.py").write_text(STUB, encoding="utf-8")
-    env = {key: value for key, value in os.environ.items() if not key.startswith("SKELLYFILEFORMAT_")}
+    env = {key: value for key, value in os.environ.items() if not key.startswith("SKELLYSPECS_")}
     env["PYTHONPATH"] = str(tmp_path)
     if adapter is not None:
-        env["SKELLYFILEFORMAT_ADAPTER"] = adapter
+        env["SKELLYSPECS_ADAPTER"] = adapter
     command = [sys.executable, "-m", "pytest", str(suite), "-q", "-p", "no:cacheprovider", "--rootdir", str(suite)]
     return subprocess.run(command, capture_output=True, text=True, env=env, cwd=tmp_path)  # noqa: S603
 
@@ -51,7 +51,7 @@ def test_the_fixtures_give_the_configured_adapter(tmp_path):
 def test_no_adapter_fails_with_one_line(tmp_path):
     done = run_pytest(tmp_path, None)
     assert "2 failed" in done.stdout, done.stdout + done.stderr
-    assert done.stdout.count("no test adapter is configured: set SKELLYFILEFORMAT_ADAPTER") == 2
+    assert done.stdout.count("no test adapter is configured: set SKELLYSPECS_ADAPTER") == 2
 
 
 def test_the_javascript_command_comes_from_the_adapter_folder(tmp_path, monkeypatch):

@@ -1,7 +1,7 @@
-# skellyfileformat=video_timing
+# skellyspecs=video_timing
 # format_version=2.0
 # format_prerelease=1
-# writer=skellyfileformat-goldgen 1.0.0
+# writer=skellyspecs-goldgen 1.0.0
 # take_uuid=00000000000040008000000000000005
 # take_start_host_ns=1000000000000
 # take_start_utc_ns=946684800000000000
@@ -35,5 +35,5 @@ frame,source_frame_number,arrival_ns,sample_ns,flags,byte_offset,byte_size,crc32
 16,1017,1738162261,1733463303,0,14557,751,6288e3be
 # fit fitter=goldgen-truth fitter_version=1.0.0 fitter_params={}
 # fit_segment pos_first=0 pos_last=16 t0_ns=33483200 period_ps=100000200000
-# repair cut_bytes=255 media_cut_bytes=107 repair_writer=skellyfileformat-goldgen 1.0.0
+# repair cut_bytes=255 media_cut_bytes=107 repair_writer=skellyspecs-goldgen 1.0.0
 # end rows=17 gaps=1 filled=0 missing=0 encode_skips=0

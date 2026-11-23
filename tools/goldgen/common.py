@@ -20,7 +20,7 @@ from pathlib import Path
 
 FORMAT_VERSION = "2.0"
 FORMAT_PRERELEASE = 1  # SFF-710
-WRITER = "skellyfileformat-goldgen 1.0.0"
+WRITER = "skellyspecs-goldgen 1.0.0"
 FITTER = "goldgen-truth"
 FITTER_VERSION = "1.0.0"
 MEDIA_FOLDER = "synchronized_videos"
@@ -109,9 +109,9 @@ def audio_fitted_ns(t0_ns: int, period_fs: int, n0: int, n: int) -> int:
 
 
 def take_header(kind: str, take: dict, group_size: int, audio_count: int) -> dict:
-    """The header keys from ``skellyfileformat`` to ``audio_count`` (sections 8 and 10)."""
+    """The header keys from ``skellyspecs`` to ``audio_count`` (sections 8 and 10)."""
     return {
-        "skellyfileformat": kind,
+        "skellyspecs": kind,
         "format_version": FORMAT_VERSION,
         "format_prerelease": FORMAT_PRERELEASE,
         "writer": WRITER,
@@ -373,7 +373,7 @@ def write_take(folder: Path, take: dict, cameras: list[dict], audio: dict) -> di
     info_path = f"{rec}_info.json"
     info = file_json(
         {
-            "skellyfileformat": "capture_info",
+            "skellyspecs": "capture_info",
             "format_version": FORMAT_VERSION,
             "format_prerelease": FORMAT_PRERELEASE,
             "writer": WRITER,
@@ -411,7 +411,7 @@ def write_take(folder: Path, take: dict, cameras: list[dict], audio: dict) -> di
     last_arrival_ns = max(camera["rows"][-1][1] for camera in cameras)
     utc_s = take["take_start_utc_ns"] // 10**9
     manifest = {
-        "skellyfileformat": "recording_manifest",
+        "skellyspecs": "recording_manifest",
         "format_version": FORMAT_VERSION,
         "format_prerelease": FORMAT_PRERELEASE,
         "writer": WRITER,

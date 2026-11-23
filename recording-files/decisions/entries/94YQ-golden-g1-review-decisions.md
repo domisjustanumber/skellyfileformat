@@ -37,7 +37,7 @@ Each item has its reason.
    [golden/G01_CHOICES.md](../../golden/G01_CHOICES.md) are accepted as the conventions that the
    later golden folders copy: each item except 23 and 30 (items 1 and 2 replace them). Items 3 and
    4 confirm its items 20 and 22. The user named three: the golden files name their writer
-   `skellyfileformat-goldgen 1.0.0`; a JSON file of the format in a golden folder has an indent of
+   `skellyspecs-goldgen 1.0.0`; a JSON file of the format in a golden folder has an indent of
    2 spaces and one LF at the end; and the fit of G1 is the exact line that made the rows. These
    are conventions of the golden folders. This entry makes none of them a rule of the format.
    Reason: [ADR-G21H](G21H-gate-2-tests-location-and-interfaces.md) item 5 wants one approved
@@ -86,3 +86,5 @@ its bytes and its sum.
 See [open-work.md](../open-work.md).
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

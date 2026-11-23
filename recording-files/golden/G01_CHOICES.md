@@ -20,7 +20,7 @@ of item 13 stays a convention of the golden folders, as each other item.
 2. SFF-703 says that `take_uuid` is a random UUID version 4. A golden value must be synthetic.
    Choice: `00000000000040008000000000000001`, which has the version and variant bits of a
    version 4 UUID and is not random. Alternative: a random value, fixed in the script.
-3. SFF-712 gives only an example of a writer string. Choice: `skellyfileformat-goldgen 1.0.0`,
+3. SFF-712 gives only an example of a writer string. Choice: `skellyspecs-goldgen 1.0.0`,
    because the generator wrote the files. Alternative: `skellycam 2.0.0`, as Appendix A says
    that skellycam writes the take. `owner` and `source` in the manifest are `skellycam`, because
    the spec allows no other value for a capture.
@@ -116,7 +116,7 @@ of item 13 stays a convention of the golden folders, as each other item.
     and `flash_positions`. SFT-723 and SFT-729 need them. Alternative: constants in the tests.
 27. ADR-G21H names the functions that the tests call, and not their module. Choice in
     `recording-files/tests/conformance/conftest.py`: the fixtures `reader` and `writer` return the module
-    `skellyfileformat`, `golden(name, case="take")` returns the case folder, and
+    `skellyspecs`, `golden(name, case="take")` returns the case folder, and
     `js_reader(folder, records=False)` returns the bytes of the standard output.
 28. Section 6 does not say which other elements a camera file can hold. The pinned FFmpeg writes
     a SeekHead, a Void, Cues, Tags with `DURATION`, a `Duration`, a `Colour` element, a CRC-32

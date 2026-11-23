@@ -12,7 +12,7 @@
    no legacy timestamp CSV, no WAV audio and no burned-in overlay.
 3. skellycam plays old H.264 recordings through a legacy `<video>` path. It also gives an explicit
    "upgrade recording" conversion, for the other old files and on request.
-4. skellycam owns the converter. The converter uses `skellyfileformat[write]`.
+4. skellycam owns the converter. The converter uses `skellyspecs[write]`.
 5. **Recognition.** The spec defines how a reader recognises a legacy folder and what result it
    reports. The code that reads old formats stays in skellycam and freemocap.
 6. **Only v1 or later is supported.** A reader reports the family and the narrowest release range
@@ -62,3 +62,5 @@ skellycam `dom/research` (local, not committed):
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

@@ -95,8 +95,8 @@ def test_journal_bytes(folder, case, version):
     offset, kind, payload = found["good"][0]
     assert offset == 0 and kind == 1
     header = json.loads(payload)
-    assert list(header) == ["skellyfileformat", "format_version", "format_prerelease", "writer", "take_uuid", "origin", "channels"]
-    assert (header["skellyfileformat"], header["format_version"], header["format_prerelease"]) == ("realtime_journal", version, 1)
+    assert list(header) == ["skellyspecs", "format_version", "format_prerelease", "writer", "take_uuid", "origin", "channels"]
+    assert (header["skellyspecs"], header["format_version"], header["format_prerelease"]) == ("realtime_journal", version, 1)
     assert (header["take_uuid"], header["origin"]) == (m["take_uuid"], "realtime")
     for index, channel in enumerate(header["channels"]):
         assert channel["channel_index"] == index and channel["dtype"] == "float32" and channel["kind"] != "TIMESTAMPS"  # SFF-841

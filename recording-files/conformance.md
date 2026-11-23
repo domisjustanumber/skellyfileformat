@@ -1,4 +1,4 @@
-# skellyfileformat conformance tests
+# skellyspecs recording format conformance tests
 
 Status: **draft v2 (the whole take folder)**, together with [SPEC.md](SPEC.md). Gate 1 closed on
 2026-11-16. The user approved gate 2 for stage 1 on 2026-11-17
@@ -73,11 +73,11 @@ This list is normative. The license of the text is CC-BY-4.0 ([LICENSE](LICENSE)
   `recording-files/tests/conformance/INTERFACE_NOTES_capture.md` and `recording-files/tests/conformance/INTERFACE_NOTES_folder.md`.
 - The configuration of the seam is two environment variables, and no pytest option
   ([ADR-K4Y1](decisions/entries/K4Y1-test-adapter-seam-choices.md)):
-  - `SKELLYFILEFORMAT_ADAPTER` names the importable module of the Python adapter. The fixtures
+  - `SKELLYSPECS_ADAPTER` names the importable module of the Python adapter. The fixtures
     `reader` and `writer` give that module. The tests import it at the first use of a name, so a
     test with no adapter fails in its body, with one line that says that no adapter is configured.
     The child process of SFT-730 imports the same module, with the `sys.path` of the test process;
-  - `SKELLYFILEFORMAT_JS_ADAPTER` names the folder of the JavaScript adapter. The command is
+  - `SKELLYSPECS_JS_ADAPTER` names the folder of the JavaScript adapter. The command is
     `node <folder>/bin/read-folder.mjs <take folder> [--records]`. With no variable, a test that
     runs the command fails with one line. The hyparquet part of SFT-747 finds `hyparquet` and
     `hyparquet-compressors` in `<folder>/node_modules`. With no JavaScript adapter, that part is

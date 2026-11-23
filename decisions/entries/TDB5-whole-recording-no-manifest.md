@@ -4,7 +4,7 @@
 
 ## Decision
 
-1. **Scope.** skellyfileformat describes how to record and how to open one recording (one take): a
+1. **Scope.** skellyspecs describes how to record and how to open one recording (one take): a
    set of synchronised MCAP files, one for each device ([ADR-DK8S](../../recording-files/decisions/entries/DK8S-mcap-profile-files-and-names.md)).
    The spec covers each file (channels, schemas, timing fields, metadata, unfinished and crashed
    files) and the recording (which files make it up, the one clock that they share, how a writer
@@ -64,3 +64,5 @@ replaces the folder part of its item 2. The names of its item 2 are in
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

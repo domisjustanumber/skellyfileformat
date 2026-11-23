@@ -51,7 +51,7 @@ withdrawn.
   the MKV profile, the sidecar byte layouts, embedding, offsets and the sidecar names go.
 - General video tools (ffmpeg, VLC, OpenCV) do not read the files. A tool that needs a video file
   needs an export, which copies the JPEG bytes unchanged.
-- freemocap reads frames through a skellyfileformat reader (phase 2 of the skellycam plan).
+- freemocap reads frames through a skellyspecs reader (phase 2 of the skellycam plan).
 
 ## Evidence
 
@@ -82,3 +82,5 @@ withdrawn.
 ## Open work
 
 [open-work.md](../open-work.md)
+
+_Edited 2026-11-23 (commit to main): rename._

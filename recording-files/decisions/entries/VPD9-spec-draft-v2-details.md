@@ -26,7 +26,7 @@ gives a camera is only the member `user_name` and is in no file name.
    8 when two cameras collide, or `cam<N>` when the key is 0. `camera_key` is the first 8 bytes of the
    SHA-256 of the identity string: the serial number when there is one, else the port path, with the
    vendor and product IDs.
-5. **CSV dialect.** A kind line `# skellyfileformat=video_timing` or `audio_timing`, then
+5. **CSV dialect.** A kind line `# skellyspecs=video_timing` or `audio_timing`, then
    `# key=value` header lines, one column line, the rows, then footer lines (`# fit`, `# fit_segment`,
    `# repair`, `# end`). The row CRC covers the bytes before the comma that precedes it. An empty
    field is absent. No legacy columns (`recording_frame_number`,
@@ -77,3 +77,5 @@ skellycam `dom/research` (local, not committed):
 - A float rate in the audio fit: readers would get different times.
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

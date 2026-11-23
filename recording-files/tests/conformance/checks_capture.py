@@ -77,7 +77,7 @@ TAKE_KEYS = [
     "take_uuid", "take_start_host_ns", "take_start_utc_ns", "utc_offset_min", "clock", "clock_hz", "group_size",
     "audio_count",
 ]  # fmt: skip
-COMMON_KEYS = ["skellyfileformat", "format_version", "format_prerelease", "writer", *TAKE_KEYS]
+COMMON_KEYS = ["skellyspecs", "format_version", "format_prerelease", "writer", *TAKE_KEYS]
 VIDEO_KEYS = [*COMMON_KEYS, "group_position", "camera_key", "camera_label", "nominal_rate", "display_rotation"]
 AUDIO_KEYS = [*COMMON_KEYS, "sample_rate", "channels", "codec", "file_sample_offset", "audio_latency_ns"]
 VIDEO_COLUMNS = ["frame", "source_frame_number", "arrival_ns", "sample_ns", "flags", "byte_offset", "byte_size", "crc32"]
@@ -130,7 +130,7 @@ class Sidecar:
 
     @property
     def kind(self) -> str:
-        return {"video_timing": "video", "audio_timing": "audio"}[self.header["skellyfileformat"]]
+        return {"video_timing": "video", "audio_timing": "audio"}[self.header["skellyspecs"]]
 
     @property
     def finished(self) -> bool:
@@ -757,7 +757,7 @@ def capture_info_of(folder: Path) -> dict:
 # ---------------------------------------------------------------- SFT-700: text files, integers, JSON, IDs, CRCs
 
 MANIFEST_MEMBERS = [
-    "skellyfileformat", "format_version", "format_prerelease", "writer", "take_uuid", "recording_name", "purpose",
+    "skellyspecs", "format_version", "format_prerelease", "writer", "take_uuid", "recording_name", "purpose",
     "state", "cameras", "audio", "calibration", "files", "warnings", "privacy", "summary",
 ]  # fmt: skip
 MANIFEST_CAMERA = ["camera_key", "camera_label", "group_position", "video", "timing", "calibration_camera"]
@@ -769,12 +769,12 @@ SUMMARY_CAMERA = [
     "exposure_us",
 ]  # fmt: skip
 SUMMARY_AUDIO = ["file", "sample_rate", "channels", "duration_s"]
-CAPTURE_INFO = ["skellyfileformat", "format_version", "format_prerelease", "writer", "take_uuid", "camera_configs", "audio"]
+CAPTURE_INFO = ["skellyspecs", "format_version", "format_prerelease", "writer", "take_uuid", "camera_configs", "audio"]
 CAMERA_CONFIG = ["camera_label", "user_name", "key_origin", "device", "requested", "controls", "exposure_step"]
 DEVICE = ["model", "os_name", "vendor_id", "product_id", "serial", "port_path", "os_device_id", "backend", "os_index"]
 REQUESTED = ["width", "height", "framerate", "capture_format", "exposure_mode"]
 CAPTURE_AUDIO = ["device_name", "host_api", "device_channels"]
-PROCESSING_INFO = ["skellyfileformat", "format_version", "format_prerelease", "writer", "take_uuid", "processed"]
+PROCESSING_INFO = ["skellyspecs", "format_version", "format_prerelease", "writer", "take_uuid", "processed"]
 PROCESSED = [
     "schema_version", "parquet_sha256", "recording_id", "parquet", "selected_run_id", "runs", "conventions",
     "export_inventories",
@@ -875,7 +875,7 @@ def check_text_conventions(folder: Path) -> None:
         elif path.suffix == ".json":
             value = _check_json_text(path, text)
             _uuids(value, uuids)
-            kind = value.get("skellyfileformat")
+            kind = value.get("skellyspecs")
             if kind == "recording_manifest":
                 check_manifest_members(value)
             elif kind == "capture_info":
@@ -883,7 +883,7 @@ def check_text_conventions(folder: Path) -> None:
             elif kind == "processing_info":
                 members(value, PROCESSING_INFO, "the processing info JSON")
                 members(value["processed"], PROCESSED, "`processed`")
-        elif text.startswith("# skellyfileformat="):
+        elif text.startswith("# skellyspecs="):
             sidecar = read_sidecar(path)
             uuids.append(sidecar.header["take_uuid"])
             for key, value in sidecar.header.items():
@@ -964,7 +964,7 @@ def check_manifest(folder: Path) -> dict:
     """SFT-708: the members of the manifest, the `sha256` of each `files` item and the summary (SFF-723, SFF-728)."""
     manifest = load_json(folder / MANIFEST)
     check_manifest_members(manifest)
-    assert manifest["skellyfileformat"] == "recording_manifest" and manifest["state"] in ("recording", "finished")
+    assert manifest["skellyspecs"] == "recording_manifest" and manifest["state"] in ("recording", "finished")
     assert [item["group_position"] for item in manifest["cameras"]] == list(range(len(manifest["cameras"])))
     assert [item["path"] for item in manifest["files"]] == sorted(item["path"] for item in manifest["files"])
     for item in manifest["files"]:
@@ -1208,7 +1208,7 @@ def check_version_fields(folder: Path, prerelease: int = 1) -> None:
         if "exports" in path.parts or "blender" in path.parts or not path.is_file():
             continue
         data = path.read_bytes()
-        if path.suffix == ".csv" and data.startswith(b"# skellyfileformat="):
+        if path.suffix == ".csv" and data.startswith(b"# skellyspecs="):
             values.append((path.name, read_sidecar(path).header))
         elif path.suffix == ".json" and path.parent == folder:
             values.append((path.name, json.loads(data)))
@@ -1216,7 +1216,7 @@ def check_version_fields(folder: Path, prerelease: int = 1) -> None:
             values.append((path.name, tomllib.loads(data.decode("utf-8"))["metadata"]))
         elif path.suffix in (".mkv", ".m4a"):
             sidecar = read_sidecar(path.with_suffix(".csv"))
-            for text in ("format_version", "format_prerelease", "skellyfileformat", sidecar.header["writer"]):
+            for text in ("format_version", "format_prerelease", "skellyspecs", sidecar.header["writer"]):
                 assert text.encode() not in data, f"{path.name} holds no version field and no writer string (SFF-707)"
     assert values
     for name, value in values:
@@ -1251,7 +1251,7 @@ def build_unusual_take(folder: Path) -> tuple[str, list[bytes], list[int]]:
     media.mkdir(parents=True)
     (media / f"sft713.{label}.mkv").write_bytes(data)
     header = {
-        "skellyfileformat": "video_timing", "format_version": "2.0", "format_prerelease": 1, "writer": "sft713 1.0.0",
+        "skellyspecs": "video_timing", "format_version": "2.0", "format_prerelease": 1, "writer": "sft713 1.0.0",
         "take_uuid": UNUSUAL_TAKE_UUID, "take_start_host_ns": 1000000000000, "take_start_utc_ns": 946684800000000000,
         "utc_offset_min": 0, "clock": "windows_qpc", "clock_hz": 10000000, "group_size": 1, "audio_count": 0,
         "group_position": 0, "camera_key": UNUSUAL_KEY, "camera_label": label, "nominal_rate": "30/1", "display_rotation": 0,
@@ -1387,7 +1387,7 @@ def check_killed_folder(folder: Path) -> None:
         if path.suffix == ".csv":
             sidecar = read_sidecar(path)
             assert not sidecar.bad_crc, f"{path.name}: each complete row has a correct CRC"
-            if "skellyfileformat" in sidecar.header:
+            if "skellyspecs" in sidecar.header:
                 keys = VIDEO_KEYS if sidecar.kind == "video" else AUDIO_KEYS
                 assert list(sidecar.header) == keys[: len(sidecar.header)], f"{path.name}: the header is a prefix"
             for line in sidecar.footer:

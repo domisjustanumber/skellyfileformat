@@ -11,12 +11,12 @@
    recognises a file of this format.
 4. skellycam plays old H.264 recordings through a legacy `<video>` path. It also gives an explicit
    "upgrade recording" conversion, for the other old files and on request.
-5. skellycam owns the converter. The converter uses `skellyfileformat[write]`.
+5. skellycam owns the converter. The converter uses `skellyspecs[write]`.
 6. This spec covers only the new format. skellycam defines how it reads legacy recordings.
 
 This entry supersedes [ADR-X7FT](X7FT-read-old-write-new.md) in full. Items 1 and 4 to 6 restate
-its items 1 and 4 to 6. Item 2 replaces "JPEG in MKV with skellyfileformat sidecars, and FLAC
-audio". Item 3 replaces "no skellyfileformat sidecar" with "no file of this format".
+its items 1 and 4 to 6. Item 2 replaces "JPEG in MKV with skellyspecs sidecars, and FLAC
+audio". Item 3 replaces "no skellyspecs sidecar" with "no file of this format".
 
 ## Reason
 
@@ -28,3 +28,5 @@ audio". Item 3 replaces "no skellyfileformat sidecar" with "no file of this form
 ## Open work
 
 [open-work.md](../open-work.md)
+
+_Edited 2026-11-23 (commit to main): rename._

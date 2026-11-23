@@ -82,10 +82,12 @@ result. Parts 9 to 15 proposed one resolution for each. "Basis" and "CHOICE" hav
 
 ## Evidence
 
-skellyfileformat at fe7deba: the examples of `spec/SPEC.md` had `format_prerelease` 3.
+skellyspecs at fe7deba: the examples of `spec/SPEC.md` had `format_prerelease` 3.
 
 ## Open work
 
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

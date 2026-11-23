@@ -31,7 +31,7 @@ The user accepted these items. Each item gives its question number.
    2026-11-17, the user had not approved gate 2 for a stage. (Corrected in place by [ADR-CPM2](CPM2-stages-of-the-implementation.md): the
    approval was for all tests and G1 to G16, and did not cover the skellysync folders and G17. They
    are stage 1b now.)
-3. **No push before gate 2 (Q164, Q182).** skellyfileformat is not pushed before the user approves
+3. **No push before gate 2 (Q164, Q182).** skellyspecs is not pushed before the user approves
    gate 2. The user's approval of stage 1 ends this agreement (Q182). The agent still asks the user
    before the first push. From that push on, an entry cannot be corrected in place. The agreement
    ends at the approval, so the gate 2 item of [open-work.md](../open-work.md) states it.
@@ -64,3 +64,5 @@ The user accepted these items. Each item gives its question number.
 See [open-work.md](../open-work.md).
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

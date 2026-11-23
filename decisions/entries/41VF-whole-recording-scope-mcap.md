@@ -4,7 +4,7 @@
 
 ## Decision
 
-1. **Scope.** skellyfileformat describes how to record and how to open a collection of synchronised
+1. **Scope.** skellyspecs describes how to record and how to open a collection of synchronised
    video and audio recordings: one recording (one take). It does not describe only each file. The
    spec covers:
    - each file: the MCAP profile ([ADR-SFK5](../../recording-files/decisions/entries/SFK5-mcap-container.md)) with its channels, schemas,
@@ -69,3 +69,5 @@ fixed names and "file metadata" in place of "sidecar header".
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

@@ -1,4 +1,4 @@
-# skellyfileformat
+# skellyspecs
 
 This repository holds the specs of the freemocap programs
 ([ADR-YYP7](decisions/entries/YYP7-skellyspecs-one-repository-for-the-specs.md)). Each spec is in its

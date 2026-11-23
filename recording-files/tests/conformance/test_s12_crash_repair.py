@@ -24,12 +24,12 @@ REPAIR_WRITER = "skellycam 2.0.1"
 # The child process of SFT-730. It records the take of `record_take` and writes one line after the
 # take starts and after each write call, then waits for one byte on standard input. The test sends the
 # byte for each step but the last one that it wants, and then kills the child: the kill point is exact.
-# The child imports the Python adapter of SKELLYFILEFORMAT_ADAPTER (conftest.py), with the sys.path of the
+# The child imports the Python adapter of SKELLYSPECS_ADAPTER (conftest.py), with the sys.path of the
 # test process. The test runs the child only after the adapter worked in the test process.
 CHILD = """
 import importlib, os, sys
 sys.path[:0] = sys.argv[2].split(os.pathsep)
-adapter = importlib.import_module(os.environ["SKELLYFILEFORMAT_ADAPTER"])
+adapter = importlib.import_module(os.environ["SKELLYSPECS_ADAPTER"])
 import checks_capture as c
 c.record_take(adapter, c.Path(sys.argv[1]), audio=c.microphone(), after=lambda: (print("step", flush=True), sys.stdin.buffer.read(1)))
 """

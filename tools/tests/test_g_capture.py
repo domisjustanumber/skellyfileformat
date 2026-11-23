@@ -300,7 +300,7 @@ def test_g06_repair_changes_no_byte_before_its_cut():
             words = [line.split(b" ")[1].decode() for line in footer]
             repair = (
                 f"# repair cut_bytes={facts['cut_bytes']} media_cut_bytes={facts['media_cut_bytes']} "
-                "repair_writer=skellyfileformat-goldgen 1.0.0"
+                "repair_writer=skellyspecs-goldgen 1.0.0"
             ).encode()
             if case == "repaired":  # SFF-795: the fit lines, the repair line and the `# end` line
                 assert words == ["fit", "fit_segment", "repair", "end"] and footer[2] == repair and not torn

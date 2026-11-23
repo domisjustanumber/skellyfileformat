@@ -18,8 +18,8 @@
    `prerelease` > 0 has no compatibility promise.
 5. Each file holds a writer string, for example `skellycam 2.1.0`, for diagnostics only. A reader
    does not change its behaviour because of it. skellysync writes the format version that
-   skellyfileformat gives.
-6. The skellyfileformat package uses semantic versioning. Its `major.minor` is the format version
+   skellyspecs gives.
+6. The skellyspecs package uses semantic versioning. Its `major.minor` is the format version
    that it implements. Its patch number counts library fixes that do not change the format.
 7. The MCAP version of the file (the magic) is not the format version.
 
@@ -37,3 +37,5 @@ place of "each sidecar header". Item 7 is new.
 ## Open work
 
 [open-work.md](../open-work.md)
+
+_Edited 2026-11-23 (commit to main): rename._

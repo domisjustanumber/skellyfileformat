@@ -5,12 +5,12 @@
 ## Decision
 
 1. New skellycam and freemocap keep reading each recording format that the current code writes.
-2. New skellycam and skellysync write only this format: JPEG in MKV with skellyfileformat sidecars,
+2. New skellycam and skellysync write only this format: JPEG in MKV with skellyspecs sidecars,
    and FLAC audio.
-3. A recording with no skellyfileformat sidecar is a legacy recording.
+3. A recording with no skellyspecs sidecar is a legacy recording.
 4. skellycam plays old H.264 recordings through a legacy `<video>` path. It also gives an explicit
    "upgrade recording" conversion, for the other old files and on request.
-5. skellycam owns the converter. The converter uses `skellyfileformat[write]`.
+5. skellycam owns the converter. The converter uses `skellyspecs[write]`.
 6. This spec covers only the new format. skellycam defines how it reads legacy recordings.
 
 ## Reason
@@ -26,3 +26,5 @@
 ## Open work
 
 See [open-work.md](../open-work.md).
+
+_Edited 2026-11-23 (commit to main): rename._

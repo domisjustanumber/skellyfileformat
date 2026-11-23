@@ -391,7 +391,7 @@ def folder_files(
     config_members = ("user_name", "key_origin", "device", "requested", "controls", "exposure_step")
     info = common.file_json(
         {
-            "skellyfileformat": "capture_info",
+            "skellyspecs": "capture_info",
             "format_version": common.FORMAT_VERSION,
             "format_prerelease": common.FORMAT_PRERELEASE,
             "writer": common.WRITER,
@@ -450,7 +450,7 @@ def folder_files(
     samples = sum(row[2] for row in audio_pair["rows"][: kept[-1]]) if audio and kept else None
     utc_s = take["take_start_utc_ns"] // 10**9
     manifest = {
-        "skellyfileformat": "recording_manifest",
+        "skellyspecs": "recording_manifest",
         "format_version": common.FORMAT_VERSION,
         "format_prerelease": common.FORMAT_PRERELEASE,
         "writer": common.WRITER,

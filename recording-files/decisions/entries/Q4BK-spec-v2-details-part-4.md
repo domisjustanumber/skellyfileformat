@@ -53,7 +53,7 @@ option is the text of the item.
 4. **Orphans and "a file of this format"** (SFF-865, SFF-869, SFF-875, SFF-887, SFF-888, SFF-889;
    SFT-761).
    - a. A file of this format is one of these: a timing sidecar with the first line of SFF-864; a
-     JSON file whose `skellyfileformat` member has a value of this spec; a TOML with
+     JSON file whose `skellyspecs` member has a value of this spec; a TOML with
      `[metadata].calibration_uuid`; a Parquet with a `freemocap.recording` descriptor of
      `schema_version` 2; a journal with a header record; a media file in a device pair. A media file
      alone has no mark of the format. It is in `other_files` as `not_in_format`.
@@ -89,3 +89,5 @@ option is the text of the item.
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

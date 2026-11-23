@@ -29,8 +29,8 @@ def test_csv_row_has_the_crc_of_the_bytes_before_its_comma():
 
 
 def test_sidecar_layout():
-    text = common.sidecar({"skellyfileformat": "video_timing", "clock_hz": None}, ["frame"], [[0]], ["# end rows=1"])
-    assert text == b"# skellyfileformat=video_timing\n# clock_hz=\nframe,crc32\n0,f4dbdf21\n# end rows=1\n"
+    text = common.sidecar({"skellyspecs": "video_timing", "clock_hz": None}, ["frame"], [[0]], ["# end rows=1"])
+    assert text == b"# skellyspecs=video_timing\n# clock_hz=\nframe,crc32\n0,f4dbdf21\n# end rows=1\n"
 
 
 def test_fitted_times_round_down():

@@ -1,7 +1,7 @@
 [metadata]
 format_version = "2.0"
 format_prerelease = 1
-writer = "skellyfileformat-goldgen 1.0.0"
+writer = "skellyspecs-goldgen 1.0.0"
 calibration_uuid = "00000000000040008000000000000301"
 source_take_uuid = "00000000000040008000000000000302"
 reprojection_error_px = 0.25

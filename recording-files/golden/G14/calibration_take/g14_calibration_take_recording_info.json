@@ -1,12 +1,12 @@
 {
-  "skellyfileformat": "processing_info",
+  "skellyspecs": "processing_info",
   "format_version": "2.0",
   "format_prerelease": 1,
-  "writer": "skellyfileformat-goldgen 1.0.0",
+  "writer": "skellyspecs-goldgen 1.0.0",
   "take_uuid": "00000000000040008000000000001401",
   "processed": {
     "schema_version": 1,
-    "parquet_sha256": "0b0bd9555a81bf80ffe1b448053d973021e48ee525e36e6ee8884a16a8676445",
+    "parquet_sha256": "cde03333c764ead72d7f797e68f53cb2993041bc15c828778d2e94eddd654507",
     "recording_id": "g14_calibration_take",
     "parquet": "g14_calibration_take_data.parquet",
     "selected_run_id": 0,

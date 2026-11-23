@@ -378,7 +378,7 @@ CONTROLS = {
     "exposure_us", "gain", "white_balance_k", "focus", "zoom", "pan_deg", "tilt_deg", "power_line_hz",
     "auto_exposure_priority", "brightness", "contrast", "saturation", "sharpness", "gamma", "backlight_compensation",
 }  # fmt: skip
-INFO_MEMBERS = ["skellyfileformat", "format_version", "format_prerelease", "writer", "take_uuid"]
+INFO_MEMBERS = ["skellyspecs", "format_version", "format_prerelease", "writer", "take_uuid"]
 CONFIG_MEMBERS = ["camera_label", "user_name", "key_origin", "device", "requested", "controls", "exposure_step"]
 DEVICE_MEMBERS = [
     "model", "os_name", "vendor_id", "product_id", "serial", "port_path", "os_device_id", "backend", "os_index",
@@ -481,7 +481,7 @@ def processing_info_faults(folder: Path) -> list[str]:
     """The golden part of SFT-737 in stage 1a: the processing info JSON of a take alone. It reads no Parquet."""
     info = load_json(one(folder, "*_recording_info.json"))
     faults = []
-    if list(info) != [*INFO_MEMBERS, "processed"] or info["skellyfileformat"] != "processing_info":
+    if list(info) != [*INFO_MEMBERS, "processed"] or info["skellyspecs"] != "processing_info":
         faults.append(f"the members are {list(info)}")
     processed = info["processed"]
     if list(processed) != PROCESSED_MEMBERS:
@@ -1603,8 +1603,8 @@ process.stdout.write(JSON.stringify(out));
 
 
 def js_adapter() -> Path | None:
-    """The folder of the JavaScript adapter: `SKELLYFILEFORMAT_JS_ADAPTER` of conftest.py, or None."""
-    folder = os.environ.get("SKELLYFILEFORMAT_JS_ADAPTER", "")
+    """The folder of the JavaScript adapter: `SKELLYSPECS_JS_ADAPTER` of conftest.py, or None."""
+    folder = os.environ.get("SKELLYSPECS_JS_ADAPTER", "")
     return Path(folder) if folder else None
 
 

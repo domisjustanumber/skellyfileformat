@@ -9,7 +9,7 @@
    the take folder. A change that an older reader cannot read needs a freemocap major version. An
    added field needs a freemocap minor version or a major version. A freemocap patch release does
    not change the format.
-2. The skellyfileformat package and skellycam release at the same `major.minor` when the format
+2. The skellyspecs package and skellycam release at the same `major.minor` when the format
    changes. A change of the Parquet format therefore also needs a skellycam release.
 3. Each file of the format records the format version under which it was written: `major`, `minor`
    and `prerelease`, each an unsigned integer that fits in 16 bits. `prerelease` is 0 for a
@@ -20,8 +20,8 @@
    `prerelease` > 0 has no compatibility promise.
 6. Each file holds a writer string, for example `skellycam 2.1.0`, for diagnostics only. A reader
    does not change its behaviour because of it. skellysync writes the format version that
-   skellyfileformat gives.
-7. The skellyfileformat package uses semantic versioning. Its `major.minor` is the format version
+   skellyspecs gives.
+7. The skellyspecs package uses semantic versioning. Its `major.minor` is the format version
    that it implements. Its patch number counts library fixes that do not change the format.
 8. The version of a container (the Matroska `DocTypeVersion`, the MP4 brands, the Parquet format
    version) is not the format version.
@@ -49,7 +49,7 @@ new containers. Items 2 and 9 are new.
 ## Alternatives rejected
 
 - The skellycam release: a freemocap file change would force a skellycam number.
-- The skellyfileformat package release on its own: the user chose freemocap, with the package and
+- The skellyspecs package release on its own: the user chose freemocap, with the package and
   skellycam in step.
 
 ## Open work
@@ -57,3 +57,5 @@ new containers. Items 2 and 9 are new.
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

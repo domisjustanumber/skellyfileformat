@@ -208,7 +208,7 @@ def test_g15_stubs_hold_no_data_and_no_file_of_this_format():
         if path.is_file() and path.parent != G15:
             data = path.read_bytes()
             assert len(data) < 300, path
-            assert b"skellyfileformat" not in data and b"calibration_uuid" not in data, path  # SFF-875
+            assert b"skellyspecs" not in data and b"calibration_uuid" not in data, path  # SFF-875
             assert not path.name.lower().endswith((".pkl", ".pickle")), path
 
 

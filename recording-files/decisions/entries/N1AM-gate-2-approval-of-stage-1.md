@@ -20,9 +20,9 @@ in skellycam to begin implementation".
    The user must review them as additions to the tests before the code of stage 1a starts.
 4. **Push.** The approval of stage 1 ends the agreement of no push
    ([ADR-Z641](Z641-program-guidance-gate-2-scope-and-no-push.md) item 3). The agent still asks the
-   user before the first push of skellyfileformat. "Research can be pushed" is about the research
+   user before the first push of skellyspecs. "Research can be pushed" is about the research
    branch of skellycam. It is not an approval of a push of this repository. The user
-   then approved the first push of skellyfileformat on 2026-11-17 (question Q193).
+   then approved the first push of skellyspecs on 2026-11-17 (question Q193).
 
 ## Reason
 
@@ -36,3 +36,5 @@ in skellycam to begin implementation".
 See [open-work.md](../open-work.md).
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

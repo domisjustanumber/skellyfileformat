@@ -4,11 +4,11 @@
 
 ## Decision
 
-1. The format code is in one shared package: skellyfileformat. The skellycam plan first named it
+1. The format code is in one shared package: skellyspecs. The skellycam plan first named it
    `skellyformat`.
 2. The package holds the record codecs (the video timing sidecar, the `.skau` and the audio packet
    table), the MKV scanner, the appender, the JavaScript reader and locator, and the golden files.
-3. An optional write layer, `skellyfileformat[write]`, holds the decoder, the JPEG encoder choice,
+3. An optional write layer, `skellyspecs[write]`, holds the decoder, the JPEG encoder choice,
    the MKV writer and the finaliser. The skellycam recorder, the skellycam converter and skellysync
    use it.
 4. The package has a detailed descriptive spec: the byte layouts, the field meanings, the clocks,
@@ -25,3 +25,5 @@
 
 - Plan rows S5, S6, D17 and D23 ([plan](https://github.com/domisjustanumber/skellycam/blob/a65e540053073c58f01ef2c8c8297901f6d9517f/research/CAPTURE_AND_RECORDING_PLAN.md)). The skellycam plan and its evidence are on the `dom/research` branch of the skellycam fork. That branch is not force-pushed, so the permalinks stay valid.
 - skellysync decision D-PKG ([SCOPE](https://github.com/domisjustanumber/skellycam/blob/a65e540053073c58f01ef2c8c8297901f6d9517f/research/skellysync_jpeg/SCOPE.md)).
+
+_Edited 2026-11-23 (commit to main): rename._

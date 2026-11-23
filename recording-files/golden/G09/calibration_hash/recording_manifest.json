@@ -1,8 +1,8 @@
 {
-  "skellyfileformat": "recording_manifest",
+  "skellyspecs": "recording_manifest",
   "format_version": "2.0",
   "format_prerelease": 1,
-  "writer": "skellyfileformat-goldgen 1.0.0",
+  "writer": "skellyspecs-goldgen 1.0.0",
   "take_uuid": "00000000000040008000000000000001",
   "recording_name": "g01_synthetic_take",
   "purpose": "motion_capture",
@@ -45,13 +45,13 @@
       "path": "g01_synthetic_take_info.json",
       "role": "capture_info",
       "owner": "skellycam",
-      "sha256": "7c7a9319d64b15a1023fd18906743e75d1f73542fe32bedd1950389b534495a5"
+      "sha256": "4afa0b21b0435f75269e0f3513405b55698d6badc4bc6adb498c6cb85b87a840"
     },
     {
       "path": "g01_synthetic_take_recording_info.json",
       "role": "processing_info",
       "owner": "freemocap",
-      "sha256": "2371400ef46967a5942a6aa857b3141b463a32e48fa2bbf3d881775266378483"
+      "sha256": "d120defda447c9ff9c905c9c1beae3b89c2baf46283d81246926a245140d736a"
     }
   ],
   "warnings": [

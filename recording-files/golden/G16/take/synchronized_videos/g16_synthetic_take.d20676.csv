@@ -1,7 +1,7 @@
-# skellyfileformat=video_timing
+# skellyspecs=video_timing
 # format_version=2.0
 # format_prerelease=1
-# writer=skellyfileformat-goldgen 1.0.0
+# writer=skellyspecs-goldgen 1.0.0
 # take_uuid=00000000000040008000000000000016
 # take_start_host_ns=1000000000000
 # take_start_utc_ns=946684800000000000

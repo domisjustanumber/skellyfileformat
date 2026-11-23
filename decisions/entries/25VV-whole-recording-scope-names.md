@@ -4,7 +4,7 @@
 
 ## Decision
 
-1. **Scope.** skellyfileformat describes how to record and how to open a collection of synchronised
+1. **Scope.** skellyspecs describes how to record and how to open a collection of synchronised
    video and audio recordings: one recording (one take). It does not describe only each file. The
    spec covers:
    - each file: the MKV profile, the video timing sidecar, the audio timing sidecar and its packet
@@ -75,3 +75,5 @@ for the recording. Item 2 is new: it gives the names that the spec fixes.
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

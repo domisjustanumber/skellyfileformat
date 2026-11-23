@@ -248,7 +248,7 @@ wheels = [
 ]
 
 [[package]]
-name = "skellyfileformat"
+name = "skellyspecs"
 version = "0.0.0"
 source = { virtual = "." }
 

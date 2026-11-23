@@ -61,7 +61,7 @@ them on 2026-11-16, with the recommended option of each CHOICE. Each alternative
 
 ## Evidence
 
-skellyfileformat at fe7deba, `spec/conformance.md`: the Input lines of the tests that item 46
+skellyspecs at fe7deba, `spec/conformance.md`: the Input lines of the tests that item 46
 names. The classes of item 46 come from these lines. No test was run.
 
 ## Open work
@@ -69,3 +69,5 @@ names. The classes of item 46 come from these lines. No test was run.
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

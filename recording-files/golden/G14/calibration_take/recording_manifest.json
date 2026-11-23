@@ -1,8 +1,8 @@
 {
-  "skellyfileformat": "recording_manifest",
+  "skellyspecs": "recording_manifest",
   "format_version": "2.0",
   "format_prerelease": 1,
-  "writer": "skellyfileformat-goldgen 1.0.0",
+  "writer": "skellyspecs-goldgen 1.0.0",
   "take_uuid": "00000000000040008000000000001401",
   "recording_name": "g14_calibration_take",
   "purpose": "calibration",
@@ -29,7 +29,7 @@
   "calibration": {
     "calibration_uuid": "00000000000040008000000000001403",
     "file": "g14_calibration_take_camera_calibration.toml",
-    "sha256": "ca720e734b9617775ee57af2016f56ccab90e247bf0b2502652faeebfb5e65bb"
+    "sha256": "fc55c83515e9324ce88882ae109a165c3705bcd5e428f3933fdc8eceaa3fee39"
   },
   "files": [
     {
@@ -42,13 +42,13 @@
       "path": "g14_calibration_take_info.json",
       "role": "capture_info",
       "owner": "skellycam",
-      "sha256": "491776063225d2d792a4ff2d512ec851664183d07229af6463f3292da795f098"
+      "sha256": "82e1ca487a8d26f58a8c859ce0460e73b28a663649f5f6ad69b904190acb555f"
     },
     {
       "path": "g14_calibration_take_recording_info.json",
       "role": "processing_info",
       "owner": "freemocap",
-      "sha256": "7109688c3a6be183a7d23116c75c7c2a2ab6ef9206027808ce56482e7c2b9fcc"
+      "sha256": "4169fb8e73ca492f03a1fcda1394a1d0b185b1003b41e281ec5b7c8db546dc13"
     }
   ],
   "warnings": [],

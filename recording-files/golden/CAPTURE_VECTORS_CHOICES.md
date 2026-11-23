@@ -217,7 +217,7 @@ the desk tests DT-R1 and DT5.
 31. The fit of the repair (SFF-795 says "computes the fit from the rows"). Choice: the line that made
     the rows, with `fitter=goldgen-truth`, one segment from row 0 to the last kept row. A real
     repair computes its fit from the rows.
-32. `repair_writer` and the manifest `writer` are `skellyfileformat-goldgen 1.0.0`. So `writer` of
+32. `repair_writer` and the manifest `writer` are `skellyspecs-goldgen 1.0.0`. So `writer` of
     the manifest does not change in the repair, and the test sees a change only in `state`,
     `warnings` and `summary`.
 33. The repair writes the manifest by SFF-786, through `recording_manifest.json.tmp`. So the case

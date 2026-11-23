@@ -8,7 +8,7 @@ Keep technical names, field names, values, formulas, code and YAML unchanged.
 
 ## 1. Purpose
 
-skellyfileformat defines the take folder of skellycam, skellysync and freemocap recordings: MJPEG
+skellyspecs defines the take folder of skellycam, skellysync and freemocap recordings: MJPEG
 in MKV and Opus in fragmented MP4, each with a CSV timing sidecar, and every folder file that the
 programs add ([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md),
 [ADR-6RSB](recording-files/decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md),

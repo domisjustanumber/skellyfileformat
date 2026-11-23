@@ -1,7 +1,7 @@
-# skellyfileformat=audio_timing
+# skellyspecs=audio_timing
 # format_version=2.0
 # format_prerelease=1
-# writer=skellyfileformat-goldgen 1.0.0
+# writer=skellyspecs-goldgen 1.0.0
 # take_uuid=00000000000040008000000000000005
 # take_start_host_ns=1000000000000
 # take_start_utc_ns=946684800000000000
@@ -27,5 +27,5 @@ block,first_sample,n_samples,host_ns,adc_ns,flags,crc32
 8,38400,4800,914409750,812345566,0,e6a9a6b5
 # fit fitter=goldgen-truth fitter_version=1.0.0 fitter_params={}
 # fit_segment row_first=0 row_last=8 n0=0 t0_ns=12345678 period_fs=20833350000
-# repair cut_bytes=562 media_cut_bytes=5870 repair_writer=skellyfileformat-goldgen 1.0.0
+# repair cut_bytes=562 media_cut_bytes=5870 repair_writer=skellyspecs-goldgen 1.0.0
 # end rows=9 samples=43200 gaps=0 silence_samples=0

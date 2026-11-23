@@ -22,7 +22,7 @@
    time.
 5. There is no encoder-skip flag. When the JPEG encoder fails on a frame, the writer writes a
    `foxglove.Log` message on the camera's log topic, with level `WARNING`,
-   `name` = `skellyfileformat.encode_skip` and the time of the frame. A gap in `sequence` shows
+   `name` = `skellyspecs.encode_skip` and the time of the frame. A gap in `sequence` shows
    that frames are missing; the log message tells why.
 6. `audio_latency_ns` is the time from the sound at the microphone to its ADC time. The time of
    sample n is t0 + n × 10^9 / f − L, where L is `audio_latency_ns`. This item is provisional until
@@ -54,3 +54,5 @@
 ## Open work
 
 [open-work.md](../open-work.md)
+
+_Edited 2026-11-23 (commit to main): rename._

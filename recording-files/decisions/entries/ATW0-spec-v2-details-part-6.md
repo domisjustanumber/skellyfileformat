@@ -93,10 +93,12 @@ option is the text of the item.
 
 - freemocap at c27fc299: `coordinate_conventions.py`, `posthoc_reconstruction.py`,
   `anipose_calibration_helpers.py` and `calibration_update.py` (item 12).
-- skellyfileformat at 38ad0d6, `spec/SPEC.md`: draft v0 SFF-170 and SFF-451.
+- skellyspecs at 38ad0d6, `spec/SPEC.md`: draft v0 SFF-170 and SFF-451.
 
 ## Open work
 
 [open-work.md](../open-work.md)
 
 _Edited 2026-11-23 (commit to main): link repair._
+
+_Edited 2026-11-23 (commit to main): rename._

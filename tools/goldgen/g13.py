@@ -188,7 +188,7 @@ def f32(value: float | None) -> bytes:
 def journal(channels: list[dict], group_ns: list[int], format_version: str, unknown_record: bool) -> dict:
     """The bytes of the journal and the facts of its scan (SFF-843) and of its check (SFF-845)."""
     header = {
-        "skellyfileformat": "realtime_journal", "format_version": format_version,
+        "skellyspecs": "realtime_journal", "format_version": format_version,
         "format_prerelease": common.FORMAT_PRERELEASE, "writer": common.WRITER, "take_uuid": TAKE["take_uuid"],
         "origin": "realtime", "channels": [{"channel_index": i} | ch for i, ch in enumerate(channels)],
     }  # fmt: skip
