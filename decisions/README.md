@@ -1,7 +1,10 @@
 # Decision log
 
-This log records the technical decisions of skellyspecs, with their reasons and evidence. Read this
-file and [open-work.md](open-work.md) before you change the spec, the README, the golden files, the tools or the agent instructions. The
+This root log records the technical decisions of skellyspecs for the whole repository, with their
+reasons and evidence. Each module has its own log for its own decisions, for example
+[recording-files/decisions/](../recording-files/decisions/README.md) ([ADR-YYP7](entries/YYP7-skellyspecs-one-repository-for-the-specs.md) item 4). Read this file and
+[open-work.md](open-work.md) before you change a spec, the README, the golden files, the tools or
+the agent instructions. The
 [Rules](#rules) tell you which entries to read
 ([ADR-0001](entries/0001-decision-log-agents-md-and-private-data.md)).
 
@@ -41,9 +44,10 @@ The open work is in [open-work.md](open-work.md).
   completed measurement. Read a Proposed entry only for work in its section, or when a skill
   tells you to. Read an entry of [historical.md](historical.md) only to find the reason for a
   decision.
-- The body of an entry that is not `proposed` changes only by four edits: a link or anchor repair, a
-  typo that does not change the meaning, the redaction of private data, and a change of ID with the
-  repair of its citations. Each edit adds `_Edited YYYY-MM-DD (#PR): <kind>._` at the end of the
+- The body of an entry that is not `proposed` changes only by five edits: a link or anchor repair, a
+  typo that does not change the meaning, the redaction of private data, a change of ID with the
+  repair of its citations, and the one-time replacement of `skellyfileformat` by `skellyspecs`
+  (kind `rename`, [ADR-YYP7](entries/YYP7-skellyspecs-one-repository-for-the-specs.md) item 5). Each edit adds `_Edited YYYY-MM-DD (#PR): <kind>._` at the end of the
   entry, for example `re-ID from XXXX`. For a
   change of ID, the renamed entry gets `re-ID from XXXX`, and each repaired entry gets
   `citation repair`. Add these two lines only to an entry that is on `main`. A plain-text
@@ -51,10 +55,10 @@ The open work is in [open-work.md](open-work.md).
   its new path.
 - An entry in a commit that is not pushed to a remote can change in that commit, in each part. Make
   the correction and report it to the user. Do not write a new entry for it, and do not ask. The
-  four edits apply from the first push.
+  five edits apply from the first push.
 - A decision that a document or code refers to must be in an entry. "This log" in an older entry or
   in the Rules means all logs.
-- An absorb document is one of these: the root or a nested `AGENTS.md`, the skills, `README.md`, `recording-files/SPEC.md` with its normative parts `recording-files/parts/*.md`, `recording-files/conformance.md`, `recording-files/legacy-annex.md`, `recording-files/golden/README.md` and the files `recording-files/golden/*_CHOICES.md` ([ADR-HH7B](entries/HH7B-absorb-documents-and-clean-up-timing.md)), the Rules of this file with [template.md](template.md), and the docstring of a
+- An absorb document is one of these: the root or a nested `AGENTS.md`, the skills, `README.md`, `recording-files/README.md`, `recording-files/SPEC.md` with its normative parts `recording-files/parts/*.md`, `recording-files/conformance.md`, `recording-files/legacy-annex.md`, `recording-files/golden/README.md` and the files `recording-files/golden/*_CHOICES.md` ([ADR-HH7B](entries/HH7B-absorb-documents-and-clean-up-timing.md)), the Rules of this file with [template.md](template.md), and the docstring of a
   tool in `tools/` for the rules that it checks. A test in `tools/tests/` is a tool here. An accepted entry is absorbed when the absorb
   documents together state all of its rules. Open work of the entry does not stop the absorb when
   `open-work.md` states that work in full. A link to the entry is not

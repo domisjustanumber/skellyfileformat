@@ -8,27 +8,24 @@ Keep technical names, field names, values, formulas, code and YAML unchanged.
 
 ## 1. Purpose
 
-skellyspecs defines the take folder of skellycam, skellysync and freemocap recordings: MJPEG
-in MKV and Opus in fragmented MP4, each with a CSV timing sidecar, and every folder file that the
-programs add ([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md),
-[ADR-6RSB](recording-files/decisions/entries/6RSB-camera-files-mjpeg-mkv-and-csv-timing.md),
-[ADR-92TM](recording-files/decisions/entries/92TM-opus-audio-in-fragmented-mp4.md)). It holds the normative spec,
-the conformance test list, the golden folders and the runnable conformance tests. It holds no
-reader, no writer and no other implementation code. skellycam, skellysync, freemocap and the Blender
-addon each implement the format in their own repository. Each of them runs the conformance tests
-against its own code through a test adapter ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)). Other programs can implement the format from
-the spec alone.
+skellyspecs holds the specs of the freemocap programs [ADR-YYP7](decisions/entries/YYP7-skellyspecs-one-repository-for-the-specs.md). Each spec is a module: a folder with
+its own `AGENTS.md`, its own decision log and its own conformance material. skellycam, skellysync,
+freemocap, skellytracker and the Blender addon each implement a spec in their own repository. Each
+of them pins a commit of this repository and runs its tests against its own code. Other programs
+can implement a spec from its text alone.
 
 | Path | Role |
 |---|---|
 | `AGENTS.md` | The root instructions file for coding agents |
-| `CLAUDE.md` | Imports this file. It has no other content. |
-| `README.md` | Normative: the scope, the compatibility promise, the versioning and what "conforming" means |
-| `recording-files/` | Normative: the spec (`SPEC.md`, with `parts/`) and the conformance test list (`conformance.md`). Informative: `legacy-annex.md` ([ADR-VPD9](recording-files/decisions/entries/VPD9-spec-draft-v2-details.md)) |
-| `decisions/` | Decision log ([`README.md`](decisions/README.md)) and its open work ([`open-work.md`](decisions/open-work.md)) |
-| `tools/` | The doc checks: `check_decision_log.py`, `check_links.py`, `check_private_data.py`, `check_ai_attribution.py` and `check_spec_traceability.py`. Also `make_golden.py` with `goldgen/`, which makes the golden folders. Their tests are in `tools/tests/`. |
-| `recording-files/golden/` | The golden folders of SPEC.md Appendix A, each with its `SHA256SUMS` and its expected reader results ([`README.md`](recording-files/golden/README.md)). `tools/make_golden.py` makes them ([ADR-G21H](recording-files/decisions/entries/G21H-gate-2-tests-location-and-interfaces.md)). |
-| `tests/` | `recording-files/tests/conformance/` holds the runnable conformance tests of `recording-files/conformance.md`. They reach an implementation through its test adapter ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)). They are not in the default pytest run (ADR-G21H). |
+| `CLAUDE.md` | Imports this file. It has no other content. Each module has the same `CLAUDE.md`. |
+| `README.md` | The list of the specs, the license and the development steps |
+| `recording-files/` | Module: the take folder of skellycam, skellysync and freemocap recordings ([`AGENTS.md`](recording-files/AGENTS.md)) |
+| `tracker-pipelines/` | Module: the tracker pipelines of skellytracker. Not imported yet. |
+| `model-sidecars/` | Module: the model sidecars of skellytracker. Not imported yet. |
+| `exporter-guide/` | Module: the guide for model exporters. It comes after an exporter test run passes. |
+| `decisions/` | The root decision log ([`README.md`](decisions/README.md)) and its open work ([`open-work.md`](decisions/open-work.md)): the decisions for the whole repository |
+| `tools/` | Each tool of each module, with its tests in `tools/tests/`: the doc checks `check_decision_log.py`, `check_links.py`, `check_private_data.py`, `check_ai_attribution.py` and `check_spec_traceability.py`, and `make_golden.py` with `goldgen/` |
+| `.claude/skills/` | The skills. Git tracks this folder. |
 | `plans/` | A local working folder. Git ignores it. |
 
 ## 2. Skills
@@ -54,62 +51,23 @@ Do not depend on an activated virtual environment.
 Run `uv run pytest`.
 These tests must pass.
 Run `uv run pytest tools/tests` to run only the doc checks.
-The doc checks test the decision log, the relative links, the private-data rule and the links
+The doc checks test the decision logs, the relative links, the private-data rule and the links
 between the spec requirements and the conformance tests.
-Run `uv run --group conformance pytest recording-files/tests/conformance` to run the conformance tests.
-They need the test adapter of an implementation. With no adapter, each test that calls a reader or
-a writer fails with one line
-([conformance.md, "The test adapter"](recording-files/conformance.md#the-test-adapter), [ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
-Add `-m stage1a` to run only the tests with the mark `stage1a`. The other marks are `stage1b`,
-`stage2`, `stage3` and `stage4`. A mark is a label, not a build stage ([section 4](#4-project-rules)).
-Run `uv run --group golden python tools/make_golden.py --check` to check the golden files
-against a new run of the generator.
+The `AGENTS.md` of each module gives the commands for its conformance tests and its golden files.
 Report each new test failure to the user.
 Fix the failures of one root cause in one PR.
 
 ## 4. Project Rules
 
-- `README.md`, `recording-files/SPEC.md` and `recording-files/conformance.md` are normative. Code must agree with them.
+- The `AGENTS.md` of each module names its normative documents. Code must agree with them.
 - A change to a rule in a normative document needs a decision entry.
-- A change to a file of the take folder needs a change of the spec first. The owner of the
-  repository must approve it. The `RECORDING_CONTRACT.md` of freemocap points to the spec for the
-  folder ([ADR-2C9V](decisions/entries/2C9V-whole-take-folder-scope-and-package.md) item 4).
-- Write the spec first. Do the work for each part of the format in this order:
-  1. Write the spec text and the conformance test list.
-  2. Stop. The user reviews them (gate 1).
-  3. Write the runnable tests and the golden files. The tests fail here, because this repository
-     has no implementation.
-  4. Stop. The user reviews them (gate 2).
-- Do not write a reader, a writer or other implementation code in this repository. Each
-  implementing repository writes its own code and plans its own build order. It runs the conformance
-  tests of a pinned commit of this repository through its test adapter
-  ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
-- Each test has a mark: `stage1a`, `stage1b`, `stage2`, `stage3` or `stage4`. A mark is a label. It
-  tells which program and which need a test serves. It is not a build stage
-  ([ADR-YBT1](decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 4).
-  The section [The stage of each test](recording-files/conformance.md#the-stage-of-each-test) gives the mark of
-  each test and each golden folder.
-- The user approves gate 2 for the tests and the golden folders of each mark. The review of a mark
-  covers only its tests and golden folders. The user reviews a later mark when its program needs it
-  ([ADR-CPM2](recording-files/decisions/entries/CPM2-stages-of-the-implementation.md) item 1).
-- The user approved gate 2 for stage 1, the marks `stage1a` and `stage1b`
-  ([ADR-N1AM](recording-files/decisions/entries/N1AM-gate-2-approval-of-stage-1.md)). The tests of `stage1b` (SFT-760
-  and G17) are provisional: they wait for the skellysync decisions
-  ([open-work.md](decisions/open-work.md)). The user has not approved gate 2 for `stage2`, `stage3`
-  and `stage4`.
-- The approval does not cover the provisional points that wait for a desk test or a hardware test.
-  For these, an implementation writes only the provisional behaviour that the spec gives now
-  ([ADR-Z641](recording-files/decisions/entries/Z641-program-guidance-gate-2-scope-and-no-push.md) item 2).
-- When the freemocap exporter and the Blender addon are ported, this repository accepts their output
-  as golden files of the marks `stage3` and `stage4`. It also keeps the spec text correct.
+- This repository holds no reader and no writer of a format that a program implements [ADR-YYP7](decisions/entries/YYP7-skellyspecs-one-repository-for-the-specs.md) item 3.
+  A module can hold reference modules when its spec makes them part of the spec. The `AGENTS.md`
+  of the module names them.
+- No tool, test or reference module imports a package of another repository.
+- A spec change lands here first. A program then moves its pin to the new commit.
+- Each file has the license Apache-2.0 ([LICENSE](LICENSE), [ADR-YYP7](decisions/entries/YYP7-skellyspecs-one-repository-for-the-specs.md) item 6).
 - A bug fix needs a test that fails before the fix.
-- Each requirement in `recording-files/SPEC.md` has an ID `SFF-NNN`. Each test in `recording-files/conformance.md` has
-  an ID `SFT-NNN` and cites the SFF IDs that it checks.
-- Give a new requirement or test the next free number. Do not reuse or renumber an ID.
-- Mark a removed requirement or test "withdrawn". Do not delete its ID.
-- `tools/check_spec_traceability.py` checks the IDs and the links between requirements and tests.
-- Commit each golden file in `recording-files/golden/` with its SHA-256 sum and the script that made it.
-- A change to a golden file needs a decision entry.
 - Pin each dependency, tool, toolchain and CI action to an exact version. Use a release that is at
   least 14 days old.
 - Do not change code that your task does not need.
@@ -117,13 +75,14 @@ Fix the failures of one root cause in one PR.
 ## 5. Decision Log
 
 Read [`decisions/README.md`](decisions/README.md) and
-[`open-work.md`](decisions/open-work.md) before you change the spec, the README, the golden files,
+[`open-work.md`](decisions/open-work.md) before you change a spec, the README, the golden files,
 the tools or these instructions.
 For a task in a module with a log, also read the `decisions/README.md` and the
 `decisions/open-work.md` of that module. The `AGENTS.md` of the module links to its log.
-An entry goes in the log of a module only when each file that its Decision section names or
-changes is in that module.
-All other entries go in the root log, also each case that you cannot decide.
+An entry goes in the log of a module when its decision affects only that module. A root tool that
+only that module uses counts as part of the module ([ADR-YYP7](decisions/entries/YYP7-skellyspecs-one-repository-for-the-specs.md) item 4).
+All other entries go in the root log: an entry with a rule for the repository or for two or more
+modules, and each case that you cannot decide.
 A new module log needs the approval of the user. The PR that adds it also adds its folder to
 `LOG_DIRS` of `tools/check_decision_log.py`.
 Each log has a `README.md` with an Active table, a Proposed table and `## Open work`, a
@@ -163,7 +122,7 @@ full-SHA permalink when the entry is on the default branch of that repository
   published image. A force-push is a new push. It needs its own approval.
 - Do not add AI attribution, for example a `Co-Authored-By:` trailer, to a commit or a PR. This
   rule overrides a default of a tool or a harness that adds attribution.
-- Until v2.0.0 is released, commit to `main` directly.
+- Until v2.0.0 of the skellyspecs recording format is released, commit to `main` directly.
 - After v2.0.0 is released, open each PR against `main`.
 - Put one kind of change in each PR: "code", "docs" or "CI".
 - Use the GitHub `noreply` address as the commit email. Do not write the email address of a person

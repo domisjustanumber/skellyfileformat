@@ -13,7 +13,7 @@ item gives its question number.
 
 1. **The golden documents are absorb documents (Q154).** `golden/README.md` and the files
    `golden/*_CHOICES.md` are absorb documents. They state the conventions of the golden folders.
-   [`AGENTS.md`](../../AGENTS.md#4-project-rules) already requires an entry for a change of a
+   [`AGENTS.md`](../../recording-files/AGENTS.md#3-project-rules) already requires an entry for a change of a
    golden file.
    - The normative parts (Q157): the Rules also list the normative parts `spec/parts/*.md` of
      `spec/SPEC.md` as absorb documents, because `SPEC.md` makes them normative and entries link

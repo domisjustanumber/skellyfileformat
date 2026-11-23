@@ -4,7 +4,7 @@ This folder holds the golden folders of [SPEC.md Appendix A](../SPEC.md#appendix
 A tool makes each file from synthetic input. No file holds data of a person or of a real device.
 The committed bytes are the reference
 ([ADR-G21H](../decisions/entries/G21H-gate-2-tests-location-and-interfaces.md) item 10).
-A change to a golden file needs a decision entry ([AGENTS.md section 4](../../AGENTS.md#4-project-rules)).
+A change to a golden file needs a decision entry ([AGENTS.md section 3](../AGENTS.md#3-project-rules)).
 
 G1 to G16 and G18 exist. G17 does not exist: it waits for the skellysync decisions. G1 is the worked
 example for the other folders. The user reviewed G1 on 2026-11-16 and accepted its conventions for

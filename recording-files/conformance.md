@@ -92,7 +92,7 @@ This list is normative. The license of the text is Apache-2.0 ([LICENSE](../LICE
   converter, and 1b is the skellysync folders. Stage 2 is the realtime capture: the calibration
   TOML, the Parquet, the journal and each reader check that needs them. Stage 3 is the posthoc
   capture of freemocap. Stage 4 is the Blender addon. This list and SPEC.md stay whole documents.
-  The user approves gate 2 for each stage ([AGENTS.md](../AGENTS.md#4-project-rules)).
+  The user approves gate 2 for each stage ([AGENTS.md](AGENTS.md#3-project-rules)).
 - The first table gives the stage of each test: the latest stage of its parts, in the order 1a,
   1b, 2, 3, 4. This includes each external part, which the repository of its program runs.
 - The column "Earlier parts" gives the parts of the test that have an earlier stage. A part is

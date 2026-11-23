@@ -6,9 +6,9 @@
 [`README.md#versioning-normative`](../../recording-files/README.md#versioning-normative),
 [`README.md#implementations`](../../recording-files/README.md#implementations),
 [`README.md#licenses`](../../README.md#licenses),
-[`AGENTS.md#1-purpose`](../../AGENTS.md#1-purpose),
-[`AGENTS.md#3-install-and-test`](../../AGENTS.md#3-install-and-test),
-[`AGENTS.md#4-project-rules`](../../AGENTS.md#4-project-rules),
+[`recording-files/AGENTS.md#1-purpose`](../../recording-files/AGENTS.md#1-purpose),
+[`recording-files/AGENTS.md#2-test`](../../recording-files/AGENTS.md#2-test),
+[`recording-files/AGENTS.md#3-project-rules`](../../recording-files/AGENTS.md#3-project-rules),
 [`AGENTS.md#6-git-rules`](../../AGENTS.md#6-git-rules),
 [`AGENTS.md#8-private-data`](../../AGENTS.md#8-private-data),
 [`spec/SPEC.md#skellyspecs-recording-format-specification`](../../recording-files/SPEC.md#skellyspecs-recording-format-specification),
@@ -56,8 +56,8 @@ ADR-QH61 and ADR-CZQ9 in full, because items 1 to 4 change a rule of each.
 - README [Scope](../../recording-files/README.md#scope-normative) and
   [Compatibility](../../recording-files/README.md#compatibility-promise-normative): 2C9V 1; CZQ9 1, 2, 5.
   [Licenses](../../README.md#licenses): 2C9V 12.
-- AGENTS.md [3](../../AGENTS.md#3-install-and-test): G21H 1, 9.
-  [4](../../AGENTS.md#4-project-rules): 2C9V 4, 8 to 11, 13, 14; CPM2 1, 9; N1AM 1; Z641 2; G21H 9.
+- AGENTS.md [2](../../recording-files/AGENTS.md#2-test): G21H 1, 9.
+  [3](../../recording-files/AGENTS.md#3-project-rules): 2C9V 4, 8 to 11, 13, 14; CPM2 1, 9; N1AM 1; Z641 2; G21H 9.
   [6](../../AGENTS.md#6-git-rules), [8](../../AGENTS.md#8-private-data): 2C9V 12; N1AM 4; Z641 3.
 - [SPEC.md](../../recording-files/SPEC.md#skellyspecs-recording-format-specification): 2C9V 2, 3, 7, by its sections 1,
   2, 6, 16, 18.1, 18.4 and Appendix B; N1AM 1. [§3](../../recording-files/SPEC.md#3-versioning),

@@ -10,7 +10,7 @@ the result.
   test adapter. The user approved gate 2 for stage 1 on 2026-11-17
   ([ADR-N1AM](entries/N1AM-gate-2-approval-of-stage-1.md)). The user has not approved gate 2 for
   stages 2, 3 and 4. The user approved the first push on 2026-11-17 (question Q193). From that push
-  on, an entry cannot be corrected in place. [AGENTS.md](../../AGENTS.md#4-project-rules) gives the
+  on, an entry cannot be corrected in place. [AGENTS.md](../AGENTS.md#3-project-rules) gives the
   marks and the scope of the approval.
 - **Review of the changes F-1 to F-10.** The spec text, the tests and G18 of
   [ADR-6AT7](entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) came in one

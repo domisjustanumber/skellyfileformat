@@ -9,7 +9,7 @@ writing and recovery rules, and how a reader opens a folder, so that other progr
 compatible folder or read the output of freemocap from the spec alone.
 
 **Status: draft.** No format version is released yet. The spec and its conformance tests are written
-first and reviewed ([AGENTS.md section 4](../AGENTS.md#4-project-rules)). This repository holds no
+first and reviewed ([AGENTS.md section 3](AGENTS.md#3-project-rules)). This repository holds no
 reader and no writer: each program implements the format ([Implementations](#implementations),
 [ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
 

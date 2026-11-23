@@ -5,7 +5,7 @@
 [`README.md#compatibility-promise-normative`](../../README.md#compatibility-promise-normative),
 [`README.md#versioning-normative`](../../README.md#versioning-normative),
 [`README.md#implementations`](../../README.md#implementations),
-[`AGENTS.md#1-purpose`](../../../AGENTS.md#1-purpose),
+[`recording-files/AGENTS.md#1-purpose`](../../AGENTS.md#1-purpose),
 [`spec/SPEC.md#skellyspecs-recording-format-specification`](../../SPEC.md#skellyspecs-recording-format-specification),
 [`spec/parts/parquet-descriptor.md#sensorgroup-closed`](../../parts/parquet-descriptor.md#sensorgroup-closed),
 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; questions Q129 and Q155: one
@@ -27,7 +27,7 @@ items means its rule here.
   [Compatibility](../../README.md#compatibility-promise-normative): 9DV4 5; 92TM 1.
   [Versioning](../../README.md#versioning-normative): 9DV4 1, 2, 4, 6, 7, 8, 9.
   [Implementations](../../README.md#implementations): 92TM 2.
-- [AGENTS.md 1](../../../AGENTS.md#1-purpose): VPD9 1.
+- [AGENTS.md 1](../../AGENTS.md#1-purpose): VPD9 1.
 - [§1](../../SPEC.md#1-scope-and-terms): 5XNA 2; 3D33 and VPD9 (preambles).
 - [§2](../../SPEC.md#2-conventions): N6HS 2; VPD9 1, 5.
 - [§3](../../SPEC.md#3-versioning): 9DV4 1, 3, 4, 6, 8; VPD9 2.
