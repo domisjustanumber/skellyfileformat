@@ -20,6 +20,8 @@ These entries are `accepted` or `evidence`.
 |---|----------|--------|
 | [5B03](entries/5B03-choices-for-the-format-changes-f1-to-f10.md) | Choices for F-1 to F-10: player marks, completion after a write error, tail repair, summary nulls, DHT order, F-5 as a player rule, test inputs | accepted |
 | [76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md) | Details for F-1 to F-10 from a review: byte-field rows, tail repair steps, SFF-828, no-block file, terms, `stored_px`, tests | accepted |
+| [YYP7](entries/YYP7-skellyspecs-one-repository-for-the-specs.md) | skellyspecs: four spec folders as modules, entry placement, rename edit, Apache-2.0 only, import from skellytracker | accepted |
+| [6PNN](entries/6PNN-format-field-skellyspecs.md) | The format field is `skellyspecs`; no old name; adapter variables; golden folders made again | accepted |
 
 ### Proposed
 

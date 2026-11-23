@@ -11,6 +11,17 @@ task. Delete an item when its work is done. The PR that closes an item records t
   stages 2, 3 and 4. The user approved the first push on 2026-11-17 (question Q193). From that push
   on, an entry cannot be corrected in place. [AGENTS.md](../AGENTS.md#4-project-rules) gives the
   marks and the scope of the approval.
+- **The move to skellyspecs** ([ADR-YYP7](entries/YYP7-skellyspecs-one-repository-for-the-specs.md)).
+  - The user renames the GitHub repository and the local folder to `skellyspecs` after the first
+    push of the move.
+  - The import of `tracker-pipelines/` and `model-sidecars/` with four skills, from one pushed
+    skellytracker commit after its LF commit, with an import entry and its link script. Then the
+    port of the four skills.
+  - When the first proposal record lands in `tracker-pipelines/proposals/`, the link check must
+    skip it, as it skips the records of `model-sidecars/proposals/`.
+  - The full-SHA links to the skellytracker root log, after that log is on the skellytracker
+    default branch.
+  - The kit sync from the kit commit of the two-way hub, after the import.
 - **Review of the changes F-1 to F-10.** The spec text, the tests and G18 of
   [ADR-6AT7](entries/6AT7-format-changes-f1-to-f10-missing-frames-and-short-files.md) came in one
   step with no gate-1 stop, so the user reviews the wording and the tests after the fact. The user
