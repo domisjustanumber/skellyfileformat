@@ -1538,8 +1538,8 @@ G18: the codes of SFF-727 are not warnings of the reader result.
 
 These tests are for SFF-896 to SFF-903
 ([ADR-3XYN](decisions/entries/3XYN-v1-camera-file-rules-move-to-recording-files.md),
-[ADR-91PB](decisions/entries/91PB-choices-for-the-v1-camera-file-rules.md)). They are a draft for
-review at gate 1. The approval of gate 2 for stage 1 does not cover them. Each one starts with the
+[ADR-91PB](decisions/entries/91PB-choices-for-the-v1-camera-file-rules.md)). The user approved them
+at gate 1 on 2026-11-25 ([ADR-X7QP](decisions/entries/X7QP-gate-1-approval-of-the-v1-camera-file-rules.md)). The approval of gate 2 for stage 1 does not cover them. Each one starts with the
 word "Draft" before its ID, and it has no runnable test and no stage yet. At gate 2, the word goes,
 each test gets its runnable test and its row in [The stage of each test](#the-stage-of-each-test),
 and the checks of `tools/` then apply to it.

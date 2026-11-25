@@ -1,6 +1,6 @@
 # 91PB — Choices of the agent for the v1 camera-file rules
 
-**Status:** proposed, 2026-11-25 (agent; the spec work of [ADR-3XYN](3XYN-v1-camera-file-rules-move-to-recording-files.md)).
+**Status:** accepted, 2026-11-25 (user; answer Q804 of the owner session of 2026-11-25; commit on dom/v1-player-rules; was proposed, 2026-11-25 (agent; the spec work of [ADR-3XYN](3XYN-v1-camera-file-rules-move-to-recording-files.md))).
 
 ## Decision
 

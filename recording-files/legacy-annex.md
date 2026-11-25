@@ -121,15 +121,15 @@ From the installed addon 2026.4.1041 only. The outputs of each pinned version ar
 ## 8. Old recordings in skellycam and freemocap
 
 These are rules of the programs, not of the format
-([ADR-CZQ9](decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md) items 1, 3 and
-4, [ADR-H2HQ](decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 5).
+([ADR-CZQ9](decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md) item 1,
+[ADR-H2HQ](decisions/entries/H2HQ-descriptor-members-deferred-points-and-old-audio.md) item 5,
+[ADR-46NQ](../decisions/entries/46NQ-old-recordings-play-as-they-are-no-upgrade-converter.md)).
 
 - New skellycam and freemocap keep reading each recording format that freemocap v1.0.25 to v1.8.2
   and the current code write.
-- skellycam plays old H.264 recordings through a legacy `<video>` path. It also gives an explicit
-  "upgrade recording" conversion, for the other old files and on request.
-- skellycam owns the converter. The converter uses the writer of skellycam
-  ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 1).
+- skellycam plays old recordings as they are. It converts no old recording, and it has no legacy
+  `<video>` path for old H.264 recordings. It has no "upgrade recording" converter. Its player reads
+  the camera files of a v1 folder by SPEC.md SFF-896 to SFF-903.
 - The legacy playback of skellycam does not correct the early audio (9 to 74 ms) of old skellycam
   recordings. It shows a note: the audio of recordings of that era can lead by up to about 74 ms.
 

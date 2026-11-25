@@ -1,6 +1,6 @@
 # YBT1 — A spec only: no package, a test adapter for each implementation, marks as labels, Python 3.13.18
 
-**Status:** absorbed into
+**Status:** superseded by [46NQ](46NQ-old-recordings-play-as-they-are-no-upgrade-converter.md), 2026-11-25 (commit on dom/v1-player-rules; was absorbed into
 [`README.md#scope-normative`](../../recording-files/README.md#scope-normative),
 [`README.md#compatibility-promise-normative`](../../recording-files/README.md#compatibility-promise-normative),
 [`README.md#versioning-normative`](../../recording-files/README.md#versioning-normative),
@@ -17,7 +17,7 @@
 [`spec/conformance.md#skellyspecs-recording-format-conformance-tests`](../../recording-files/conformance.md#skellyspecs-recording-format-conformance-tests),
 [`golden/README.md#golden-folders`](../../recording-files/golden/README.md#golden-folders),
 2026-11-17 (commit to main; was accepted, 2026-11-17 (user; decisions D1 to D6 of a planning
-session of skellycam; an agent wrote the restatements)).
+session of skellycam; an agent wrote the restatements))).
 
 ## Decision
 

@@ -109,8 +109,8 @@ and there is no package `skellyspecs` or `skellyspecs[write]` ([ADR-YBT1](../dec
 - skellycam, freemocap, skellysync and the Blender addon each implement their own reading and
   writing. skellycam owns its Python writer (the camera files, the CSV sidecars, the Opus fMP4
   audio, the manifest and the capture info JSON), the crash repair, the opening of a folder with
-  the recognition of old formats, the "upgrade recording" converter and a JavaScript reader in
-  skellycam-ui.
+  the recognition of old formats and a JavaScript reader in skellycam-ui. skellycam has no "upgrade
+  recording" converter: it plays old recordings as they are ([ADR-46NQ](../decisions/entries/46NQ-old-recordings-play-as-they-are-no-upgrade-converter.md)).
 - A reader gives the scope `full` or `player` of SFF-892. A JavaScript reader gives only `player`.
 - A writer encodes Opus with libopus (SFF-762, SFF-763)
   ([ADR-92TM](decisions/entries/92TM-opus-audio-in-fragmented-mp4.md) item 2). The library that

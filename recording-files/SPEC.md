@@ -2845,7 +2845,8 @@ codes of SFF-727 are not warnings of the reader result: SFF-887 does not change
 
 ### Section 21, continued: the camera files of a v1 folder
 
-Status: **draft, for review at gate 1.** SFF-896 to SFF-903 belong to section 21. Each one has the
+Status: **gate 1 approved on 2026-11-25, draft form until gate 2**
+([ADR-X7QP](decisions/entries/X7QP-gate-1-approval-of-the-v1-camera-file-rules.md)). SFF-896 to SFF-903 belong to section 21. Each one has the
 draft form of section 2: the word "Draft" before its ID. They tell how a program reads the camera
 files and the time files of a FreeMoCap v1 folder: which folders it reads, the time file, the frame
 table of a camera file, the multi-camera frames and the time map
