@@ -23,10 +23,10 @@
      capture plays as a gap in real time.
    - **Q740 (session Q12; spec Q713), the other eras.** A reader refuses a v2 alpha folder with a
      clear message. A reader does not refuse a v0.1.0 folder, but it gets no test and no support.
-   - **Q741 (session Q13; spec Q714), the index.** The reader of the MP4 index makes the frame table.
-     When a decoder uses the index of another demuxer (in skellycam, FFmpeg's demuxer in the WASM
-     worker), the reader compares the two indexes at open. The choice of the demuxer and of the
-     route stays in skellycam.
+   - **Q741 (session Q13; spec Q714), the demuxer.** The WASM route of skellycam uses FFmpeg's own
+     demuxer in the worker. The TypeScript MP4 reader of skellycam makes the frame table and picks
+     the route, with a cross-check between the two at open. This module states the frame table.
+     The choice of the demuxer and of the route stays in skellycam.
 5. **Scope.** The spec now gives the rules to read the camera files and the time files of a v1
    folder, in addition to the recognition of SFF-875 to SFF-880. The code that reads the old files
    stays in skellycam and freemocap
@@ -45,7 +45,7 @@
 
 ## Evidence
 
-The owner session of 2026-11-25, rounds 1 and 2 (skellycam, local and not committed). The rules
+The owner session of 2026-11-25, rounds 1, 2 and 5 (skellycam, local and not committed). The rules
 come from skellycam `dom/legacy-player`, `specs/player-legacy.md`, revision 5, sections 2, 3.7 and
 6 (commit c0d61ee107c3c5b9ad203be09bccd21c8dcf619b).
 

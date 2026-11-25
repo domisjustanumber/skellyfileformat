@@ -39,6 +39,23 @@ SFT-778 and section 9 of the legacy annex.
    with PyAV 19.0.2 and commit no media. They reach a reader through the detail functions
    `legacy_media` and `legacy_frame_at`, and through the command `bin/legacy-media.mjs` of a
    JavaScript adapter. Their shapes are decided at gate 2.
+11. **Scope beyond the answers of the owner.** SFF-899 makes the cross-check of Q741 a rule for each
+   reader that decodes through a demuxer with its own index, not only for the WASM route of
+   skellycam. It compares the index entries (not the packets), by byte offset, with no discarded
+   entry, for the frames below n_c. SFF-900 moves section 6.3 of revision 5 of the skellycam spec
+   here (K, `frame_count_differs`, the frame index as the truth). Q765 names only the time map, the
+   eras and the frame table. SFF-903 also states the gap rule that the skellycam spec keeps. Where a
+   program spec states the same rule as SFF-896 to SFF-903, these requirements win, and the program
+   spec links to them.
+12. **Files that cannot be read.** A camera file with no `moov` gives `no_index`. A box past its
+   parent, a short index box, sample counts that differ and a time scale of 0 give
+   `index_damaged`. No `vide` track gives `no_video_track`. A non-empty edit with a segment duration
+   of 0 is not accepted. K = 0 when no camera file is read, and K = 0 gives `no_frames`. The
+   reads of SFF-896 to SFF-903 are an exception of SFF-721.
+13. **The NPY header.** The parse accepts one subset of the Python dictionary literal: the three
+   keys once each, single or double quotes, `False` or `True`, a tuple of decimal integers and a
+   last `,`. Each other form, and each other key, is `bad_header`. The file holds exactly n values
+   and no other byte, else `length`. A value below 0 or of 2^63 or more is a frame with no time.
 
 ## Reason
 
@@ -52,6 +69,9 @@ SFT-778 and section 9 of the legacy annex.
 - Items 5 to 9: two programs must give the same frames and the same times. Each rounding and each
   edge case needs one rule.
 - Item 10: playback is stage 1a. Inputs made at test time follow the rule of no committed media.
+- Item 11: freemocap and skellysync read v1 files too, so the multi-camera frames and the index
+  check need one rule for each reader. One home for each rule avoids two texts that drift.
+- Items 12 and 13: a cut v1 file has no `moov`, and two readers must agree on each refusal.
 
 ## Alternatives rejected
 

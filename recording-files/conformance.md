@@ -14,6 +14,8 @@ This list is normative. The license of the text is Apache-2.0 ([LICENSE](../LICE
 - An `Input:` line names the inputs, for example a golden folder (G1 to G18 of SPEC.md Appendix A).
   A `Pass:` line gives the pass criteria.
 - A removed test keeps its line, with `(withdrawn)` after its ID.
+- A test that waits for gate 1 has the draft form of SPEC.md section 2: the word "Draft" before its
+  ID.
 - Each requirement of [SPEC.md](SPEC.md) that is not withdrawn has one or more tests.
   `tools/check_spec_traceability.py` checks the IDs and the links.
 - The tests of draft v2 start at SFT-700 and are numbered in file order (SPEC.md section 2).
@@ -1562,26 +1564,34 @@ data, `sesh_test_synced_Cam1.mp4` and `sesh_test_synced_Cam2.mp4`; one file
 `Camera_000_synchronized.MP4`; a v2 alpha folder with `take.id-0.idx-0.mp4` and
 `take.id-1.idx-1.mp4`; the same v2 alpha folder with `Camera_000_synchronized.mp4` added; a v0.1.0
 folder with `Camera_000.mp4` and `timestamps/Camera_000_binary.npy`; a folder with only
-`synchronized_videos/notes.txt`.
+`synchronized_videos/notes.txt`; a folder with only
+`synchronized_videos/timestamps/Camera_000_synchronized_binary.npy` (the family `v1`); a v2 alpha
+folder with `take.id-0.idx-0.MP4`.
 Pass: the first three folders have the camera files of their names, and the `.MP4` file is a camera
 file. Both v2 alpha folders are refused, with a message that says that FreeMoCap v2 alpha recordings
-are not supported, and no camera file of them is read. The v0.1.0 folder is not refused. The test
-checks nothing else of it. The last folder has no camera file, and the reader reports that it is not
-a FreeMoCap v1 recording. The reader result of each folder (SPEC.md section 23) is the result that
+are not supported, and no camera file of them is read. The folder with `take.id-0.idx-0.MP4` is
+also refused. The v0.1.0 folder is not refused. The test
+checks nothing else of it. The folder with only `notes.txt` and the folder with only the time file
+have no camera file, and the reader reports that the folder has no camera file. For the folder of
+the family `v1`, it does not say that the folder is not a FreeMoCap v1 recording. The reader result of each folder (SPEC.md section 23) is the result that
 SFF-875 to SFF-880 give: these rules change no member of it.
 
 **Draft SFT-775** Reader: the time file
 Checks: SFF-897
 Input: a v1 folder with one camera file of 6 frames, and copies of it with each of these time files:
-a valid file in each of the NPY versions 1.0, 2.0 and 3.0; no file; a wrong magic; a header
-dictionary that does not parse; `descr` `'<f4'`; `descr` `'>f8'`; `fortran_order` `True`; the shape
-`(6, 1)`; the shape `(5,)`; the shape `(6,)` with only 5 values after the header. The values of the
-valid files are 1000000000.4, 1000000000.5, NaN, 1000000033, 1000000033 and +infinity.
-Pass: each valid file is usable, with the values 1000000000, 1000000001, no time, 1000000033,
-1000000033 and no time. The two frames with the time 1000000033 are two frames. Each other file is
-not usable, and the reader reports `time_file_unusable` with these reasons, in the order of the
-input: `missing`, `bad_header`, `bad_header`, `dtype`, `dtype`, `shape`, `shape`, `length` and
-`length`.
+a valid file in each of the NPY versions 1.0, 2.0 and 3.0; a valid file whose header has double
+quotes and a `,` after its last item; no file; a wrong magic; a header dictionary that does not
+parse; a header with a fourth key; `descr` `'<f4'`; `descr` `'>f8'`; `fortran_order` `True`; the
+shape `(6, 1)`; the shape `(5,)`; the shape `(6,)` with only 5 values after the header; the shape
+`(6,)` with 8 more bytes after the 6 values. The values of the valid files are 1000000000.4,
+1000000000.5, NaN, 1000000033, 1000000033 and +infinity. One more valid file has −5 at frame 1 and
+2^63 at frame 2.
+Pass: each of the first four valid files is usable, with the values 1000000000, 1000000001, no
+time, 1000000033, 1000000033 and no time. The two frames with the time 1000000033 are two frames.
+The last valid file is usable, and frames 1 and 2 have no time. Each other file is not usable, and
+the reader reports `time_file_unusable` with these reasons, in the order of the input: `missing`,
+`bad_header`, `bad_header`, `bad_header`, `dtype`, `dtype`, `shape`, `shape`, `length`, `length`
+and `length`.
 
 **Draft SFT-776** Reader: the frame table and the edit list
 Checks: SFF-898
@@ -1591,26 +1601,36 @@ H.264 with B-frames, GOP 30 and an edit with a media time above 0, 150 frames; a
 whose `elst` keeps the frames from the CTS of frame 40 up to the CTS of frame 140 (not included),
 both in the middle of a GOP; a copy with a leading empty edit of 1 s, with a `mvhd` time scale of
 1000 and a `mdhd` time scale of 15360; a copy with two non-empty edits; a copy with a media rate of
-2; a copy with no `stss`; a copy with `co64` in place of `stco`; a file with two video tracks; an
-`mp4v` file with `moov` first, cut in the middle of the bytes of its frame 20.
+2; a copy with a non-empty edit whose segment duration is 0; a copy with no `stss`; a copy with
+`co64` in place of `stco`; a file with two video tracks; an `mp4v` file with `moov` first, cut in
+the middle of the bytes of its frame 20; the v1 form cut in the middle of its `mdat` (no `moov`); a
+copy whose `stsz` size goes past the end of `stbl`; a copy with an `mdhd` time scale of 0; a copy
+whose `stsz` has one sample more than `stts`; a file with only an audio track; a file with a video
+track of no sample.
 Pass: for each file that the reader reads, the frame table and the sample list equal the tables
 that the test computes from the boxes that it wrote: the number of frames, and for each frame the
 frame time stamp, the position in the sample list, the key flag, the byte offset and the size. The
 copy with the cut edit has 100 frames, and its sample list also holds the samples outside the edit.
 The copy with the empty edit has E = 15360. In the copy with no `stss`, each frame is a key frame.
-The reader does not read the copies with two non-empty edits and with a media rate of 2, and it
-reports `edit_list_not_supported` for them. The file with two video tracks gives the frames of its
-first video track and `extra_tracks`. The cut file has the frame count 20.
+The reader does not read the copies with two non-empty edits, with a media rate of 2 and with a
+segment duration of 0, and it reports `edit_list_not_supported` for them. The file with two video
+tracks gives the frames of its first video track and `extra_tracks`. The file with `moov` first that
+is cut has the frame count 20. The reader does not read the cut file with no `moov` (`no_index`), the
+copies with the long box, with the time scale 0 and with the sample counts that differ
+(`index_damaged`), or the audio file (`no_video_track`). The file with no sample has the frame count
+0.
 
 **Draft SFT-777** Reader: the comparison with the index of a demuxer
 Checks: SFF-899
-Input: each file of SFT-776 that the reader reads; for two of them, copies of the index of the PyAV
-demuxer that the test changes: one with the last kept frame removed, and one with one time stamp
-plus 1.
-Pass: for each file, the frames that the PyAV demuxer gives with no discard flag equal the frame
-table, by number and by time stamp, after the subtraction of the time stamp of frame 0. A reader
-that compares a demuxer index takes the index of PyAV in this test. It reads each file with the
-index of PyAV. With each changed index, it does not read the file, and it reports `index_mismatch`.
+Input: each file of SFT-776 that the reader reads, with the `mp4v` file with `moov` first that is
+cut at frame 20; the index entries of each file from PyAV (`stream.index_entries`: `pos`, `size`,
+`timestamp` and `is_discard`); for two of the files, three copies of that index that the test
+changes: one with the entry of frame 3 removed, one with the time stamp of the entry of frame 3 plus 1, and
+one with the entry of frame 3 marked to discard.
+Pass: for each file, the index of PyAV agrees with the frame table by SFF-899. For the cut file, the
+index has the entries of all 30 frames, and only frames 0 to 19 are compared. A reader that
+compares a demuxer index takes the index of PyAV in this test. It reads each file with the index of
+PyAV. With each changed index, it does not read the file, and it reports `index_mismatch`.
 
 **Draft SFT-778** Reader: the multi-camera frames and the time map
 Checks: SFF-900, SFF-901, SFF-902, SFF-903
@@ -1621,8 +1641,10 @@ cameras by a few ms; (b) as (a), with a gap of 2 s after frame 5; (c) as (a), wi
 camera, NaN at frame 4 of each camera, and a mean at frame 7 below the mean at frame 6; (f) no time
 files, with the header rates 30, 30000/1001 and 25; (g) no time files, with only cameras 0 and 1, at
 30 and 25; (h) no time files, with the frame counts 1, 10 and 10, at 30 each; (i) no time files, with
-one camera whose `stts` has two entries.
-Pass: K is 10, and 9 for (c). (c) gives `frame_count_differs` with the counts 10, 9 and 10. B, T_k
+one camera whose `stts` has two entries; (j) as (a), with one camera file of no sample; (k) as (a),
+with each camera file cut before its `moov`.
+Pass: K is 10, 9 for (c), and 0 for (j) and (k). (j) and (k) give `no_frames`, and they have no
+time map. (c) gives `frame_count_differs` with the counts 10, 9 and 10. B, T_k
 and the camera times equal the values that the test computes by SFF-901. In (e), j is 1, T_0 = 0,
 T_4 = T_3 and T_7 = T_6. In (d), camera 2 has the camera time T_k with an estimate mark. r is the
 median header rate of each folder: 30000/1001 in (f) and 55/2 in (g). In (f) and (g), T_k is

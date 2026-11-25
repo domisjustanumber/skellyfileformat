@@ -27,7 +27,7 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
-| [91PB](entries/91PB-choices-for-the-v1-camera-file-rules.md) | Choices for SFF-896 to SFF-903 and SFT-774 to SFT-778: place, folders, codes, roundings, edge cases, tests | `spec.21` | proposed |
+| [91PB](entries/91PB-choices-for-the-v1-camera-file-rules.md) | Choices for SFF-896 to SFF-903 and SFT-774 to SFT-778: place, draft form, scope beyond Q741 and Q765, refusals, roundings, tests | `spec.21` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

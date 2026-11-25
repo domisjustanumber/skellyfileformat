@@ -207,7 +207,10 @@ The MP4 demuxer of FFmpeg keeps, in its index, the key frame before the edit sta
 to the next key frame after the edit end. It marks each frame with a CTS outside the edit with
 `AV_PKT_FLAG_DISCARD`, so that the frame is dropped after decoding. It then shifts the time stamps,
 so that the first kept frame of a video track has the time stamp 0, and it sets the start time to E.
-So the time stamps of FFmpeg and of the frame table can differ by a constant. SFF-899 subtracts the
-time stamp of frame 0 from each index before it compares them. The skellycam study index kept each
+So the time stamps of FFmpeg and of the frame table can differ by a constant. The time stamp of a
+MP4 index entry of FFmpeg is the DTS. So SFF-899 finds the entry of each frame by its byte offset,
+leaves out the entries marked to discard, and compares the DTS after the subtraction of the DTS of
+frame 0. The index of a file cut short still holds each frame, so SFF-899 compares only the frames
+below n_c. PyAV 19.0.2 gives these entries as `stream.index_entries`. The skellycam study index kept each
 sample and only shifted the time stamps. It did not drop the samples outside the edit. No real v1
 file has an edit that cuts frames.
