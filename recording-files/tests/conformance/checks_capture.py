@@ -667,6 +667,11 @@ def yuyv(position: int = 0, width: int = WIDTH, height: int = HEIGHT) -> bytes:
     return bytes([(40 + position) % 256, 128, (40 + position) % 256, 128]) * (width * height // 2)
 
 
+def nv12(position: int = 0, width: int = WIDTH, height: int = HEIGHT) -> bytes:
+    """A raw frame in NV12 4:2:0: the Y plane, then one plane of interleaved U and V at half size."""
+    return bytes([(40 + position) % 256]) * (width * height) + bytes([128, 128]) * (width * height // 4)
+
+
 def click_pcm(n_samples: int, clicks: list[int], channels: int = 1) -> bytes:
     """Interleaved s16 silence at 48 kHz with a click of 48 samples at each given sample index."""
     pcm = array.array("h", bytes(2 * n_samples * channels))

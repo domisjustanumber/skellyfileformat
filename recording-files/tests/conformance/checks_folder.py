@@ -398,6 +398,8 @@ def capture_info_faults(info: dict, camera_keys: list[str], microphone: str) -> 
             continue
         if config["key_origin"] not in {"computed", "confirmed_by_user", "assigned", "provisional"}:
             faults.append(f"{key}: key_origin is {config['key_origin']}")
+        if config["requested"].get("capture_format") not in {"MJPG", "YUYV", "NV12"}:
+            faults.append(f"{key}: capture_format is {config['requested'].get('capture_format')}")
         if list(config["device"]) != DEVICE_MEMBERS:
             faults.append(f"{key}: the members of device are {list(config['device'])}")
         elif not isinstance(config["device"]["os_device_id"], (str, type(None))):

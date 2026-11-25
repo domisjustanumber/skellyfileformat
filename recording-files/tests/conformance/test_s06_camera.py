@@ -68,9 +68,9 @@ def _dht_tables(data: bytes) -> list[bytes]:
     return tables
 
 
-@pytest.mark.parametrize("vector", ["mjpeg_source", "raw_source", "h264_request", "no_dht"])
+@pytest.mark.parametrize("vector", ["mjpeg_source", "raw_source", "raw_source_nv12", "h264_request", "no_dht"])
 def test_sft_712_jpeg_bytes(writer, tmp_path, vector):
-    """SFT-712 Writer: JPEG bytes. Checks: SFF-734.
+    """SFT-712 Writer: JPEG bytes. Checks: SFF-734, SFF-800.
 
     `mjpeg_source` is the synthetic form of the sentence about an MJPEG camera: the block payloads
     are the bytes that the test sent. The run with test hardware is external (test_sft_712_external).
@@ -103,7 +103,9 @@ def test_sft_712_jpeg_bytes(writer, tmp_path, vector):
             data = sidecar.path.with_suffix(".mkv").read_bytes()
             assert [data[b.offset : b.offset + b.size] for b in c.parse_mkv(data).blocks] == sent["jpegs"][index]
         return
-    requested = dict(c.camera(0)["requested"], capture_format="YUYV" if vector == "raw_source" else "H264")
+    raw = {"raw_source": ("YUYV", c.yuyv), "raw_source_nv12": ("NV12", c.nv12)}  # ADR-KJ91: NV12
+    capture_format, frame = raw.get(vector, ("H264", None))
+    requested = dict(c.camera(0)["requested"], capture_format=capture_format)
     if vector == "h264_request":
         with pytest.raises(ValueError):
             writer.TakeWriter(folder, "synthetic_take", [c.camera(0, requested=requested)], None, writer=c.WRITER)
@@ -111,8 +113,10 @@ def test_sft_712_jpeg_bytes(writer, tmp_path, vector):
     take = writer.TakeWriter(folder, "synthetic_take", [c.camera(0, requested=requested)], None, writer=c.WRITER)
     for position in range(5):
         arrival = take.take_start_host_ns + 33_333_333 * (position + 1)
-        take.write_frame(0, c.yuyv(position), arrival, source_frame_number=position)
+        take.write_frame(0, frame(position), arrival, source_frame_number=position)
     take.close()
+    (info,) = [config for config in c.capture_info_of(folder)["camera_configs"].values()]
+    assert info["requested"]["capture_format"] == capture_format, "the capture info JSON records the format of the source"
     (path,) = c.media_files(folder, ".mkv")
     data = path.read_bytes()
     blocks = c.parse_mkv(data).blocks

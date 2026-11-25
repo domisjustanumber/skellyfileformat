@@ -710,10 +710,13 @@ The take folder holds no overlay file. FFmpeg (pinned) counts the frames of the
 sidecar. Blender (pinned) counts the same number (external: Blender). The writer refuses the nominal rate of 1001/1.
 
 **SFT-712** Writer: JPEG bytes
-Checks: SFF-734
-Input: a recording from an MJPEG camera (test hardware), and from a raw-frame source; a request for
-H.264 capture; a synthetic MJPEG camera that sends JPEGs with no DHT segment.
+Checks: SFF-734, SFF-800
+Input: a recording from an MJPEG camera (test hardware), and from a raw-frame source in `YUYV` and
+in `NV12`; a request for H.264 capture; a synthetic MJPEG camera that sends JPEGs with no DHT
+segment.
 Pass: the block payloads are the bytes that the camera sent, except the two exceptions of SFF-734 (external: capture hardware). A raw source gives valid JPEG frames.
+The `capture_format` of the capture info JSON of a raw source is the format of the source: `YUYV`
+or `NV12` ([ADR-KJ91](decisions/entries/KJ91-capture-format-nv12.md)).
 The writer refuses the request for H.264 capture. For each JPEG with no DHT segment, the block
 payload is the sent JPEG with one DHT segment inserted immediately before its first SOS. That
 segment holds the four tables of ITU-T T.81 Annex K.3, each one time, in any order. No other byte
@@ -1008,7 +1011,8 @@ section 13, in order, and no member of the forbidden list. `camera_configs` is k
 Each camera config has `key_origin` after `user_name`, with the value `computed`,
 `confirmed_by_user`, `assigned` or `provisional`, and each `device` has `os_device_id`, a text or null. Each
 `user_name` is null, or a text of 1 to 128 bytes of UTF-8 with no control character.
-Each control name is from SFF-802, and `audio` names the microphone.
+Each control name is from SFF-802, and `audio` names the microphone. Each `capture_format` is
+`MJPG`, `YUYV` or `NV12`.
 
 **SFT-736** Reader: camera configs by key
 Checks: SFF-803
