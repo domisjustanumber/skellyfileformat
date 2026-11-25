@@ -18,6 +18,7 @@ These entries are `accepted` or `evidence`.
 | [5B03](entries/5B03-choices-for-the-format-changes-f1-to-f10.md) | Choices for F-1 to F-10: player marks, completion after a write error, tail repair, summary nulls, DHT order, F-5 as a player rule, test inputs | accepted |
 | [76NN](entries/76NN-details-for-the-format-changes-f1-to-f10.md) | Details for F-1 to F-10 from a review: byte-field rows, tail repair steps, SFF-828, no-block file, terms, `stored_px`, tests | accepted |
 | [6PNN](entries/6PNN-format-field-skellyspecs.md) | The format field is `skellyspecs`; no old name; adapter variables; golden folders made again | accepted |
+| [3XYN](entries/3XYN-v1-camera-file-rules-move-to-recording-files.md) | The v1 camera-file rules (time map, refused eras, frame table) move here from the skellycam player spec | accepted |
 
 ### Proposed
 
@@ -26,6 +27,7 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
+| [91PB](entries/91PB-choices-for-the-v1-camera-file-rules.md) | Choices for SFF-896 to SFF-903 and SFT-774 to SFT-778: place, folders, codes, roundings, edge cases, tests | `spec.21` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).

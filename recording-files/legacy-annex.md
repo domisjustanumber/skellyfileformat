@@ -3,7 +3,10 @@
 Status: **draft v2, for review at gate 1**. This annex is informative. It describes the folders that
 freemocap v1.0.25 to v1.8.2 wrote, so that other programs can read old freemocap output
 ([ADR-CZQ9](decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md)). The normative
-rules (recognition, the reader result and the warnings) are in [SPEC.md](SPEC.md) section 21. Pre-v1
+rules (recognition, the reader result and the warnings) are in [SPEC.md](SPEC.md) section 21. The
+rules to read the camera files and the time files of v1 are SFF-896 to SFF-903 of
+[Section 21, continued](SPEC.md#section-21-continued-the-camera-files-of-a-v1-folder), and section 9
+of this annex gives their background. Pre-v1
 layouts (v0.0.x and v0.1.0) are not described: they are not supported. The layout of the freemocap
 development code is not described: version 2.0 of the format does not recognise it, and a reader
 reports the family `unknown` for it (SPEC.md SFF-877,
@@ -129,3 +132,82 @@ These are rules of the programs, not of the format
   ([ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 1).
 - The legacy playback of skellycam does not correct the early audio (9 to 74 ms) of old skellycam
   recordings. It shows a note: the audio of recordings of that era can lead by up to about 74 ms.
+
+## 9. The camera files and the time files of v1
+
+This section is the background of SPEC.md SFF-896 to SFF-903
+([ADR-3XYN](decisions/entries/3XYN-v1-camera-file-rules-move-to-recording-files.md)). The rules of
+a player, for example its decoders, its routes by codec and its user interface, are not here. For
+skellycam they are in `specs/player-legacy.md` of skellycam. The sources are:
+
+- skellycam `dom/legacy-player`, `specs/player-legacy.md`, revision 5 (commit
+  c0d61ee107c3c5b9ad203be09bccd21c8dcf619b), sections 2, 3.7 and 6;
+- the H.264 study of skellycam, `research/h264_study/part_a/NOTES.md` on `dom/h264-scrub-study`
+  (commit 71caa2d0b7dfe576c98e31eed0fc23ed8ffc64cc), sections 11.1 and 12.1;
+- the release inventory of section 1 of this annex;
+- the FFmpeg 9.0 source, `libavformat/mov.c` (`mov_fix_index`, `mov_seek_stream`), read on
+  2026-11-24. Nothing was built or run.
+
+### Where the camera files come from
+
+| Source | Camera files | Time files |
+|---|---|---|
+| The v1 writer (skellycam 2023.9.1086 to 2025.9.1097, freemocap v1.0.25 to v1.8.2) | `Camera_<NNN>_synchronized.mp4` | `Camera_<NNN>_synchronized_binary.npy` |
+| The official FreeMoCap sample data (a 2022 recording in a v1 folder) | old names of the form `sesh_<date>_synced_Cam<N>.mp4` | none |
+| The v1 "import videos" wizard (`recording_sessions/import_<name>/`) | each `.mp4` file that the user picked | none |
+| v0.1.0 (pre-v1) | `Camera_<NNN>.mp4` | `Camera_<NNN>_binary.npy` |
+| v2 alpha builds of freemocap and skellycam | names of the form `<rec>.id-<n>.idx-<n>.mp4` | not described |
+
+The names of the sample data and of an import folder do not end in `_synchronized.mp4`, so the
+reader result gives the family `unknown` for such a folder (SFF-877). SFF-896 still reads its camera
+files. The time file name rule `<stem>_binary.npy` finds the time files of the v1 writer and of
+v0.1.0. FreeMoCap v1 itself finds its videos with `*.mp4` and `*.MP4` in `synchronized_videos/`. The
+owner supports only v1: a v2 alpha folder is refused, and a v0.1.0 folder is not refused but has no
+support (skellycam spec question Q713, answered as Q740 of 2026-11-25).
+
+### The camera files of the v1 writer
+
+- The codec is MPEG-4 Part 2 (`mp4v`, `esds` object type 0x20), from OpenCV. The GOP is 12 frames,
+  with no B-frames. So the decode order is the presentation order. `moov` is at the end of the file.
+- The edit list has the media time 0, so M = 0 in SFF-898.
+- The rotation is in the pixels. v1 writes no rotation matrix in `tkhd`.
+- The frame rate in the header is the median capture rate of the camera. So the header rates of the
+  cameras of one recording can differ, and SFF-902 takes their median.
+- The v1 synchronizer cuts the cameras to their overlap. So the cameras of one recording have the
+  same frame count. A difference comes from an import or from a damaged file (SFF-900).
+- An import can be an FFmpeg re-encode to H.264 with the x264 defaults (GOP 250 with B-frames). Then
+  the edit list has a media time above 0. This is not verified on a real import.
+
+### The time files
+
+- Each value is `time.perf_counter_ns()` of the capture: a monotonic clock of the recording machine.
+  It is not Unix time. Values of two machines, or of two boots of one machine, cannot be compared.
+- The cameras of one v1 recording are captured on one machine. The values of the cameras are taken
+  to be on one clock. This is not verified in the skellycam v1 code.
+- A float64 holds each integer up to 2^53 with no loss: about 104 days of clock time in
+  nanoseconds. Above that, the values lose their last digits. The rounding of SFF-897 then gives the
+  nearest value that the file holds.
+- The v1 synchronizer writes a copy of a frame for a dropped frame, with a repeated time value. So a
+  repeated value is a frame, and T_k can stay the same for two or more frames.
+- FreeMoCap v1 takes the mean of the times over the cameras (`data_loader.py`). SFF-901 does the
+  same, and makes the result never decrease.
+- The `_timestamps_human_readable.csv` file holds the same values as text. SFF-897 does not use it.
+
+### Why the frame index is the truth
+
+The v1 synchronizer already matched the frames of the cameras: frame k of each camera is one moment.
+The FreeMoCap processing uses the frames by index. So SFF-900 never chooses a frame by its time, and
+the times serve only the clock, the labels and the pace. The skellycam player chooses a frame by
+its time for a take of this format (`specs/player.md` of skellycam, section 7.3). For a v1 folder it
+does not.
+
+### The edit list in FFmpeg
+
+The MP4 demuxer of FFmpeg keeps, in its index, the key frame before the edit start and the frames up
+to the next key frame after the edit end. It marks each frame with a CTS outside the edit with
+`AV_PKT_FLAG_DISCARD`, so that the frame is dropped after decoding. It then shifts the time stamps,
+so that the first kept frame of a video track has the time stamp 0, and it sets the start time to E.
+So the time stamps of FFmpeg and of the frame table can differ by a constant. SFF-899 subtracts the
+time stamp of frame 0 from each index before it compares them. The skellycam study index kept each
+sample and only shifted the time stamps. It did not drop the samples outside the edit. No real v1
+file has an edit that cuts frames.

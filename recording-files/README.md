@@ -37,8 +37,11 @@ programs add to it later ([ADR-2C9V](../decisions/entries/2C9V-whole-take-folder
 It also covers the folder as a whole: the fixed names, the links between the files, the clock that
 the files share, the writing rules, how a reader opens a folder (also when it is crashed or
 incomplete), and how a reader recognises a legacy folder of freemocap v1.x
-([ADR-CZQ9](decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md)). The code that reads
-legacy folders stays in skellycam and freemocap.
+([ADR-CZQ9](decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md)). It also gives the
+rules to read the camera files and the time files of a v1 folder: the frame table, the time map and
+the folders that a reader refuses (SPEC.md SFF-896 to SFF-903, a draft for gate 1,
+[ADR-3XYN](decisions/entries/3XYN-v1-camera-file-rules-move-to-recording-files.md)). The code that
+reads legacy folders stays in skellycam and freemocap.
 
 ## Compatibility promise (normative)
 

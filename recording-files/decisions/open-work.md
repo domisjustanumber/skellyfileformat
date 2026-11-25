@@ -149,6 +149,16 @@ the result.
   the candidates of a remembered camera by SFF-752; the repair does each step for the whole take;
   the legacy playback of skellycam does not correct the early audio of old recordings and shows a
   note that it can lead by up to about 74 ms.
+- **Gate 1 of the v1 camera-file rules.** The user reviews SFF-896 to SFF-903, SFT-774 to SFT-778
+  and section 9 of the legacy annex
+  ([ADR-3XYN](entries/3XYN-v1-camera-file-rules-move-to-recording-files.md)), and the choices of
+  [ADR-91PB](entries/91PB-choices-for-the-v1-camera-file-rules.md). Gate 2 then writes the runnable
+  tests and the shapes of `legacy_media`, `legacy_frame_at` and `bin/legacy-media.mjs`.
+- **Legacy annex section 8 and the skellycam rules of 2026-11-24.** The annex says that skellycam
+  plays old H.264 recordings through a `<video>` path and gives an "upgrade recording" converter
+  ([ADR-YBT1](../../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)). The skellycam
+  owner rules of 2026-11-24 say that old recordings play as they are, with no conversion, and
+  cancel the converter. A root entry must decide the change.
 - **Permalinks to the skellycam evidence.** The new entries cite skellycam `dom/research` files as
   plain paths. Many of them are not committed yet. Change them to full-SHA permalinks after that
   branch is committed and pushed.

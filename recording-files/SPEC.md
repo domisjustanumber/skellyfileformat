@@ -2455,6 +2455,12 @@ apply. This section tells how a reader recognises a legacy folder and what it re
 reads the old files is in skellycam and freemocap. The informative
 [legacy annex](legacy-annex.md) describes the files of each layout.
 
+This section also gives the rules to read the camera files and the time files of a FreeMoCap v1
+folder: SFF-896 to SFF-903, in
+[Section 21, continued](#section-21-continued-the-camera-files-of-a-v1-folder) at the end of
+section 23. They are there because each new ID comes after the last ID of the file (section 2)
+([ADR-3XYN](decisions/entries/3XYN-v1-camera-file-rules-move-to-recording-files.md)).
+
 **SFF-875** (reader) A file of this format is one of these: a timing sidecar with the first line of
 SFF-864; a JSON file whose `skellyspecs` member has a value of this spec; a TOML file with
 `[metadata].calibration_uuid`; a Parquet file with a `freemocap.recording` descriptor of
@@ -2826,6 +2832,145 @@ frame N" with N = p + 1, and N = 0 for `none`
 When a `detail` does not parse, the player shows the warning of the code with no frame number. The
 codes of SFF-727 are not warnings of the reader result: SFF-887 does not change
 ([ADR-5B03](decisions/entries/5B03-choices-for-the-format-changes-f1-to-f10.md) item 7).
+
+### Section 21, continued: the camera files of a v1 folder
+
+Status: **draft, for review at gate 1.** SFF-896 to SFF-903 belong to section 21. Each one starts
+with the word "Draft" before its ID. At gate 2, the word goes, the ID becomes a requirement of
+section 2, and the checks of `tools/` then apply to it. They tell how a
+program reads the camera files and the time files of a FreeMoCap v1 folder: which folders it reads,
+the time file, the frame table of a camera file, the multi-camera frames and the time map
+([ADR-3XYN](decisions/entries/3XYN-v1-camera-file-rules-move-to-recording-files.md),
+[ADR-91PB](decisions/entries/91PB-choices-for-the-v1-camera-file-rules.md)). Each program that
+plays, processes or converts a v1 folder follows them. In these requirements, "a reader" is such a
+program. They add no member to the reader result (section 23), and they do not change SFF-875 to
+SFF-880. The codes in these requirements (`time_file_unusable`, `extra_tracks`,
+`edit_list_not_supported`, `index_mismatch` and `frame_count_differs`) are for the report of the
+program. They are not warnings of the reader result. The
+[legacy annex, section 9](legacy-annex.md#9-the-camera-files-and-the-time-files-of-v1) gives the
+background.
+
+**Draft SFF-896** (reader) This requirement belongs to section 21. The camera files of a legacy folder
+(SFF-875) are the files of `synchronized_videos/` whose name ends in `.mp4`, in any case. A reader
+applies these rules in this order:
+
+1. A folder whose `synchronized_videos/` holds a file whose name ends in `.id-<n>.idx-<n>.mp4`, with
+   `<n>` one or more decimal digits, is a v2 alpha folder. Its family stays `unknown` (SFF-877). A
+   reader does not read its camera files. It refuses the folder with a message that says that
+   FreeMoCap v2 alpha recordings are not supported, for example "FreeMoCap v2 alpha recordings are
+   not supported".
+2. A folder of the family `pre_v1` (SFF-876) with one or more camera files is a v0.1.0 folder. A
+   reader does not refuse it. It MAY read its camera files by SFF-897 to SFF-903. This spec has no
+   test for such a folder and gives no promise for it.
+3. A reader reads the camera files of each other legacy folder with one or more camera files by
+   SFF-897 to SFF-903. This includes a folder of the family `unknown` whose camera file names do not
+   end in `_synchronized.mp4`, for example the official FreeMoCap sample data and a folder of the v1
+   "import videos" wizard.
+4. A legacy folder with no camera file has no camera file to read. A reader that was asked to play
+   or process it reports that it is not a FreeMoCap v1 recording, for example "not a FreeMoCap v1
+   recording: no synchronized_videos/*.mp4".
+
+**Draft SFF-897** (reader) This requirement belongs to section 21. The time file of the camera file
+`synchronized_videos/<stem>.mp4` (in any case of `.mp4`) is
+`synchronized_videos/timestamps/<stem>_binary.npy`. A reader uses no other name rule. It parses the
+NPY format itself: the magic `\x93NUMPY`, the versions 1.0, 2.0 and 3.0, and the header dictionary.
+It accepts only `descr` `'<f8'`, `fortran_order` `False` and a shape `(n,)`. The time file is
+usable when the parse passes, the file holds n values after the header, and n is the frame count
+of its camera file (SFF-898). Each other time file is not usable. For a camera with a time file that
+is not usable, the reader reports `time_file_unusable` with one reason:
+
+| Reason | Cause |
+|---|---|
+| `missing` | No file has the name of the time file |
+| `bad_header` | The magic, the version or the header dictionary does not parse |
+| `dtype` | `descr` is not `'<f8'` |
+| `shape` | `fortran_order` is not `False`, or the shape is not `(n,)` |
+| `length` | The file holds fewer than n values after the header, or n is not the frame count |
+
+Value k of a usable time file is the time of frame k of the camera, in nanoseconds of
+`time.perf_counter_ns()` on the recording machine. The reader rounds each finite value to the
+nearest integer, and a half rounds up. A value that is not finite (NaN or an infinity) is a frame
+with no time. A repeated value is a duplicated frame. The reader keeps it as a frame.
+
+**Draft SFF-898** (reader) This requirement belongs to section 21. A reader makes the frame table of each
+camera file from the MP4 index of the file (`moov`). It reads 64-bit box sizes. It uses the first
+track whose `hdlr` handler type is `vide`. When the file has two or more video tracks, it reports
+`extra_tracks`. Then:
+
+- **Samples.** For each sample of the track, the DTS comes from `stts`, and the CTS is the DTS plus
+  the composition offset of `ctts` (0 when the file has no `ctts`). The key flag comes from `stss`.
+  Each sample is a key sample when the track has no `stss`. The byte offset comes from `stsc` with
+  `stco` or `co64`, and the size from `stsz`.
+- **The edit list.** The reader accepts a track with no `elst`, and a track whose `elst` holds zero
+  or more empty edits (media time −1) and then one edit with a media time of 0 or more and a media
+  rate of 1. It does not read a camera file with each other edit list, and it reports
+  `edit_list_not_supported`. M is the media time of the non-empty edit, in track units. t_m is the
+  `mdhd` time scale, and t_v the `mvhd` time scale. The edit keeps each sample with M ≤ CTS and
+  CTS × t_v < M × t_v + d × t_m, where d is the segment duration of the edit, in movie units. S is the
+  sum of the segment durations of the empty edits, in movie units, and E = ⌊(S × t_m + ⌊t_v / 2⌋) /
+  t_v⌋ is that sum in track units. With no `elst`, M = 0, E = 0, and the edit keeps each sample.
+- **The sample list** holds each sample of the track, in decode order, with its DTS, its CTS, its
+  key flag, its byte offset and its size. A sample that the edit does not keep stays in the sample
+  list, because a kept frame can need it as a reference.
+- **The frame table** holds each sample that the edit keeps, in the order of the CTS. Samples with
+  an equal CTS are in decode order. Frame k is entry k of the frame table, from 0. Each entry holds
+  the frame time stamp CTS − M + E (in track units), the position of the sample in the sample list,
+  its key flag, its byte offset and its size.
+- **The frame count** n_c of camera c is the number of entries, from frame 0, before the first entry
+  whose bytes are not all inside the file. It is not the duration multiplied by the frame rate.
+
+**Draft SFF-899** (reader) This requirement belongs to section 21. The frame table is the index of the
+camera file. When a reader decodes a camera file through a demuxer that keeps its own index (for
+example the MP4 demuxer of FFmpeg), it compares that index with the frame table when it opens the
+file. It compares the number of frames that the demuxer keeps after its edit list rule, and the time
+stamp of each of these frames. Before the comparison, it subtracts the time stamp of frame 0 from
+each time stamp of each index. When the two differ, the reader does not read the camera file, and it
+reports `index_mismatch`.
+
+**Draft SFF-900** (reader) This requirement belongs to section 21. The frame index is the truth.
+Multi-camera frame k is frame k of each camera file that the reader reads. A reader never chooses
+the frame of a camera by its time. K is the smallest frame count n_c of these camera files. A camera
+file that the reader does not read (SFF-898, SFF-899) does not count for K. The frames from K on are
+not multi-camera frames. When the frame counts differ, the reader reports `frame_count_differs`,
+with the frame count of each camera.
+
+**Draft SFF-901** (reader) This requirement belongs to section 21. C is the set of the cameras that the
+reader reads and that have a usable time file (SFF-897). v_c(k) is value k of the time file of
+camera c, as an integer. When one or more values v_c(k) are finite, for a camera c of C and a k
+below K, the times are:
+
+- j is the first k with one or more finite v_c(k) in C. The base B is the smallest finite v_c(j) of
+  C.
+- U_k is the mean of the finite v_c(k) of C: with s their sum and m their number,
+  U_k = ⌊(2 × s + m) / (2 × m)⌋ (the nearest integer; a half rounds up).
+- T_k is the time of multi-camera frame k, in nanoseconds. T_k = 0 for k < j. T_j = U_j − B. For
+  k > j, T_k = max(T_(k−1), U_k − B), and T_k = T_(k−1) when no v_c(k) of C is finite. Thus T_k never
+  decreases.
+- The camera time of camera c at frame k is v_c(k) − B for a camera of C with a finite v_c(k). It is
+  absent for a camera of C with a v_c(k) that is not finite. It is T_k for a camera that is not in
+  C, and the reader shows it as an estimate.
+
+When no camera of C has a finite value below K, SFF-902 gives the times.
+
+**Draft SFF-902** (reader) This requirement belongs to section 21. The header rate r_c of camera c is
+(n_c − 1) × t_m / (p_last − p_first), as a rational number. p_first and p_last are the frame time
+stamps of frame 0 and of frame n_c − 1 (SFF-898). This rule applies also when `stts` has two or more
+entries. A camera with n_c < 2, or with p_last = p_first, has no header rate. r is the median of the
+header rates of the cameras that the reader reads. For an even number of rates, r is the mean of the
+two middle rates. r is the recorded frame rate of the folder, also when the folder has time files.
+When no camera has a usable time file with a finite value (SFF-901):
+
+- T_k is k × 10^9 / r, rounded to the nearest integer nanosecond, and a half rounds up.
+- The camera time of each camera at frame k is T_k.
+- The reader shows each such time as an estimate. (The skellycam player puts a `~` in front of
+  it.)
+- When no camera has a header rate, T_0 = 0, and T_k is not defined for k > 0. The reader then moves
+  only frame by frame, and the folder has no recorded frame rate.
+
+**Draft SFF-903** (reader) This requirement belongs to section 21. A reader that plays a v1 folder at the
+recorded pace shows, at the play time t, the multi-camera frame k with the largest T_k ≤ t. A gap in
+T_k (a stalled capture) plays as a gap of the same length: the reader shows the frame before the gap
+until t reaches the next T_k. The reader does not close or shorten the gap.
 
 ## Appendix A. Golden folders
 

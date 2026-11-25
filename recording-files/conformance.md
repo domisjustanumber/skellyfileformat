@@ -60,7 +60,10 @@ This list is normative. The license of the text is Apache-2.0 ([LICENSE](../LICE
     counts of SFF-885 are the exception. The adapter does not decode pixels or audio samples. It
     gives the stored bytes and the timing, and a test decodes with PyAV;
   - the writer: `TakeWriter` (with `write_frame`, `write_audio`, `add_warning` and `close`),
-    `repair_take` and `release_check`.
+    `repair_take` and `release_check`;
+  - for the v1 camera files (a draft for gate 1), the detail functions `legacy_media` and
+    `legacy_frame_at`
+    ([Legacy v1 camera files](#legacy-v1-camera-files-section-21-continued)).
 - The JavaScript adapter is a command that takes a folder and the switch `--records`. It writes the
   `player` result of SFF-892 as canonical JSON to standard output, and no other byte.
 - The writer of the adapter writes only what a capture or a conversion needs: the camera files, the
@@ -1528,3 +1531,102 @@ camera 2 of the case `take`, and null for camera 0. For `last_frame=none`, it gi
 each other camera, and null for the two `detail` texts that do not parse. In the case `no_block`,
 `camera_lost_at` gives 0 for camera 1. The reader result of each copy is the committed result of
 G18: the codes of SFF-727 are not warnings of the reader result.
+
+### Legacy v1 camera files (section 21, continued)
+
+These tests are for SFF-896 to SFF-903
+([ADR-3XYN](decisions/entries/3XYN-v1-camera-file-rules-move-to-recording-files.md),
+[ADR-91PB](decisions/entries/91PB-choices-for-the-v1-camera-file-rules.md)). They are a draft for
+review at gate 1. The approval of gate 2 for stage 1 does not cover them. Each one starts with the
+word "Draft" before its ID, and it has no runnable test and no stage yet. At gate 2, the word goes,
+each test gets its runnable test and its row in [The stage of each test](#the-stage-of-each-test),
+and the checks of `tools/` then apply to it.
+
+- The tests reach a reader through two detail functions of the Python adapter.
+  `legacy_media(folder)` gives the refusal of the folder (SFF-896), the camera files, the frame
+  table and the frame count of each camera file, the state of each time file with its reason, the
+  codes of SFF-897 to SFF-900, K, B, T_k, the camera times with their estimate marks, and r.
+  `legacy_frame_at(folder, t_ns)` gives the multi-camera frame at the play time t (SFF-903). When the
+  implementation is in JavaScript, the JavaScript adapter gives the same facts with the command
+  `node <folder>/bin/legacy-media.mjs <folder> [--at <t_ns>]`. The shapes of these functions are
+  decided at gate 2.
+- Each test makes its inputs at test time in a temporary folder, with PyAV `av==19.0.2` (the pin of
+  the group `golden`). No input is committed. These tests decode no frame, so the pictures do not
+  matter. Each expected value comes from the boxes and the values that the test wrote.
+
+**Draft SFT-774** Reader: the camera files of a legacy folder and the refused folders
+Checks: SFF-896
+Input: legacy folders with MP4 files of 3 frames each in `synchronized_videos/`: the v1 names
+`Camera_000_synchronized.mp4` and `Camera_001_synchronized.mp4`; names of the form of the sample
+data, `sesh_test_synced_Cam1.mp4` and `sesh_test_synced_Cam2.mp4`; one file
+`Camera_000_synchronized.MP4`; a v2 alpha folder with `take.id-0.idx-0.mp4` and
+`take.id-1.idx-1.mp4`; the same v2 alpha folder with `Camera_000_synchronized.mp4` added; a v0.1.0
+folder with `Camera_000.mp4` and `timestamps/Camera_000_binary.npy`; a folder with only
+`synchronized_videos/notes.txt`.
+Pass: the first three folders have the camera files of their names, and the `.MP4` file is a camera
+file. Both v2 alpha folders are refused, with a message that says that FreeMoCap v2 alpha recordings
+are not supported, and no camera file of them is read. The v0.1.0 folder is not refused. The test
+checks nothing else of it. The last folder has no camera file, and the reader reports that it is not
+a FreeMoCap v1 recording. The reader result of each folder (SPEC.md section 23) is the result that
+SFF-875 to SFF-880 give: these rules change no member of it.
+
+**Draft SFT-775** Reader: the time file
+Checks: SFF-897
+Input: a v1 folder with one camera file of 6 frames, and copies of it with each of these time files:
+a valid file in each of the NPY versions 1.0, 2.0 and 3.0; no file; a wrong magic; a header
+dictionary that does not parse; `descr` `'<f4'`; `descr` `'>f8'`; `fortran_order` `True`; the shape
+`(6, 1)`; the shape `(5,)`; the shape `(6,)` with only 5 values after the header. The values of the
+valid files are 1000000000.4, 1000000000.5, NaN, 1000000033, 1000000033 and +infinity.
+Pass: each valid file is usable, with the values 1000000000, 1000000001, no time, 1000000033,
+1000000033 and no time. The two frames with the time 1000000033 are two frames. Each other file is
+not usable, and the reader reports `time_file_unusable` with these reasons, in the order of the
+input: `missing`, `bad_header`, `bad_header`, `dtype`, `dtype`, `shape`, `shape`, `length` and
+`length`.
+
+**Draft SFT-776** Reader: the frame table and the edit list
+Checks: SFF-898
+Input: MP4 files of one video track that the test writes, and copies whose boxes the test rewrites
+after the mux: `mp4v` with GOP 12 and no B-frames, with `moov` at the end (the v1 form), 30 frames;
+H.264 with B-frames, GOP 30 and an edit with a media time above 0, 150 frames; a copy of that file
+whose `elst` keeps the frames from the CTS of frame 40 up to the CTS of frame 140 (not included),
+both in the middle of a GOP; a copy with a leading empty edit of 1 s, with a `mvhd` time scale of
+1000 and a `mdhd` time scale of 15360; a copy with two non-empty edits; a copy with a media rate of
+2; a copy with no `stss`; a copy with `co64` in place of `stco`; a file with two video tracks; an
+`mp4v` file with `moov` first, cut in the middle of the bytes of its frame 20.
+Pass: for each file that the reader reads, the frame table and the sample list equal the tables
+that the test computes from the boxes that it wrote: the number of frames, and for each frame the
+frame time stamp, the position in the sample list, the key flag, the byte offset and the size. The
+copy with the cut edit has 100 frames, and its sample list also holds the samples outside the edit.
+The copy with the empty edit has E = 15360. In the copy with no `stss`, each frame is a key frame.
+The reader does not read the copies with two non-empty edits and with a media rate of 2, and it
+reports `edit_list_not_supported` for them. The file with two video tracks gives the frames of its
+first video track and `extra_tracks`. The cut file has the frame count 20.
+
+**Draft SFT-777** Reader: the comparison with the index of a demuxer
+Checks: SFF-899
+Input: each file of SFT-776 that the reader reads; for two of them, copies of the index of the PyAV
+demuxer that the test changes: one with the last kept frame removed, and one with one time stamp
+plus 1.
+Pass: for each file, the frames that the PyAV demuxer gives with no discard flag equal the frame
+table, by number and by time stamp, after the subtraction of the time stamp of frame 0. A reader
+that compares a demuxer index takes the index of PyAV in this test. It reads each file with the
+index of PyAV. With each changed index, it does not read the file, and it reports `index_mismatch`.
+
+**Draft SFT-778** Reader: the multi-camera frames and the time map
+Checks: SFF-900, SFF-901, SFF-902, SFF-903
+Input: v1 folders of 3 cameras, with these time files and frame counts:
+(a) 10 frames each, with time files whose values are about 33.3 ms apart and differ between the
+cameras by a few ms; (b) as (a), with a gap of 2 s after frame 5; (c) as (a), with the frame counts
+10, 9 and 10; (d) as (a), with no time file for camera 2; (e) as (a), with NaN at frame 0 of each
+camera, NaN at frame 4 of each camera, and a mean at frame 7 below the mean at frame 6; (f) no time
+files, with the header rates 30, 30000/1001 and 25; (g) no time files, with only cameras 0 and 1, at
+30 and 25; (h) no time files, with the frame counts 1, 10 and 10, at 30 each; (i) no time files, with
+one camera whose `stts` has two entries.
+Pass: K is 10, and 9 for (c). (c) gives `frame_count_differs` with the counts 10, 9 and 10. B, T_k
+and the camera times equal the values that the test computes by SFF-901. In (e), j is 1, T_0 = 0,
+T_4 = T_3 and T_7 = T_6. In (d), camera 2 has the camera time T_k with an estimate mark. r is the
+median header rate of each folder: 30000/1001 in (f) and 55/2 in (g). In (f) and (g), T_k is
+k × 10^9 / r with the rounding of SFF-902, and each time has an estimate mark. In (h), K is 1, T_0 is
+0, and r is 30. In (i), r_c follows SFF-902, not the rate of the first `stts` entry. For each folder,
+`legacy_frame_at` gives the frame with the largest T_k ≤ t, for t at each T_k and 1 ns before each
+T_k. In (b), it gives frame 5 for each t from T_5 to T_6 − 1, a span of about 2 s.
