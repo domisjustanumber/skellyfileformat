@@ -1,6 +1,6 @@
 # VS9Z — The converter cases keep the mark `stage1a`
 
-**Status:** proposed, 2026-11-26 (agent; the text change of [ADR-A8Y2](../../../decisions/entries/A8Y2-skellysync-is-the-only-converter-of-old-recordings.md)).
+**Status:** absorbed into [`conformance.md#the-stage-of-each-test`](../../conformance.md#the-stage-of-each-test), 2026-11-26 (commit on dom/v1-player-rules; was accepted, 2026-11-26 (user; answer Q858, [ADR-SY2H](SY2H-answers-q858-to-q861-converter-cases-and-legacy-readers.md)); was proposed, 2026-11-26 (agent; the text change of [ADR-A8Y2](../../../decisions/entries/A8Y2-skellysync-is-the-only-converter-of-old-recordings.md))).
 
 ## Decision
 

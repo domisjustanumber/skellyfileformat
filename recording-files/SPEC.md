@@ -2462,7 +2462,7 @@ hash.)
 
 The rules of [ADR-CZQ9](decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md)
 apply. This section tells how a reader recognises a legacy folder and what it reports. The code that
-reads the old files is in skellycam and freemocap. The informative
+reads the old files is in skellycam, skellysync and freemocap ([ADR-SY2H](decisions/entries/SY2H-answers-q858-to-q861-converter-cases-and-legacy-readers.md)). The informative
 [legacy annex](legacy-annex.md) describes the files of each layout.
 
 This section also gives the rules to read the camera files and the time files of a FreeMoCap v1

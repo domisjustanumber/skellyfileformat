@@ -139,7 +139,7 @@ This list is normative. The license of the text is Apache-2.0 ([LICENSE](../LICE
 - The cases of the converter are in stage 1a: `names_and_layout[camera_key_0]` of SFT-705 and
   `video_sidecar[converter]` of SFT-717. They run through `TakeWriter` of the test adapter, in a
   conversion. The converter is that of skellysync. skellycam converts no recording ([ADR-A8Y2](../decisions/entries/A8Y2-skellysync-is-the-only-converter-of-old-recordings.md)).
-  These cases need no file of a later stage, so they keep the mark `stage1a` (proposed, [ADR-VS9Z](decisions/entries/VS9Z-converter-cases-keep-the-mark-stage1a.md)).
+  These cases need no file of a later stage, so they keep the mark `stage1a` ([ADR-VS9Z](decisions/entries/VS9Z-converter-cases-keep-the-mark-stage1a.md)).
   The skellysync folders (G17, SFT-760) are in stage 1b
   ([ADR-YT1F](decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
   item 2).

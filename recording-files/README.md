@@ -41,7 +41,7 @@ incomplete), and how a reader recognises a legacy folder of freemocap v1.x
 rules to read the camera files and the time files of a v1 folder: the frame table, the time map and
 the folders that a reader refuses (SPEC.md SFF-896 to SFF-903, a draft for gate 1,
 [ADR-3XYN](decisions/entries/3XYN-v1-camera-file-rules-move-to-recording-files.md)). The code that
-reads legacy folders stays in skellycam and freemocap.
+reads legacy folders stays in skellycam, skellysync and freemocap ([ADR-SY2H](decisions/entries/SY2H-answers-q858-to-q861-converter-cases-and-legacy-readers.md)).
 
 ## Compatibility promise (normative)
 

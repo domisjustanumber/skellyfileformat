@@ -28,7 +28,6 @@ These entries wait for a decision of the user. Section is the section or area of
 
 | # | Decision | Section | Status |
 |---|----------|---------|--------|
-| [VS9Z](entries/VS9Z-converter-cases-keep-the-mark-stage1a.md) | The converter cases of SFT-705 and SFT-717 keep the mark `stage1a`; they stand for the converter of skellysync | `conformance.stages` | proposed |
 
 The entries that are `rejected`, `superseded by XXXX`, `absorbed into <path>#<anchor>`,
 `evidence; used by XXXX` or `done` are in [historical.md](historical.md).
