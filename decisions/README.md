@@ -22,6 +22,7 @@ These entries are `accepted` or `evidence`.
 | # | Decision | Status |
 |---|----------|--------|
 | [YYP7](entries/YYP7-skellyspecs-one-repository-for-the-specs.md) | skellyspecs: four spec folders as modules, entry placement, rename edit, Apache-2.0 only, import from skellytracker | accepted |
+| [NB40](entries/NB40-lf-line-ends-for-each-text-file.md) | LF line ends for each text file: `* text=auto eol=lf` first in `.gitattributes`; the golden files stay `-text` | accepted |
 
 ### Proposed
 

@@ -1,2 +1,5 @@
+# Each text file has LF line ends in the index and in the working tree (decision NB40).
+* text=auto eol=lf
 # The golden files are compared byte for byte (decision G21H item 9). Git must not change a line end.
+# This line comes after the general rule, so it wins for the golden files.
 recording-files/golden/** -text
