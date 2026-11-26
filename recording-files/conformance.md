@@ -29,7 +29,8 @@ This list is normative. The license of the text is Apache-2.0 ([LICENSE](../LICE
   (`<case>.full.json`), byte for byte
   ([ADR-0JVZ](decisions/entries/0JVZ-spec-v2-details-part-9.md) item 21).
 - "skellycam" in an Input line is `TakeWriter` of the test adapter, with synthetic input. "The
-  converter" is that `TakeWriter` in a conversion. The repair is `repair_take` of the test adapter
+  converter" is that `TakeWriter` in a conversion. It stands for the converter of skellysync, the
+  only converter of old recordings ([ADR-A8Y2](../decisions/entries/A8Y2-skellysync-is-the-only-converter-of-old-recordings.md)). The repair is `repair_take` of the test adapter
   ([ADR-QH61](decisions/entries/QH61-spec-v2-details-part-15.md) item 46, [ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md)).
 - A test, or a Pass sentence, is **external** when it needs a run of freemocap, a run of the
   Blender addon, capture hardware or an answer of a user. Its mark is `(external: <program>)`.
@@ -93,8 +94,8 @@ This list is normative. The license of the text is Apache-2.0 ([LICENSE](../LICE
 - The "stage" of a test is its mark: a label that tells which program and which need the test
   serves. It is not a build stage. Each implementing repository plans its own build
   ([ADR-CPM2](decisions/entries/CPM2-stages-of-the-implementation.md), [ADR-YBT1](../decisions/entries/YBT1-spec-only-test-adapter-and-labels.md) item 4). Stage 1
-  is the recording. It has two parts: 1a is the recording and playback of skellycam, with its
-  converter, and 1b is the skellysync folders. Stage 2 is the realtime capture: the calibration
+  is the recording. It has two parts: 1a is the recording and playback of skellycam and the
+  cases of the converter, and 1b is the skellysync folders. Stage 2 is the realtime capture: the calibration
   TOML, the Parquet, the journal and each reader check that needs them. Stage 3 is the posthoc
   capture of freemocap. Stage 4 is the Blender addon. This list and SPEC.md stay whole documents.
   The user approves gate 2 for each stage ([AGENTS.md](AGENTS.md#3-project-rules)).
@@ -137,7 +138,9 @@ This list is normative. The license of the text is Apache-2.0 ([LICENSE](../LICE
   item 1).
 - The cases of the converter are in stage 1a: `names_and_layout[camera_key_0]` of SFT-705 and
   `video_sidecar[converter]` of SFT-717. They run through `TakeWriter` of the test adapter, in a
-  conversion. The use of the converter by skellysync is in stage 1b
+  conversion. The converter is that of skellysync. skellycam converts no recording ([ADR-A8Y2](../decisions/entries/A8Y2-skellysync-is-the-only-converter-of-old-recordings.md)).
+  These cases need no file of a later stage, so they keep the mark `stage1a` (proposed, [ADR-VS9Z](decisions/entries/VS9Z-converter-cases-keep-the-mark-stage1a.md)).
+  The skellysync folders (G17, SFT-760) are in stage 1b
   ([ADR-YT1F](decisions/entries/YT1F-stage-1a-converter-blender-g1-copies-and-golden-checks.md)
   item 2).
 - `recording-files/tests/conformance/conftest.py` gives each runnable test the mark `stage1a`, `stage1b`, `stage2`,

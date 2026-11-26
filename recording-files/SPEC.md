@@ -545,7 +545,7 @@ Terms:
 | repaired file | An unfinished file that a repair changed into a finished file (section 12), or a file that the program that recorded the take completed (SFF-894). |
 | `missing` row | A row of a video sidecar with the flag `missing`: the camera gave no usable frame for it (SFF-756). |
 | placeholder | The black JPEG in the block of a `missing` row (SFF-756). |
-| writer | A program that writes files of this format. A writer with live capture is a **capture writer** (skellycam). A writer that makes files from other files is a **conversion writer** (the skellycam converter, skellysync). freemocap writes the folder files. |
+| writer | A program that writes files of this format. A writer with live capture is a **capture writer** (skellycam). A writer that makes files from other files is a **conversion writer** (skellysync, the only converter of old recordings; skellycam converts no recording, [ADR-A8Y2](../decisions/entries/A8Y2-skellysync-is-the-only-converter-of-old-recordings.md)). freemocap writes the folder files. |
 | reader | A program that reads files of this format. A player is a reader. |
 | host clock | The monotonic clock of the computer that recorded the take (section 11). |
 | take start | The time `take_start_host_ns`. Times in the CSV rows are relative to it. |
