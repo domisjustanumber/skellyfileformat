@@ -126,8 +126,9 @@ These are rules of the programs, not of the format
 [ADR-46NQ](../decisions/entries/46NQ-old-recordings-play-as-they-are-no-upgrade-converter.md),
 [ADR-A8Y2](../decisions/entries/A8Y2-skellysync-is-the-only-converter-of-old-recordings.md)).
 
-- New skellycam and freemocap keep reading each recording format that freemocap v1.0.25 to v1.8.2
-  and the current code write.
+- New skellycam, skellysync and freemocap keep reading each recording format that freemocap
+  v1.0.25 to v1.8.2 and the current code write
+  ([ADR-9SJA](../decisions/entries/9SJA-answer-q918-gate-1-wording-skellysync-reads-old-formats-lf-rule-place.md)).
 - skellycam plays old recordings as they are. It converts no old recording, and it has no legacy
   `<video>` path for old H.264 recordings. It has no "upgrade recording" converter. Its player reads
   the camera files of a v1 folder by SPEC.md SFF-896 to SFF-903.

@@ -39,8 +39,11 @@ the files share, the writing rules, how a reader opens a folder (also when it is
 incomplete), and how a reader recognises a legacy folder of freemocap v1.x
 ([ADR-CZQ9](decisions/entries/CZQ9-read-old-write-new-and-legacy-recognition.md)). It also gives the
 rules to read the camera files and the time files of a v1 folder: the frame table, the time map and
-the folders that a reader refuses (SPEC.md SFF-896 to SFF-903, a draft for gate 1,
-[ADR-3XYN](decisions/entries/3XYN-v1-camera-file-rules-move-to-recording-files.md)). The code that
+the folders that a reader refuses (SPEC.md SFF-896 to SFF-903, gate 1 approved on 2026-11-25,
+draft form until gate 2,
+[ADR-3XYN](decisions/entries/3XYN-v1-camera-file-rules-move-to-recording-files.md),
+[ADR-X7QP](decisions/entries/X7QP-gate-1-approval-of-the-v1-camera-file-rules.md),
+[ADR-9SJA](../decisions/entries/9SJA-answer-q918-gate-1-wording-skellysync-reads-old-formats-lf-rule-place.md)). The code that
 reads legacy folders stays in skellycam, skellysync and freemocap ([ADR-SY2H](decisions/entries/SY2H-answers-q858-to-q861-converter-cases-and-legacy-readers.md)).
 
 ## Compatibility promise (normative)
